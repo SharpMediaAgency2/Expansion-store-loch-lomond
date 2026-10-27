@@ -9,12 +9,22 @@
  */
 {
   "sections": {
-    "main": {
-      "type": "main-page",
-      "settings": {}
+    "wishlist-items": {
+      "type": "main-wishlist-items",
+      "settings": {
+        "color_schema": "accent",
+        "container_bg": "#f9fafb",
+        "heading": "Wishlist",
+        "subheading": "",
+        "description": "",
+        "count_suffix_singular": "item saved",
+        "count_suffix_plural": "items saved",
+        "continue_label": "Continue Shopping",
+        "continue_url": ""
+      }
     }
   },
   "order": [
-    "main"
+    "wishlist-items"
   ]
 }
