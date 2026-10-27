@@ -1,0 +1,466 @@
+{%- liquid
+  assign body_font_italic = settings.type_body_font | font_modify: 'style', 'italic'
+  assign body_font_bolder = settings.type_body_font | font_modify: 'weight', settings.body_font_weight_bolder | default: '500'
+  assign body_font_bolder_italic = body_font_bolder | font_modify: 'style', 'italic'
+  assign body_font_bold = settings.type_body_font | font_modify: 'weight', 'bold'
+  assign body_font_bold_italic = body_font_bold | font_modify: 'style', 'italic'
+
+  assign headings_font_italic = settings.type_header_font | font_modify: 'style', 'italic'
+
+  assign highlight_text_font = settings.highlight_text_font | default: 'heading'
+  assign mega_title_font = settings.mega_title_font | default: 'heading'
+
+  assign heading_font_mobile_ratio = settings.heading_mobile_scale | divided_by: 100.00
+-%}
+{%- style -%}
+  {{ settings.type_body_font | font_face: font_display: 'swap' }}
+  {{ body_font_bold | font_face: font_display: 'swap' }}
+  {{ body_font_bolder | font_face: font_display: 'swap' }}
+  {{ body_font_bolder_italic | font_face: font_display: 'swap' }}
+  {{ body_font_italic | font_face: font_display: 'swap' }}
+  {{ body_font_bold_italic | font_face: font_display: 'swap' }}
+  {{ settings.type_header_font | font_face: font_display: 'swap' }}
+  {{ headings_font_italic | font_face: font_display: 'swap' }}
+  {%- liquid
+    assign body_font_weight = settings.type_body_font.weight
+    assign heading_font_weight = settings.type_body_font.weight
+    assign btn_font_weight = settings.btn_font_weight
+    assign menu_font_weight = settings.menu_font_weight
+    assign pcard_title_font_weight = settings.pcard_title_font_weight
+    assign subheading_font_weight = settings.subheading_font_weight
+
+    if settings.btn_font == 'heading' and btn_font_weight != heading_font_weight
+      assign btn_font_extra_heading = settings.type_header_font | font_modify: 'weight', btn_font_weight
+      echo btn_font_extra_heading | font_face: font_display: 'swap'
+    endif
+
+    if settings.btn_font == 'body' and btn_font_weight != body_font_weight and btn_font_weight != '700'
+      assign btn_font_extra_body = settings.type_body_font | font_modify: 'weight', btn_font_weight
+      echo btn_font_extra_body | font_face: font_display: 'swap'
+    endif
+
+    if settings.menu_font == 'heading' and menu_font_weight != heading_font_weight
+      assign menu_font_extra_heading = settings.type_header_font | font_modify: 'weight', menu_font_weight
+      echo menu_font_extra_heading | font_face: font_display: 'swap'
+    endif
+
+    if settings.menu_font == 'body' and menu_font_weight != body_font_weight and menu_font_weight != '700'
+      assign menu_font_extra_body = settings.type_body_font | font_modify: 'weight', menu_font_weight
+      echo menu_font_extra_body | font_face: font_display: 'swap'
+    endif
+
+    if settings.pcard_title_font == 'heading' and pcard_title_font_weight != heading_font_weight
+      assign pcard_title_font_extra_heading = settings.type_header_font | font_modify: 'weight', pcard_title_font_weight
+      echo pcard_title_font_extra_heading | font_face: font_display: 'swap'
+    endif
+    if settings.pcard_title_font == 'body' and pcard_title_font_weight != body_font_weight and pcard_title_font_weight != '700'
+      assign pcard_title_font_extra_body = settings.type_body_font | font_modify: 'weight', pcard_title_font_weight
+      echo pcard_title_font_extra_body | font_face: font_display: 'swap'
+    endif
+
+    if settings.subheading_font == 'heading' and subheading_font_weight != heading_font_weight
+      assign subheading_font_extra_heading = settings.type_header_font | font_modify: 'weight', subheading_font_weight
+      echo subheading_font_extra_heading | font_face: font_display: 'swap'
+    endif
+
+    if settings.subheading_font == 'body' and subheading_font_weight != body_font_weight and subheading_font_weight != '700'
+      assign subheading_font_extra_body = settings.type_body_font | font_modify: 'weight', subheading_font_weight
+      echo subheading_font_extra_body | font_face: font_display: 'swap'
+    endif
+
+    if highlight_text_font == 'custom'
+      echo settings.highlight_text_custom_font | font_face: font_display: 'swap'
+    endif
+
+    if mega_title_font == 'custom'
+      assign mega_title_custom_font_italic = settings.mega_title_custom_font | font_modify: 'style', 'italic'
+
+      echo settings.mega_title_custom_font | font_face: font_display: 'swap'
+      echo mega_title_custom_font_italic | font_face: font_display: 'swap'
+    endif
+  -%}
+  :root {
+    --transform-origin-start: left;
+    --transform-origin-end: right;
+    --animation-duration: {{ settings.animation_duration | times: 1000 | floor }}ms;
+    --animation-zoom-fade: z-zoom-fade var(--animation-duration) cubic-bezier(0, 0, 0.3, 1) forwards;
+
+    --font-body-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    --font-body-style: {{ settings.type_body_font.style }};
+    --font-body-weight: {{ settings.type_body_font.weight }};
+    --font-body-weight-bolder: {{ settings.body_font_weight_bolder }};
+    --font-menu-weight: {{ settings.menu_font_weight }};
+    --font-btn-weight: {{ settings.btn_font_weight }};
+
+    --font-heading-family: {{ settings.type_header_font.family }}, {{ settings.type_header_font.fallback_families }};
+    --font-heading-style: {{ settings.type_header_font.style }};
+    --font-heading-weight: {{ settings.type_header_font.weight }};
+    --font-subheading-weight: {{ subheading_font_weight }};
+    --font-pcard-title-weight: {{ pcard_title_font_weight }};
+
+    {% if settings.btn_font == 'heading' %}
+      --font-btn-family: {{ settings.type_header_font.family }}, {{ settings.type_header_font.fallback_families }};
+    {% else %}
+      --font-btn-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    {% endif %}
+    {% if settings.menu_font == 'heading' %}
+      --font-menu-family: {{ settings.type_header_font.family }}, {{ settings.type_header_font.fallback_families }};
+    {% else %}
+      --font-menu-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    {% endif %}
+
+    {% if settings.subheading_font == 'heading' %}
+      --font-subheading-family: {{ settings.type_header_font.family }}, {{ settings.type_header_font.fallback_families }};
+    {% else %}
+      --font-subheading-family: {{ settings.type_body_font.family }}, {{ settings.type_body_font.fallback_families }};
+    {% endif %}
+
+    {% if highlight_text_font == 'custom' %}
+      --font-highlight-text-family: {{ settings.highlight_text_custom_font.family }}, {{ settings.highlight_text_custom_font.fallback_families }};
+      --font-highlight-text-weight: {{ settings.highlight_text_custom_font.weight }};
+      --font-highlight-text-style: {{ settings.highlight_text_custom_font.style }};
+    {% else %}
+      --font-highlight-text-family: {{ settings.type_header_font.family }}, {{ settings.type_header_font.fallback_families }};
+      --font-highlight-text-weight: {{ settings.type_header_font.weight }};
+      --font-highlight-text-style: {{ settings.type_header_font.style }};
+    {% endif %}
+
+    {% if mega_title_font == 'custom' %}
+      --font-mega-family: {{ settings.mega_title_custom_font.family }}, {{ settings.mega_title_custom_font.fallback_families }};
+      --font-mega-weight: {{ settings.mega_title_custom_font.weight }};
+      --font-mega-style: {{ settings.mega_title_custom_font.style }};
+    {% else %}
+      --font-mega-family: {{ settings.type_header_font.family }}, {{ settings.type_header_font.fallback_families }};
+      --font-mega-weight: {{ settings.type_header_font.weight }};
+      --font-mega-style: {{ settings.type_header_font.style }};
+    {% endif %}
+
+    --navigation-transform:{% if settings.upper_navigation %}uppercase{% else %}none{% endif %};
+    --btn-transform:{% if settings.upper_btn_label %}uppercase{% else %}none{% endif %};
+    --product-title-transform:{% if settings.pcard_upper_title %}uppercase{% else %}none{% endif %};
+    --font-heading-transform:{% if settings.heading_uppercase %}uppercase{% else %}none{% endif %};
+    --font-mega-transform:{% if settings.upper_mega_title %}uppercase{% else %}none{% endif %};
+    --font-subheading-transform: {{ settings.subheading_transform }};
+
+    --font-body-scale: {{ settings.body_scale | divided_by: 100.0 }};
+    --font-heading-scale: {{ settings.heading_scale | times: 1.0 | divided_by: settings.body_scale }};
+    --font-subheading-scale: {{ settings.subheading_scale | times: 1.0 | divided_by: settings.body_scale }};
+    --font-mega-scale: {{ settings.mega_title_scale | times: 1.0 | divided_by: settings.body_scale }};
+    --font-pcard-title-scale: {{ settings.pcard_title_scale | times: 1.0 | divided_by: settings.body_scale }};
+    --font-heading-spacing: {{ settings.heading_letter_spacing }}px;
+    --font-subheading-spacing: {{ settings.subheading_letter_spacing }}px;
+
+    --font-hxl-size: calc(var(--font-mega-scale) * 2rem);
+    --font-h0-size: calc(var(--font-heading-scale) * 4rem);
+    --font-h1-size: calc(var(--font-heading-scale) * 3.5rem);
+    --font-h2-size: calc(var(--font-heading-scale) * 3rem);
+    --font-h3-size: calc(var(--font-heading-scale) * 2.5rem);
+    --font-h4-size: calc(var(--font-heading-scale) * 2rem);
+    --font-h5-size: calc(var(--font-heading-scale) * 1.5rem);
+    --font-h6-size: calc(var(--font-heading-scale) * 1.25rem);
+    --font-subheading-size: calc(var(--font-subheading-scale) * 1.25rem);
+    --font-pcard-title-size: calc(var(--font-pcard-title-scale) * 1.25rem);
+
+    --font-heading-mobile-scale: {{ settings.heading_scale | times: heading_font_mobile_ratio | divided_by: settings.body_scale }};
+
+    --btn-height: {{ settings.btn_height | default: 42 | append: 'px' }};
+    --btn-rounded: {{ settings.btn_rounded | default: 3 | append: 'px' }};
+
+    --color-header-transparent-text: {{ settings.color_header_text_transparent }};
+    --color-cart-bubble: {{ settings.color_cart_bubble }};
+    --color-overlay-bg: {{ settings.color_overlay_bg }};
+    --color-overlay-alpha: {{ settings.color_overlay_alpha }};
+    --color-badge-sale: {{ settings.color_badge_sale }};
+    --color-badge-soldout: {{ settings.color_badge_soldout }};
+    --color-badge-hot: {{ settings.color_badge_hot }};
+    --color-badge-new: {{ settings.color_badge_new }};
+
+    --spacing-sections-desktop: 72px;
+    --spacing-sections-mobile: 40px;
+    --container-width: {{ settings.container_width }}px;
+    --fluid-container-width: 1680px;
+    --narrow-container-width: 750px;
+    --fluid-offset: 5rem;
+    --offset-margin: calc((100vw - var(--container-width)) / 2);
+    --arrow-down: url({{ 'ar-down.svg' | asset_url }});
+    --card-corner-radius: 0px;
+    --color-swatch-radius: {% if settings.color_swatches_shape == 'circle' %}50%{% else %}0{% endif %};
+    --color-swatch-size: 2rem;
+    --course-swatch-size: 80px;
+    --column-gap-mobile: min(var(--column-gap,1.5rem));
+    --header-padding-bottom-small: 2rem;
+    --header-padding-bottom: 2.5rem;
+    --header-padding-bottom-large: 6rem;
+    --header-padding-bottom-mobile: 3.2rem;
+  }
+  {%- liquid
+  assign scheme_classes = 'body'
+  assign md_down_scheme_classes = ''
+  assign lg_down_scheme_classes = ''
+  assign mobile_scheme_output = ''
+  assign tablet_scheme_output = ''
+-%}
+  {%- for scheme in settings.color_schemes -%}
+    {%- liquid
+      assign scheme_classes = scheme_classes | append: ', .color-' | append: scheme.id
+      
+      unless forloop.first
+        assign md_down_scheme_classes = md_down_scheme_classes | append: ','
+        assign lg_down_scheme_classes = lg_down_scheme_classes | append: ','
+      endunless
+
+      assign md_down_scheme_classes = md_down_scheme_classes | append: '.md-down\:color-' | append: scheme.id
+      assign lg_down_scheme_classes = lg_down_scheme_classes | append: '.lg-down\:color-' | append: scheme.id
+    -%}
+    {%- capture color_scheme_vars -%}
+      --color-primary: {{ scheme.settings.primary_accent }};
+      --color-border: {{ scheme.settings.border }};
+      --color-background: {{ scheme.settings.color_main_bg }};
+      --color-text-body: {{ scheme.settings.text }};
+      --color-text-heading: {{ scheme.settings.heading }};
+      --color-highlight: {{ scheme.settings.highlight_text }};
+      --color-link: {{ scheme.settings.text }};
+      --color-link-hover: {{ scheme.settings.text }};
+      --color-bg-1: {{ scheme.settings.color_main_bg }};
+      --color-bg-2: {{ scheme.settings.color_secondary_bg }};
+      --color-btn-bg: {{ scheme.settings.button }};
+      --color-btn-text: {{ scheme.settings.button_label }};
+      --color-btn-secondary-bg: {{ scheme.settings.secondary_button }};
+      --color-btn-secondary-border: {{ scheme.settings.secondary_button_border }};
+      --color-btn-secondary-text: {{ scheme.settings.secondary_button_label }};
+      --color-btn-bg-hover: {{ scheme.settings.button_hover }};
+      --color-btn-text-hover: {{ scheme.settings.button_label_hover }};
+      --color-field-bg: {{ scheme.settings.form_field }};
+      --color-field-text: {{ scheme.settings.form_field_label }};
+      --color-field-text-rgb: {{ scheme.settings.form_field_label.red }}, {{ scheme.settings.form_field_label.green }}, {{ scheme.settings.form_field_label.blue }};
+      --color-tooltip-bg: {{ scheme.settings.tooltip }};
+      --color-tooltip-text: {{ scheme.settings.tooltip_label }};
+      --color-product-title: {{ scheme.settings.heading }};
+      --color-product-price: {{ scheme.settings.price_regular }};
+      --color-header-bg: {{ scheme.settings.color_main_bg }};
+      --color-header-text: {{ scheme.settings.text }};
+      --color-menu-text: {{ scheme.settings.text }};
+      --color-menu-text-hover: {{ scheme.settings.text }};
+      --color-foreground: {{ scheme.settings.text.red }}, {{ scheme.settings.text.green }}, {{ scheme.settings.text.blue }};
+      --color-btn-before: {{ scheme.settings.button_hover | color_lighten: 20 }};
+    {%- endcapture -%}
+    {%- if forloop.first -%}
+      :root{
+        --color-base-text: {{ scheme.settings.text.red }}, {{ scheme.settings.text.green }}, {{ scheme.settings.text.blue }};
+        --color-base-heading: {{ scheme.settings.heading.red }}, {{ scheme.settings.heading.green }}, {{ scheme.settings.heading.blue }};
+        --color-base-primary: {{ scheme.settings.primary_accent.red }}, {{ scheme.settings.primary_accent.green }}, {{ scheme.settings.primary_accent.blue }};
+        --color-base-background-1: {{ scheme.settings.color_main_bg.red }}, {{ scheme.settings.color_main_bg.green }}, {{ scheme.settings.color_main_bg.blue }};
+        --color-base-background-2: {{ scheme.settings.color_secondary_bg.red }}, {{ scheme.settings.color_secondary_bg.green }}, {{ scheme.settings.color_secondary_bg.blue }};
+      }
+      :root,
+    {%- endif -%}
+    .color-{{ scheme.id }}, .tippy-box[data-theme~='color-{{ scheme.id }}'] {
+        {{ color_scheme_vars }}
+    }
+    {%- capture mobile_scheme_css -%}
+      body .md-down\:color-{{ scheme.id }} {
+        {{ color_scheme_vars }}
+      }
+    {%- endcapture -%}
+    {%- assign mobile_scheme_output = mobile_scheme_output | append: mobile_scheme_css -%}
+
+    {%- capture tablet_scheme_css -%}
+      body .lg-down\:color-{{ scheme.id }} {
+        {{ color_scheme_vars }}
+      }
+    {%- endcapture -%}
+    {%- assign tablet_scheme_output = tablet_scheme_output | append: tablet_scheme_css -%}
+  {%- endfor -%}
+
+  {{ scheme_classes }} {
+    color: var(--color-text-body);
+    background-color: var(--color-background);
+  }
+  @media screen and (max-width: 1023.98px) {
+    {{ lg_down_scheme_classes }} {
+      color: var(--color-text-body);
+      background-color: var(--color-background);
+    }
+    {{ tablet_scheme_output }}
+  }
+  @media screen and (max-width: 767.98px) {
+    {{ md_down_scheme_classes }} {
+      color: var(--color-text-body);
+      background-color: var(--color-background);
+    }
+    {{ mobile_scheme_output }}
+  }
+  *,
+  *::before,
+  *::after {
+    box-sizing: border-box;
+  }
+  html {
+    font-size: calc(var(--font-body-scale) * 62.5%);
+  }
+  body {
+    min-height: 100%;
+    font-size: 1rem;
+    margin: 0;
+    font-family: var(--font-body-family);
+    font-style: var(--font-body-style);
+    font-weight: var(--font-body-weight);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    line-height: calc(1 + 0.6 / var(--font-body-scale));
+    --font-body-size: 1rem;
+  }
+  h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .h0, .h-xl {
+    font-family: var(--font-heading-family);
+    font-style: var(--font-heading-style);
+    font-weight: var(--font-heading-weight);
+    text-transform: var(--font-heading-transform);
+    color: var(--color-text-heading);
+    line-height: calc(1 + 0.2 / max(1, var(--font-heading-scale)));
+    letter-spacing: var(--font-heading-spacing, 0px);
+    word-break: break-word;
+    margin: 0 0 1.2rem;
+  }
+  .h-xl {
+    font-family: var(--font-mega-family);
+    font-style: var(--font-mega-style);
+    font-weight: var(--font-mega-weight);
+    text-transform: var(--font-mega-transform, unset);
+  }
+  @media (max-width: 639px) {
+  	h1, h2, h3, h4, h5, h6, .h1, .h2, .h3, .h4, .h5, .h6, .h0, .h-xl {
+  		line-height: calc(1 + 0.2 / max(1, var(--font-heading-mobile-scale)));
+  	}
+  }
+  .h-xl {
+    font-size: calc(var(--font-mega-scale) * var(--font-heading-mobile-scale) * 1rem);
+  }
+  .h0 {
+    font-size: calc(var(--font-heading-mobile-scale) * var(--font-h0-size));
+  }
+  h1,.h1 {
+    font-size: calc(var(--font-heading-mobile-scale) * var(--font-h1-size));
+  }
+  h2,.h2 {
+    font-size: calc(var(--font-heading-mobile-scale) * var(--font-h2-size));
+  }
+  h3,.h3 {
+    font-size: calc(var(--font-heading-mobile-scale) * var(--font-h3-size));
+  }
+  h4,.h4 {
+    font-size: calc(var(--font-heading-mobile-scale) * var(--font-h4-size));
+  }
+  h5,.h5 {
+    font-size: calc(var(--font-heading-mobile-scale) * var(--font-h5-size));
+  }
+  h6,.h6 {
+    font-size: calc(var(--font-heading-mobile-scale) * var(--font-h6-size));
+  }
+  @media (min-width: 1024px) {
+    .h-xl {
+      font-size: var(--font-hxl-size);
+    }
+    .h0 {
+      font-size: var(--font-h0-size);
+    }
+    h1, .h1 {
+      font-size: var(--font-h1-size);
+    }
+    h2, .h2 {
+      font-size: var(--font-h2-size);
+    }
+    h3, .h3 {
+      font-size: var(--font-h3-size);
+    }
+    h4, .h4 {
+      font-size: var(--font-h4-size);
+    }
+    h5, .h5 {
+      font-size: var(--font-h5-size);
+    }
+    h6, .h6 {
+      font-size: var(--font-h6-size);
+    }
+  }
+
+  .flickity-button,
+  [template],
+  .hidden,
+  .tooltip,
+  [data-aria-hidden=true],
+  [hidden], .critical-hidden,
+  .site-header .critical-hidden, .topbar .critical-hidden, .announcement-bar .critical-hidden {
+    display: none
+  }
+  .block {
+    display: block;
+  }
+  .flex {
+    display: flex;
+  }
+  [style*="--aspect-ratio"] {
+    position: relative;
+    overflow: hidden;
+  }
+  [style*="--aspect-ratio"]:before {
+    content: "";
+    height: 0;
+    display: block;
+    padding-top: calc(100%/(0 + var(--aspect-ratio, 16/9)));
+  }
+  [style*="--aspect-ratio"]>:first-child {
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    position: absolute!important;
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+  }
+  @media (max-width: 639px) {
+    [style*="--aspect-ratio"]:before {
+      padding-top: calc(100%/(0 + var(--aspect-ratio-mobile, var(--aspect-ratio, 16/9))));
+    }
+  }
+  .overflow-hidden {
+    overflow: hidden;
+  }
+  .content-visibility-auto {
+    content-visibility: auto;
+  }
+  .h-full {
+    height: 100%;
+  }
+  .w-full {
+    width: 100%;
+  }
+  @media (max-width: {{ settings.fluid_container_width | plus: settings.fluid_offset | plus: settings.fluid_offset }}px) {
+    .container-fluid .flickity-wrapper:not(.flickity-controls-group) .flickity-button.previous {
+      left: calc(var(--button-size) + (1rem - var(--column-gap, 3rem) / 2)) !important;
+    }
+    .container-fluid .flickity-wrapper:not(.flickity-controls-group) .flickity-button.next {
+      right: calc(var(--button-size) + (1rem - var(--column-gap, 3rem) / 2)) !important;
+    }
+  }
+  .spr-container .spr-header-title {
+    font-size: var(--font-h2-size);
+  }
+
+  @media (max-width: 639px) {
+    .spr-container .spr-header-title {
+      font-size: calc(var(--font-heading-mobile-scale) * 3.4rem);
+    }
+    :root {
+      --color-swatch-size: 2.625rem;
+    }
+  }
+  {%- if request.path == '/challenge' -%}
+    .shopify-challenge__container {
+      padding: 100px 0;
+    }
+    .shopify-challenge__container .shopify-challenge__button {
+      margin: 15px auto;
+    }
+  {%- endif -%}
+{%- endstyle -%}

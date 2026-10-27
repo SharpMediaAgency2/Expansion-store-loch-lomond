@@ -1,0 +1,706 @@
+{% doc %}
+  @prompt
+    I need a table to show columns and rows 
+{% enddoc %}
+{% assign ai_gen_id = block.id | replace: '_', '' | downcase %}
+
+{% style %}
+  .ai-table-container-{{ ai_gen_id }} {
+    width: {{ block.settings.desktop_width_percent }}%;
+    max-width: 100%;
+    overflow-x: auto;
+    display: block;
+  }
+
+  .ai-table-{{ ai_gen_id }} {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: {{ block.settings.table_background }};
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+  }
+
+  .ai-table-{{ ai_gen_id }} th {
+    background-color: {{ block.settings.header_background }};
+    color: {{ block.settings.header_text_color }};
+    font-weight: {{ block.settings.header_font_weight }};
+    text-align: {{ block.settings.header_alignment }};
+    padding: {{ block.settings.cell_padding }}px;
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+  }
+
+  .ai-table-{{ ai_gen_id }} td {
+    color: {{ block.settings.cell_text_color }};
+    text-align: {{ block.settings.cell_alignment }};
+    padding: {{ block.settings.cell_padding }}px;
+    border: {{ block.settings.border_width }}px solid {{ block.settings.border_color }};
+  }
+
+  .ai-table-{{ ai_gen_id }} tbody tr:nth-child(even) {
+    {% if block.settings.enable_striped_rows %}
+      background-color: {{ block.settings.stripe_background }};
+    {% endif %}
+  }
+
+  .ai-table-{{ ai_gen_id }} tbody tr:hover {
+    {% if block.settings.enable_row_hover %}
+      background-color: {{ block.settings.hover_background }};
+    {% endif %}
+  }
+
+  @media screen and (max-width: 749px) {
+    .ai-table-{{ ai_gen_id }} {
+      font-size: {{ block.settings.mobile_font_size }}px;
+    }
+
+    .ai-table-{{ ai_gen_id }} th,
+    .ai-table-{{ ai_gen_id }} td {
+      padding: {{ block.settings.mobile_cell_padding }}px;
+    }
+  }
+{% endstyle %}
+
+<div class="ai-table-container-{{ ai_gen_id }}" {{ block.shopify_attributes }}>
+  <table class="ai-table-{{ ai_gen_id }}">
+    {% if block.settings.show_header %}
+      <thead>
+        <tr>
+          {% if block.settings.header_col_1 != blank %}
+            <th>{{ block.settings.header_col_1 }}</th>
+          {% endif %}
+          {% if block.settings.header_col_2 != blank %}
+            <th>{{ block.settings.header_col_2 }}</th>
+          {% endif %}
+          {% if block.settings.header_col_3 != blank %}
+            <th>{{ block.settings.header_col_3 }}</th>
+          {% endif %}
+          {% if block.settings.header_col_4 != blank %}
+            <th>{{ block.settings.header_col_4 }}</th>
+          {% endif %}
+          {% if block.settings.header_col_5 != blank %}
+            <th>{{ block.settings.header_col_5 }}</th>
+          {% endif %}
+        </tr>
+      </thead>
+    {% endif %}
+    <tbody>
+      {% for i in (1..10) %}
+        {% assign row_enabled_key = 'row_' | append: i | append: '_enabled' %}
+        {% assign row_enabled = block.settings[row_enabled_key] %}
+        
+        {% if row_enabled %}
+          <tr>
+            {% for j in (1..5) %}
+              {% assign cell_key = 'row_' | append: i | append: '_col_' | append: j %}
+              {% assign cell_value = block.settings[cell_key] %}
+              {% if cell_value != blank %}
+                <td>{{ cell_value }}</td>
+              {% endif %}
+            {% endfor %}
+          </tr>
+        {% endif %}
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+
+{% schema %}
+{
+  "name": "Data table",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Table structure"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_header",
+      "label": "Show header row",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "header_col_1",
+      "label": "Header column 1",
+      "default": "Column 1"
+    },
+    {
+      "type": "text",
+      "id": "header_col_2",
+      "label": "Header column 2",
+      "default": "Column 2"
+    },
+    {
+      "type": "text",
+      "id": "header_col_3",
+      "label": "Header column 3",
+      "default": "Column 3"
+    },
+    {
+      "type": "text",
+      "id": "header_col_4",
+      "label": "Header column 4"
+    },
+    {
+      "type": "text",
+      "id": "header_col_5",
+      "label": "Header column 5"
+    },
+    {
+      "type": "header",
+      "content": "Row 1"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_1_enabled",
+      "label": "Enable row 1",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "row_1_col_1",
+      "label": "Column 1",
+      "default": "Data 1"
+    },
+    {
+      "type": "text",
+      "id": "row_1_col_2",
+      "label": "Column 2",
+      "default": "Data 2"
+    },
+    {
+      "type": "text",
+      "id": "row_1_col_3",
+      "label": "Column 3",
+      "default": "Data 3"
+    },
+    {
+      "type": "text",
+      "id": "row_1_col_4",
+      "label": "Column 4"
+    },
+    {
+      "type": "text",
+      "id": "row_1_col_5",
+      "label": "Column 5"
+    },
+    {
+      "type": "header",
+      "content": "Row 2"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_2_enabled",
+      "label": "Enable row 2",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "row_2_col_1",
+      "label": "Column 1",
+      "default": "Data 1"
+    },
+    {
+      "type": "text",
+      "id": "row_2_col_2",
+      "label": "Column 2",
+      "default": "Data 2"
+    },
+    {
+      "type": "text",
+      "id": "row_2_col_3",
+      "label": "Column 3",
+      "default": "Data 3"
+    },
+    {
+      "type": "text",
+      "id": "row_2_col_4",
+      "label": "Column 4"
+    },
+    {
+      "type": "text",
+      "id": "row_2_col_5",
+      "label": "Column 5"
+    },
+    {
+      "type": "header",
+      "content": "Row 3"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_3_enabled",
+      "label": "Enable row 3",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "row_3_col_1",
+      "label": "Column 1",
+      "default": "Data 1"
+    },
+    {
+      "type": "text",
+      "id": "row_3_col_2",
+      "label": "Column 2",
+      "default": "Data 2"
+    },
+    {
+      "type": "text",
+      "id": "row_3_col_3",
+      "label": "Column 3",
+      "default": "Data 3"
+    },
+    {
+      "type": "text",
+      "id": "row_3_col_4",
+      "label": "Column 4"
+    },
+    {
+      "type": "text",
+      "id": "row_3_col_5",
+      "label": "Column 5"
+    },
+    {
+      "type": "header",
+      "content": "Row 4"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_4_enabled",
+      "label": "Enable row 4",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "row_4_col_1",
+      "label": "Column 1"
+    },
+    {
+      "type": "text",
+      "id": "row_4_col_2",
+      "label": "Column 2"
+    },
+    {
+      "type": "text",
+      "id": "row_4_col_3",
+      "label": "Column 3"
+    },
+    {
+      "type": "text",
+      "id": "row_4_col_4",
+      "label": "Column 4"
+    },
+    {
+      "type": "text",
+      "id": "row_4_col_5",
+      "label": "Column 5"
+    },
+    {
+      "type": "header",
+      "content": "Row 5"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_5_enabled",
+      "label": "Enable row 5",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "row_5_col_1",
+      "label": "Column 1"
+    },
+    {
+      "type": "text",
+      "id": "row_5_col_2",
+      "label": "Column 2"
+    },
+    {
+      "type": "text",
+      "id": "row_5_col_3",
+      "label": "Column 3"
+    },
+    {
+      "type": "text",
+      "id": "row_5_col_4",
+      "label": "Column 4"
+    },
+    {
+      "type": "text",
+      "id": "row_5_col_5",
+      "label": "Column 5"
+    },
+    {
+      "type": "header",
+      "content": "Row 6"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_6_enabled",
+      "label": "Enable row 6",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "row_6_col_1",
+      "label": "Column 1"
+    },
+    {
+      "type": "text",
+      "id": "row_6_col_2",
+      "label": "Column 2"
+    },
+    {
+      "type": "text",
+      "id": "row_6_col_3",
+      "label": "Column 3"
+    },
+    {
+      "type": "text",
+      "id": "row_6_col_4",
+      "label": "Column 4"
+    },
+    {
+      "type": "text",
+      "id": "row_6_col_5",
+      "label": "Column 5"
+    },
+    {
+      "type": "header",
+      "content": "Row 7"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_7_enabled",
+      "label": "Enable row 7",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "row_7_col_1",
+      "label": "Column 1"
+    },
+    {
+      "type": "text",
+      "id": "row_7_col_2",
+      "label": "Column 2"
+    },
+    {
+      "type": "text",
+      "id": "row_7_col_3",
+      "label": "Column 3"
+    },
+    {
+      "type": "text",
+      "id": "row_7_col_4",
+      "label": "Column 4"
+    },
+    {
+      "type": "text",
+      "id": "row_7_col_5",
+      "label": "Column 5"
+    },
+    {
+      "type": "header",
+      "content": "Row 8"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_8_enabled",
+      "label": "Enable row 8",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "row_8_col_1",
+      "label": "Column 1"
+    },
+    {
+      "type": "text",
+      "id": "row_8_col_2",
+      "label": "Column 2"
+    },
+    {
+      "type": "text",
+      "id": "row_8_col_3",
+      "label": "Column 3"
+    },
+    {
+      "type": "text",
+      "id": "row_8_col_4",
+      "label": "Column 4"
+    },
+    {
+      "type": "text",
+      "id": "row_8_col_5",
+      "label": "Column 5"
+    },
+    {
+      "type": "header",
+      "content": "Row 9"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_9_enabled",
+      "label": "Enable row 9",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "row_9_col_1",
+      "label": "Column 1"
+    },
+    {
+      "type": "text",
+      "id": "row_9_col_2",
+      "label": "Column 2"
+    },
+    {
+      "type": "text",
+      "id": "row_9_col_3",
+      "label": "Column 3"
+    },
+    {
+      "type": "text",
+      "id": "row_9_col_4",
+      "label": "Column 4"
+    },
+    {
+      "type": "text",
+      "id": "row_9_col_5",
+      "label": "Column 5"
+    },
+    {
+      "type": "header",
+      "content": "Row 10"
+    },
+    {
+      "type": "checkbox",
+      "id": "row_10_enabled",
+      "label": "Enable row 10",
+      "default": false
+    },
+    {
+      "type": "text",
+      "id": "row_10_col_1",
+      "label": "Column 1"
+    },
+    {
+      "type": "text",
+      "id": "row_10_col_2",
+      "label": "Column 2"
+    },
+    {
+      "type": "text",
+      "id": "row_10_col_3",
+      "label": "Column 3"
+    },
+    {
+      "type": "text",
+      "id": "row_10_col_4",
+      "label": "Column 4"
+    },
+    {
+      "type": "text",
+      "id": "row_10_col_5",
+      "label": "Column 5"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "desktop_width_percent",
+      "label": "Desktop width",
+      "min": 50,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "default": 100
+    },
+    {
+      "type": "header",
+      "content": "Header style"
+    },
+    {
+      "type": "color",
+      "id": "header_background",
+      "label": "Background",
+      "default": "#222f1d"
+    },
+    {
+      "type": "color",
+      "id": "header_text_color",
+      "label": "Text color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "select",
+      "id": "header_font_weight",
+      "label": "Font weight",
+      "options": [
+        {
+          "value": "400",
+          "label": "Normal"
+        },
+        {
+          "value": "500",
+          "label": "Medium"
+        },
+        {
+          "value": "600",
+          "label": "Semi-bold"
+        },
+        {
+          "value": "700",
+          "label": "Bold"
+        }
+      ],
+      "default": "600"
+    },
+    {
+      "type": "select",
+      "id": "header_alignment",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "header",
+      "content": "Cell style"
+    },
+    {
+      "type": "color",
+      "id": "table_background",
+      "label": "Background",
+      "default": "#ffffff"
+    },
+    {
+      "type": "color",
+      "id": "cell_text_color",
+      "label": "Text color",
+      "default": "#262626"
+    },
+    {
+      "type": "select",
+      "id": "cell_alignment",
+      "label": "Alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "Left"
+        },
+        {
+          "value": "center",
+          "label": "Center"
+        },
+        {
+          "value": "right",
+          "label": "Right"
+        }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "range",
+      "id": "cell_padding",
+      "label": "Cell padding",
+      "min": 8,
+      "max": 32,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "header",
+      "content": "Border"
+    },
+    {
+      "type": "range",
+      "id": "border_width",
+      "label": "Border width",
+      "min": 0,
+      "max": 4,
+      "step": 1,
+      "unit": "px",
+      "default": 1
+    },
+    {
+      "type": "color",
+      "id": "border_color",
+      "label": "Border color",
+      "default": "#d1d1d1"
+    },
+    {
+      "type": "header",
+      "content": "Row effects"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_striped_rows",
+      "label": "Enable striped rows",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "stripe_background",
+      "label": "Stripe background",
+      "default": "#f9fafb"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_row_hover",
+      "label": "Enable row hover",
+      "default": true
+    },
+    {
+      "type": "color",
+      "id": "hover_background",
+      "label": "Hover background",
+      "default": "#eff2ee"
+    },
+    {
+      "type": "header",
+      "content": "Mobile"
+    },
+    {
+      "type": "range",
+      "id": "mobile_font_size",
+      "label": "Font size",
+      "min": 10,
+      "max": 16,
+      "step": 1,
+      "unit": "px",
+      "default": 14
+    },
+    {
+      "type": "range",
+      "id": "mobile_cell_padding",
+      "label": "Cell padding",
+      "min": 4,
+      "max": 16,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    }
+  ],
+  "presets": [
+    {
+      "name": "Data table"
+    }
+  ]
+}
+{% endschema %}

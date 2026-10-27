@@ -1,0 +1,688 @@
+{%- liquid
+  assign enable_rtl = settings.enable_rtl
+  assign language_support_rtl = settings.language_support_rtl
+  if enable_rtl and language_support_rtl != blank
+    assign shop_locale = localization.language.iso_code
+    assign language_support_rtl_list = language_support_rtl | split: ','
+    assign is_rtl = language_support_rtl_list | where: shop_locale
+    if is_rtl.size > 0
+      assign enable_rtl = true
+    else
+      assign enable_rtl = false
+    endif
+  endif
+-%}
+<!doctype html>
+<html
+  class="no-js"
+  lang="{{ request.locale.iso_code }}"
+  {% if enable_rtl %}
+    dir="rtl"
+  {% endif %}
+>
+  
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Rubik:ital,wght@0,300;1,300&display=swap" rel="stylesheet">
+  <head>
+<script>
+        !function(w,d,s,t,a){if(w.amzn)return;w.amzn=a=function(){w.amzn.q.push([arguments,(new Date).getTime()])};a.q=[];a.version="0.0";s=d.createElement("script");s.src="https://c.amazon-adsystem.com/aat/amzn.js";s.id="amzn-pixel";s.async=true;t=d.getElementsByTagName("script")[0];t.parentNode.insertBefore(s,t)}(window,document);
+        amzn("setRegion", "NA");
+        amzn("addTag", "075fbbf1-9970-4262-b5fa-7f42a3eaa3ad");
+        amzn("trackEvent", "level_3_evaluation");
+  </script>
+
+
+{% render 'visually_io_sdk' %}
+
+    <!-- Google Tag Manager -->
+    <script>
+    (function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
+    new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
+    j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
+    'https://www.googletagmanager.com/gtm.js?id='+i+dl;f.parentNode.insertBefore(j,f);
+    })(window,document,'script','dataLayer','GTM-5XMHLKHZ');
+    </script>
+    <!-- End Google Tag Manager -->
+
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <meta name="theme-color" content="">
+    <link rel="canonical" href="{{ canonical_url }}">
+    <link rel="preconnect" href="https://cdn.shopify.com" crossorigin>
+
+    {%- if settings.favicon != blank -%}
+      <link
+        rel="icon"
+        type="image/png"
+        href="{{ settings.favicon | image_url: width: 32, height: 32 }}"
+      >
+    {%- endif -%}
+
+    {%- unless settings.type_header_font.system?
+      and settings.type_body_font.system?
+    -%}
+      <link rel="preconnect" href="https://fonts.shopifycdn.com" crossorigin>
+    {%- endunless -%}
+
+    <title>
+      {{ page_title }}
+      {%- if current_tags %}
+        &ndash; tagged "{{ current_tags | join: ', ' }}"
+      {%- endif -%}
+      {%- if current_page != 1 %} &ndash; Page {{ current_page }}{% endif -%}
+      {%- unless page_title contains shop.name %}
+        &ndash; {{ shop.name -}}
+      {%- endunless -%}
+    </title>
+
+    {%- if page_description -%}
+      <meta name="description" content="{{ page_description | escape }}">
+    {%- endif -%}
+
+    {% render 'meta-tags' %}
+    {% render 'critical-css' %}
+    {{ 'theme.css' | asset_url | stylesheet_tag }}
+    {{ 'custom.css' | asset_url | stylesheet_tag }}
+    {{ 'base.css' | asset_url | stylesheet_tag }}
+    {{ 'grid.css' | asset_url | stylesheet_tag }}
+    {{ 'components.css' | asset_url | stylesheet_tag }}
+
+    {% comment %}theme-check-disable{% endcomment %}
+    <link
+      rel="preload"
+      href="{{ 'non-critical.css' | asset_url }}"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet';"
+    >
+    <link
+      rel="preload"
+      href="{{ 'flickity-component.css' | asset_url }}"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet';"
+    >
+    <link
+      rel="preload"
+      href="{{ 'modal-component.css' | asset_url }}"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet';"
+    >
+    <link
+      rel="preload"
+      href="{{ 'drawer-component.css' | asset_url }}"
+      as="style"
+      onload="this.onload=null;this.rel='stylesheet';"
+    >
+    {% comment %}theme-check-enable{% endcomment %}
+
+    {%- if linklists['gift-wrapping'].links != blank
+      and linklists['gift-wrapping'].links.first.type == 'product_link'
+    -%}
+      <link
+        rel="stylesheet"
+        href="{{ 'component-gift-wrapping.css' | asset_url }}"
+        media="print"
+        onload="this.media='all'"
+      >
+      <noscript>
+        {{- 'component-gift-wrapping.css' | asset_url | stylesheet_tag -}}
+      </noscript>
+    {%- endif -%}
+
+    {%- if enable_rtl -%}
+      {% comment %}theme-check-disable{% endcomment %}
+      <link
+        rel="preload"
+        href="{{ 'rtl.css' | asset_url }}"
+        as="style"
+        onload="this.onload=null;this.rel='stylesheet';"
+      >
+      {% comment %}theme-check-enable{% endcomment %}
+    {%- endif -%}
+
+    <noscript>
+      {{ 'non-critical.css' | asset_url | stylesheet_tag }}
+      {{ 'components.css' | asset_url | stylesheet_tag }}
+      {{ 'flickity-component.css' | asset_url | stylesheet_tag }}
+      {{ 'modal-component.css' | asset_url | stylesheet_tag }}
+      {{ 'drawer-component.css' | asset_url | stylesheet_tag }}
+      {%- if enable_rtl -%}
+        {{ 'rtl.css' | asset_url | stylesheet_tag }}
+      {%- endif -%}
+    </noscript>
+    <script src="{{ 'vendor.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'global.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'lazy-image.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'product-form.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'wishlist-products.js' | asset_url }}" defer="defer"></script>
+    <script src="{{ 'wishlist.js' | asset_url }}" defer="defer"></script>
+
+    {%- if settings.cart_recommendations_enable -%}
+      <script
+        src="{{ 'cart-recommendations.js' | asset_url }}"
+        defer="defer"
+      ></script>
+    {%- endif -%}
+
+    {%- if settings.animations != 'none' -%}
+      <script src="{{ 'animations.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+
+    <script>
+      document.documentElement.className =
+        document.documentElement.className.replace('no-js', 'js');
+    </script>
+   
+    {{ content_for_header }}
+
+    {% comment %}theme-check-disable{% endcomment %}
+    {%- unless settings.type_body_font.system? -%}
+      <link
+        rel="preload"
+        as="font"
+        href="{{ settings.type_body_font | font_url }}"
+        type="font/woff2"
+        crossorigin
+        fetchpriority="high"
+      >
+    {%- endunless -%}
+    {%- unless settings.type_header_font.system? -%}
+      <link
+        rel="preload"
+        as="font"
+        href="{{ settings.type_header_font | font_url }}"
+        type="font/woff2"
+        crossorigin
+        fetchpriority="high"
+      >
+    {%- endunless -%}
+    {% comment %}theme-check-enable{% endcomment %}
+
+    {% comment %} Custom metafield for head tag like GTag tracking {% endcomment %}
+    {{ shop.metafields.foxtheme.code_head.value }}
+    <meta name="google-site-verification" content="2lt1Sa-9vOAhSVmlJhb3uXE2SV9NRCcL5s9BIcGG63g" />
+
+<!-- Hotjar Tracking Code for Fescue & Dunes -->
+<script>
+    (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:6497753,hjsv:6};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+    })(window,document,'https://static.hotjar.com/c/hotjar-','.js?sv=');
+</script>
+<script>
+(function() {
+  window.fcAnimationMs = {{ settings.logo_animation_time | default: 4.5 | times: 1000 }};
+  window.fcDefaultLogos = [];
+  window.fcPageLogos = [];
+  window.coursesData = window.coursesData || [];
+
+  {%- for course in shop.metaobjects.courses.values -%}
+    {%- assign course_logo = course.display_logo.value -%}
+    {%- if course_logo != blank -%}
+      window.coursesData.push({
+        handle: {{ course.title.value | handleize | json }},
+        title: {{ course.display_title.value | json }},
+        logo: {{ course_logo | image_url: width: 200 | json }}
+      });
+    {%- endif -%}
+  {%- endfor -%}
+
+  {%- if template.name == 'page' and page.metafields.custom.club_page == true -%}
+    {%- if page.metafields.custom.course_logo_1 != blank -%}
+      window.fcPageLogos.push({{ page.metafields.custom.course_logo_1 | image_url: width: 200 | json }});
+    {%- endif -%}
+    {%- if page.metafields.custom.course_logo_2 != blank -%}
+      window.fcPageLogos.push({{ page.metafields.custom.course_logo_2 | image_url: width: 200 | json }});
+    {%- endif -%}
+    {%- if page.metafields.custom.course_logo_3 != blank -%}
+      window.fcPageLogos.push({{ page.metafields.custom.course_logo_3 | image_url: width: 200 | json }});
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- if template.name == 'courses' -%}
+    {%- if metaobject.course_logos.value != blank -%}
+      {%- for logo in metaobject.course_logos.value limit: 3 -%}
+        window.fcPageLogos.push({{ logo | image_url: width: 200 | json }});
+      {%- endfor -%}
+    {%- elsif metaobject.display_logo.value != blank -%}
+      window.fcPageLogos.push({{ metaobject.display_logo.value | image_url: width: 200 | json }});
+    {%- endif -%}
+  {%- endif -%}
+
+})();
+window.fcDefaultLogos = [];
+{%- for i in (1..12) -%}
+  {%- assign logo_id = 'club_logo_' | append: i -%}
+  {%- assign logo_val = settings[logo_id] -%}
+  {%- if logo_val != blank -%}
+    window.fcDefaultLogos.push({{ logo_val | image_url: width: 200 | json }});
+  {%- endif -%}
+{%- endfor -%}
+
+</script>
+<script>
+  {%- if template.name == 'courses' -%}
+    window.fcPageHandle = {{ metaobject.title | handle | json }};
+  {%- elsif template.name == 'page' and page.metafields.custom.club_page == true -%}
+    window.fcPageHandle = {{ page.metafields.custom.selected_course.value.title | handle | json }};
+  {%- else -%}
+    window.fcPageHandle = null;
+  {%- endif -%}
+</script>
+<script src="{{ 'fescue-globals.js' | asset_url }}"></script>
+
+<script>
+  {%- if settings.enable_logo_animation -%}
+  document.addEventListener('DOMContentLoaded', function() {
+    window.LogoEngine && window.LogoEngine.init();
+  });
+  {%- endif -%}
+</script>
+{%- comment -%} Full club→logos map for utm_campaign_club override {%- endcomment -%}
+<script>
+  window.fcClubLogos = {
+    {%- assign first = true -%}
+    {%- for course in shop.metaobjects.courses.values -%}
+      {%- assign logo_list = course.course_logos.value -%}
+      {%- if logo_list != blank and logo_list.size > 0 -%}
+        {%- unless first %},{% endunless -%}
+        {%- assign first = false -%}
+        "{{ course.title | handle }}": [
+          {%- for logo in logo_list -%}
+            "{{ logo | image_url: width: 200 }}"{%- unless forloop.last %},{% endunless -%}
+          {%- endfor -%}
+        ]
+      {%- endif -%}
+    {%- endfor -%}
+  };
+</script>
+  </head>
+
+  <body class="template-{{ template.name | handle }} {{ template.name }}-{{ template.suffix }}">
+    <!-- Google Tag Manager (noscript) -->
+    <noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-5XMHLKHZ"
+    height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
+    <!-- End Google Tag Manager (noscript) -->
+    {% comment %} Custom metafield for body tag like GTag tracking {% endcomment %}
+    {{ shop.metafields.foxtheme.code_body.value }}
+    {%- if settings.page_transition -%}
+      <div class="f-page-transition no-js-hidden">
+        <div class="f-page-transition__spinner">
+          <div class="f-page-transition__spinner-content">
+            <div></div>
+          </div>
+        </div>
+      </div>
+    {%- endif -%}
+    <a class="skip-to-content-link btn visually-hidden" href="#MainContent">
+      {{- 'accessibility.skip_to_text' | t -}}
+    </a>
+
+    <div class="site-wrapper">
+      {%- if settings.show_scroll_top_button -%}
+        {% render 'scroll-top-button' %}
+      {%- endif -%}
+
+      {% sections 'header-group' %}
+
+      {%- liquid
+        if settings.cart_type == 'drawer' and template != 'cart'
+          render 'cart-drawer'
+        endif
+        render 'search-drawer'
+      -%}
+
+      <main
+        id="MainContent"
+        class="site-main focus-none"
+        role="main"
+        tabindex="-1"
+      >
+        {{ content_for_layout }}
+      </main>
+      {%- liquid
+        if template.name == 'product'
+          section 'sticky-atc-bar'
+        endif
+      -%}
+      {% sections 'footer-group' %}
+    </div>
+
+    <ul hidden>
+      <li id="a11y-refresh-page-message">
+        {{ 'accessibility.refresh_page' | t }}
+      </li>
+    </ul>
+
+    {% render 'theme-script' %}
+    {% render 'cookie-banner' %}
+    <script src="{{ 'collapsible-tab.js' | asset_url }}" defer="defer"></script>
+    {%- if settings.pcard_show_quickview_button
+      or settings.pcard_choose_options_actions == 'open_popup'
+    -%}
+      <script src="{{ 'quick-view.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+    {%- if settings.pcard_show_color_swatch -%}
+      <script src="{{ 'color-swatch.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+    {%- if linklists['gift-wrapping'].links != blank
+      and linklists['gift-wrapping'].links.first.type == 'product_link'
+    -%}
+      <script src="{{ 'gift-wrapping.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+    {%- if request.design_mode -%}
+      <script src="{{ 'theme-editor.js' | asset_url }}" defer="defer"></script>
+    {%- endif -%}
+  
+        {% if template.name == 'page' and page.metafields.custom.club_page == true %}
+<script type="text/javascript">
+theme.liquid file script code
+  (function() {
+  // Function to set logos and club handle from current page
+  function setLogosFromPage() {
+    var logosToSet = [];
+    
+    // Collect logos from page metafields (only non-blank ones)
+    {% if page.metafields.custom.course_logo_1 != blank %}
+      logosToSet.push('{{ page.metafields.custom.course_logo_1 | image_url: width: 200 }}');
+    {% endif %}
+    
+    {% if page.metafields.custom.course_logo_2 != blank %}
+      logosToSet.push('{{ page.metafields.custom.course_logo_2 | image_url: width: 200 }}');
+    {% endif %}
+    
+    {% if page.metafields.custom.course_logo_3 != blank %}
+      logosToSet.push('{{ page.metafields.custom.course_logo_3 | image_url: width: 200 }}');
+    {% endif %}
+    
+    // Get club handle
+    var clubHandle = '{{ page.metafields.custom.selected_course.value.title | handle }}';
+    
+    // If logos found, clear old ones and set new ones
+    if (logosToSet.length > 0) {
+      // Clear existing logos first
+      if (typeof clearCachedLogos === 'function') {
+        clearCachedLogos();
+        console.log('Existing logos cleared');
+      }
+      
+      // Set new logos
+      if (typeof setCustomLogos === 'function') {
+        setCustomLogos(logosToSet, 7); // 7 days expiry
+        console.log('New page logos saved to cookie:', logosToSet);
+        
+        // Reinitialize animation if function exists
+        if (typeof reinitLogoAnimation === 'function') {
+          reinitLogoAnimation();
+        }
+      } else {
+        console.warn('setCustomLogos function not available yet');
+      }
+    } else {
+      console.log('No logos found on this page');
+    }
+    
+    // Set club handle cookie if it has a value
+    if (clubHandle && clubHandle !== '') {
+      if (typeof setCookie === 'function') {
+        setCookie('club_handle', clubHandle, 7); // 7 days expiry
+        console.log('Club handle saved to cookie:', clubHandle);
+      } else {
+        console.warn('setCookie function not available yet');
+      }
+    } else {
+      console.log('No club handle found on this page');
+    }
+  }
+  
+  // Run when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setLogosFromPage);
+  } else {
+    setLogosFromPage();
+  }
+})();
+</script>
+{% endif %}
+
+{% if  template.name == 'courses' %}
+
+<script type="text/javascript">
+(function() {
+  // Function to set logos and club handle from current metaobject
+  function setLogosFromMetaobject() {
+    var logosToSet = [];
+    
+    // Collect logos from metaobject (only non-blank ones)
+    {% if metaobject.course_logos.value != blank %}
+      {% for logo in metaobject.course_logos.value %}
+        logosToSet.push('{{ logo | image_url: width: 100 }}');
+      {% endfor %}
+    {% endif %}
+    
+    // Get club handle
+    var clubHandle = '{{ metaobject.title | handle }}';
+    
+    // If logos found, clear old ones and set new ones
+    if (logosToSet.length > 0) {
+      // Clear existing logos first
+      if (typeof clearCachedLogos === 'function') {
+        clearCachedLogos();
+        console.log('Existing logos cleared');
+      }
+      
+      // Set new logos
+      if (typeof setCustomLogos === 'function') {
+        setCustomLogos(logosToSet, 7); // 7 days expiry
+        console.log('New metaobject logos saved to cookie:', logosToSet);
+        
+        // Reinitialize animation if function exists
+        if (typeof reinitLogoAnimation === 'function') {
+          reinitLogoAnimation();
+        }
+      } else {
+        console.warn('setCustomLogos function not available yet');
+      }
+    } else {
+      console.log('No logos found on this metaobject');
+    }
+    
+    // Set club handle cookie if it has a value
+    if (clubHandle && clubHandle !== '') {
+      if (typeof setCookie === 'function') {
+        setCookie('club_handle', clubHandle, 7); // 7 days expiry
+        console.log('Club handle saved to cookie:', clubHandle);
+      } else {
+        console.warn('setCookie function not available yet');
+      }
+    } else {
+      console.log('No club handle found on this metaobject');
+    }
+  }
+  
+  // Run when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', setLogosFromMetaobject);
+  } else {
+    setLogosFromMetaobject();
+  }
+})();
+</script>
+{% endif %}
+{%- render 'fescue-data-bridge' -%}
+<script type="text/javascript">
+  // Global wishlist state functions
+function getWishlist() {
+  return JSON.parse(localStorage.getItem('wishlist')) || [];
+}
+
+function saveWishlist(wishlist) {
+  try {
+    localStorage.setItem('wishlist', JSON.stringify(wishlist));
+  } catch (e) {
+    console.error('Could not save wishlist to localStorage:', e);
+  }
+}
+
+function updateButtonStyles() {
+  const wishlist = getWishlist();
+  const wishlistButtons = document.querySelectorAll('.add-to-wishlist');
+  const wishlistCounter = document.querySelectorAll('.wishlist-counter');
+
+  wishlistButtons.forEach(button => {
+    const productId = button.getAttribute('data-product-id');
+    if (wishlist.includes(productId)) {
+      button.classList.add('active');
+      button.setAttribute('aria-label', 'Remove from wishlist');
+    } else {
+      button.classList.remove('active');
+      button.setAttribute('aria-label', 'Add to wishlist');
+    }
+  });
+
+  const count = wishlist.length > 0 ? wishlist.length : '0';
+  wishlistCounter.forEach(counter => {
+    counter.innerHTML = count;
+  });
+}
+
+function showTooltip(button, message) {
+  let tooltip = button.closest('.product-card__information').querySelector('.tooltip-advice');
+
+  if (!tooltip) {
+    tooltip = document.createElement('div');
+    tooltip.classList.add('tooltip-advice');
+    button.closest('.product-card__information').appendChild(tooltip);
+  }
+
+  tooltip.innerHTML = `<p>${message}</p>`;
+  tooltip.classList.add('active');
+  tooltip.setAttribute('aria-live', 'assertive');
+  tooltip.setAttribute('role', 'alert');
+
+  setTimeout(() => {
+    tooltip.classList.remove('active');
+    tooltip.removeAttribute('aria-live');
+    tooltip.removeAttribute('role');
+  }, 2000);
+}
+
+function removeFromWishlist(productId) {
+  let wishlist = getWishlist();
+  if (wishlist.includes(productId)) {
+    wishlist = wishlist.filter(id => id !== productId);
+    saveWishlist(wishlist);
+    updateButtonStyles();
+  }
+}
+
+function updateWishlistPage(handle) {
+  const wishlistContainer = document.getElementById('wishlist-products');
+  if (!wishlistContainer) return;
+
+  fetch(`/products/${handle}.json`)
+    .then(response => {
+      if (!response.ok) throw new Error('Network response was not ok');
+      return response.json();
+    })
+    .then(data => {
+      // ... your existing product HTML building logic
+    })
+    .catch(error => console.error('Fetch error:', error));
+}
+
+// Main function called from button onclick
+function addToWishlistByHandle(button) {
+  const handle = button.getAttribute('data-product-handle');
+  const productId = button.getAttribute('data-product-id');
+  const wishlist = getWishlist();
+
+  if (!wishlist.includes(productId)) {
+    wishlist.push(productId);
+    saveWishlist(wishlist);
+    updateButtonStyles();
+    showTooltip(button, 'Product has been added to your Wishlist!');
+    updateWishlistPage(handle);
+  } else {
+    removeFromWishlist(productId);
+  }
+}
+</script>
+
+<script>
+(function () {
+  var VARIANTS = {
+    {% for v in product.variants %}
+      "{{ v.id }}": { p: {{ v.price | divided_by: 100.0 }}, t: {{ v.title | json }} }{% unless forloop.last %},{% endunless %}
+    {% endfor %}
+  };
+  var PRODUCT = {
+    id: "{{ product.id }}",
+    title: {{ product.title | json }},
+    type: {{ product.type | json }},
+    vendor: {{ product.vendor | json }}
+  };
+  var CURRENCY = "{{ cart.currency.iso_code | default: shop.currency }}";
+
+  window.dataLayer = window.dataLayer || [];
+  var last = 0, lastKey = '';
+
+  function handle(form) {
+    if (!form || !/\/cart\/add/.test(form.getAttribute('action') || '')) return;
+
+    var club = null, fields = {};
+    try {
+      new FormData(form).forEach(function (v, k) {
+        fields[k] = v;
+        if (/properties\]?\[Club\]$/.test(k) || k === 'properties[Club]') club = v;
+      });
+    } catch (e) { return; }
+    if (!club) return;
+
+    var vid = fields.id, qty = Number(fields.quantity || 1);
+    var key = club + '|' + vid + '|' + qty, now = Date.now();
+    if (key === lastKey && now - last < 1500) return;
+    lastKey = key; last = now;
+
+    var v = VARIANTS[vid] || {};
+
+    dataLayer.push({ ecommerce: null });
+    dataLayer.push({
+      event: 'atc_club',
+      club: club,
+      ecommerce: {
+        currency: CURRENCY,
+        value: v.p != null ? +(v.p * qty).toFixed(2) : undefined,
+        items: [{
+          item_id: PRODUCT.id,
+          item_variant: String(vid),
+          item_name: PRODUCT.title,
+          item_category: PRODUCT.type,
+          item_brand: PRODUCT.vendor,
+          variant_title: v.t,
+          price: v.p,
+          quantity: qty,
+          club: club
+        }]
+      }
+    });
+  }
+
+  document.addEventListener('submit', function (e) { handle(e.target); }, true);
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest && e.target.closest('[type="submit"],[name="add"],.product-form__submit');
+    if (b) handle(b.form || b.closest('form'));
+  }, true);
+})();
+</script>
+{%- if template.name == 'product' -%}
+  <script type="application/json" id="VariantSyncData">{{ product.variants | json }}</script>
+  <script src="{{ 'variant-id-sync.js' | asset_url }}" defer></script>
+{%- endif -%}
+  </body>
+</html>

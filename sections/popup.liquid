@@ -1,0 +1,500 @@
+{%- liquid
+  assign design_mode = section.settings.design_mode
+  assign enable = section.settings.enable
+  assign show_for_homepage_only = section.settings.show_for_homepage_only
+  assign show_for_visitors_only = section.settings.show_for_visitors_only
+  assign trigger_open = section.settings.trigger_open
+  assign repeat_open = section.settings.repeat_open
+  assign alignment = section.settings.alignment
+  assign width = section.settings.width
+  assign show_teaser = section.settings.show_teaser
+  assign teaser_button_text = section.settings.teaser_button_text
+  assign image_block = section.blocks | where: 'type', 'image' | first
+
+  if image_block != blank
+    assign image_position = image_block.settings.image_position
+  endif
+
+  assign should_show = enable
+  if show_for_visitors_only and customer
+    assign should_show = false
+  endif
+
+  if show_for_homepage_only and template != 'index'
+    assign should_show = false
+  endif
+
+  if request.design_mode
+    assign should_show = true
+  endif
+-%}
+{%- if should_show -%}
+  <link rel="stylesheet" href="{{ 'popup-component.css' | asset_url }}" media="print" onload="this.media='all'">
+  <noscript>
+    {{ 'popup-component.css' | asset_url | stylesheet_tag }}
+  </noscript>
+  <popup-component
+    class="f-popup"
+    hidden
+    data-trigger-open="{{ trigger_open }}"
+    data-repeat-open="{{ repeat_open }}"
+    style="--popup-width: {{- width -}}px;"
+    {% if request.design_mode and design_mode %}
+      open
+    {% endif %}
+  >
+    <div class="f-popup__content scroll-container" aria-modal="true" role="dialog" tabindex="-1" aria-label="Popup">
+      <button class="f-popup__close btn btn--plain" aria-label="{{ 'accessibility.close' | t }}">
+        {% comment %} theme-check-disable {% endcomment %}
+        {{ 'icon-close.svg' | inline_asset_content }}
+        {% comment %} theme-check-enable {% endcomment %}
+      </button>
+      <div class="f-popup__inner text-{{ alignment }} f-popup--image-{{- image_position -}}{% unless image_block %} f-popup__inner--no-image{% endunless %}">
+        {%- if image_block != blank -%}
+          {%- assign image = image_block.settings.image -%}
+          {%- if image != blank -%}
+            <div class="f-popup__image" style="--aspect-ratio: {{ image.aspect_ratio }}">
+              <img
+                srcset="
+                  {%- if image.width >= 375 -%}{{ image | image_url: width: 375 }} 375w,{%- endif -%}
+                  {%- if image.width >= 750 -%}{{ image | image_url: width: 750 }} 750w,{%- endif -%}
+                  {%- if image.width >= 1100 -%}{{ image | image_url: width: 1100 }} 1100w,{%- endif -%}
+                  {%- if image.width >= 1500 -%}{{ image | image_url: width: 1500 }} 1500w,{%- endif -%}
+                  {%- if image.width >= 1780 -%}{{ image | image_url: width: 1780 }} 1780w,{%- endif -%}
+                  {%- if image.width >= 2000 -%}{{ image | image_url: width: 2000 }} 2000w,{%- endif -%}
+                  {{ image | image_url }} {{ image.width }}w
+                "
+                src="{{ image | image_url: width: width }}"
+                sizes="{{ width }}px"
+                alt="{{ image.alt | escape }}"
+                loading="lazy"
+                width="{{ width }}"
+                height="{{ width | divided_by: image.aspect_ratio | round }}"
+              >
+            </div>
+          {%- else -%}
+            <div class="f-popup__image">
+              {{ 'lifestyle-1' | placeholder_svg_tag: 'placeholder-svg w-full' }}
+            </div>
+          {%- endif -%}
+        {%- endif -%}
+        <div class="f-popup__blocks">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'heading' -%}
+                {%- liquid
+                  assign heading = block.settings.heading
+                  assign text_size = block.settings.text_size
+                -%}
+                {%- unless heading == blank -%}
+                  <div class="f-popup__title mobile-remove-br">
+                    <h3 class="m-0{% if text_size == 'large' %} h2{% endif %}">
+                      {{- heading -}}
+                    </h3>
+                  </div>
+                {%- endunless -%}
+              {%- when 'text' -%}
+                {%- assign text = block.settings.text -%}
+                {%- unless text == blank -%}
+                  <div class="f-popup__text rte">
+                    {{- text -}}
+                  </div>
+                {%- endunless -%}
+              {%- when 'form' -%}
+                <div class="f-popup__form">
+                  {% render 'newsletter-form',
+                    custom_id: 'Popup',
+                    hide_label: true,
+                    design: block.settings.design,
+                    button_label: block.settings.button_label
+                  %}
+                </div>
+              {%- when 'button' -%}
+                {%- unless block.settings.button_label == blank -%}
+                  <div class="f-popup__cta">
+                    <a
+                      class="btn btn--primary"
+                      {% if block.settings.button_link != blank %}
+                        href="{{- block.settings.button_link -}}"
+                      {% else %}
+                        aria-disabled="true"
+                        disabled
+                      {% endif %}
+                    >
+                      {{- block.settings.button_label -}}
+                    </a>
+                  </div>
+                {%- endunless -%}
+              {%- when 'social' -%}
+                {% assign content_align = 'flex-wrap' | append: ' justify-' | append: alignment %}
+                <div class="f-popup__social">
+                  {%- render 'social-links', class: content_align -%}
+                </div>
+              {% when 'code' %}
+                {%- assign discount_code = block.settings.discount_code -%}
+                {%- unless discount_code == blank -%}
+                  <div class="f-popup__code">
+                    <input value="{{ discount_code }}" readonly class="form-control">
+                    <button class="btn btn--primary btn-apply" data-code="{{ discount_code }}">
+                      <span>{{- block.settings.apply_button -}}</span>
+                      {% comment %} theme-check-disable {% endcomment %}
+                      {{ 'icon-check.svg' | inline_asset_content }}
+                      {% comment %} theme-check-enable {% endcomment %}
+                    </button>
+                  </div>
+                {%- endunless -%}
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  </popup-component>
+  {%- if show_teaser and teaser_button_text != blank -%}
+    <teaser-button
+      class="f-popup__teaser hidden no-js-hidden"
+      style="--color-teaser-popup-bg: {{ section.settings.teaser_popup_bg }};--color-teaser-popup-text: {{ section.settings.teaser_popup_text }};"
+    >
+      <button class="btn btn--plain" role="button" aria-label="Open popup" aria-haspopup="dialog">
+        {% comment %} theme-check-disable {% endcomment %}
+        {{ 'icon-email.svg' | inline_asset_content }}
+        {% comment %} theme-check-enabled {% endcomment %}
+        {{- teaser_button_text -}}
+      </button>
+    </teaser-button>
+  {%- endif -%}
+  <script src="{{ 'popup-component.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}
+{% schema %}
+{
+  "name": "t:sections.popup.name",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/Nk6QB2o)"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.popup.settings.header_design_mode.content",
+      "info": "t:sections.popup.settings.header_design_mode.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "design_mode",
+      "label": "t:sections.popup.settings.design_mode.label",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:sections.popup.settings.header_settings.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable",
+      "label": "t:sections.popup.settings.enable",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_for_homepage_only",
+      "label": "t:sections.popup.settings.show_for_homepage_only",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_for_visitors_only",
+      "label": "t:sections.popup.settings.show_for_visitors_only",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "trigger_open",
+      "label": "t:sections.popup.settings.trigger_open.label",
+      "options": [
+        {
+          "value": "immediately",
+          "label": "t:sections.popup.settings.trigger_open.options.option__1"
+        },
+        {
+          "value": "delay",
+          "label": "t:sections.popup.settings.trigger_open.options.option__2"
+        },
+        {
+          "value": "scroll_down",
+          "label": "t:sections.popup.settings.trigger_open.options.option__3"
+        },
+        {
+          "value": "exit_intent",
+          "label": "t:sections.popup.settings.trigger_open.options.option__4"
+        }
+      ],
+      "default": "delay",
+      "info": "t:sections.popup.settings.trigger_open.info"
+    },
+    {
+      "type": "select",
+      "id": "repeat_open",
+      "label": "t:sections.popup.settings.repeat_open.label",
+      "info": "t:sections.popup.settings.repeat_open.info",
+      "options": [
+        {
+          "value": "no_repeat",
+          "label": "t:sections.popup.settings.repeat_open.options.option__1"
+        },
+        {
+          "value": "every_30_mins",
+          "label": "t:sections.popup.settings.repeat_open.options.option__2"
+        },
+        {
+          "value": "every_1_hr",
+          "label": "t:sections.popup.settings.repeat_open.options.option__3"
+        },
+        {
+          "value": "every_6_hrs",
+          "label": "t:sections.popup.settings.repeat_open.options.option__4"
+        },
+        {
+          "value": "every_12_hrs",
+          "label": "t:sections.popup.settings.repeat_open.options.option__5"
+        },
+        {
+          "value": "every_day",
+          "label": "t:sections.popup.settings.repeat_open.options.option__6"
+        },
+        {
+          "value": "every_3_days",
+          "label": "t:sections.popup.settings.repeat_open.options.option__7"
+        },
+        {
+          "value": "every_week",
+          "label": "t:sections.popup.settings.repeat_open.options.option__8"
+        },
+        {
+          "value": "every_2_week",
+          "label": "t:sections.popup.settings.repeat_open.options.option__9"
+        },
+        {
+          "value": "every_month",
+          "label": "t:sections.popup.settings.repeat_open.options.option__10"
+        }
+      ],
+      "default": "every_day"
+    },
+    {
+      "type": "select",
+      "id": "alignment",
+      "label": "t:sections.popup.settings.alignment.label",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.popup.settings.alignment.options.option__1"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.popup.settings.alignment.options.option__2"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "range",
+      "id": "width",
+      "label": "t:sections.popup.settings.width.label",
+      "min": 400,
+      "max": 900,
+      "step": 5,
+      "unit": "px",
+      "default": 650
+    },
+    {
+      "type": "header",
+      "content": "t:sections.popup.settings.header_teaser_button.content",
+      "info": "t:sections.popup.settings.header_teaser_button.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_teaser",
+      "label": "t:sections.popup.settings.show_teaser.label",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "teaser_button_text",
+      "label": "t:sections.common.button.button_label.label",
+      "default": "Newsletter"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.colors.name"
+    },
+    {
+      "type": "color",
+      "id": "teaser_popup_bg",
+      "label": "t:sections.popup.settings.teaser_popup_bg.label",
+      "default": "#1437AA"
+    },
+    {
+      "type": "color",
+      "id": "teaser_popup_text",
+      "label": "t:sections.popup.settings.teaser_popup_text.label",
+      "default": "#ffffff"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "image",
+      "name": "t:sections.popup.blocks.image.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.popup.blocks.image.settings.image"
+        },
+        {
+          "type": "select",
+          "id": "image_position",
+          "label": "t:sections.popup.blocks.image.settings.image_position.label",
+          "options": [
+            {
+              "value": "top",
+              "label": "t:sections.popup.blocks.image.settings.image_position.option__1"
+            },
+            {
+              "value": "left",
+              "label": "t:sections.popup.blocks.image.settings.image_position.option__2"
+            }
+          ],
+          "default": "top"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "t:sections.popup.blocks.heading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "heading",
+          "label": "t:sections.popup.blocks.heading.settings.text",
+          "default": "Create attention for the heading"
+        },
+        {
+          "type": "select",
+          "id": "text_size",
+          "label": "t:sections.popup.blocks.heading.settings.text_size.label",
+          "options": [
+            {
+              "value": "medium",
+              "label": "t:sections.popup.blocks.heading.settings.text_size.options.option__1"
+            },
+            {
+              "value": "large",
+              "label": "t:sections.popup.blocks.heading.settings.text_size.options.option__2"
+            }
+          ],
+          "default": "medium"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.popup.blocks.text.name",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.popup.blocks.text.settings.text",
+          "default": "<p>Add details about your popup information to encourage successful action.</p>"
+        }
+      ]
+    },
+    {
+      "type": "form",
+      "name": "t:sections.popup.blocks.form.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "design",
+          "label": "t:sections.common.design.label",
+          "options": [
+            {
+              "value": "design-1",
+              "label": "t:sections.common.design.option__1"
+            },
+            {
+              "value": "design-2",
+              "label": "t:sections.common.design.option__2"
+            }
+          ],
+          "default": "design-1"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:sections.popup.blocks.form.settings.button_label",
+          "default": "Subscribe"
+        }
+      ]
+    },
+    {
+      "type": "code",
+      "name": "t:sections.popup.blocks.code.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "discount_code",
+          "label": "t:sections.popup.blocks.code.settings.code.label",
+          "info": "t:sections.popup.blocks.code.settings.code.info"
+        },
+        {
+          "type": "text",
+          "id": "apply_button",
+          "label": "t:sections.popup.blocks.code.settings.apply_button",
+          "default": "Copy code",
+          "info": "t:sections.popup.blocks.code.settings.apply_button_info"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "t:sections.popup.blocks.button.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:sections.popup.blocks.button.settings.button_label",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "t:sections.popup.blocks.button.settings.button_link"
+        }
+      ]
+    },
+    {
+      "type": "social",
+      "name": "t:sections.popup.blocks.social.name",
+      "limit": 1
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "heading"
+      },
+      {
+        "type": "text"
+      },
+      {
+        "type": "form"
+      }
+    ]
+  }
+}
+{% endschema %}

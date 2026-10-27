@@ -1,0 +1,79 @@
+{%- if metaobject.collection_tabs_title != blank-%}
+  {%- liquid
+    if header_alignment == blank
+      assign header_alignment = settings.section_header_alignment
+    endif
+
+    if header_alignment_mobile == blank
+      assign header_alignment_mobile = settings.section_header_alignment_mobile
+      if header_alignment_mobile == 'inherit'
+        assign header_alignment_mobile = header_alignment
+      endif
+    endif
+
+    if header_layout == blank
+      assign header_layout = 'vertical'
+    endif
+
+    assign header_class = 'section__header--' | append: header_layout
+    assign header_text_alignment = header_alignment
+    if header_layout == 'horizontal'
+      assign header_class = header_class | append: ' md:flex md:flex-col md:flex-row md:justify-between md:items-center'
+      if header_alignment == 'right'
+        assign header_class = header_class | append: ' md:flex-row-reverse'
+      endif
+      if header_alignment == 'center'
+        assign header_text_alignment = 'left'
+      endif
+    endif
+
+    if spacing == blank
+      assign spacing = 'medium'
+    endif
+
+    if content_spacing == blank
+      assign content_spacing = metaobject.section_header_content_spacing | default: 'medium'
+    endif
+
+    unless custom_css_class == blank
+      assign custom_css_class = custom_css_class | prepend: ' '
+    endunless
+
+    assign animation_effect = animation_effect
+    if animation_effect == null
+      assign animation_effect = settings.animations
+    endif
+    assign motion_delay = motion_delay | default: 0
+  -%}
+  <div class="section__header {{ header_class }} spacing--{{ spacing }} content-spacing--{{ content_spacing }}{{ custom_css_class }} {{ class }}">
+    <div class="section__header--text text-{{ header_alignment_mobile }} md:text-{{ header_text_alignment }} {{ header_class }}">
+      {%- if metaobject.collection_tabs_title.value -%}
+        <h4
+          class="section__heading h2"
+        >
+          <motion-element
+            data-motion="{{ animation_effect }}"
+            data-motion-delay="{{ motion_delay }}"
+            class="block"
+          >
+            {%- render 'highlight-text',
+              hl_text: metaobject.collection_tabs_title.value
+            -%}
+          </motion-element>
+        </h4>
+        {%- assign motion_delay = motion_delay | plus: 50 -%}
+      {%- endif -%}
+
+      {%- if metaobject.collection_tabs_description -%}
+        <motion-element
+          data-motion="{{ animation_effect }}"
+          data-motion-delay="{{ motion_delay }}"
+          class="block section__description mobile-remove-br"
+        >
+          {{ metaobject.collection_tabs_description | metafield_tag }}
+        </motion-element>
+        {%- assign motion_delay = motion_delay | plus: 50 -%}
+      {%- endif -%}
+    </div>
+  </div>
+{%- endif -%}

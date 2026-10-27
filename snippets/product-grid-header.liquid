@@ -1,0 +1,170 @@
+{% liquid
+  if results.url
+    assign results_url = results.url
+  else
+    assign terms = results.terms | escape
+    assign results_url = '?q=' | append: terms | append: '&options%5Bprefix%5D=last&sort_by=' | append: sort_by
+  endif
+%}
+<div class="active-facets">
+  {%- for filter in results.filters -%}
+    {%- for value in filter.active_values -%}
+      <facet-remove>
+        <a
+          href="{{ value.url_to_remove }}"
+          class="active-facets__button btn btn--small"
+          data-tippy-content="{{ 'products.facets.clear_with_label' | t: label: value.label | escape }}"
+          data-tippy-theme="color-background-1"
+          data-tippy-placement="top"
+        >
+          <span class="active-facets__button-inner">
+            {{ value.label | escape }}
+            {% comment %} theme-check-disable {% endcomment %}
+            {{ 'icon-close-small.svg' | inline_asset_content }}
+            {% comment %} theme-check-enable {% endcomment %}
+          </span>
+        </a>
+      </facet-remove>
+    {%- endfor -%}
+    {% if filter.type == 'price_range' %}
+      {%- if filter.min_value.value != null or filter.max_value.value != null -%}
+        <facet-remove>
+          <a href="{{ filter.url_to_remove }}" class="active-facets__button btn btn--small">
+            <span class="active-facets__button-inner">
+              {%- if filter.min_value.value -%}
+                {{ filter.min_value.value | money }}
+              {%- else -%}
+                {{ 0 | money }}
+              {%- endif -%}
+              -
+              {%- if filter.max_value.value -%}
+                {{ filter.max_value.value | money }}
+              {%- else -%}
+                {{ filter.range_max | money }}
+              {%- endif -%}
+              {% comment %} theme-check-disable {% endcomment %}
+              {{ 'icon-close-small.svg' | inline_asset_content }}
+              {% comment %} theme-check-enable {% endcomment %}
+              <span class="visually-hidden">{{ 'products.facets.clear_filter' | t }}</span>
+            </span>
+          </a>
+        </facet-remove>
+      {%- endif -%}
+    {% endif %}
+  {%- endfor -%}
+  <facet-remove>
+    <a href="{{ results_url }}" class="active-facets__button btn btn--small btn--underline active-facets__button-clear">
+      <span>{{ 'products.facets.clear_all' | t }}</span>
+    </a>
+  </facet-remove>
+</div>
+
+{% if enable_product_count or enable_sorting %}
+  <div class="product-grid__header flex items-center justify-between">
+    {% if enable_filtering %}
+      <drawer-opener
+        data-drawer="#Drawer-Facets"
+        class="no-js-hidden {% unless sidebar_position == 'drawer' %}hidden lg-down:block{% endunless %}"
+      >
+        <button
+          class="btn--filter-sort btn btn--outline btn--secondary btn--with-icon font-body"
+          aria-label="{{- 'products.facets.filter_button' | t -}}"
+        >
+          {% comment %} theme-check-disable {% endcomment %}
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M14.0002 2.66666H9.3335" stroke="#0A0A0A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M6.66667 2.66666H2" stroke="#0A0A0A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M14 8H8" stroke="#0A0A0A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5.33333 8H2" stroke="#0A0A0A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M13.9998 13.3333H10.6665" stroke="#0A0A0A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M8 13.3333H2" stroke="#0A0A0A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M9.3335 1.33334V4.00001" stroke="#0A0A0A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M5.3335 6.66666V9.33332" stroke="#0A0A0A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M10.6665 12V14.6667" stroke="#0A0A0A" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {% comment %} theme-check-enable {% endcomment %}
+          <span class="text-normal">Filters</span>
+        </button>
+      </drawer-opener>
+      <noscript>
+        <details class="drawer-facets-nojs parent-group {% unless sidebar_position == 'drawer' %}hidden lg-down:block{% endunless %}">
+          <summary>
+            <span class="btn btn--plain btn--with-icon">
+              {% comment %} theme-check-disable {% endcomment %}
+              {{ 'icon-filter.svg' | inline_asset_content }}
+              {% comment %} theme-check-enable {% endcomment %}
+              <span>{{- 'products.facets.filter_button' | t -}}</span></span
+            >
+            {% render 'facets-nojs', results: results, form_id: 'facets-2', sidebar_position: sidebar_position %}
+          </summary>
+        </details>
+      </noscript>
+    {% endif %}
+    {% if enable_product_count %}
+      <div class="collection-product-count hidden md:block" role="status" data-product-count>
+        {%- if results.results_count -%}
+          {{- 'templates.search.results_with_count' | t: terms: results.terms, count: results.results_count -}}
+        {%- elsif results.products_count == results.all_products_count -%}
+          {{- 'products.facets.product_count_simple' | t: count: results.products_count -}}
+        {%- else -%}
+          {{-
+            'products.facets.product_count'
+            | t: product_count: results.products_count, count: results.all_products_count
+          -}}
+        {%- endif -%}
+      </div>
+    {% endif %}
+    {% if breadcrumb %}
+      <div class="hidden md:block">
+        {% render 'breadcrumb-collection' %}
+      </div>
+    {% endif %}
+    {% if enable_sorting %}
+      {%- assign sort_by = results.sort_by | default: results.default_sort_by -%}
+      <div class="collection-sortby hidden md:block no-js-hidden">
+        <label for="SortBy" class="visually-hidden">{{ 'products.facets.sort_by_label' | t }}:</label>
+        <facet-filters-form class="f-facets">
+          <form id="FacetSortForm">
+            <select
+              id="SortBy"
+              class="form-control"
+              name="sort_by"
+              aria-describedby="a11y-refresh-page-message a11y-selection-message"
+              data-default-sortby="{{ collection.default_sort_by }}"
+            >
+              {%- for option in results.sort_options -%}
+                <option
+                  value="{{ option.value }}"
+                  {% if option.value == sort_by %}
+                    selected="selected"
+                  {% endif %}
+                >
+                  {{ option.name }}
+                </option>
+              {%- endfor -%}
+            </select>
+          </form>
+        </facet-filters-form>
+      </div>
+    {% endif %}
+
+    <div class="column-switcher flex no-js-hidden items-center justify-end md:hidden">
+      <button class="btn btn--icon" data-column="1" aria-label="1 column">
+        <svg width="12" height="12" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 12.5 9.5">
+          <defs></defs><defs><style>.cls-1{fill-rule:evenodd}</style></defs><g id="Layer_2" data-name="Layer 2"><g id="Layer_1-2" data-name="Layer 1"><g id="shop_page" data-name="shop page"><g id="Group-16"><path id="Rectangle" d="M12.5.75a.76.76 0 01-.75.75h-11A.76.76 0 010 .75.76.76 0 01.75 0h11a.76.76 0 01.75.75z" class="cls-1"></path><path id="Rectangle-2" d="M12.5 4.75a.76.76 0 01-.75.75h-11A.76.76 0 010 4.75.76.76 0 01.75 4h11a.76.76 0 01.75.75z" class="cls-1" data-name="Rectangle"></path><path id="Rectangle-3" d="M12.5 8.75a.76.76 0 01-.75.75h-11A.76.76 0 010 8.75.76.76 0 01.75 8h11a.76.76 0 01.75.75z" class="cls-1" data-name="Rectangle"></path></g></g></g></g>
+        </svg>
+      </button>
+      <button class="btn btn--icon" aria-selected="true" data-column="2" aria-label="2 columns">
+        <svg width="12" height="12" fill="currentColor" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 5.5 12.5">
+          <defs></defs><defs><style>.cls-1{fill-rule:evenodd}</style></defs><g id="Layer_2" data-name="Layer 2"><g id="Layer_1-2" data-name="Layer 1"><g id="shop_page" data-name="shop page"><g id="Group-10"><path id="Rectangle" d="M.75 0a.76.76 0 01.75.75v11a.76.76 0 01-.75.75.76.76 0 01-.75-.75v-11A.76.76 0 01.75 0z" class="cls-1"></path><path id="Rectangle-2" d="M4.75 0a.76.76 0 01.75.75v11a.76.76 0 01-.75.75.76.76 0 01-.75-.75v-11A.76.76 0 014.75 0z" class="cls-1" data-name="Rectangle"></path></g></g></g></g>
+        </svg>
+      </button>
+    </div>
+  </div>
+
+  {% if breadcrumb %}
+    <div class="block md:hidden" style="margin-top: -2rem;">
+      {% render 'breadcrumb-collection' %}
+    </div>
+  {% endif %}
+{% endif %}

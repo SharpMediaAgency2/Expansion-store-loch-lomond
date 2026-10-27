@@ -1,0 +1,46 @@
+{% assign courses = product.metafields.custom.courses.value %}
+{% assign raw_options = product.metafields.custom.logo_decoration_choice %}
+
+{% if courses and raw_options %}
+  {% assign cleaned = raw_options | remove: '[' | remove: ']' | remove: '"' %}
+  {% assign decoration_options = cleaned | split: ',' %}
+  
+  <div class="variant-clubs" style="display: none;">
+    <label class="form__label" for="select-decoration-type" style="margin-bottom: 16px; display: block;">
+      <span class="font-semibold">Decoration Type:</span>
+    </label>
+
+    <select
+      id="select-decoration-type"
+      class="form-control"
+      name="properties[Decoration Type]"
+      {% if field_required %}
+        required
+      {% endif %}
+      form="{{ product_form_id }}"
+      aria-label="Decoration Type"
+    >{% for option in decoration_options %}
+        {% assign clean_option = option | strip %}
+        <option value="{{ clean_option }}">{{ clean_option }}</option>
+      {% endfor %}
+    </select>
+  </div>
+{% endif %}
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var selectEl = document.getElementById('select-decoration-type');
+    var hiddenInput = document.getElementById('select-decoration-type-input');
+
+    function updateHiddenValue() {
+      hiddenInput.value = selectEl.value;
+    }
+
+    // Update on load (for default selection)
+    updateHiddenValue();
+
+    // Update on change
+    selectEl.addEventListener('change', updateHiddenValue);
+  });
+</script>

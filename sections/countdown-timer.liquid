@@ -1,0 +1,789 @@
+{{ 'countdown-timer.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign container = section.settings.container
+  assign position = section.settings.position
+  assign text_alignment = section.settings.text_alignment
+  assign image = section.settings.image
+  assign image_overlay_opacity = section.settings.image_overlay_opacity
+  assign use_content_container = section.settings.use_content_container
+  assign content_container = ''
+  if use_content_container
+    assign content_container = 'container'
+  endif
+
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+
+  assign loading = 'lazy'
+  assign fetchpriority = 'low'
+  if section.index < 2
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  endif
+  assign enable_video_bg = section.settings.show_bg_video
+  assign placeholder_video = 'https://www.youtube.com/watch?v=_9VUPq3SxOc'
+  assign video_type = section.settings.video_type
+  assign data_type = 'mp4'
+  assign video_sources = section.settings.shopify_video.sources[1]
+  assign video_url = video_sources.url
+  assign video_url_id = placeholder_video | split: '?v=' | last
+  case video_type
+    when 'external'
+      assign video_url = section.settings.video_url
+      if section.settings.video_url.type == 'youtube'
+        assign data_type = 'youtube'
+      else
+        assign data_type = 'vimeo'
+      endif
+      if video_url != blank
+        assign video_url_id = video_url.id
+      else
+        assign video_url = placeholder_video
+        assign data_type = 'youtube'
+      endif
+  endcase
+-%}
+<style>
+  #{{ section_id }} {
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --section-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --section-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+  }
+</style>
+{% render 'divider',
+  show_divider: section.settings.show_section_divider,
+  divider_width: section.settings.divider_width
+%}
+<div
+  id="{{ section_id }}"
+  class="f-countdown{{ custom_class }}{% if image == blank and enable_video_bg == false %} color-{{ section.settings.color_schema }}{% endif %} overflow-hidden"
+  data-section-type="f-countdown-timer"
+  data-section-id="{{ section.id }}"
+>
+  <div class="{{ container }}">
+    <div class="f-countdown__wrapper relative{% unless image != blank or enable_video_bg %} f-section-padding{% endunless %}{% if enable_video_bg %} color-{{ section.settings.color_schema }}{% endif %}{% if image != blank or enable_video_bg == true %} f-section-padding{% endif %}{% if image != blank and enable_video_bg == false %} f-countdown__wrapper--has-bg{% endif %}">
+      {%- if image != blank and enable_video_bg == false -%}
+        <motion-element
+          data-motion="{% if section.settings.enable_bg_zoom_effect %}zoom-out-sm{% else %}none{% endif %}"
+          class="block bg-image"
+          style="--aspect-ratio: {{ image.aspect_ratio }}"
+        >
+          {%- liquid
+            assign image_height = image.width | divided_by: image.aspect_ratio
+          -%}
+          {{
+            image
+            | image_url: width: 1500
+            | image_tag:
+              loading: loading,
+              fetchpriority: fetchpriority,
+              width: image.width,
+              height: image_height,
+              sizes: '100vw',
+              widths: '375, 550, 750, 1100, 1500, 1780, 2000, 3000, 3840',
+              alt: image.alt
+            | escape
+          }}
+        </motion-element>
+      {%- endif -%}
+      {%- if enable_video_bg -%}
+        <div class="f-video-wrapper">
+          <video-component
+            class="f-video__bg"
+            data-init="false"
+            data-type="{{ data_type }}"
+            data-video-id="{{ video_url_id }}"
+          >
+            {%- if video_type == 'shopify' and video_url != blank -%}
+              <video
+                class="video-playsinline"
+                src="{{ video_url }}"
+                playsinline
+                autoplay
+                muted
+                loop
+              ></video>
+            {%- endif -%}
+          </video-component>
+        </div>
+      {%- endif -%}
+      {%- if image_overlay_opacity > 0 -%}
+        <div
+          class="f-countdown__overlay bg-overlay"
+          style="--color-overlay-alpha: {{ image_overlay_opacity }}"
+        ></div>
+      {%- endif -%}
+      <div class="f-countdown__content w-full flex justify-{{ position }} {{ content_container }}">
+        <div class="f-countdown__inner f-text-blocks text-{{ text_alignment }}{% if image != blank and enable_video_bg == false %} f-countdown__inner--boxed color-{{ section.settings.color_schema }}{% endif %}">
+          {%- for block in section.blocks -%}
+            {%- case block.type -%}
+              {%- when 'heading' -%}
+                {%- if block.settings.heading != blank -%}
+                  <h2
+                    class="{{ block.settings.heading_size }}"
+                    {{ block.shopify_attributes }}
+                  >
+                    <motion-element
+                      data-motion="{{ animation_effect }}"
+                      data-motion-delay="{{ motion_delay }}"
+                      class="block"
+                    >
+                      {% render 'highlight-text',
+                        hl_text: block.settings.heading,
+                        hl_style: block.settings.highlight_style,
+                        enable_hl_text_color: block.settings.enable_highlight_text_color
+                      %}
+                    </motion-element>
+                  </h2>
+                  {%- assign motion_delay = motion_delay | plus: 50 -%}
+                {%- endif -%}
+              {%- when 'subheading' -%}
+                {%- if block.settings.subheading != blank -%}
+                  <motion-element
+                    data-motion="{{ animation_effect }}"
+                    data-motion-delay="{{ motion_delay }}"
+                    class="block mega-subtitle"
+                    {{ block.shopify_attributes }}
+                  >
+                    {{ block.settings.subheading | escape }}
+                  </motion-element>
+                  {%- assign motion_delay = motion_delay | plus: 50 -%}
+                {%- endif -%}
+              {%- when 'text' -%}
+                {%- if block.settings.text != blank -%}
+                  <motion-element
+                    data-motion="{{ animation_effect }}"
+                    data-motion-delay="{{ motion_delay }}"
+                    class="block mega-description text-subtext rte"
+                    {{ block.shopify_attributes }}
+                  >
+                    {{ block.settings.text }}
+                  </motion-element>
+                  {%- assign motion_delay = motion_delay | plus: 50 -%}
+                {%- endif -%}
+              {%- when 'button' -%}
+                {%- if block.settings.button_label != blank -%}
+                  <motion-element
+                    data-motion="{{ animation_effect }}"
+                    data-motion-delay="{{ motion_delay }}"
+                    class="f-text-blocks__btn block"
+                  >
+                    <a
+                      class="btn {{ block.settings.button_style }} {{ block.settings.button_size }}"
+                      {% if block.settings.button_link != blank %}
+                        href="{{ block.settings.button_link }}"
+                      {% else %}
+                        aria-disabled="true"
+                      {% endif %}
+                      {{ block.shopify_attributes }}
+                    >
+                      {{ block.settings.button_label | escape }}
+                    </a>
+                  </motion-element>
+                  {%- assign motion_delay = motion_delay | plus: 50 -%}
+                {%- endif -%}
+              {%- when 'timer' -%}
+                {%- if block.settings.type == 'evergreen'
+                  or block.settings.time != blank
+                -%}
+                  <motion-element
+                    data-motion="{{ animation_effect }}"
+                    data-motion-delay="{{ motion_delay }}"
+                    class="block"
+                  >
+                    {% render 'countdown-timer',
+                      id: block.id,
+                      type: block.settings.type,
+                      duration: block.settings.duration,
+                      time: block.settings.time,
+                      style: block.settings.style,
+                      number_size: block.settings.number_size,
+                      number_spacing: block.settings.number_spacing
+                    %}
+                  </motion-element>
+                  {%- assign motion_delay = motion_delay | plus: 50 -%}
+                {%- endif -%}
+            {%- endcase -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "t:sections.countdown-timer.name",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.countdown-timer.settings.tutorial.content"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.container.label"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.countdown-timer.settings.header_settings.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "use_content_container",
+      "label": "t:sections.countdown-timer.settings.use_content_container.label",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "position",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.countdown-timer.settings.position.option__1"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.countdown-timer.settings.position.option__2"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.countdown-timer.settings.position.option__3"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.countdown-timer.settings.position.label"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.common.text_align.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.common.text_align.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.common.text_align.options__3.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.common.text_align.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.countdown-timer.settings.bg_image.label"
+    },
+    {
+      "type": "range",
+      "id": "image_overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 10,
+      "unit": "%",
+      "label": "t:sections.hero.settings.image_settings.image_overlay",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:sections.countdown-timer.settings.video_background.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_bg_video",
+      "label": "t:sections.countdown-timer.settings.video_background.show_bg_video",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "video_type",
+      "label": "t:sections.slideshow.blocks.slide_video.settings.video_type.label",
+      "default": "shopify",
+      "options": [
+        {
+          "value": "shopify",
+          "label": "t:sections.slideshow.blocks.slide_video.settings.video_type.option_2"
+        },
+        {
+          "value": "external",
+          "label": "t:sections.slideshow.blocks.slide_video.settings.video_type.option_1"
+        }
+      ]
+    },
+    {
+      "type": "video",
+      "id": "shopify_video",
+      "label": "t:sections.slideshow.blocks.slide_video.settings.shopify_video"
+    },
+    {
+      "type": "video_url",
+      "id": "video_url",
+      "accept": ["youtube", "vimeo"],
+      "label": "t:sections.slideshow.blocks.slide_video.settings.external_video",
+      "default": "https://www.youtube.com/watch?v=_9VUPq3SxOc"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "t:sections.common.section_padding.mobile_top_padding.label",
+      "min": 0,
+      "max": 120,
+      "step": 2,
+      "default": 60,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "t:sections.common.section_padding.mobile_bottom_padding.label",
+      "min": 0,
+      "max": 120,
+      "step": 2,
+      "default": 60,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.divider.section_heading.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_divider",
+      "default": false,
+      "label": "t:sections.common.divider.show_divider.label"
+    },
+    {
+      "type": "select",
+      "id": "divider_width",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.divider.width.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_bg_zoom_effect",
+      "label": "t:settings_schema.animations.settings.animation_bg.label",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "timer",
+      "name": "t:sections.common.timer.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "type",
+          "label": "t:sections.common.timer.type.label",
+          "options": [
+            {
+              "value": "evergreen",
+              "label": "t:sections.common.timer.type.options__1.label"
+            },
+            {
+              "value": "fixed_time",
+              "label": "t:sections.common.timer.type.options__2.label"
+            }
+          ],
+          "default": "fixed_time"
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "t:sections.common.timer.style.label",
+          "options": [
+            {
+              "value": "minimal",
+              "label": "t:sections.common.timer.style.options__1.label"
+            },
+            {
+              "value": "highlight",
+              "label": "t:sections.common.timer.style.options__2.label"
+            }
+          ],
+          "default": "minimal"
+        },
+        {
+          "type": "select",
+          "id": "number_size",
+          "label": "t:sections.common.timer.number_size.label",
+          "options": [
+            {
+              "value": "h3",
+              "label": "t:sections.common.timer.number_size.options__1.label"
+            },
+            {
+              "value": "h2",
+              "label": "t:sections.common.timer.number_size.options__2.label"
+            },
+            {
+              "value": "h1",
+              "label": "t:sections.common.timer.number_size.options__3.label"
+            }
+          ],
+          "default": "h3"
+        },
+        {
+          "type": "select",
+          "id": "number_spacing",
+          "label": "t:sections.common.timer.number_spacing.label",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:sections.common.sizes.option__2.label"
+            },
+            {
+              "value": "medium",
+              "label": "t:sections.common.sizes.option__4.label"
+            },
+            {
+              "value": "large",
+              "label": "t:sections.common.sizes.option__6.label"
+            }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.common.timer.header__evergreen.content"
+        },
+        {
+          "type": "select",
+          "id": "duration",
+          "label": "t:sections.common.timer.evergreen_duration.label",
+          "options": [
+            {
+              "value": "every_2_hrs",
+              "label": "t:sections.common.timer.evergreen_duration.options__every_2_hrs.label"
+            },
+            {
+              "value": "every_6_hrs",
+              "label": "t:sections.common.timer.evergreen_duration.options__every_6_hrs.label"
+            },
+            {
+              "value": "every_12_hrs",
+              "label": "t:sections.common.timer.evergreen_duration.options__every_12_hrs.label"
+            },
+            {
+              "value": "every_24_hrs",
+              "label": "t:sections.common.timer.evergreen_duration.options__every_24_hrs.label"
+            },
+            {
+              "value": "every_week",
+              "label": "t:sections.common.timer.evergreen_duration.options__every_week.label"
+            },
+            {
+              "value": "every_month",
+              "label": "t:sections.common.timer.evergreen_duration.options__every_month.label"
+            }
+          ],
+          "default": "every_month"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.common.timer.header__fixed_time.content"
+        },
+        {
+          "type": "text",
+          "id": "time",
+          "label": "t:sections.common.timer.time.label",
+          "info": "t:sections.common.timer.time.info",
+          "default": "2025/12/20 20:30:00"
+        },
+        {
+          "type": "paragraph",
+          "content": "t:sections.common.timer.time.paragraph"
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "t:sections.countdown-timer.blocks.heading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "default": "Sale ends in",
+          "info": "t:sections.common.highlight_text.paragraph.content",
+          "label": "t:sections.countdown-timer.blocks.heading.settings.heading.label"
+        },
+        {
+          "type": "select",
+          "id": "highlight_style",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+            },
+            {
+              "value": "drawer_line",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+            },
+            {
+              "value": "underline",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_highlight_text_color",
+          "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "default": "h2",
+          "label": "t:sections.common.text_size.heading.label",
+          "options": [
+            {
+              "value": "h3",
+              "label": "t:sections.common.text_size.options__h3.label"
+            },
+            {
+              "value": "h2",
+              "label": "t:sections.common.text_size.options__h2.label"
+            },
+            {
+              "value": "h1",
+              "label": "t:sections.common.text_size.options__h1.label"
+            },
+            {
+              "value": "h0",
+              "label": "t:sections.common.text_size.options__h0.label"
+            },
+            {
+              "value": "h-xl",
+              "label": "t:sections.common.text_size.options__hd1.label"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "t:sections.countdown-timer.blocks.subheading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "t:sections.countdown-timer.blocks.subheading.settings.heading.label"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.countdown-timer.blocks.text.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Insert the time limit or an encouraging messge of your marketing campaign to create a sense of urgency for your customers. </p>",
+          "label": "t:sections.countdown-timer.blocks.text.settings.text.label"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "t:sections.countdown-timer.blocks.button.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:sections.common.button.button_label.label",
+          "default": "Shop now"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "t:sections.countdown-timer.blocks.button.settings.button_link.label"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "t:sections.common.button.button_style.label",
+          "options": [
+            {
+              "value": "btn--primary",
+              "label": "t:sections.common.button.button_style.options.option__1"
+            },
+            {
+              "value": "btn--secondary",
+              "label": "t:sections.common.button.button_style.options.option__2"
+            }
+          ],
+          "default": "btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "t:sections.common.button.button_size.label",
+          "options": [
+            {
+              "value": "",
+              "label": "t:sections.common.button.button_size.options.option__1"
+            },
+            {
+              "value": "btn--small",
+              "label": "t:sections.common.button.button_size.options.option__2"
+            },
+            {
+              "value": "btn--medium",
+              "label": "t:sections.common.button.button_size.options.option__3"
+            }
+          ],
+          "default": ""
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.countdown-timer.presets.name",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "timer"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

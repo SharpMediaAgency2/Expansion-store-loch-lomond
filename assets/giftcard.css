@@ -1,0 +1,392 @@
+/* Base */
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+a:empty,
+ul:empty,
+dl:empty,
+div:empty,
+section:empty,
+article:empty,
+p:empty,
+h1:empty,
+h2:empty,
+h3:empty,
+h4:empty,
+h5:empty,
+h6:empty {
+  display: none;
+}
+
+html {
+  font-size: 62.5%;
+  box-sizing: border-box;
+  height: 100%;
+}
+
+body {
+  background-color: rgb(var(--color-bg-1));
+  color: rgb(var(--color-text-body));
+  font-size: 15px;
+  line-height: 1.9;
+  max-width: var(--container-width);
+  margin: 0 auto;
+  padding: 0 20px;
+  flex: 1 0 auto;
+  font-family: var(--font-body-family);
+  font-style: var(--font-body-style);
+  font-weight: var(--font-body-weight);
+}
+
+@media only screen and (min-width: 768px) {
+  body {
+    font-size: 16px;
+    line-height: 1.8;
+    padding: 0 5px;
+  }
+}
+::selection {
+  background-color: rgba(var(--color-text-body), 0.2);
+}
+
+h1,
+.h1,
+h2,
+.h2 {
+  font-family: var(--font-heading-family);
+  font-style: var(--font-heading-style);
+  font-weight: var(--font-heading-weight);
+  line-height: 1.3;
+}
+
+h1,
+.h1 {
+  font-size: 30px;
+}
+
+@media only screen and (min-width: 768px) {
+  h1,
+  .h1 {
+    font-size: 40px;
+  }
+}
+h2,
+.h2 {
+  font-size: 20px;
+}
+
+@media only screen and (min-width: 768px) {
+  h2,
+  .h2 {
+    font-size: 24px;
+  }
+}
+.skip-to-content-link:focus {
+  z-index: 9999;
+  position: inherit;
+  overflow: auto;
+  width: auto;
+  height: auto;
+  clip: auto;
+}
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0 36px;
+  transition: 0.3s all;
+  outline: none;
+  box-shadow: none;
+  color: rgb(var(--color-text-body));
+  white-space: nowrap;
+  border-radius: var(--border-rounded, 0);
+  border: 1px solid var(--color-border);
+  line-height: var(--btn-height);
+  font-family: var(--font-btn-family);
+  font-weight: var(--font-btn-weight);
+  text-decoration: none;
+  font-size: inherit;
+}
+.btn:not(.btn--plain):not(.btn--underline):hover {
+  --color-border: var(--color-btn-bg-hover, #212121);
+  background: var(--color-btn-bg-hover, #212121);
+  color: var(--color-btn-text-hover, #fff);
+}
+
+.btn--primary {
+  --color-border: var(--color-btn-bg, #000);
+  background: var(--color-btn-bg, #000);
+  color: var(--color-btn-text, #fff);
+}
+.btn--secondary {
+  --color-border: var(--color-btn-secondary-border, #000);
+  background: none;
+  color: var(--color-btn-secondary-text, #000);
+}
+.btn--plain {
+  padding: 10px 0 !important;
+  background: none !important;
+  border: none !important;
+}
+.btn--white {
+  background-color: #fff;
+  color: #000;
+  border-color: #fff;
+}
+.btn--underline {
+  position: relative;
+  padding: 2px 0;
+  border: none;
+  line-height: 1;
+  background: transparent;
+}
+.btn--underline:after {
+  content: "";
+  width: 100%;
+  height: 1px;
+  background: var(--color-btn-bg, #000);
+  position: absolute;
+  left: 0;
+  bottom: -1px;
+}
+.btn--icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  padding: 0;
+  align-items: center;
+}
+.btn--icon:hover {
+  border-color: #000;
+  color: #fff;
+  background: #000;
+}
+
+.gift-card {
+  padding-bottom: 34px;
+}
+
+.gift-card__title {
+  text-align: center;
+  word-break: break-word;
+  padding: 40px 0 17px;
+}
+
+@media only screen and (min-width: 1024px) {
+  .gift-card__title {
+    padding: 60px 0 26px;
+  }
+}
+.gift-card__image-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100%;
+  background-color: rgb(var(--color-bg-1));
+  margin-bottom: 8px;
+  margin: 0 auto;
+}
+
+@media only screen and (min-width: 768px) {
+  .gift-card__image-wrapper {
+    margin-bottom: 0;
+    max-width: 400px;
+  }
+}
+.gift-card__image {
+  max-width: 100%;
+  padding: 0 20px;
+  height: auto;
+}
+
+@media only screen and (min-width: 768px) {
+  .gift-card__image {
+    padding: 0;
+  }
+}
+.gift-card__heading {
+  font-weight: 400;
+  margin: 25px 0 10px;
+}
+
+.gift-card__price {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 16px;
+  font-weight: 400;
+  line-height: 1.5;
+  opacity: 0.85;
+}
+
+.gift-card__price > p:first-child {
+  margin-bottom: 10px;
+}
+
+@media only screen and (min-width: 768px) {
+  .gift-card__price {
+    font-size: 20px;
+  }
+}
+.gift-card__label:not(.badge) {
+  font-weight: 400;
+  opacity: 0.7;
+}
+
+.gift-card__number {
+  background-color: transparent;
+  border: none;
+  color: rgb(var(--color-text-body));
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: center;
+  width: 100%;
+  margin-bottom: 10px;
+}
+
+@media only screen and (min-width: 768px) {
+  .gift-card__number {
+    font-size: 18px;
+  }
+}
+.gift-card__text {
+  margin-bottom: 40px;
+  opacity: 0.7;
+}
+
+.gift-card__information {
+  text-align: center;
+  margin-top: 30px;
+}
+
+.gift-card__label {
+  font-size: 13px;
+  font-weight: 500;
+  display: inline;
+  margin-left: 10px;
+}
+
+.badge {
+  border: 1px solid transparent;
+  margin: 17px 0 10px 10px;
+  border-radius: 40px;
+  display: inline-block;
+  font-size: 12px;
+  line-height: 1;
+  padding: 6px 13px;
+  text-align: center;
+  background-color: rgb(var(--color-bg-1));
+  border-color: rgba(var(--color-text-body), 0.04);
+  color: rgb(var(--color-text-body));
+}
+
+.badge--inverse {
+  background-color: rgb(var(--color-text-body));
+  border-color: rgb(var(--color-text-body));
+  color: rgb(var(--color-bg-1));
+}
+
+.caption-large {
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.gift-card__copy-code {
+  margin-bottom: 22px;
+}
+
+.gift-card__qr-code {
+  margin-top: 30px;
+}
+
+@media only screen and (min-width: 768px) {
+  .gift-card__qr-code {
+    margin-top: 50px;
+  }
+}
+.gift-card__qr-code img {
+  margin: 0 auto;
+}
+
+.gift_card__apple-wallet {
+  line-height: 0;
+  display: block;
+  margin-bottom: 50px;
+}
+
+.gift-card__buttons {
+  display: flex;
+  flex-direction: column;
+  max-width: 250px;
+  flex-wrap: wrap;
+  margin: 0 auto;
+}
+
+.gift-card__buttons > .btn:first-child {
+  margin-bottom: 20px;
+}
+
+.gift-card__copy-success {
+  color: #3a8735;
+}
+
+.gift-card__copy-success svg {
+  width: 14px;
+  margin-right: 5px;
+}
+
+/*
+  Focus ring - default (with offset)
+*/
+/* Fallback - for browsers that don't support :focus-visible, a fallback is set for :focus */
+*:focus {
+  outline: 0;
+  box-shadow: none;
+}
+
+*:focus-visible {
+  outline: 2px solid rgba(var(--color-text-body), 0.5);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px rgb(var(--color-bg-1)), 0 0 5px 4px rgba(var(--color-text-body), 0.3);
+}
+
+/* Fallback - for browsers that don't support :focus-visible, a fallback is set for :focus */
+.focused, .no-js *:focus {
+  outline: 2px solid rgba(var(--color-foreground), 0.5);
+  outline-offset: 3px;
+  box-shadow: 0 0 0 3px rgb(var(--color-background)), 0 0 5px 4px rgba(var(--color-foreground), 0.3);
+}
+
+/* Negate the fallback side-effect for browsers that support :focus-visible */
+.no-js *:focus:not(:focus-visible) {
+  outline: 0;
+  box-shadow: none;
+}
+
+.form__message {
+  align-items: center;
+  display: flex;
+  font-size: 12px;
+  line-height: 1;
+  margin-top: 10px;
+  justify-content: center;
+}
+
+.form__message .f-icon {
+  flex-shrink: 0;
+  height: 13px;
+  margin-right: 5px;
+  width: 13px;
+}
+
+@media print {
+  .no-print {
+    display: none;
+  }
+}

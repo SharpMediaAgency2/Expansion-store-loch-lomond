@@ -1,0 +1,89 @@
+{%- liquid
+  if swatch == blank
+    assign img_file_name = value.value | handle | append: '.png'
+    assign image_url = img_file_name | file_img_url: '60x60' | prepend: 'https:' | split: '?' | first
+    assign value_fallback = value.value | split: ' ' | last | handle
+  else
+    assign swatch_image = blank
+    assign swatch_fallback = value | split: ' ' | last | handle
+    if swatch.image
+      assign swatch_image = swatch.image | image_url: width: 72
+      assign swatch_fallback_override = false
+    elsif swatch.color
+      assign swatch_fallback = swatch.color
+    endif
+  endif
+-%}
+
+{%- if swatch != blank -%}
+  <div
+    class="filter-color-swatch"
+    style="--color-option: {{ swatch_fallback }};{% if swatch_fallback_override == false and swatch_image != blank %} background-image: url({{ swatch_image }});{% endif %}"
+  >
+    <label
+      for="{{- id -}}"
+      {% if filter_color_type == 'inline' %}
+        data-tippy-theme="color-background-1"
+        data-tippy-content="{{ label | strip_html }}"
+        data-tippy-placement="top"
+      {% endif %}
+    >
+      <input
+        type="checkbox"
+        id="{{- id -}}"
+        name="{{- value.param_name -}}"
+        value="{{- value.value -}}"
+        {% if value.active %}
+          checked
+        {% endif %}
+      >
+      <span
+        class="color-check"
+        {% if images[img_file_name] != blank %}
+          style="background-image: url({{ image_url }});"
+        {% endif %}
+      ></span>
+      {% if filter_color_type == 'list' %}
+        <span>{{- label -}}</span>
+      {% endif %}
+    </label>
+  </div>
+{%- else -%}
+  <filter-color-swatch
+    class="filter-color-swatch"
+    data-value="{{- value.value | escape -}}"
+    data-fallback-value="{{- value_fallback | downcase -}}"
+    title="{{- value.value -}}"
+    {% if disabled %}
+      disabled
+    {% endif %}
+  >
+    <label
+      for="{{- id -}}"
+      {% if filter_color_type == 'inline' %}
+        data-tippy-theme="color-background-1"
+        data-tippy-content="{{ label | strip_html }}"
+        data-tippy-placement="top"
+      {% endif %}
+    >
+      <input
+        type="checkbox"
+        id="{{- id -}}"
+        name="{{- value.param_name -}}"
+        value="{{- value.value -}}"
+        {% if value.active %}
+          checked
+        {% endif %}
+      >
+      <span
+        class="color-check"
+        {% if images[img_file_name] != blank %}
+          style="background-image: url({{ image_url }});"
+        {% endif %}
+      ></span>
+      {% if filter_color_type == 'list' %}
+        <span>{{- label -}}</span>
+      {% endif %}
+    </label>
+  </filter-color-swatch>
+{%- endif -%}

@@ -1,0 +1,119 @@
+{% unless template == 'index'
+  or template == 'cart'
+  or template == 'list-collections'
+%}
+  {% liquid
+    assign justify = justify | default: 'start'
+    case justify
+      when 'left'
+        assign justify = 'start'
+      when 'right'
+        assign justify = 'end'
+    endcase
+  %}
+  {% capture separator_icon %}
+  <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4.5 2.25L8.25 6L4.5 9.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  {% endcapture %}
+  <nav
+    class="breadcrumbs flex flex-wrap justify-{{ justify }}"
+    role="navigation"
+    aria-label="breadcrumbs"
+  >
+    {% if template contains 'page' %}
+      <span aria-hidden="true" class="breadcrumbs--sep">
+        {{- separator_icon -}}
+      </span>
+      <span>{{ page.title }}</span>
+    {% elsif template contains 'product' %}
+      {% liquid
+        assign primary_collection = product.metafields.breadcrumb.primary_collection
+      %}
+      {% if collection.url != blank %}
+        <span aria-hidden="true" class="breadcrumbs--sep">
+          {{- separator_icon -}}
+        </span>
+        {% if primary_collection != blank %}
+          {{
+            primary_collection.value.title
+            | link_to: primary_collection.value.url
+          }}
+        {% else %}
+          {{ collection.title | link_to: collection.url }}
+        {% endif %}
+      {% else %}
+        {% assign current_collection = product.collections | first %}
+        <span aria-hidden="true" class="breadcrumbs--sep">
+          {{- separator_icon -}}
+        </span>
+        {% if primary_collection != blank %}
+          <a href="{{ primary_collection.value.url }}">
+            {{- primary_collection.value.title -}}
+          </a>
+        {% else %}
+          {% if current_collection %}
+            <a href="{{ current_collection.url }}">
+              {{- current_collection.metafields.custom.collection_title.value | default: current_collection.title -}}
+            </a>
+          {% endif %}
+        {% endif %}
+      {% endif %}
+      {% if current_collection or primary_collection %}
+        <span
+          aria-hidden="true"
+          class="breadcrumbs--sep breadcrumbs--sep-last"
+        >
+          {{- separator_icon -}}
+        </span>
+      {% endif %}
+      <span class="breadcrumbs--last">{{ product.title }}</span>
+    {% elsif template contains 'collection' and collection.handle %}
+      <a href="{{ routes.root_url }}">Home</a>
+<span aria-hidden="true" class="breadcrumbs--sep">{{- separator_icon -}}</span>
+      <a href="/collections">Shop</a>
+      <span aria-hidden="true" class="breadcrumbs--sep">{{- separator_icon -}}</span>
+      {% if current_tags %}
+        {% capture url %}{{ routes.collections_url }}/{{ collection.handle }}{% endcapture %}
+        {{ collection.title | link_to: url }}
+        <span aria-hidden="true" class="breadcrumbs--sep">
+          {{- separator_icon -}}
+        </span>
+        <span class="breadcrumbs--last">
+          {{- current_tags | join: ' + ' -}}
+        </span>
+      {% else %}
+        <span class="breadcrumbs--last">{{ collection.title }}</span>
+      {% endif %}
+    {% elsif template == 'blog' %}
+      <span aria-hidden="true" class="breadcrumbs--sep">
+        {{- separator_icon -}}
+      </span>
+      {% if current_tags %}
+        {{ blog.title | link_to: blog.url }}
+        <span aria-hidden="true" class="breadcrumbs--sep">
+          {{- separator_icon -}}
+        </span>
+        <span class="breadcrumbs--last">
+          {{- current_tags | join: ' + ' -}}
+        </span>
+      {% else %}
+        <span>{{ blog.title }}</span>
+      {% endif %}
+    {% elsif template == 'article' %}
+      <span aria-hidden="true" class="breadcrumbs--sep">
+        {{- separator_icon -}}
+      </span>
+      {{ blog.title | link_to: blog.url }}
+      <span aria-hidden="true" class="breadcrumbs--sep">
+        {{- separator_icon -}}
+      </span>
+      <span class="breadcrumbs--last">{{ article.title }}</span>
+    {% else %}
+      <span aria-hidden="true" class="breadcrumbs--sep">
+        {{- separator_icon -}}
+      </span>
+      <span class="breadcrumbs--last">{{ page_title }}</span>
+    {% endif %}
+  </nav>
+{% endunless %}

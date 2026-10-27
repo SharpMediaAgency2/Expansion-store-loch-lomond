@@ -1,0 +1,130 @@
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id  
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+-%}
+
+{{ 'tabs-component.css' | asset_url | stylesheet_tag }}
+
+<div
+  id="{{ section_id }}"
+  class="color-{{ section.settings.color_schema }}"
+  data-section-type="collection-with-tabs"
+  data-section-id="{{ section.id }}"
+>
+  <div class="container">
+    <tabs-component class="f-tabs f-product-tabs__wrapper">
+      {%- liquid
+          assign tab_header_class = 'flex flex-row justify-center items-center'
+      -%}
+      <div
+        class="product-tabs__header {{ tab_header_class }}"
+        role="tablist"
+      >
+        <motion-element
+          data-motion="{{ animation_effect }}"
+          data-motion-delay="{{ motion_delay }}"
+          class="f-tabs__header-group"
+        >
+          <ul class="f-tabs__group flex flex-wrap items-center justify-center">
+            
+            {% assign current_path = request.path | downcase %}
+
+            {% comment %} 
+            {% assign parent_path = collection.url | downcase %}
+
+            <li class="f-tabs__list">
+              <a 
+                href="{{ collection.url }}" 
+                class="f-tabs__link{% if current_path contains parent_path %} active-tab{% endif %}"
+              >
+                View All
+              </a>
+            </li> 
+            {% endcomment %}
+
+            <!-- Subcollections -->
+            {%- for subcollection in collection.metafields.custom.subcollections.value -%}
+              {% assign tab_name = subcollection.metafields.custom.collection_title.value | default: subcollection.title %}
+              {% assign tab_url = subcollection.url %}
+              {% assign tab_path = tab_url | downcase %}
+              <li class="f-tabs__list">
+                <a
+                  href="{{ tab_url }}"
+                  class="f-tabs__link {% if current_path contains tab_path %} active-tab{% endif %}"
+                  role="tab"
+                  id="tab-{{ forloop.index }}"
+                >
+                  {{ tab_name }}
+                </a>
+              </li>
+            {%- endfor -%}
+          </ul>
+        </motion-element>
+        {%- assign motion_delay = motion_delay | plus: 50 -%}
+      </div>
+    </tabs-component>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.product-tabs.name",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,4887 @@
+{
+  "settings_schema": {
+    "global": {
+      "settings": {
+        "font_family_options": {
+          "label": "フォントファミリ",
+          "info": "別のフォントを選択すると、ストアの速度に影響する可能性があります。[システムフォントの詳細](https://help.shopify.com/en/manual/online-store/os/store-speed/improving-speed#fonts)",
+          "option__1": {
+            "label": "本文フォント"
+          },
+          "option__2": {
+            "label": "見出しフォント"
+          }
+        },
+        "line_height": {
+          "label": "行の高さ"
+        },
+        "text_transform": {
+          "label": "テキスト変換"
+        },
+        "letter_spacing": {
+          "label": "文字間隔"
+        },
+        "rounded": {
+          "label": "コーナー半径"
+        },
+        "content_alignment": {
+          "label": "コンテンツの配置",
+          "desktop": {
+            "label": "デスクトップコンテンツの配置"
+          },
+          "mobile": {
+            "label": "モバイルコンテンツのアライメント"
+          },
+          "option__1": {
+            "label": "左"
+          },
+          "option__2": {
+            "label": "センター"
+          },
+          "option__3": {
+            "label": "右"
+          }
+        },
+        "vertical_alignment": {
+          "label": "垂直方向の配置",
+          "option__1": {
+            "label": "ページのトップへ"
+          },
+          "option__2": {
+            "label": "中央"
+          },
+          "option__3": {
+            "label": "底"
+          }
+        },
+        "content_position": {
+          "label": "デスクトップコンテンツの位置",
+          "option__1": {
+            "label": "左上"
+          },
+          "option__2": {
+            "label": "トップセンター"
+          },
+          "option__3": {
+            "label": "右上"
+          },
+          "option__4": {
+            "label": "左中央"
+          },
+          "option__5": {
+            "label": "中央中央"
+          },
+          "option__6": {
+            "label": "右中央"
+          },
+          "option__7": {
+            "label": "左下"
+          },
+          "option__8": {
+            "label": "下部中央"
+          },
+          "option__9": {
+            "label": "右下"
+          }
+        },
+        "text_size": {
+          "label": "文字サイズ",
+          "option__1": {
+            "label": "中程度"
+          },
+          "option__2": {
+            "label": "大きい"
+          },
+          "option__3": {
+            "label": "小さい"
+          },
+          "option__4": {
+            "label": "体"
+          }
+        },
+        "text_color_options": {
+          "label": "テキストの色"
+        },
+        "image_aspect_ratio_options": {
+          "label": "画像比率",
+          "option__1": {
+            "label": "画像に適応"
+          },
+          "option__2": {
+            "label": "スクエア (1:1)"
+          },
+          "option__3": {
+            "label": "ポートレート (3:4)"
+          },
+          "option__4": {
+            "label": "2:3"
+          },
+          "option__5": {
+            "label": "ランドスケープ (4:3)"
+          },
+          "option__6": {
+            "label": "16:9"
+          },
+          "option__7": {
+            "label": "グローバル設定の使用"
+          },
+          "option__8": {
+            "label": "最初の画像に合わせる"
+          }
+        },
+        "bolder_font_weight": {
+          "label": "太字の太さ",
+          "info": "特定のタイトルとラベルを強調するために使用されます"
+        },
+        "font_weight": {
+          "label": "フォントの太さ",
+          "option__1": {
+            "label": "光"
+          },
+          "option__2": {
+            "label": "レギュラー"
+          },
+          "option__3": {
+            "label": "中程度"
+          },
+          "option__4": {
+            "label": "半太字"
+          },
+          "option__5": {
+            "label": "ボールド"
+          },
+          "option__6": {
+            "label": "極太"
+          },
+          "option__7": {
+            "label": "黒い"
+          }
+        }
+      }
+    },
+    "general": {
+      "name": "全般",
+      "settings": {
+        "tutorial": {
+          "content": "[ハウツーを読む](https://foxecom.link/8aLH4O)"
+        },
+        "favicon": {
+          "label": "ファビコン画像",
+          "info": "32 x 32pxに縮小"
+        },
+        "page_transition": {
+          "content": "アニメーション",
+          "label": "ページ切り替えを有効にする"
+        },
+        "cart_icon": {
+          "label": "カートアイコン",
+          "options": {
+            "option__1": {
+              "label": "ショッピングカート"
+            },
+            "option__2": {
+              "label": "ショッピングバッグ"
+            }
+          }
+        },
+        "rtl": {
+          "label": "右から左へのサポート",
+          "enable_rtl": {
+            "label": "RTL を有効にする",
+            "info": "[ハウツーを読む](https://foxecom.link/s1X1aq)"
+          },
+          "language_support_rtl": {
+            "label": "言語はRTLをサポートしています",
+            "info": "ISO 言語コードをカンマで区切って入力します。空白のままにすると、すべての言語で有効になります。[ISO言語コードの確認](https://www.loc.gov/standards/iso639-2/php/code_list.php)"
+          }
+        },
+        "show_scroll_top_button": {
+          "label": "トップにスクロールボタンを表示する"
+        }
+      }
+    },
+    "layout": {
+      "name": "レイアウト",
+      "settings": {
+        "maximum_width": {
+          "label": "ページコンテンツの幅"
+        },
+        "section_heading_alignment": {
+          "label": "セクション見出しの配置",
+          "options": {
+            "option__1": "左",
+            "option__2": "センター",
+            "option__3": "右"
+          }
+        },
+        "section_heading_alignment_mobile": {
+          "label": "モバイルでのセクション見出しの配置",
+          "options": {
+            "option__1": "受け継ぐ",
+            "option__2": "左",
+            "option__3": "センター",
+            "option__4": "右"
+          }
+        }
+      }
+    },
+    "colors": {
+      "name": "色",
+      "settings": {
+        "header_general_color": {
+          "content": "全般"
+        },
+        "primary_color": {
+          "label": "アクセント カラー",
+          "info": "プライマリボタンの背景に使用されます。"
+        },
+        "border_color": {
+          "label": "罫線の色"
+        },
+        "header_text_color": {
+          "content": "テキストの色"
+        },
+        "body_text_color": {
+          "label": "本文テキスト",
+          "info": "背景色の前景色として使用されます。"
+        },
+        "heading_text_color": {
+          "label": "見出しテキスト",
+          "info": "アウトラインボタンにも使用されます。"
+        },
+        "subtext_text_color": {
+          "label": "言外"
+        },
+        "text_link_color": {
+          "label": "テキストリンク"
+        },
+        "text_link_hover_color": {
+          "label": "テキストリンクのホバー"
+        },
+        "header_background_color": {
+          "content": "バックグラウンド"
+        },
+        "background_1_color": {
+          "label": "背景1"
+        },
+        "background_2_color": {
+          "label": "背景2"
+        },
+        "header_form_field_color": {
+          "content": "フォームフィールド"
+        },
+        "form_field_background_color": {
+          "label": "バックグラウンド"
+        },
+        "form_field_text_color": {
+          "label": "テキスト"
+        },
+        "header_tooltip_color": {
+          "content": "ツールチップ"
+        },
+        "tooltip_background_color": {
+          "label": "バックグラウンド"
+        },
+        "tooltip_text_color": {
+          "label": "テキスト"
+        },
+        "header_primary_button_color": {
+          "content": "プライマリボタン"
+        },
+        "primary_button_text_color": {
+          "label": "テキスト",
+          "info": "アクセント カラーの前景色として使用されます。"
+        },
+        "primary_button_background_color": {
+          "label": "バックグラウンド"
+        },
+        "header_secondary_button_color": {
+          "content": "セカンダリボタン"
+        },
+        "secondary_button_text_color": {
+          "label": "テキスト"
+        },
+        "secondary_button_background_color": {
+          "label": "バックグラウンド"
+        },
+        "secondary_button_border_color": {
+          "label": "境"
+        },
+        "header_button_hover": {
+          "content": "ボタンのホバー"
+        },
+        "button_hover_background_border_color": {
+          "label": "背景と境界線"
+        },
+        "button_hover_text_color": {
+          "label": "テキスト"
+        },
+        "header_product_color": {
+          "content": "積"
+        },
+        "product_sale_price_color": {
+          "label": "販売価格"
+        },
+        "header_header_color": {
+          "content": "ヘッダ"
+        },
+        "header_text_icon_on_transparent_color": {
+          "label": "ヘッダー上のテキストとアイコンが透明"
+        },
+        "menu_bg_color": {
+          "label": "バックグラウンド"
+        },
+        "menu_text_color": {
+          "label": "テキスト"
+        },
+        "menu_text_hover_color": {
+          "label": "テキストのホバー"
+        },
+        "header_announcement_bar_color": {
+          "content": "アナウンスメントバー"
+        },
+        "announcement_bar_bg_color": {
+          "label": "バックグラウンド"
+        },
+        "announcement_bar_text_color": {
+          "label": "テキスト"
+        },
+        "header_top_bar_color": {
+          "content": "トップバー"
+        },
+        "top_bar_bg_color": {
+          "label": "バックグラウンド"
+        },
+        "top_bar_text_icon_color": {
+          "label": "テキストとアイコン"
+        },
+        "header_footer_color": {
+          "content": "フッター"
+        },
+        "footer_bg_color": {
+          "label": "バックグラウンド"
+        },
+        "footer_text_color": {
+          "label": "テキスト"
+        },
+        "header_badge_color": {
+          "content": "バッジ"
+        },
+        "badge_sale_color": {
+          "label": "販売"
+        },
+        "badge_out_of_stock_color": {
+          "label": "在庫切れ"
+        },
+        "badge_hot_color": {
+          "label": "暑い"
+        },
+        "badge_new_color": {
+          "label": "新機能"
+        },
+        "header_other_color": {
+          "content": "その他の色"
+        },
+        "cart_bubble_bg_color": {
+          "label": "カートバブルの背景"
+        },
+        "overlay_bg_color": {
+          "label": "オーバーレイの背景"
+        },
+        "overlay_alpha": {
+          "label": "オーバーレイの不透明度"
+        },
+        "highlight_text": {
+          "label": "テキストを強調表示する"
+        }
+      }
+    },
+    "typography": {
+      "name": "タイポグラフィ",
+      "settings": {
+        "header_body": {
+          "content": "体"
+        },
+        "body_scale": {
+          "label": "フォントサイズスケール"
+        },
+        "heading_scale": {
+          "label": "フォントサイズスケール"
+        },
+        "heading_mobile_scale": {
+          "label": "フォントサイズモバイルスケール"
+        },
+        "heading_uppercase": {
+          "label": "大文字の見出し"
+        },
+        "body_base_font_size": {
+          "label": "基本フォントサイズ"
+        },
+        "header_headings": {
+          "content": "見出し"
+        },
+        "heading_letter_spacing": {
+          "label": "文字間隔"
+        },
+        "btn_height": {
+          "label": "高さ"
+        },
+        "highlight_text": {
+          "content": "テキストを強調表示します",
+          "info": "テキストのハイライトに使用します"
+        },
+        "font_family": {
+          "label": "フォントファミリー",
+          "options__1": {
+            "label": "見出しフォント"
+          },
+          "options__2": {
+            "label": "カスタムフォントを使用します"
+          }
+        },
+        "custom_font": {
+          "label": "カスタムフォント"
+        },
+        "mega_title": {
+          "content": "メガタイトル",
+          "info": "特大見出しに使用",
+          "uppercase": {
+            "label": "大文字のメガタイトル"
+          }
+        },
+        "subheading": {
+          "content": "Subheadings",
+          "info": "Font weight is based on the font selected",
+          "subheading_transform": {
+            "label": "Text transform",
+            "option__1": {
+              "label": "Normal"
+            },
+            "option__2": {
+              "label": "lower case"
+            },
+            "option__3": {
+              "label": "UPPER CASE"
+            },
+            "option__4": {
+              "label": "Title Case"
+            }
+          }
+        },
+        "navigation": {
+          "content": "航法",
+          "uppercase": {
+            "label": "大文字のナビゲーション"
+          }
+        },
+        "buttons": {
+          "content": "ボタン",
+          "uppercase_label": {
+            "label": "大文字のラベル"
+          },
+          "btn_height": {
+            "label": "高さ"
+          }
+        }
+      }
+    },
+    "search": {
+      "name": "捜索",
+      "settings": {
+        "header_product_suggestions": {
+          "content": "製品の提案"
+        },
+        "header_recommendations": {
+          "content": "推奨 事項"
+        },
+        "predictive_search_enabled": {
+          "label": "製品提案を有効にする"
+        },
+        "predictive_search_show_vendor": {
+          "label": "製品ベンダーの表示"
+        },
+        "predictive_search_show_price": {
+          "label": "製品価格を表示"
+        },
+        "predictive_search_collection": {
+          "label": "コレクション推奨",
+          "info": "顧客にお勧めするコレクションを選択する"
+        },
+        "predictive_search_most_searched_keywords": {
+          "label": "最も検索されたキーワード",
+          "info": "ストアで最も検索されたキーワードをお客様におすすめします。例:Tシャツ、ドレス、ブラック"
+        }
+      }
+    },
+    "product_card": {
+      "name": "製品カード",
+      "settings": {
+        "tutorial": {
+          "content": "[ハウツーを読む](https://foxecom.link/t8o1lI)"
+        },
+        "header_product_image": {
+          "content": "製品イメージ"
+        },
+        "show_second_image_on_hover": {
+          "label": "ホバー時に2番目の画像を表示する"
+        },
+        "header_actions": {
+          "content": "アクション"
+        },
+        "action_show_add_to_cart": {
+          "label": "クイック追加ボタンを有効にする"
+        },
+        "action_show_quick_view": {
+          "label": "クイックビューボタンを有効にする"
+        },
+        "upper_product_title": {
+          "label": "大文字の商品タイトル"
+        },
+        "on_sale_badge": {
+          "label": "販売バッジを表示",
+          "type": {
+            "label": "セールバッジの種類",
+            "options": {
+              "option__1": {
+                "label": "テキスト"
+              },
+              "option__2": {
+                "label": "百分率"
+              },
+              "option__3": {
+                "label": "定額"
+              }
+            }
+          }
+        },
+        "show_sold_out_badge": {
+          "label": "売り切れバッジを表示"
+        },
+        "header_content": {
+          "content": "コンテンツ"
+        },
+        "show_color_swatches": {
+          "label": "色見本を表示"
+        },
+        "show_vendor": {
+          "label": "ベンダーの表示"
+        },
+        "show_product_rating": {
+          "label": "製品評価を表示",
+          "info": "評価を表示するには、商品評価アプリを追加します。 [詳細](https://help.shopify.com/manual/online ストア/テーマ/os20/テーマ別ショップ/夜明け/ページタイプ#商品推奨-表示-商品評価)"
+        },
+        "choose_options_action": {
+          "label": "「オプションの選択」アクション",
+          "options": {
+            "option_1": "ポップアップを開く",
+            "option_2": "製品ページへ"
+          }
+        },
+        "show_video_instead": {
+          "label": "アイキャッチ画像の代わりに動画を表示する",
+          "info": "動画が商品のメディアリストの最初に配置され、動画がShopifyでホストされている必要がある場合にのみ機能します。"
+        },
+        "header_product_title": {
+          "content": "商品名"
+        },
+        "mobile_layout": {
+          "content": "モバイルレイアウト"
+        },
+        "mobile_hide_quick_add": {
+          "label": "クイック追加ボタンを隠す"
+        },
+        "mobile_hide_quick_view": {
+          "label": "クイックビューボタンを隠す"
+        }
+      }
+    },
+    "product_color_swatches": {
+      "name": "カラースウォッチ",
+      "settings": {
+        "color_swatches_enable": {
+          "label": "カラースウォッチの有効化"
+        },
+        "color_swatches_shape": {
+          "label": "色見本図形",
+          "options": {
+            "option__1": {
+              "label": "円"
+            },
+            "option__2": {
+              "label": "正方形"
+            }
+          }
+        },
+        "color_swatches_trigger": {
+          "label": "カラースウォッチトリガー",
+          "info": "どちらがカラーオプションであるかを定義します。コンマで区切ります。例えば。カラー,カラー"
+        },
+        "header_image_swatches": {
+          "content": "画像を使用して、商品ページやコレクションページにカラースウォッチを追加することもできます. [チュートリアルを見る](https://foxecom.link/mATKbL)または [ハウツーを読む](https://foxecom.link/nIfkcAf)."
+        },
+        "custom_colors": {
+          "label": "カスタムカラー",
+          "info": "有効な形式: 赤: #ff0000、コンマで区切る"
+        },
+        "swatch_type": {
+          "label": "スウォッチスタイル",
+          "option__1": {
+            "label": "カスタムカラー"
+          },
+          "option__2": {
+            "label": "ショッピファイ"
+          },
+          "option__3": {
+            "label": "バリエーション画像"
+          }
+        },
+        "headers": {
+          "header__1": {
+            "content": "バリアントピッカー"
+          },
+          "header__2": {
+            "content": "製品カード"
+          }
+        },
+        "paragraphs": {
+          "paragraph__1": {
+            "content": "これは、バリエーションを選択できるすべての場所 (製品ページ、注目の製品セクション、クイック ビューなど) に適用されます。"
+          }
+        }
+      }
+    },
+    "article_card": {
+      "name": "記事カード",
+      "settings": {
+        "show_date": {
+          "label": "表示日"
+        },
+        "show_excerpt": {
+          "label": "抜粋を表示"
+        },
+        "show_read_more": {
+          "label": "続きを読むボタンを表示"
+        }
+      }
+    },
+    "social_media": {
+      "name": "ソーシャルメディア",
+      "settings": {
+        "header_social_accounts": {
+          "content": "ソーシャルアカウント"
+        },
+        "header_sharing_options": {
+          "content": "共有オプション"
+        },
+        "share_on_facebook": {
+          "label": "フェイスブックでシェアする"
+        },
+        "share_on_twitter": {
+          "label": "ツイッターでシェアする"
+        },
+        "share_on_pinterest": {
+          "label": "Pinterest でシェアする"
+        },
+        "social_twitter_link": {
+          "label": "囀る",
+          "info": "https://twitter.com/shopify"
+        },
+        "social_facebook_link": {
+          "label": "フェイスブック",
+          "info": "https://facebook.com/shopify"
+        },
+        "social_pinterest_link": {
+          "label": "ピンタレスト",
+          "info": "https://pinterest.com/shopify"
+        },
+        "social_instagram_link": {
+          "label": "インスタグラム",
+          "info": "http://instagram.com/shopify"
+        },
+        "social_tiktok_link": {
+          "label": "ティクトク",
+          "info": "https://tiktok.com/@shopify"
+        },
+        "social_tumblr_link": {
+          "label": "タンブラー",
+          "info": "https://shopify.tumblr.com"
+        },
+        "social_snapchat_link": {
+          "label": "スナップチャット",
+          "info": "https://www.snapchat.com/add/shopify"
+        },
+        "social_youtube_link": {
+          "label": "ユーチューブ",
+          "info": "https://www.youtube.com/shopify"
+        },
+        "social_vimeo_link": {
+          "label": "ビメオ",
+          "info": "https://vimeo.com/shopify"
+        },
+        "social_whatsapp_link": {
+          "label": "ワッツアプリ",
+          "info": "https://www.whatsapp.com/add/shopify"
+        },
+        "social_linkedin_link": {
+          "label": "リンクテディン",
+          "info": "https://www.linkedin.com/shopify"
+        },
+        "social_spotify_link": {
+          "label": "ティポティファイ",
+          "info": "https://vimeo.com/shopify"
+        }
+      }
+    },
+    "currency_format": {
+      "name": "通貨形式",
+      "settings": {
+        "content": "通貨コード",
+        "paragraph": "カートとチェックアウトの価格には、常に通貨コードが表示されます。例: $1.00 USD。",
+        "currency_code_enabled": {
+          "label": "通貨コードの表示"
+        }
+      }
+    },
+    "cart": {
+      "name": "カート",
+      "settings": {
+        "tutorial": {
+          "content": "[ハウツーを読む](https://foxecom.link/696aYj)"
+        },
+        "cart_type": {
+          "label": "カートタイプ",
+          "drawer": {
+            "label": "引き出し"
+          },
+          "page": {
+            "label": "ページ"
+          }
+        },
+        "default_country": {
+          "header": "配送料を計算する",
+          "label": "デフォルトの国",
+          "info": "\"配送料の見積もり\" フォームの既定の国。国名を入力します (例: 米国)。国名[ここ]を参照(https://foxecom.link/696aYj#3.-country-code)"
+        },
+        "cart-drawer": {
+          "header": "カート引き出し",
+          "show_cart_when_added": {
+            "label": "アイテムが追加されたときに開く"
+          },
+          "show_cart_count": {
+            "label": "アイテム数を表示"
+          },
+          "enable_cart_note": {
+            "label": "カートメモを有効にする"
+          },
+          "enable_calc_shipping_rates": {
+            "label": "配送料の計算を有効にする"
+          },
+          "show_view_cart": {
+            "label": "カートの表示リンクを表示"
+          },
+          "cart_recommendations_enable": {
+            "label": "カートのおすすめを有効にする",
+            "info": "動的レコメンデーションは、カート内のアイテムに基づいています。それらは時間とともに変化し、改善します。[もっと詳しく知る](https://help.shopify.com/en/manual/online-store/search-and-discovery/product-recommendations)"
+          },
+          "cart_delivery_time_enable": {
+            "label": "カートの配達時間を有効にする"
+          }
+        },
+        "empty_state": {
+          "header": "空の状態",
+          "collection_list": {
+            "label": "コレクションリスト"
+          }
+        },
+        "free_shipping_goal": {
+          "header": {
+            "content": "送料無料メッセージ",
+            "paragraph": {
+              "content": "が正しく設定されていることを確認してください。[配送料](/admin/settings/shipping). [チュートリアルを見る](https://foxecom.link/D2gN2l)"
+            }
+          },
+          "show_free_shipping_message": {
+            "label": "送料無料メッセージを表示する"
+          },
+          "free_shipping_message": {
+            "label": "メッセージ",
+            "info": "{{amount}}を使用して、送料無料への進捗状況を表示します。"
+          },
+          "free_shipping_limit": {
+            "label": "送料無料のための最小費用",
+            "info": "丸い数字を使用します。通貨、記号、文字を除外します。[詳細](https://help.shopify.com/en/manual/shipping/setting-up-and-managing-your-shipping/free-shipping-rates#free-shipping-over-a-certain-value)"
+          },
+          "enable_confetti_effect": {
+            "label": "紙吹雪効果を有効にする",
+            "info": "最小支出額に達したときに表示します。"
+          }
+        }
+      }
+    },
+    "cookies": {
+      "name": "クッキー",
+      "settings": {
+        "show_cookie_banner": {
+          "label": "クッキーバナーを表示",
+          "paragraph": "Cookieバナーは、これが義務付けられている場合、訪問者に自動的に表示されます。[ヨーロッパの顧客の追跡制限] が有効になっていることを確認します。[もっと詳しく知る](https://help.shopify.com/en/manual/your-account/privacy/cookies#tracking-european-customers-and-gdpr-compliance)"
+        },
+        "cookie_message": {
+          "label": "テキスト"
+        },
+        "design_mode": {
+          "header": "デザイン モード",
+          "paragraph": "デザイン モードを有効にして、カスタマイズ ページでのセットアップ中に Cookie バナーが常に表示されるようにします。",
+          "label": "デザイン モード"
+        }
+      }
+    },
+    "animations": {
+      "header": {
+        "content": "アニメーション"
+      },
+      "header__1": {
+        "content": "ビューに表示"
+      },
+      "header__2": {
+        "content": "ビューアニメーションで表示"
+      },
+      "settings": {
+        "animation": {
+          "label": "アニメーション",
+          "options": {
+            "option_1": "何一つ",
+            "option_2": "フェードイン",
+            "option_3": "フェードインアップ",
+            "option_4": "左にフェードイン",
+            "option_5": "右にフェードイン",
+            "option_6": "グローバル設定を継承する",
+            "option_7": "ズームフェード"
+          }
+        },
+        "animation_bg": {
+          "label": "背景ズーム効果を有効にする"
+        },
+        "duration": {
+          "label": "期間"
+        },
+        "image_hover_effect": {
+          "label": "画像ホバー効果",
+          "options": {
+            "option_1": "ズーム",
+            "option_2": "ズームと回転"
+          }
+        }
+      }
+    },
+    "quickview": {
+      "name": "製品のクイックビュー",
+      "header": {
+        "header__1": "一般的な",
+        "header__2": "価格",
+        "header__3": "バリアントピッカー"
+      },
+      "settings": {
+        "qv_show_quantity_selector": {
+          "label": "定量的にセレクターを表示"
+        },
+        "qv_show_dynamic_checkout_button": {
+          "label": "動的なチェックアウト ボタンを表示する",
+          "info": "ストアで利用可能な支払い方法を使用すると、顧客には PayPal や Apple Pay などの好みのオプションが表示されます。 [詳細](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)"
+        },
+        "qv_show_vendor": {
+          "label": "製品ベンダーを表示"
+        },
+        "qv_show_custom_tag": {
+          "label": "カスタムタグを表示"
+        },
+        "qv_show_sale_badge": {
+          "label": "セールバッジを表示"
+        },
+        "qv_show_soldout_badge": {
+          "label": "完売バッジを表示"
+        }
+      }
+    }
+  },
+  "sections": {
+    "common": {
+      "header__content": {
+        "content": "コンテンツ"
+      },
+      "header__background": {
+        "content": "背景設定"
+      },
+      "header__image_settings": {
+        "content": "画像設定"
+      },
+      "section_padding": {
+        "content": "セクションパディング",
+        "top_padding": {
+          "label": "トップパディング"
+        },
+        "bottom_padding": {
+          "label": "下のパディング"
+        },
+        "use_custom_mobile_padding": {
+          "label": "カスタムモバイルパディングを使用します"
+        },
+        "mobile_top_padding": {
+          "label": "モバイルトップパディング"
+        },
+        "mobile_bottom_padding": {
+          "label": "モバイルボトムパディング"
+        }
+      },
+      "color_schema": {
+        "label": "配色"
+      },
+      "displays": {
+        "label": "に表示",
+        "exclude": "除外する",
+        "include": "含める",
+        "info": "ハンドルをコンマで区切って入力します。",
+        "homepage": "ホームページ",
+        "product_page": "製品ページ",
+        "collection_page": "コレクションページ",
+        "blogs_page": "ブログページ",
+        "blog_post": "ブログの投稿",
+        "pages": "通常のページ",
+        "cart_page": "カートページ"
+      },
+      "visibility": {
+        "label": "可視",
+        "desktop": "デスクトップに表示",
+        "tablet": "タブレットで表示",
+        "mobile": "モバイルで表示"
+      },
+      "container": {
+        "label": "コンテナ",
+        "fixed": "固定幅",
+        "stretched": "ストレッチ幅",
+        "fullwidth": "全角",
+        "narrow": "狭い幅"
+      },
+      "grid": {
+        "name": "グリッド設定",
+        "columns": "デスクトップ上の列数",
+        "collection_columns": "行あたりの製品数",
+        "logo_columns": "行あたりの画像数",
+        "lookbook_columns": "行あたりの画像数",
+        "product_limit": "表示する製品",
+        "gap": "列のギャップ",
+        "gap_mobile": "モバイルでの列のギャップ",
+        "row_gap": "行のギャップ",
+        "row_gap_mobile": "モバイルでの行間ギャップ",
+        "post_limit": "表示する投稿",
+        "gap_options": {
+          "option_01": "大きい",
+          "option_02": "中くらい",
+          "option_03": "小さい",
+          "option_04": "隙間なし",
+          "option_05": "極小",
+          "option_06": "特大",
+          "option_07": "ダブル エクストラスモール"
+        }
+      },
+      "slider": {
+        "header": "カルーセル設定",
+        "enable_slider": "デスクトップでカルーセルを有効にする",
+        "enable_slider_info": {
+          "logo_list": "カルーセルは、ロゴの数が行あたりの画像数よりも大きい場合にのみ表示されます。",
+          "collection_list": "カルーセルは、コレクションの数が列の数よりも大きい場合にのみ表示されます。",
+          "blog_post": "カルーセルは、投稿数が列数より大きい場合にのみ表示されます。",
+          "featured_collection": "カルーセルは、製品数が列数より大きい場合にのみ表示されます。"
+        },
+        "show_dots": "ページネーションを表示",
+        "show_nav": "ナビゲーションを表示",
+        "autoplay": "コンテンツの自動回転",
+        "autoplay_timeout": "スライドを毎回変更する",
+        "autoplay_info": "自動回転時の作業",
+        "pagination_style": {
+          "label": "ページネーションスタイル",
+          "options": {
+            "option_1": "ドット",
+            "option_2": "カウンター"
+          }
+        },
+        "pagination_background": {
+          "label": "ページ付けの背景",
+          "options": {
+            "option_1": "暗い",
+            "option_2": "明るい",
+            "option_3": "なし"
+          }
+        },
+        "pagination_position_desktop": {
+          "label": "デスクトップコントロールの位置",
+          "options": {
+            "option_1": "左",
+            "option_2": "センター",
+            "option_3": "右"
+          }
+        }
+      },
+      "custom_attr": {
+        "header": "カスタム属性",
+        "custom_class": "カスタムクラス",
+        "custom_id": "カスタム ID"
+      },
+      "general": {
+        "name": "全般"
+      },
+      "header": {
+        "name": "セクションヘッダー",
+        "heading": "見出し",
+        "subheading": "小見出し",
+        "description": "形容"
+      },
+      "mobile": {
+        "header": "モバイルレイアウト",
+        "swipe_on_mobile": {
+          "label": "モバイルでスワイプを有効にする"
+        },
+        "header__1": "モバイル設定",
+        "open_default_collapsible_tab": {
+          "label": "デフォルトで折りたたみ可能なタブを開く"
+        },
+        "columns": {
+          "label": "モバイルの列数",
+          "option__1": {
+            "label": "1列"
+          },
+          "option__2": {
+            "label": "2列"
+          }
+        }
+      },
+      "button": {
+        "header": {
+          "content": "ボタン設定",
+          "button_first": {
+            "content": "ボタンのプライマリ"
+          },
+          "button_secondary": {
+            "content": "二次ボタン"
+          }
+        },
+        "button_label": {
+          "label": "ボタンラベル",
+          "info": "ボタンを非表示にするには空白のままにします。"
+        },
+        "button_style": {
+          "label": "ボタンのスタイル",
+          "options": {
+            "option__1": "プライマリボタン",
+            "option__2": "セカンダリボタン",
+            "option__3": "白いボタン",
+            "option__4": "下線ボタン"
+          }
+        },
+        "button_size": {
+          "label": "ボタンのサイズ",
+          "options": {
+            "option__1": "デフォルト",
+            "option__2": "小さい",
+            "option__3": "中程度"
+          }
+        },
+        "button_url": {
+          "label": "ボタンリンク"
+        },
+        "show_all_button_on_top": {
+          "label": "見出しセクションに表示"
+        }
+      },
+      "icon": {
+        "label": "アイコン",
+        "options__1": {
+          "label": "何一つ"
+        },
+        "options__2": {
+          "label": "林檎"
+        },
+        "options__3": {
+          "label": "バナナ"
+        },
+        "options__4": {
+          "label": "瓶"
+        },
+        "options__5": {
+          "label": "箱"
+        },
+        "options__6": {
+          "label": "人参"
+        },
+        "options__7": {
+          "label": "チャットバブル"
+        },
+        "options__8": {
+          "label": "チェックマーク"
+        },
+        "options__9": {
+          "label": "クリップボード"
+        },
+        "options__10": {
+          "label": "酪農"
+        },
+        "options__11": {
+          "label": "乳製品フリー"
+        },
+        "options__12": {
+          "label": "乾燥機"
+        },
+        "options__13": {
+          "label": "目"
+        },
+        "options__14": {
+          "label": "火事"
+        },
+        "options__15": {
+          "label": "グルテンフリー"
+        },
+        "options__16": {
+          "label": "心"
+        },
+        "options__17": {
+          "label": "鉄"
+        },
+        "options__18": {
+          "label": "葉"
+        },
+        "options__19": {
+          "label": "革"
+        },
+        "options__20": {
+          "label": "雷"
+        },
+        "options__21": {
+          "label": "口紅"
+        },
+        "options__22": {
+          "label": "錠"
+        },
+        "options__23": {
+          "label": "マップピン"
+        },
+        "options__24": {
+          "label": "ナットフリー"
+        },
+        "options__25": {
+          "label": "ズボン"
+        },
+        "options__26": {
+          "label": "足のプリント"
+        },
+        "options__27": {
+          "label": "胡椒"
+        },
+        "options__28": {
+          "label": "香水"
+        },
+        "options__29": {
+          "label": "飛行機"
+        },
+        "options__30": {
+          "label": "植物"
+        },
+        "options__31": {
+          "label": "値札"
+        },
+        "options__32": {
+          "label": "疑問符"
+        },
+        "options__33": {
+          "label": "リサイクル"
+        },
+        "options__34": {
+          "label": "帰る"
+        },
+        "options__35": {
+          "label": "ルーラー"
+        },
+        "options__36": {
+          "label": "サービングディッシュ"
+        },
+        "options__37": {
+          "label": "シャツ"
+        },
+        "options__38": {
+          "label": "靴"
+        },
+        "options__39": {
+          "label": "シルエット"
+        },
+        "options__40": {
+          "label": "雪片"
+        },
+        "options__41": {
+          "label": "星"
+        },
+        "options__42": {
+          "label": "ストップウォッチ"
+        },
+        "options__43": {
+          "label": "トラック"
+        },
+        "options__44": {
+          "label": "洗浄"
+        },
+        "options__45": {
+          "label": "引用する"
+        },
+        "options__46": {
+          "label": "1つ星"
+        },
+        "options__47": {
+          "label": "2つ星"
+        },
+        "options__48": {
+          "label": "3つ星"
+        },
+        "options__49": {
+          "label": "4つ星"
+        },
+        "options__50": {
+          "label": "5つ星"
+        },
+        "options__51": {
+          "label": "通貨 ドル"
+        }
+      },
+      "collection_card": {
+        "name": "コレクションカード",
+        "settings": {
+          "card_design": {
+            "label": "スタイル",
+            "option_1": {
+              "label": "標準"
+            },
+            "option_2": {
+              "label": "オーバーレイ付きのコンテンツ"
+            },
+            "option_3": {
+              "label": "コンテンツ中央"
+            },
+            "option_4": {
+              "label": "ボタン内のコンテンツ"
+            },
+            "option_5": {
+              "label": "画像が丸みを帯びた外部コンテンツ"
+            },
+            "option_6": {
+              "label": "アイコン付きの外部コンテンツ"
+            }
+          },
+          "content_alignment": {
+            "label": "コンテンツの配置",
+            "option_1": {
+              "label": "左"
+            },
+            "option_2": {
+              "label": "センター"
+            },
+            "option_3": {
+              "label": "右"
+            }
+          },
+          "text_color": {
+            "label": "テキストの色",
+            "option_1": {
+              "label": "黒い"
+            },
+            "option_2": {
+              "label": "白い"
+            }
+          },
+          "show_product_count": {
+            "label": "製品数を表示"
+          },
+          "inline_product_count": {
+            "label": "コレクション名で商品数と同じ行を表示する",
+            "info": "カード「標準」のみ"
+          }
+        }
+      },
+      "collection": {
+        "label": "徴収",
+        "image": {
+          "label": "画像",
+          "info": "コレクションの画像を使用するには、空白のままにします"
+        },
+        "heading": {
+          "label": "見出し",
+          "info": "コレクションのタイトルを使用するには、空白のままにします"
+        },
+        "text": {
+          "label": "テキスト",
+          "info": "コレクションの説明を使用するには、空白のままにします"
+        }
+      },
+      "product": {
+        "label": "積"
+      },
+      "button_style": {
+        "label": "ボタンのスタイル",
+        "option__1": {
+          "label": "プライマリボタン"
+        },
+        "option__2": {
+          "label": "セカンダリボタン"
+        },
+        "option__3": {
+          "label": "白いボタン"
+        },
+        "option__4": {
+          "label": "下線ボタン"
+        }
+      },
+      "block_width": {
+        "label": "コンテナ幅"
+      },
+      "image_picker": {
+        "label": "画像"
+      },
+      "heading_color": {
+        "label": "見出し色",
+        "info": "デフォルトの色を使用するには、空白のままになります。"
+      },
+      "text_size": {
+        "heading": {
+          "label": "見出しサイズ"
+        },
+        "subheading": {
+          "label": "サブヘッディングサイズ"
+        },
+        "text": {
+          "label": "テキストサイズ"
+        },
+        "description": {
+          "label": "説明サイズ"
+        },
+        "options__h6": {
+          "label": "見出し - 余分な小さい"
+        },
+        "options__h5": {
+          "label": "見出し - 余分な小さい"
+        },
+        "options__h4": {
+          "label": "見出し - 小さい"
+        },
+        "options__h3": {
+          "label": "見出し - 中程度"
+        },
+        "options__h2": {
+          "label": "見出し - 大きい"
+        },
+        "options__h1": {
+          "label": "見出し - 余分な大きい"
+        },
+        "options__h0": {
+          "label": "見出し - 余分な大きい"
+        },
+        "options__hd1": {
+          "label": "メガタイトル - ベース"
+        },
+        "options__xs": {
+          "label": "非常に小さい"
+        },
+        "options__sm": {
+          "label": "小さい"
+        },
+        "options__md": {
+          "label": "中くらい"
+        },
+        "options__lg": {
+          "label": "大きい"
+        },
+        "options__xl": {
+          "label": "特大"
+        }
+      },
+      "description-size": {
+        "label": "説明のサイズ",
+        "options": {
+          "option__1": "小さい",
+          "option__2": "中程度",
+          "option__3": "大きい"
+        }
+      },
+      "design": {
+        "label": "設計",
+        "option__1": "デザイン1",
+        "option__2": "デザイン2",
+        "option__3": "デザイン3",
+        "option__4": "デザイン4"
+      },
+      "desktop_image_position": {
+        "label": "デスクトップ イメージの位置",
+        "option__1": "左",
+        "option__2": "右"
+      },
+      "desktop_image_width": {
+        "label": "デスクトップ画像の幅"
+      },
+      "layout": {
+        "label": "レイアウト",
+        "options": {
+          "option_1": "水平な",
+          "option_2": "垂直"
+        }
+      },
+      "highlight_text": {
+        "header": {
+          "content": "テキストを強調表示する"
+        },
+        "paragraph": {
+          "content": "テキストにアニメーションのハイライトを追加するには、テキストを斜体で囲むだけです。テキストを強調表示するときに斜体を切り替えるには、エディターの「I」ボタンをクリックします。"
+        },
+        "settings": {
+          "highlight_style": {
+            "label": "ハイライトされたテキスト",
+            "option__1": "なし",
+            "option__2": "引き出しライン",
+            "option__3": "下線"
+          },
+          "enable_highlight_text_color": {
+            "label": "ハイライトされたテキストの色"
+          }
+        }
+      },
+      "video": {
+        "autoplay": {
+          "label": "自動再生を有効にする",
+          "info": "一部のデバイスは、特定の状況下でビデオを自動再生しません。 Google のガイドラインに従って、自動再生ビデオはデフォルトでミュートされます。 [詳細](https://developer.chrome.com/blog/autoplay/)"
+        }
+      },
+      "content_width": {
+        "label": "コンテンツ幅"
+      },
+      "content_spacing": {
+        "label": "コンテンツ間隔",
+        "options__sm": {
+          "label": "小さい"
+        },
+        "options__md": {
+          "label": "中くらい"
+        }
+      },
+      "spacing": {
+        "header": "間隔",
+        "use_custom_spacing": {
+          "label": "カスタム間隔を使用する"
+        },
+        "margin_left": {
+          "label": "デスクトップの左余白"
+        },
+        "margin_right": {
+          "label": "デスクトップの右マージン"
+        },
+        "margin_left_mobile": {
+          "label": "モバイルの余白が残っている"
+        },
+        "margin_right_mobile": {
+          "label": "モバイルマージン権"
+        },
+        "padding_left": {
+          "label": "左のパディング"
+        },
+        "padding_right": {
+          "label": "右にパディング"
+        },
+        "section_header_padding_bottom": {
+          "label": "デスクトップの底部のパディング",
+          "option__1": {
+            "label": "小さい"
+          },
+          "option__2": {
+            "label": "中くらい"
+          },
+          "option__3": {
+            "label": "大きい"
+          }
+        },
+        "vertical_content_padding": {
+          "label": "垂直方向のコンテンツのパディング"
+        }
+      },
+      "sizes": {
+        "icon_size": {
+          "label": "アイコンのサイズ"
+        },
+        "option__1": {
+          "label": "極小"
+        },
+        "option__2": {
+          "label": "小さい"
+        },
+        "option__3": {
+          "label": "エクストラミディアム"
+        },
+        "option__4": {
+          "label": "中くらい"
+        },
+        "option__5": {
+          "label": "特大"
+        },
+        "option__6": {
+          "label": "大きい"
+        }
+      },
+      "timer": {
+        "name": "カウントダウンタイマー",
+        "header__timer_settings": {
+          "content": "タイマー設定"
+        },
+        "type": {
+          "label": "カウントダウンタイプ",
+          "options__1": {
+            "label": "常緑"
+          },
+          "options__2": {
+            "label": "固定時間"
+          }
+        },
+        "header__evergreen": {
+          "content": "常緑の設定"
+        },
+        "header__fixed_time": {
+          "content": "固定時間設定"
+        },
+        "evergreen_duration": {
+          "label": "間隔",
+          "options__every_2_hrs": {
+            "label": "2時間ごとに"
+          },
+          "options__every_6_hrs": {
+            "label": "6時間ごと"
+          },
+          "options__every_12_hrs": {
+            "label": "12時間ごと"
+          },
+          "options__every_24_hrs": {
+            "label": "毎日"
+          },
+          "options__every_week": {
+            "label": "毎週"
+          },
+          "options__every_month": {
+            "label": "毎月"
+          }
+        },
+        "time": {
+          "label": "時間を終えます",
+          "info": "日付形式：yyyy/mm/dd hh：mmまたはyyyy/mm/dd hh：mm aa。",
+          "paragraph": "サンプル日付形式：2024/06/30 23:59または2024/06/30 11:59 PM"
+        },
+        "style": {
+          "label": "スタイル",
+          "options__1": {
+            "label": "最小限"
+          },
+          "options__2": {
+            "label": "ハイライト"
+          }
+        },
+        "number_spacing": {
+          "label": "番号間隔"
+        },
+        "number_size": {
+          "label": "数字のサイズ",
+          "options__1": {
+            "label": "小さい"
+          },
+          "options__2": {
+            "label": "中くらい"
+          },
+          "options__3": {
+            "label": "大きい"
+          }
+        },
+        "header__individual_product": {
+          "content": "個々の製品のカスタム",
+          "info": "個々の製品のさまざまなカウントダウンタイマーを表示します。"
+        },
+        "paragraph__individual_product": {
+          "content": "名前空間とキーを備えた製品のカスタムメタフィールドを作成します：「foxtheme.countdown」とフィールドタイプは日付と時刻です。 [メタフィールドを追加]（/admin/metafields/product）"
+        }
+      },
+      "divider": {
+        "name": "仕切り",
+        "section_heading": {
+          "content": "セクション仕切り"
+        },
+        "show_divider": {
+          "label": "ディバイダーを表示します"
+        },
+        "width": {
+          "label": "仕切り幅"
+        }
+      },
+      "text_align": {
+        "label": "テキストアライメント",
+        "options__1": {
+          "label": "左"
+        },
+        "options__2": {
+          "label": "中心"
+        },
+        "options__3": {
+          "label": "右"
+        },
+        "options__4": {
+          "label": "継承"
+        }
+      },
+      "align_content_container": {
+        "label": "コンテンツコンテナの位置を揃える",
+        "info": "セクションで全幅コンテナが使用されているが、コンテンツをコンテナに合わせて配置したい場合に適用します。",
+        "option__1": {
+          "label": "なし"
+        },
+        "option__2": {
+          "label": "左"
+        },
+        "option__3": {
+          "label": "右"
+        }
+      },
+      "content_settings": {
+        "desktop": {
+          "content": "デスクトップ上のコンテンツ設定"
+        },
+        "mobile": {
+          "content": "モバイルでのコンテンツ設定"
+        },
+        "content_position": {
+          "label": "コンテンツの位置"
+        }
+      },
+      "enable_sticky_column": {
+        "label": "デスクトップで固定カラムを有効にする"
+      }
+    },
+    "header": {
+      "name": "ヘッダ",
+      "settings": {
+        "tutorial": {
+          "content": "[ハウツーを読む](https://foxecom.link/c0cCRm)"
+        },
+        "layout": {
+          "options__1": {
+            "label": "ロゴ左、メニュー中央"
+          },
+          "options__2": {
+            "label": "ロゴ中央、メニュー左"
+          },
+          "options__3": {
+            "label": "ロゴ中央、メニュー左右"
+          },
+          "options__4": {
+            "label": "ロゴ左、メニュー左"
+          },
+          "label": "レイアウト",
+          "sticky_header": {
+            "label": "スティッキーヘッダーを有効にする",
+            "info": "顧客が上にスクロールすると、ヘッダーが画面に表示されます。"
+          },
+          "hide_on_scroll_down": "スクロールダウン時に非表示にする",
+          "transparent_header": {
+            "label": "透明なヘッダー",
+            "info": "ホームページのみ"
+          }
+        },
+        "sticky_type": {
+          "label": "粘着性の行動",
+          "options__1": {
+            "label": "上にスクロールします"
+          },
+          "options__2": {
+            "label": "いつも"
+          }
+        },
+        "logo": {
+          "header": "ロゴ設定",
+          "label": "ロゴ画像",
+          "label_transparent": "ロゴ画像 - 透明なヘッダー",
+          "label_mobile": "ロゴモバイル",
+          "label_on_dropdown": "ドロップダウンメニューのロゴ"
+        },
+        "logo_width": {
+          "unit": "ピクセル",
+          "label": "デスクトップロゴの幅",
+          "label_mobile": "モバイルロゴの幅"
+        },
+        "menu": {
+          "header": "メニュー設定",
+          "main_menu": "メインメニュー",
+          "mobile_menu": "モバイルメニュー",
+          "dropdown_menu_trigger": {
+            "label": "ドロップダウンメニューのトリガー",
+            "options__1": {
+              "label": "クリック"
+            },
+            "options__2": {
+              "label": "ホバー"
+            }
+          },
+          "enable_mega_menu": "メガメニューを有効にする",
+          "mega_menu_info": "[チュートリアルを見る](https://foxecom.link/nSrTvv)",
+          "tutorial": "[ハウツーを読む](https://foxecom.link/14rdVy)"
+        },
+        "addon": {
+          "label": "アドオン",
+          "show_search": "検索アイコンを表示",
+          "show_account": "アカウントアイコンを表示",
+          "show_cart": "ショッピングカートを表示",
+          "show_wishlist": "ウィッシュリストを表示アイコン",
+          "mobile_show_search": "検索アイコンを表示",
+          "show_country_selector": "国/地域セレクターを表示",
+          "show_language_selector": "言語セレクターを表示",
+          "mobile_show_social": "ソーシャルリンクを表示する",
+          "account_info": "[アカウント アイコンの表示] オプションをオンにしたのに表示されないのはなぜですか?. [ハウツーを読む](https://foxecom.link/DVLQ4o)",
+          "country_selector_info": "[ハウツーを読む](https://foxecom.link/Ok5jTW)"
+        },
+        "logo_mobile_position": {
+          "label": "ロゴの位置",
+          "option_1": "左",
+          "option_2": "センター",
+          "option_3": "右"
+        }
+      },
+      "blocks": {
+        "menu_title": "メニュータイトル",
+        "dropdown_settings": "ドロップダウン設定",
+        "container_inherit": "ヘッダーから継承",
+        "menu_columns": "メニュー列",
+        "content": "コンテンツ",
+        "product": {
+          "label": "商品一覧(メガメニュー)",
+          "settings": {
+            "collection": "徴収",
+            "addon_column": "幅(%)",
+            "product_1": "商品1",
+            "product_2": "商品2",
+            "product_3": "商品3",
+            "product_4": "商品4",
+            "product_5": "商品5",
+            "product_6": "商品6"
+          }
+        },
+        "collection": {
+          "label": "コレクション一覧(メガメニュー)",
+          "settings": {
+            "collection": "徴収",
+            "addon_column": "幅(%)",
+            "collection_1": "コレクション1",
+            "collection_2": "コレクション2",
+            "collection_3": "コレクション3",
+            "collection_4": "コレクション 4",
+            "collection_5": "コレクション 5",
+            "collection_6": "コレクション 6"
+          }
+        },
+        "banner": {
+          "label": "バナー(メガメニュー)",
+          "settings": {
+            "banner": "バナー",
+            "banner_link": "バナーリンク",
+            "banner_width": "バナー幅 (ピクセル)"
+          }
+        },
+        "custom": {
+          "label": "カスタムカード(メガメニュー)",
+          "header": {
+            "header_1": "カード1",
+            "header_2": "カード2",
+            "header_3": "カード 3",
+            "header_4": "カード 4",
+            "header_5": "カード 5",
+            "header_6": "カード 6"
+          },
+          "settings": {
+            "image": "画像",
+            "link": "カードリンク",
+            "title": "見出し",
+            "content_position": {
+              "label": "コンテンツの位置",
+              "option_1": "中身画像",
+              "option_2": "下の画像"
+            }
+          }
+        }
+      }
+    },
+    "announcement-bar": {
+      "name": "アナウンスメントバー",
+      "settings": {
+        "show_close_button": {
+          "label": "閉じるボタンを表示"
+        },
+        "header_carousel_settings": {
+          "content": "カルーセル設定",
+          "info": "複数のアナウンス メッセージの場合に適用されます。"
+        },
+        "enable_carousel": {
+          "label": "カルーセルを有効にする"
+        },
+        "autoplay": {
+          "label": "メッセージの自動回転"
+        },
+        "autorotate_speed": {
+          "label": "メッセージを毎回変更する",
+          "info": "自動回転時の作業"
+        }
+      },
+      "blocks": {
+        "announcement": {
+          "name": "告知",
+          "settings": {
+            "text": {
+              "label": "テキスト"
+            },
+            "homepage_only": {
+              "label": "ホームページのみ"
+            },
+            "hide_on_page": {
+              "label": "ページ上で非表示にする",
+              "info": "ページハンドルをカンマで区切って入力する"
+            },
+            "link": {
+              "label": "リンク"
+            }
+          }
+        }
+      }
+    },
+    "sticky-atc-bar": {
+      "name": "スティッキーカートバーに追加",
+      "settings": {
+        "header": {
+          "content": "余人"
+        },
+        "show_atc_button": {
+          "label": "カートに追加ボタンを表示"
+        },
+        "show_dynamic_checkout_buttons": {
+          "label": "動的チェックアウトボタンの表示"
+        },
+        "show_quantity": {
+          "label": "数量を表示"
+        }
+      }
+    },
+    "top-bar": {
+      "name": "トップバー",
+      "blocks": {
+        "message": {
+          "label": "テキスト",
+          "settings": {
+            "text": "テキスト"
+          }
+        },
+        "menu": {
+          "label": "メニュー",
+          "settings": {
+            "menu": "メニュー"
+          }
+        },
+        "social": {
+          "label": "ソーシャルアイコン",
+          "settings": {
+            "social": "メニュー"
+          }
+        },
+        "language_selector": {
+          "label": "言語セレクタ"
+        },
+        "country_selector": {
+          "label": "国/地域セレクター"
+        },
+        "cart_icon": {
+          "label": "ショッピングカート"
+        },
+        "user": {
+          "label": "ユーザーリンク"
+        },
+        "wishlist": {
+          "label": "ウィッシュリストページ"
+        },
+        "custom_liquid": {
+          "label": "カスタム液体",
+          "info": "カスタムリキッドまたはHTMLを許可します。"
+        },
+        "position": {
+          "label": "立場",
+          "settings": {
+            "left": "左",
+            "center": "センター",
+            "right": "右"
+          }
+        },
+        "type": {
+          "label": "ディスプレイの種類",
+          "settings": {
+            "icon": "アイコン",
+            "text": "テキスト",
+            "icon_w_text": "テキスト付きのアイコン"
+          }
+        }
+      },
+      "settings": {
+        "paragraph": {
+          "content": "このセクションはデスクトップにのみ表示されます。"
+        }
+      }
+    },
+    "apps": {
+      "name": "アプリ",
+      "settings": {
+        "include_margins": {
+          "label": "セクションの余白をテーマと同じにする"
+        }
+      },
+      "presets": {
+        "name": "アプリ"
+      }
+    },
+    "slideshow": {
+      "name": "スライドショー",
+      "settings": {
+        "slideshow_height": {
+          "label": "スライドの高さ",
+          "options": {
+            "adapt": "最初の画像に適応する",
+            "small": "小さい",
+            "medium": "中程度",
+            "large": "大きい",
+            "fullscreen": "フルスクリーン"
+          }
+        },
+        "auto_rotate": {
+          "label": "スライドの自動回転"
+        },
+        "change_slides_speed": {
+          "label": "スライドを毎回変更する"
+        },
+        "show_text_below": {
+          "label": "モバイルで画像の下にコンテンツを表示する"
+        },
+        "image_overlay_opacity": {
+          "label": "画像オーバーレイの不透明度"
+        },
+        "accessibility": {
+          "content": "アクセシビリティ",
+          "label": "スライドショーの説明",
+          "info": "スクリーンリーダーを使用しているお客様向けのスライドショーについて説明する。"
+        }
+      },
+      "blocks": {
+        "slide_item": {
+          "name": "画像スライド",
+          "settings": {
+            "header_bg": {
+              "content": "背景設定"
+            },
+            "image_desktop": {
+              "label": "デスクトップ画像",
+              "info": "1920 x 900px 推奨"
+            },
+            "image_mobile": {
+              "label": "モバイル画像",
+              "info": "600 x 480px 推奨"
+            },
+            "header_content": {
+              "content": "コンテンツ設定"
+            },
+            "content_in_container": {
+              "label": "デスクトップにコンテナを表示"
+            },
+            "subheading": {
+              "info": "カスタム HTML を許可する"
+            },
+            "heading": {
+              "info": "カスタム HTML を許可する"
+            },
+            "image": {
+              "label": "画像リンク",
+              "info": "画像へのリンク"
+            },
+            "header_button_1": {
+              "content": "最初のボタン"
+            },
+            "header_button_2": {
+              "content": "2番目のボタン"
+            }
+          }
+        },
+        "slide_video": {
+          "name": "ビデオスライド",
+          "settings": {
+            "video_type": {
+              "label": "ビデオの種類",
+              "option_1": "外",
+              "option_2": "Shopifyがホストする"
+            },
+            "shopify_video": "Shopifyがホストする動画",
+            "external_video": "外部動画 URL",
+            "video_alt": "動画の代替テキスト"
+          }
+        }
+      }
+    },
+    "collection-list": {
+      "name": "コレクション一覧",
+      "blocks": {
+        "featured_collection": {
+          "name": "徴収",
+          "settings": {
+            "collection": {
+              "label": "徴収"
+            },
+            "image": {
+              "label": "画像"
+            },
+            "collection_title": {
+              "label": "コレクションタイトル",
+              "info": "コレクションのタイトルを使用するには空白のままにします。"
+            },
+            "title_font": {
+              "label": "タイトルフォントファミリー",
+              "body_font": "ボディフォント",
+              "heading_font": "見出しフォント"
+            },
+            "title_size": {
+              "label": "タイトルサイズ",
+              "body": "体",
+              "h1": "Heading 1",
+              "h2": "Heading 2",
+              "h3": "Heading 3",
+              "h4": "Heading 4",
+              "h5": "Heading 5",
+              "h6": "Heading 6"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "コレクション一覧"
+      }
+    },
+    "contact-form": {
+      "name": "お問い合わせフォーム",
+      "settings": {
+        "header_form_settings": {
+          "content": "フォーム設定"
+        },
+        "header_submit_button": {
+          "content": "送信ボタン"
+        },
+        "form_width": {
+          "label": "フォーム幅"
+        },
+        "form_alignment": {
+          "label": "フォームの配置"
+        },
+        "button_label": {
+          "label": "ボタンラベル"
+        }
+      },
+      "blocks": {
+        "required": "必須",
+        "field_label": "フィールドラベル",
+        "placeholder": "プレースホルダ",
+        "hide_label": "ラベルを隠す",
+        "field_width": {
+          "label": "フィールド幅"
+        },
+        "field_name": {
+          "name": "フィールド名"
+        },
+        "field_email": {
+          "name": "フィールドの電子メール",
+          "info": "このフィールドは、フォームが正常に送信されるために必要です。"
+        },
+        "field_phone": {
+          "name": "フィールド電話"
+        },
+        "field_message": {
+          "name": "フィールドメッセージ",
+          "info": "このフィールドは、フォームが正常に送信されるために必要です。"
+        }
+      },
+      "presets": {
+        "name": "お問い合わせフォーム"
+      }
+    },
+    "custom-liquid": {
+      "name": "カスタムリキッド",
+      "settings": {
+        "custom_liquid": {
+          "header": "カスタムリキッド",
+          "label": "カスタムリキッド",
+          "info": "アプリスニペットやその他の Liquid コードを追加して、高度なカスタマイズを作成します。"
+        }
+      },
+      "presets": {
+        "name": "カスタムリキッド"
+      }
+    },
+    "custom-html": {
+      "name": "カスタム HTML",
+      "settings": {
+        "custom-html": {
+          "header": "カスタムコード",
+          "label": "カスタム HTML"
+        }
+      },
+      "presets": {
+        "name": "カスタム HTML"
+      }
+    },
+    "breadcrumb": {
+      "name": "ブレッドクラム",
+      "enable_breadcrumb": "パンくずリストを表示する"
+    },
+    "custom-content": {
+      "name": "カスタムコンテンツ",
+      "settings": {
+        "bg_image": {
+          "label": "背景画像"
+        }
+      },
+      "blocks": {
+        "header_block_settings": {
+          "content": "ブロック設定"
+        },
+        "text": {
+          "name": "テキスト",
+          "settings": {
+            "title": {
+              "label": "見出し"
+            },
+            "heading-size": {
+              "label": "見出しサイズ",
+              "options": {
+                "option__1": "ベースサイズ",
+                "option__2": "見出し 1",
+                "option__3": "見出し 2",
+                "option__4": "見出し 3",
+                "option__5": "見出し 4",
+                "option__6": "見出し 5",
+                "option__7": "見出し 6"
+              }
+            },
+            "subheading": {
+              "label": "小見出し"
+            },
+            "text": {
+              "label": "テキスト"
+            }
+          }
+        },
+        "text_box": {
+          "name": "スクロールプロモーション付きテキスト",
+          "settings": {
+            "scrolling_promotion": {
+              "header": "スクロールプロモーション",
+              "label": "文章",
+              "info": "新しい行の各項目"
+            },
+            "content": {
+              "header": "コンテンツ"
+            },
+            "title": {
+              "label": "見出し"
+            },
+            "heading-size": {
+              "label": "見出しのサイズ",
+              "options": {
+                "option__1": "ベースサイズ",
+                "option__2": "見出し1",
+                "option__3": "見出し2",
+                "option__4": "見出し 3",
+                "option__5": "見出し 4",
+                "option__6": "見出し 5",
+                "option__7": "見出し6"
+              }
+            },
+            "subheading": {
+              "label": "小見出し"
+            },
+            "text": {
+              "label": "文章"
+            }
+          }
+        },
+        "image": {
+          "name": "画像",
+          "settings": {
+            "image": "画像",
+            "image_link": "画像リンク"
+          }
+        },
+        "product": {
+          "name": "積",
+          "settings": {
+            "product": "積",
+            "header_product_card_settings": "製品カードの設定",
+            "header_text": "テキスト",
+            "heading": "見出し",
+            "subheading": "小見出し",
+            "richtext": "テキスト",
+            "show_vendor": "ベンダーの表示"
+          }
+        },
+        "blog_post": {
+          "name": "ブログ投稿",
+          "label": "記事"
+        },
+        "product_bundles": {
+          "name": "製品バンドル",
+          "settings": {
+            "heading": "見出し",
+            "subheading": "小見出し",
+            "show_reviews": "レビューバッジを表示",
+            "header_product": "プロダクツ",
+            "header_product_1": "商品1",
+            "header_product_2": "商品2",
+            "header_product_3": "商品3",
+            "header_product_4": "商品4",
+            "header_product_5": "商品5"
+          }
+        },
+        "image_card": {
+          "name": "イメージカード",
+          "settings": {
+            "header_card_settings": "カード設定",
+            "layout": {
+              "label": "レイアウト",
+              "option__1": "デザイン1",
+              "option__2": "デザイン2",
+              "option__3": "デザイン3",
+              "option__4": "デザイン4",
+              "option__5": "デザイン5",
+              "option__6": "デザイン6",
+              "option__7": "デザイン7",
+              "option__8": "デザイン8"
+            }
+          }
+        },
+        "image_comparison": {
+          "group_settings": {
+            "before_image": "変更前画像",
+            "after_image": "変更後画像"
+          },
+          "settings": {
+            "product": "積",
+            "image": "画像",
+            "image_mobile": "画像モバイル"
+          }
+        }
+      },
+      "presets": {
+        "name": "カスタムコンテンツ"
+      }
+    },
+    "product-tabs": {
+      "name": "製品タブ",
+      "settings": {
+        "show_vendor": {
+          "label": "ベンダーの表示"
+        },
+        "header_view_all_btn": {
+          "content": "[すべて表示] ボタン"
+        }
+      },
+      "blocks": {
+        "tab": {
+          "name": "タブ",
+          "settings": {
+            "title": {
+              "label": "タブ名",
+              "info": "コレクション名を使用するには空白のままにします"
+            },
+            "collection": {
+              "label": "徴収"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "製品タブ"
+      }
+    },
+    "collage-tabs": {
+      "name": "コラージュタブ",
+      "settings": {
+        "tab_settings": {
+          "content": "タブ設定"
+        },
+        "desktop_navigation_alignment": {
+          "label": "デスクトップ ナビゲーションの配置",
+          "options": {
+            "option__1": {
+              "label": "左"
+            },
+            "option__2": {
+              "label": "センター"
+            },
+            "option__3": {
+              "label": "右"
+            }
+          }
+        },
+        "desktop_image_position": {
+          "label": "デスクトップ イメージの位置",
+          "options": {
+            "option__1": {
+              "label": "左"
+            },
+            "option__2": {
+              "label": "右"
+            }
+          }
+        },
+        "desktop_image_width": {
+          "label": "デスクトップ画像の幅"
+        }
+      },
+      "blocks": {
+        "tab": {
+          "name": "タブ",
+          "settings": {
+            "navigation_title": {
+              "label": "ナビゲーション タイトル"
+            },
+            "image": {
+              "label": "画像"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "コラージュタブ"
+      }
+    },
+    "featured-blog": {
+      "name": "ブログ投稿",
+      "settings": {
+        "blog": {
+          "label": "ブログ"
+        },
+        "view_all": {
+          "label": "[すべて表示] ボタン"
+        },
+        "header_01": {
+          "label": "設定"
+        }
+      },
+      "presets": {
+        "name": "ブログ投稿"
+      }
+    },
+    "featured-collection": {
+      "name": "注目のコレクション",
+      "settings": {
+        "collection": {
+          "label": "徴収"
+        },
+        "header": {
+          "content": "製品カード"
+        },
+        "show_vendor": {
+          "label": "ベンダーの表示"
+        },
+        "button_settings": {
+          "header": "[すべて表示] ボタン",
+          "info": "コレクションに表示数よりも多くの商品がある場合を表示します。"
+        }
+      },
+      "presets": {
+        "name": "注目のコレクション"
+      }
+    },
+    "featured-product": {
+      "name": "注目の製品",
+      "settings": {
+        "product": {
+          "content": "設定",
+          "label": "積"
+        },
+        "header": {
+          "content": "メディア",
+          "info": "[メディアの種類](https://help.shopify.com/manual/products/product メディア)についてもっと知る"
+        },
+        "media_width": {
+          "label": "メディアコンテナの幅"
+        },
+        "enable_video_looping": {
+          "label": "ビデオループを有効にする"
+        },
+        "media_position": {
+          "label": "デスクトップ メディアの位置",
+          "option__1": {
+            "label": "左"
+          },
+          "option__2": {
+            "label": "右"
+          }
+        }
+      },
+      "presets": {
+        "name": "注目の製品"
+      }
+    },
+    "footer": {
+      "name": "フッター",
+      "blocks": {
+        "common": {
+          "container_width": "列幅",
+          "empty_column_width": "幅",
+          "heading": "見出し",
+          "heading_font_size": "見出しサイズ",
+          "subheading": "小見出し"
+        },
+        "logo": {
+          "info": "この画像はフッターの一番下に完全に表示されます。"
+        },
+        "link_list": {
+          "name": "メニュー",
+          "settings": {
+            "heading": {
+              "info": "メニューを表示するために必要な見出し。"
+            },
+            "menu": {
+              "label": "メニュー",
+              "info": "最上位のメニュー項目のみを表示します。"
+            }
+          }
+        },
+        "text": {
+          "name": "テキスト",
+          "settings": {
+            "subtext": {
+              "label": "言外"
+            }
+          }
+        },
+        "html": {
+          "name": "カスタム HTML/リキッド",
+          "settings": {
+            "html": {
+              "label": "カスタムコード"
+            }
+          }
+        },
+        "image": {
+          "name": "画像",
+          "settings": {
+            "image": {
+              "label": "画像"
+            },
+            "image_width": {
+              "label": "画像の幅 (ピクセル)"
+            },
+            "image_link": {
+              "label": "画像リンク"
+            },
+            "alignment": {
+              "label": "大画面での画像の配置",
+              "option__1": "左",
+              "option__2": "センター",
+              "option__3": "右"
+            }
+          }
+        },
+        "newsletter": {
+          "name": "ニュースレター",
+          "settings": {
+            "subheading": {
+              "label": "小見出し"
+            },
+            "email_placeholder": {
+              "label": "電子メールプレースホルダ"
+            },
+            "show_agree_checkbox": {
+              "label": "「利用規約」チェックボックスを表示する"
+            }
+          }
+        },
+        "empty_column": {
+          "name": "空の列"
+        },
+        "help_bar": {
+          "name": "コンタクトバー",
+          "settings": {
+            "working_hours": {
+              "label": "労働時間"
+            },
+            "email": {
+              "label": "電子メール"
+            },
+            "phone": {
+              "label": "電話"
+            },
+            "divider": {
+              "label": "仕切りを表示"
+            }
+          }
+        }
+      },
+      "settings": {
+        "tutorial": {
+          "content": "[ハウツーを読む](https://foxecom.link/ZWfXr6)"
+        },
+        "newsletter_enable": {
+          "label": "メールのサインアップを表示する"
+        },
+        "copyright": {
+          "label": "著作権"
+        },
+        "header__1": {
+          "content": "Eメールサインアップ",
+          "info": "購読者は、「承認されたマーケティング」顧客リストに自動的に追加されました。[詳細](https://help.shopify.com/en/manual/customers/manage-customers)"
+        },
+        "header__2": {
+          "content": "ソーシャルメディアのアイコン",
+          "info": "ソーシャルメディアアカウントを表示するには、テーマ設定でアカウントをリンクします。"
+        },
+        "show_social": {
+          "label": "ソーシャルメディアアイコンを表示する"
+        },
+        "header__3": {
+          "content": "国/地域セレクター"
+        },
+        "header__4": {
+          "info": "国/地域を追加するには、[お支払い設定]に移動します。(/管理者/設定/支払い)"
+        },
+        "enable_country_selector": {
+          "label": "国/地域セレクターを有効にする"
+        },
+        "header__5": {
+          "content": "言語セレクタ"
+        },
+        "header__6": {
+          "info": "言語を追加するには、[言語設定] に移動します。(/管理者/設定/言語)"
+        },
+        "enable_language_selector": {
+          "label": "言語セレクターを有効にする"
+        },
+        "header__7": {
+          "content": "お支払い方法"
+        },
+        "header__8": {
+          "content": "通貨セレクター",
+          "info": "このセレクターはShopifyペイメントでのみ機能します。"
+        },
+        "payment_enable": {
+          "label": "支払いアイコンを表示する"
+        },
+        "header__9": {
+          "content": "Shopでフォロー",
+          "info": "Shop アプリのストアフロントで、フォローボタンを表示します。[詳しくはこちら](https://help.shopify.com/manual/online-store/themes/customizing-themes/follow-on-shop)"
+        },
+        "enable_follow_on_shop": {
+          "label": "Shopでフォローを有効にする"
+        },
+        "bottom_menu": {
+          "content": "下部メニュー",
+          "label": "メニュー"
+        }
+      }
+    },
+    "image-with-text": {
+      "name": "テキスト付きの画像",
+      "settings": {
+        "image": {
+          "label": "画像"
+        },
+        "image_width": {
+          "label": "画像の幅"
+        },
+        "show_image_padding": {
+          "label": "画像のパディングを表示"
+        },
+        "layout": {
+          "options__1": {
+            "label": "左"
+          },
+          "options__2": {
+            "label": "右"
+          },
+          "label": "デスクトップ画像の位置"
+        }
+      },
+      "blocks": {
+        "heading": {
+          "name": "見出し",
+          "settings": {
+            "heading": {
+              "label": "見出し"
+            },
+            "font-size": {
+              "label": "文字サイズ",
+              "options": {
+                "option__1": "ベースサイズ",
+                "option__2": "見出し 1",
+                "option__3": "見出し 2",
+                "option__4": "見出し 3",
+                "option__5": "見出し 4",
+                "option__6": "見出し 5",
+                "option__7": "見出し 6"
+              }
+            }
+          }
+        },
+        "subheading": {
+          "name": "小見出し",
+          "settings": {
+            "heading": {
+              "label": "小見出し"
+            }
+          }
+        },
+        "text": {
+          "name": "テキスト",
+          "settings": {
+            "text": {
+              "label": "形容"
+            }
+          }
+        },
+        "button": {
+          "name": "ボタン",
+          "settings": {
+            "button_label": {
+              "label": "ボタンラベル",
+              "info": "ラベルを空白のままにして、ボタンを非表示にします。"
+            },
+            "button_link": {
+              "label": "ボタンリンク"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "テキスト付きの画像"
+      }
+    },
+    "rich-text": {
+      "name": "リッチテキスト",
+      "blocks": {
+        "heading": {
+          "name": "見出し",
+          "settings": {
+            "heading": {
+              "label": "見出し"
+            }
+          }
+        },
+        "subheading": {
+          "name": "小見出し",
+          "settings": {
+            "heading": {
+              "label": "小見出し"
+            }
+          }
+        },
+        "text": {
+          "name": "テキスト",
+          "settings": {
+            "text": {
+              "label": "形容"
+            }
+          }
+        },
+        "button": {
+          "name": "ボタン",
+          "settings": {
+            "button_label": {
+              "label": "ボタンラベル",
+              "info": "ラベルを空白のままにして、ボタンを非表示にします。"
+            },
+            "button_link": {
+              "label": "ボタンリンク"
+            }
+          }
+        }
+      },
+      "settings": {
+        "header_settings": {
+          "content": "設定"
+        }
+      },
+      "presets": {
+        "name": "リッチテキスト"
+      }
+    },
+    "hero": {
+      "name": "テキストオーバーレイ付きの画像",
+      "settings": {
+        "hero_height": {
+          "label": "バナーの高さ",
+          "options": {
+            "adapt": "画像に適応",
+            "small": "小さい",
+            "medium": "中程度",
+            "large": "大きい"
+          },
+          "info": "最良の結果を得るには、縦横比が 2:3 の画像を使用します。[詳細](https://help.shopify.com/en/manual/shopify-admin/productivity-tools/image-editor#understanding-image-aspect-ratio)"
+        },
+        "show_text_below": {
+          "label": "モバイルで画像の下にコンテンツを表示する"
+        },
+        "image_settings": {
+          "image": "デスクトップ画像",
+          "image_mobile": "モバイル画像",
+          "image_overlay": "画像オーバーレイの不透明度"
+        },
+        "text_settings": {
+          "content": "テキスト設定",
+          "content_in_container": "デスクトップにコンテナを表示",
+          "content_position": "コンテンツの位置"
+        }
+      },
+      "blocks": {
+        "heading": {
+          "name": "見出し",
+          "settings": {
+            "heading": {
+              "label": "見出し"
+            }
+          }
+        },
+        "subheading": {
+          "name": "小見出し",
+          "settings": {
+            "heading": {
+              "label": "小見出し"
+            }
+          }
+        },
+        "text": {
+          "name": "テキスト",
+          "settings": {
+            "text": {
+              "label": "形容"
+            }
+          }
+        },
+        "button": {
+          "name": "ボタン",
+          "settings": {
+            "button_label": {
+              "label": "ボタンラベル",
+              "info": "ボタンを非表示にするには、空白のままにします。"
+            },
+            "button_link": {
+              "label": "ボタンリンク"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "テキストオーバーレイ付きの画像"
+      }
+    },
+    "banner-logo": {
+      "name": "バナーロゴ",
+      "settings": {
+        "header__logo": {
+          "content": "ロゴ"
+        },
+        "logo": {
+          "label": "ロゴ"
+        }
+      }
+    },
+    "testimonial": {
+      "name": "証言",
+      "settings": {
+        "header": {
+          "content": "証言設定"
+        },
+        "design": {
+          "label": "デザイン",
+          "option__1": "標準",
+          "option__2": "ファンシー",
+          "option__3": "焦点",
+          "option__4": "カード",
+          "option__5": "ジグザグ"
+        },
+        "card_color_schema": {
+          "label": "カードの配色",
+          "info": "カードの配色は、デザインカードでのみ機能します。"
+        },
+        "show_quotes_icon": {
+          "label": "引用符のアイコンを表示します"
+        },
+        "grid_info": "標準レイアウトでのみ動作します"
+      },
+      "block": {
+        "name": "証言",
+        "settings": {
+          "text": "文章",
+          "author": "著者",
+          "bio": "バイオ",
+          "image": "画像",
+          "product": {
+            "label": "製品",
+            "info":"このオプションは、カードレイアウトにのみ使用されます。"
+          }
+        }
+      }
+    },
+    "featured-reviews": {
+      "name": "お気に入りの製品",
+      "settings": {
+        "header": {
+          "content": "設定"
+        }
+      },
+      "block": {
+        "name": "積",
+        "settings": {
+          "product": "積",
+          "image": "拡大画像",
+          "text": "テキスト"
+        }
+      },
+      "presets": {
+        "name": "お気に入りの製品"
+      }
+    },
+    "main-article": {
+      "name": "ブログ投稿",
+      "blocks": {
+        "featured_image": {
+          "name": "メインのイメージ",
+          "settings": {
+            "image_width": {
+              "label": "画像の幅"
+            },
+            "image_height": {
+              "label": "アイキャッチ画像の高さ",
+              "options__1": {
+                "label": "画像に適応"
+              },
+              "options__2": {
+                "label": "小さい"
+              },
+              "options__3": {
+                "label": "中程度"
+              },
+              "options__4": {
+                "label": "大きい"
+              },
+              "info": "最良の結果を得るには、縦横比が 16:9 の画像を使用します。[詳細](https://help.shopify.com/en/manual/shopify-admin/productivity-tools/image-editor#understanding-image-aspect-ratio)"
+            }
+          }
+        },
+        "title": {
+          "name": "タイトル",
+          "settings": {
+            "blog_show_date": {
+              "label": "表示日"
+            },
+            "blog_show_author": {
+              "label": "著者を表示"
+            }
+          }
+        },
+        "content": {
+          "name": "コンテンツ"
+        },
+        "share": {
+          "name": "共有ボタン",
+          "settings": {
+            "show_tag": "タグの表示",
+            "show_share": "共有ボタンを表示"
+          }
+        },
+        "navigation": {
+          "name": "航法"
+        }
+      }
+    },
+    "main-blog": {
+      "name": "ブログ投稿",
+      "settings": {
+        "header": {
+          "content": "レイアウト"
+        },
+        "show_title": {
+          "label": "ブログのタイトルを表示"
+        },
+        "show_tag_filter": {
+          "label": "タグフィルターを表示"
+        },
+        "posts_to_show": {
+          "label": "ページあたりの投稿数"
+        },
+        "posts_per_row": {
+          "label": "行ごとの投稿数"
+        }
+      }
+    },
+    "main-cart-footer": {
+      "name": "カートフッター",
+      "blocks": {
+        "subtotal": {
+          "name": "小計価格"
+        },
+        "buttons": {
+          "name": "チェックアウトボタン",
+          "show_view_cart": "カートの表示リンクを表示",
+          "show_additional_checkout_buttons": "追加のチェックアウトボタンを表示する"
+        },
+        "note": {
+          "name": "注文メモ",
+          "paragraph": "顧客が販売者の注文メモを追加できるようにします。"
+        },
+        "shipping": {
+          "name": "配送料を計算する"
+        },
+        "image": {
+          "name": "画像"
+        },
+        "text": {
+          "name": "テキスト"
+        }
+      }
+    },
+    "main-cart-items": {
+      "name": "項目",
+      "settings": {
+        "show_vendor": {
+          "label": "製品ベンダーの表示"
+        }
+      }
+    },
+    "main-collection-banner": {
+      "name": "コレクションバナー",
+      "settings": {
+        "tutorial": {
+          "content": "[チュートリアルを見る](https://foxecom.link/Tsr51b)"
+        },
+        "paragraph": {
+          "content": "コレクションを編集して、説明または画像を追加します。[詳細](https://help.shopify.com/en/manual/products/collections/collection-layout)"
+        },
+        "show_collection_description": {
+          "label": "コレクションの説明を表示"
+        },
+        "show_collection_image": {
+          "label": "コレクション画像を表示"
+        },
+        "image_height": {
+          "label": "バナーの高さ",
+          "option__1": "元の画像の比率",
+          "option__2": "小さい",
+          "option__3": "中程度",
+          "option__4": "大きい"
+        },
+        "image_position": {
+          "label": "画像の位置",
+          "option__1": "上部",
+          "option__2": "左側",
+          "option__3": "右側",
+          "option__4": "下部",
+          "option__5": "背景に画像を使用する"
+        },
+        "show_overlay": {
+          "label": "オーバーレイを表示"
+        },
+        "background_color": {
+          "label": "背景色"
+        }
+      },
+      "blocks": {
+        "collection": {
+          "name": "徴収",
+          "settings": {
+            "collection": {
+              "label": "徴収",
+              "info": "このバナーを表示するコレクションを選択します。"
+            },
+            "image": {
+              "label": "画像"
+            },
+            "image_mobile": {
+              "label": "画像モバイル"
+            }
+          }
+        }
+      }
+    },
+    "main-collection-product-grid": {
+      "name": "製品グリッド",
+      "settings": {
+        "products_per_page": {
+          "label": "ページあたりの製品数"
+        },
+        "enable_filtering": {
+          "label": "フィルタリングを有効にする",
+          "info": "カスタマイズ[フィルタ](/管理者/メニュー)"
+        },
+        "collapsible": {
+          "label": "グループ折りたたみ可能",
+          "default_state": {
+            "label": "デフォルトの状態",
+            "options": {
+              "option__1": {
+                "label": "崩壊"
+              },
+              "option__2": {
+                "label": "拡大"
+              }
+            }
+          }
+        },
+        "open_first_group": {
+          "label": "デフォルトで最初のグループを開く",
+          "info": "既定の状態が折りたたまれているときに機能します。"
+        },
+        "show_results_count": {
+          "label": "結果数の表示"
+        },
+        "enable_sorting": {
+          "label": "並べ替えを有効にする"
+        },
+        "enable_product_count": {
+          "label": "製品数を表示"
+        },
+        "filter_group_heading_size": {
+          "label": "グループ見出しのサイズ"
+        },
+        "position": {
+          "label": "デスクトップフィルターレイアウト",
+          "option__1": "左側のサイドバー",
+          "option__2": "右側のサイドバー",
+          "option__3": "引き出し",
+          "info": "ドロワーはデフォルトのモバイルレイアウトです。"
+        },
+        "paginate_type": {
+          "label": "ページネーションの種類",
+          "options": {
+            "option_1": "ページ番号",
+            "option_2": "[さらに読み込む] ボタン",
+            "option_3": "無限スクロール"
+          }
+        },
+        "header__1": {
+          "content": "フィルタリングとソート"
+        },
+        "header__2": {
+          "content": "ページネーション"
+        },
+        "column_gap_desktop": {
+          "label": "列のギャップ (デスクトップ)"
+        },
+        "column_gap_mobile": {
+          "label": "コラムギャップ(モバイル)"
+        },
+        "filter_color_type": {
+          "label": "フィルターカラータイプ",
+          "option_1": "インライン",
+          "option_2": "リスト"
+        }
+      }
+    },
+    "main-list-collections": {
+      "name": "コレクション リスト ページ",
+      "settings": {
+        "title": {
+          "label": "見出し"
+        },
+        "sort": {
+          "label": "コレクションの並べ替え:",
+          "options__1": {
+            "label": "アルファベット順、A から Z"
+          },
+          "options__2": {
+            "label": "アルファベット順、Z-A"
+          },
+          "options__3": {
+            "label": "日付 (新しいものから古いものへ)"
+          },
+          "options__4": {
+            "label": "日付、古いものから新しいものへ"
+          },
+          "options__5": {
+            "label": "製品数、高から低"
+          },
+          "options__6": {
+            "label": "製品数、低から高"
+          },
+          "info": "コレクションに適用して「すべて」を表示する"
+        },
+        "paragraph": {
+          "content": "すべてのコレクションがデフォルトで一覧表示されます。リストをカスタマイズするには、「選択済み」を選択してコレクションを追加します。"
+        },
+        "collections_to_show": {
+          "label": "表示するコレクションの選択",
+          "all": {
+            "label": "すべての"
+          },
+          "selected": {
+            "label": "入選"
+          }
+        },
+        "collections_per_row": {
+          "label": "行あたりのコレクション数"
+        },
+        "collections_per_page": {
+          "label": "ページあたりの製品数",
+          "info": "コレクションでのみ動作し、選択済みとして表示されます"
+        },
+        "header_collection_card": {
+          "content": "コレクションカード"
+        },
+        "card_style": {
+          "label": "カードスタイル",
+          "option__1": "標準",
+          "option__2": "オーバーレイ付きのコンテンツ"
+        },
+        "show_count": {
+          "label": "製品数を表示"
+        },
+        "button_style": {
+          "info": "コレクションでのみ動作し、選択済みとして表示されます"
+        },
+        "blocks": {
+          "collection": {
+            "name": "徴収",
+            "label": "徴収"
+          },
+          "image": {
+            "label": "画像"
+          },
+          "title": {
+            "label": "コレクションタイトル",
+            "info": "コレクションのタイトルを使用するには空白のままにします。"
+          },
+          "subtitle": {
+            "label": "コレクション字幕"
+          }
+        }
+      }
+    },
+    "main-page": {
+      "name": "ページ",
+      "settings": {
+        "show_title": {
+          "label": "タイトルを表示"
+        }
+      }
+    },
+    "main-password": {
+      "name": "メインパスワード",
+      "settings": {
+        "bg_color": {
+          "label": "背景色"
+        },
+        "bg_image": {
+          "label": "背景画像"
+        },
+        "text_color": {
+          "label": "テキストの色"
+        },
+        "show_overlay": {
+          "label": "オーバーレイを表示"
+        },
+        "full_screen": {
+          "label": "フルスクリーン"
+        },
+        "logo": {
+          "name": "ロゴ",
+          "width": {
+            "label": "幅"
+          },
+          "image": {
+            "label": "画像"
+          }
+        },
+        "heading": {
+          "name": "見出し",
+          "label": "見出し"
+        },
+        "newsletter": {
+          "name": "ニュースレター",
+          "heading": {
+            "label": "見出し"
+          },
+          "subheading": {
+            "label": "小見出し"
+          },
+          "label": "ラベル"
+        },
+        "social": {
+          "name": "社会的",
+          "title": "タイトル"
+        },
+        "copyright": {
+          "name": "著作権"
+        },
+        "content_message": {
+          "name": "コンテンツメッセージ",
+          "header": "パスワードメッセージ",
+          "info": "[オンラインストアの設定]に設定されたメッセージ(/admin/online_store/preferences)"
+        }
+      }
+    },
+    "main-product": {
+      "name": "製品情報",
+      "blocks": {
+        "text": {
+          "name": "テキスト",
+          "settings": {
+            "text": {
+              "label": "テキスト"
+            },
+            "text_content": {
+              "label": "コンテンツ"
+            },
+            "text_style": {
+              "label": "テキストスタイル",
+              "options__1": {
+                "label": "体"
+              },
+              "options__2": {
+                "label": "字幕"
+              },
+              "options__3": {
+                "label": "大文字"
+              }
+            }
+          }
+        },
+        "rating": {
+          "name": "製品評価",
+          "settings": {
+            "content": "評価を表示するには、Shopifyの[商品レビュー](https://apps.shopify.com/product レビュー)アプリをインストールしてください。",
+            "star_color": "星の色",
+            "star_size": "スターサイズ"
+          }
+        },
+        "richtext": {
+          "name": "リッチテキスト",
+          "settings": {
+            "text_content": "コンテンツ"
+          }
+        },
+        "image": {
+          "name": "画像",
+          "settings": {
+            "title": "画像",
+            "image_link": "画像リンク",
+            "image_width": "画像の幅",
+            "image_alignment": {
+              "label": "画像の配置",
+              "options__1": {
+                "label": "左"
+              },
+              "options__2": {
+                "label": "センター"
+              },
+              "options__3": {
+                "label": "右"
+              }
+            }
+          }
+        },
+        "trust_badge": {
+          "name": "信頼バッジ",
+          "settings": {
+            "heading": "見出し",
+            "image": "画像",
+            "image_width": "画像の幅",
+            "heading_position": {
+              "label": "針路位置",
+              "option__1": "画像の上のテキスト",
+              "option__2": "画像の下のテキスト"
+            }
+          }
+        },
+        "title": {
+          "name": "製品タイトル"
+        },
+        "price": {
+          "name": "価格",
+          "settings": {
+            "show_sale_badge": {
+              "label": "販売バッジを表示"
+            },
+            "sale_badge_type": {
+              "label": "セールバッジの種類",
+              "option__1": "テキスト",
+              "option__2": "百分率",
+              "option__3": "定額"
+            }
+          }
+        },
+        "vendor": {
+          "name": "製品ベンダー"
+        },
+        "type": {
+          "name": "製品の種類"
+        },
+        "quantity_selector": {
+          "name": "数量セレクタ"
+        },
+        "variant_picker": {
+          "name": "バリアントピッカー",
+          "picker_type": {
+            "label": "ピッカーの種類",
+            "options__1": {
+              "label": "ドロップダウン"
+            },
+            "options__2": {
+              "label": "ボタン"
+            },
+            "options__3": {
+              "label": "バリアント画像"
+            }
+          },
+          "show_selected_option": {
+            "label": "選択したオプションを表示"
+          },
+          "dont_select_the_default_variant": {
+            "label": "既定のバリアントを選択しない"
+          },
+          "size_chart": {
+            "content": "サイズ表の設定",
+            "form_option_title": {
+              "label": "サイズオプションのタイトル",
+              "info": "サイズガイドボタンを表示したいオプションタイトルをカンマで区切って入力します"
+            },
+            "from_page": {
+              "label": "ページのコンテンツ",
+              "info": "選択したページのコンテンツからサイズグラフを取得します。このコンテンツは上記のコンテンツを上書きします。"
+            },
+            "custom": {
+              "content": "カスタムサイズチャート",
+              "info": "特定のコレクションまたは商品ごとに異なるサイズのグラフを表示します。"
+            },
+            "paragraph_2": {
+              "content": "名前空間とキー \"foxtheme.size_chart\" を持つ製品のカスタムメタフィールドを作成します。[メタフィールドの追加](/管理者/メタフィールド/製品)"
+            }
+          }
+        },
+        "buy_buttons": {
+          "name": "購入ボタン",
+          "settings": {
+            "show_dynamic_checkout": {
+              "label": "動的チェックアウトボタンの表示",
+              "info": "ストアで利用可能な支払い方法を使用すると、お客様にはPayPalやApple Payなどの優先オプションが表示されます。[詳細](https://help.shopify.com/manual/using-themes/change-the-layout/dynamic-checkout)"
+            },
+            "show_add_to_cart": {
+              "label": "カートに追加ボタンを表示"
+            },
+            "show_gift_card_recipient": {
+              "label": "ギフトカード商品の受取人フォームを表示する",
+              "info": "有効にすると、ギフトカード製品をオプションで個人的なメッセージとともに受信者に送信できます。"
+            }
+          }
+        },
+        "pickup_availability": {
+          "name": "ピックアップの可用性"
+        },
+        "description": {
+          "name": "形容"
+        },
+        "addons": {
+          "name": "アドオンボタン",
+          "settings": {
+            "heading__1": "ソーシャルシェアリング",
+            "heading__2": "質問フォーム",
+            "show_share": {
+              "label": "ソーシャル共有を表示する"
+            },
+            "featured_image_info": {
+              "content": "ソーシャルメディアの投稿にリンクを含めると、ページのアイキャッチ画像がプレビュー画像として表示されます。[詳細](https://help.shopify.com/en/manual/online-store/images/showing-social-media-thumbnail-images)"
+            },
+            "title_info": {
+              "content": "店舗のタイトルと説明がプレビュー画像に含まれています。[詳細](https://help.shopify.com/en/manual/promoting-marketing/seo/adding-keywords#set-a-title-and-description-for-your-online-store)"
+            },
+            "ask_question": {
+              "label": "質問フォームを表示",
+              "content": "このフォームは、すべての送信をストアの送信者メールアドレスに送信します。送信者のメールアドレスは、管理画面の[ストアの詳細](/管理/設定/一般)設定ページで変更できます。"
+            }
+          }
+        },
+        "custom_liquid": {
+          "name": "カスタム液体",
+          "settings": {
+            "custom_liquid": {
+              "label": "カスタム液体",
+              "info": "アプリスニペットやその他の Liquid コードを追加して、高度なカスタマイズを作成します。"
+            }
+          }
+        },
+        "custom_field": {
+          "name": "ユーザー設定フィールド",
+          "settings": {
+            "field_name": "フィールド名",
+            "field_type": "フィールド型",
+            "field_placeholder": "プレースホルダ",
+            "field_required": {
+              "label": "必須",
+              "info": "チェックボックスで「必須」を使用する場合、顧客がアイテムをカートに追加するには、チェックボックスをチェックする必要があります。"
+            },
+            "show_at_checkout": {
+              "label": "チェックアウト時に表示",
+              "info": "キャプチャした情報をチェックアウトページの注文概要に表示したくない場合は、このチェックを外します。"
+            },
+            "options": {
+              "label": "オプション",
+              "info": "新しい行の各オプション"
+            },
+            "text": {
+              "info": "必須、空白のままにしないでください"
+            },
+            "select": {
+              "option__1": "単一行テキスト",
+              "option__2": "複数行テキスト",
+              "option__3": "ドロップダウン"
+            }
+          }
+        },
+        "collapsible_tab": {
+          "name": "折りたたみ可能なタブ",
+          "settings": {
+            "heading": {
+              "info": "内容を説明する見出しを含めます。",
+              "label": "見出し"
+            },
+            "liquid": {
+              "label": "液体別のコンテンツ",
+              "info": "HTML とカスタム リキッドを受け入れます。例: {{ 製品.説明 }}"
+            },
+            "content": {
+              "label": "タブの内容"
+            },
+            "page": {
+              "label": "ページからのタブコンテンツ"
+            },
+            "checkbox": {
+              "label": "デフォルトで開いている"
+            },
+            "icon": {
+              "label": "アイコン",
+              "options__1": {
+                "label": "何一つ"
+              },
+              "options__2": {
+                "label": "箱"
+              },
+              "options__3": {
+                "label": "チャットバブル"
+              },
+              "options__4": {
+                "label": "チェックマーク"
+              },
+              "options__5": {
+                "label": "乾燥機"
+              },
+              "options__6": {
+                "label": "目"
+              },
+              "options__7": {
+                "label": "心"
+              },
+              "options__8": {
+                "label": "鉄"
+              },
+              "options__9": {
+                "label": "葉"
+              },
+              "options__10": {
+                "label": "革"
+              },
+              "options__11": {
+                "label": "錠"
+              },
+              "options__12": {
+                "label": "マップピン"
+              },
+              "options__13": {
+                "label": "ズボン"
+              },
+              "options__14": {
+                "label": "飛行機"
+              },
+              "options__15": {
+                "label": "値札"
+              },
+              "options__16": {
+                "label": "疑問符"
+              },
+              "options__17": {
+                "label": "帰る"
+              },
+              "options__18": {
+                "label": "ルーラー"
+              },
+              "options__19": {
+                "label": "シャツ"
+              },
+              "options__20": {
+                "label": "靴"
+              },
+              "options__21": {
+                "label": "シルエット"
+              },
+              "options__22": {
+                "label": "星"
+              },
+              "options__23": {
+                "label": "トラック"
+              },
+              "options__24": {
+                "label": "洗浄"
+              }
+            }
+          }
+        },
+        "meta": {
+          "name": "製品メタ",
+          "settings": {
+            "show_availability": "空き時間を表示",
+            "show_sku": "SKU を表示",
+            "show_collections": "コレクションを表示",
+            "show_tags": "タグの表示",
+            "show_vendor": "ベンダーの表示",
+            "show_type": "表示タイプ"
+          }
+        },
+        "badge": {
+          "name": "カスタムタグ",
+          "settings": {
+            "header": {
+              "content": "有効な形式"
+            }
+          }
+        },
+        "shipping": {
+          "name": "出荷",
+          "settings": {
+            "deliver_text": "テキストの配信",
+            "deliver_days": {
+              "label": "配信先:",
+              "info": "日数 (+/- 2 日)"
+            },
+            "shipping_text": "手記",
+            "date_format": {
+              "label": "日付形式",
+              "info": "例: %m/%d [日付形式の詳細については、こちらをご覧ください。](http://strftime.net/)"
+            }
+          }
+        },
+        "divider": {
+          "name": "ディバイダー"
+        },
+        "complementary_products": {
+          "name": "付属商品",
+          "settings": {
+            "paragraph": {
+              "content": "補完する商品を選択するには、Search & Discoveryアプリを追加してください。[詳しくはこちら](https://shopify.dev/themes/product-merchandising/recommendations)"
+            },
+            "heading": {
+              "label": "見出し"
+            },
+            "make_collapsible_row": {
+              "label": "折りたたみ可能な行として表示する"
+            },
+            "icon": {
+              "info": "折りたたみ可能な行を表示しているときに表示されます。"
+            },
+            "product_list_limit": {
+              "label": "表示する商品の最大数"
+            },
+            "products_per_page": {
+              "label": "1ページあたりの商品数"
+            },
+            "product_card": {
+              "heading": "商品カード"
+            },
+            "enable_quick_add": {
+              "label": "「クイック追加」ボタンを有効にする"
+            },
+            "enable_slider": {
+              "label": "カルーセルを有効にする",
+              "info": "カルーセルは、商品数がページあたりの商品数よりも多い場合にのみ表示されます"
+            }
+          }
+        },
+        "inventory_status": {
+          "name": "在庫状況",
+          "settings": {
+            "inventory_threshold": {
+              "label": "低い在庫しきい値"
+            },
+            "enable_inventory_transfer": {
+              "label": "在庫転送通知の表示",
+              "info": "在庫転送の作成方法を学ぶ [こちら](https://help.shopify.com/en/manual/products/inventory/transfers/create 転送)"
+            },
+            "show_as_progress": {
+              "label": "進行状況バーとして表示"
+            }
+          }
+        }
+      },
+      "settings": {
+        "tutorial": {
+          "content": "[ハウツーを読む](https://foxecom.link/cpjeXL)"
+        },
+        "layout": {
+          "label": "デスクトップレイアウト",
+          "options__1": "標準ギャラリー",
+          "options__2": "グリッドミックス",
+          "options__3": "グリッド 2 列",
+          "options__4": "サムネイルカルーセル",
+          "options__5": "積層"
+        },
+        "header": {
+          "content": "メディア",
+          "info": "詳しくは、[メディアの種類] をご覧ください。(https://help.shopify.com/manual/products/product-media)"
+        },
+        "enable_sticky_info": {
+          "label": "デスクトップで付箋コンテンツを有効にする"
+        },
+        "media_size": {
+          "label": "デスクトップ メディアのサイズ",
+          "info": "メディアは自動的にモバイル用に最適化されます。",
+          "options__1": {
+            "label": "小さい"
+          },
+          "options__2": {
+            "label": "中程度"
+          },
+          "options__3": {
+            "label": "大きい"
+          }
+        },
+        "mobile_thumbnails": {
+          "label": "モバイルレイアウト",
+          "options__1": {
+            "label": "サムネイルを表示"
+          },
+          "options__2": {
+            "label": "サムネイルを非表示にする"
+          }
+        },
+        "enable_image_zoom": {
+          "label": "画像ズームを有効にする"
+        },
+        "enable_video_looping": {
+          "label": "ビデオループを有効にする"
+        },
+        "show_featured_media": {
+          "label": "デフォルトで注目のメディアを表示する",
+          "info": "チェックを外した場合、選択したバリアントの画像がページの読み込み時に表示されます。"
+        }
+      }
+    },
+    "main-search": {
+      "name": "検索結果",
+      "settings": {
+        "limit": {
+          "label": "ページごとの結果"
+        }
+      }
+    },
+    "multicolumn": {
+      "name": "マルチコラム",
+      "blocks": {
+        "column": {
+          "name": "カラム",
+          "settings": {
+            "image": {
+              "label": "画像"
+            },
+            "image_url": {
+              "label": "URLからの画像",
+              "info": "画像のURLを入力します"
+            },
+            "link": {
+              "label": "画像リンク"
+            },
+            "image_from_url": {
+              "label": "URLからの画像",
+              "info": "画像のURLを入力します"
+            },
+            "title": {
+              "label": "見出し"
+            },
+            "text": {
+              "label": "文章"
+            }
+          }
+        }
+      },
+      "settings": {
+        "header_1": "レイアウト",
+        "layout": {
+          "label": "レイアウト設定",
+          "option__1": "垂直",
+          "option__2": "水平"
+        },
+        "image_width": {
+          "label": "画像幅",
+          "options__custom": {
+            "label": "カスタム画像幅を使用します"
+          },
+          "options__full": {
+            "label": "列の全幅"
+          },
+          "options__xs": {
+            "label": "余分な小"
+          },
+          "options__sm": {
+            "label": "小さい"
+          },
+          "options__md": {
+            "label": "中くらい"
+          },
+          "options__lg": {
+            "label": "大きい"
+          },
+          "options__xl": {
+            "label": "特大"
+          }
+        },
+        "custom_image_width": {
+          "label": "カスタム画像幅"
+        }
+      }
+    },
+    "uneven-image-cards": {
+      "name": "混合画像カード",
+      "blocks": {
+        "image_with_text": {
+          "name": "テキスト付きの画像"
+        }
+      }
+    },
+    "logo-list": {
+      "name": "ロゴ一覧",
+      "blocks": {
+        "logo": {
+          "name": "ロゴ",
+          "settings": {
+            "image": {
+              "label": "画像"
+            },
+            "image_url": {
+              "label": "画像はURLから",
+              "info": "画像の URL を入力する"
+            },
+            "link": {
+              "label": "画像リンク",
+              "info": "随意"
+            },
+            "image_width": {
+              "label": "画像の幅"
+            },
+            "accessibility": {
+              "content": "アクセシビリティ",
+              "label": "ロゴの説明",
+              "info": "スクリーンリーダーを使用しているお客様のロゴを説明する。"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "ロゴ一覧"
+      }
+    },
+    "gallery-images": {
+      "name": "ギャラリー画像",
+      "settings": {
+        "layout": {
+          "header": {
+            "content": "メトロ設定"
+          },
+          "label": "レイアウト",
+          "option__01": "グリッド",
+          "option__02": "メトロ"
+        }
+      },
+      "blocks": {
+        "image": {
+          "name": "画像",
+          "settings": {
+            "image": {
+              "label": "画像"
+            },
+            "text": {
+              "label": "テキスト"
+            },
+            "link": {
+              "label": "リンク",
+              "info": "随意"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "ギャラリー画像"
+      }
+    },
+    "layered-images": {
+      "name": "レイヤード画像"
+    },
+    "newsletter": {
+      "name": "ニュースレター",
+      "settings": {
+        "header": {
+          "content": "設定"
+        },
+        "paragraph": {
+          "content": "サインアップしたお客様には、Shopifyでアカウントが作成されます。[顧客表示](/admin/customers?query=&accepts_marketing=1)"
+        },
+        "email_placeholder": {
+          "label": "電子メールプレースホルダ"
+        },
+        "show_agree_checkbox": {
+          "label": "「利用規約」チェックボックスを表示する"
+        },
+        "form_position": {
+          "label": "フォームの位置",
+          "option__1": "左",
+          "option__2": "センター",
+          "option__3": "右"
+        },
+        "background": {
+          "label": "背景画像"
+        }
+      },
+      "presets": {
+        "name": "ニュースレター"
+      }
+    },
+    "countdown-timer": {
+      "name": "カウントダウンタイマー",
+      "settings": {
+        "tutorial": {
+          "content": "[ハウツーを読む](https://foxecom.link/ZeXeq8)"
+        },
+        "header_settings": {
+          "content": "設定"
+        },
+        "use_content_container": {
+          "label": "コンテンツコンテナの使用"
+        },
+        "position": {
+          "label": "カウントダウン位置",
+          "option__1": "左",
+          "option__2": "センター",
+          "option__3": "右"
+        },
+        "bg_image": {
+          "label": "背景画像"
+        },
+        "video_background": {
+          "label": "背景ビデオ",
+          "show_bg_video": "背景ビデオを表示"
+        }
+      },
+      "blocks": {
+        "heading": {
+          "name": "見出し",
+          "settings": {
+            "heading": {
+              "label": "見出し"
+            }
+          }
+        },
+        "subheading": {
+          "name": "小見出し",
+          "settings": {
+            "heading": {
+              "label": "小見出し"
+            }
+          }
+        },
+        "text": {
+          "name": "テキスト",
+          "settings": {
+            "text": {
+              "label": "形容"
+            }
+          }
+        },
+        "button": {
+          "name": "ボタン",
+          "settings": {
+            "button_label": {
+              "label": "ボタンラベル",
+              "info": "ラベルを空白のままにして、ボタンを非表示にします。"
+            },
+            "button_link": {
+              "label": "ボタンリンク"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "カウントダウンタイマー"
+      }
+    },
+    "page": {
+      "name": "ページ",
+      "settings": {
+        "page": {
+          "label": "ページ"
+        }
+      },
+      "presets": {
+        "name": "ページ"
+      }
+    },
+    "product-recommendations": {
+      "name": "製品の推奨事項",
+      "settings": {
+        "paragraph": {
+          "content": "動的な推奨事項では、注文と製品情報を使用して、時間の経過と共に変化し、改善します。[詳細](https://help.shopify.com/en/themes/development/recommended-products)"
+        },
+        "remove_url_params": {
+          "label": "URLパラメーションを削除します",
+          "info": "製品URLのパラマリックトラッキングを削除します"
+        }
+      }
+    },
+    "product-recently-viewed": {
+      "name": "最近閲覧した製品",
+      "settings": {
+        "header__2": {
+          "content": "製品カード"
+        },
+        "image_ratio": {
+          "label": "画像比率",
+          "options__1": {
+            "label": "画像に適応"
+          },
+          "options__2": {
+            "label": "肖像"
+          },
+          "options__3": {
+            "label": "正方形"
+          }
+        },
+        "show_secondary_image": {
+          "label": "ホバー時に2番目の画像を表示する"
+        },
+        "add_image_padding": {
+          "label": "画像パディングの追加"
+        },
+        "show_image_outline": {
+          "label": "画像の枠線を表示"
+        },
+        "show_vendor": {
+          "label": "ベンダーの表示"
+        },
+        "show_rating": {
+          "label": "製品評価を表示",
+          "info": "評価を表示するには、商品評価アプリを追加します。 [詳細](https://help.shopify.com/manual/online ストア/テーマ/os20/テーマ別ショップ/夜明け/ページタイプ#商品推奨-表示-商品評価)"
+        }
+      }
+    },
+    "video": {
+      "name": "ビデオ",
+      "settings": {
+        "header": {
+          "content": "設定"
+        },
+        "heading": {
+          "label": "見出し"
+        },
+        "cover_image": {
+          "label": "表紙画像"
+        },
+        "video_type": {
+          "label": "ビデオの種類",
+          "options__1": {
+            "label": "Shopifyがホストする"
+          },
+          "options__2": {
+            "label": "外"
+          }
+        },
+        "shopify_video": {
+          "label": "Shopifyがホストする動画"
+        },
+        "video_ratio": {
+          "label": "ビデオ比率",
+          "options__1": {
+            "label": "ビデオに順応する"
+          },
+          "options__2": {
+            "label": "16/9"
+          },
+          "options__3": {
+            "label": "21/9"
+          },
+          "options__4": {
+            "label": "9/16"
+          },
+          "options__5": {
+            "label": "3/2"
+          },
+          "options__6": {
+            "label": "4/3"
+          },
+          "options__7": {
+            "label": "1/1"
+          }
+        },
+        "video_url": {
+          "label": "ティッカー",
+          "placeholder": "ユーチューブまたは Vimeo の URL を使用する",
+          "info": "Vimeo または YouTube のリンクを受け入れる"
+        },
+        "autoplay": {
+          "label": "自動再生",
+          "info": "自動再生が有効になっている場合、ビデオは自動的にミュートされます。"
+        }
+      },
+      "presets": {
+        "name": "ビデオ"
+      }
+    },
+    "popup": {
+      "name": "ポップアップ",
+      "settings": {
+        "enable": "エネーブル",
+        "show_for_homepage_only": "ホームページのみ表示",
+        "show_for_visitors_only": "訪問者のみに表示",
+        "trigger_open": {
+          "label": "自動的に開くトリガー",
+          "options": {
+            "option__1": "ページが読み込まれた直後に開く",
+            "option__2": "ページが読み込まれてから 5 秒遅れる",
+            "option__3": "下にスクロールする顧客",
+            "option__4": "顧客がウェブサイトを離れる"
+          },
+          "info": "最後のオプションは、デスクトップ上でのみ作業することです。モバイルでは、ページの読み込み後にポップアップが表示されます。"
+        },
+        "repeat_open": {
+          "label": "自動的に開くことを繰り返す",
+          "info": "ポップアップが再び表示されるまでの時間",
+          "options": {
+            "option__1": "繰り返しなし",
+            "option__2": "30分ごと",
+            "option__3": "1時間ごと",
+            "option__4": "6時間ごと",
+            "option__5": "12 時間ごと",
+            "option__6": "毎日",
+            "option__7": "3日ごと",
+            "option__8": "毎週",
+            "option__9": "2週間ごと",
+            "option__10": "毎月"
+          }
+        },
+        "alignment": {
+          "label": "テキストの配置",
+          "options": {
+            "option__1": "左",
+            "option__2": "センター"
+          }
+        },
+        "width": {
+          "label": "コンテナ幅"
+        },
+        "header_design_mode": {
+          "content": "デザインモード",
+          "info": "デザインモードを有効にすると、カスタマイズページのセットアップ中にポップアップが常に表示されるようになります。"
+        },
+        "design_mode": {
+          "label": "デザインモード"
+        },
+        "header_settings": {
+          "content": "設定"
+        },
+        "header_teaser_button": {
+          "content": "ティーザーボタン",
+          "info": "顧客がポップアップを手動で開くことができるようにします。"
+        },
+        "show_teaser": {
+          "label": "ティーザーボタンを表示"
+        },
+        "teaser_popup_bg": {
+          "label": "ティーザーポップアップの背景"
+        },
+        "teaser_popup_text": {
+          "label": "ティーザーポップアップテキスト"
+        }
+      },
+      "blocks": {
+        "heading": {
+          "name": "見出し",
+          "settings": {
+            "text": "テキスト",
+            "text_size": {
+              "label": "文字サイズ",
+              "options": {
+                "option__1": "中程度",
+                "option__2": "大きい"
+              }
+            }
+          }
+        },
+        "text": {
+          "name": "テキスト",
+          "settings": {
+            "text": "テキスト"
+          }
+        },
+        "image": {
+          "name": "画像",
+          "settings": {
+            "image": "画像",
+            "image_position": {
+              "label": "画像の位置",
+              "option__1": "ページのトップへ",
+              "option__2": "左"
+            }
+          }
+        },
+        "form": {
+          "name": "ニュースレターフォーム",
+          "info": "サインアップしたお客様には、Shopifyでアカウントが作成されます。[顧客リストを見る](/管理者/顧客)",
+          "settings": {
+            "button_label": "ボタンラベル"
+          }
+        },
+        "button": {
+          "name": "ボタン",
+          "settings": {
+            "button_label": "ボタンラベル",
+            "button_link": "ボタンリンク"
+          }
+        },
+        "code": {
+          "name": "ディスカウントコード",
+          "settings": {
+            "code": {
+              "label": "ディスカウントコード",
+              "info": "お客様にディスカウントコードを提供します。[割引コードを見る](/管理者/割引)"
+            },
+            "apply_button": "適用ボタン",
+            "apply_button_info": "この割引は、お客様がこのボタンをクリックしたときにチェックアウト時に適用されます。"
+          }
+        },
+        "social": {
+          "name": "ソーシャルリンク"
+        }
+      }
+    },
+    "collapsible-tabs": {
+      "name": "折りたたみ可能なタブ",
+      "settings": {
+        "collapsible_tab": {
+          "header": "折りたたみ可能なタブ"
+        },
+        "content_width": {
+          "label": "コンテンツの幅"
+        }
+      },
+      "blocks": {
+        "collapsible_item": {
+          "name": "折りたたみ可能なタブ",
+          "title": {
+            "label": "見出し"
+          },
+          "content": {
+            "label": "折りたたみ可能なタブの内容"
+          },
+          "custom_liquid": {
+            "label": "カスタム液体"
+          },
+          "content_page": {
+            "label": "ページからのタブコンテンツ"
+          },
+          "open": {
+            "label": "デフォルトで開いている"
+          }
+        },
+        "heading": {
+          "name": "見出し",
+          "text": {
+            "label": "テキスト"
+          }
+        }
+      }
+    },
+    "lookbook": {
+      "name": "ルックブック",
+      "settings": {
+        "image_settings": {
+          "content": "画像設定"
+        }
+      },
+      "blocks": {
+        "lookbook_item": {
+          "name": "ルックブックアイテム",
+          "settings": {
+            "header_image": {
+              "content": "設定",
+              "label": "画像"
+            },
+            "header_product": {
+              "label": "プロダクツ"
+            },
+            "header_product_1": {
+              "label": "商品1"
+            },
+            "header_product_2": {
+              "label": "商品2"
+            },
+            "header_product_3": {
+              "label": "商品3"
+            },
+            "header_product_4": {
+              "label": "商品4"
+            },
+            "header_product_5": {
+              "label": "商品5"
+            },
+            "image": {
+              "label": "画像"
+            },
+            "annotation_color": {
+              "label": "ホットスポットの色",
+              "option__1": "光",
+              "option__2": "暗い"
+            },
+            "select_product": {
+              "label": "製品の選択"
+            },
+            "offset_top": {
+              "label": "垂直方向の配置"
+            },
+            "offset_left": {
+              "label": "水平方向の配置"
+            }
+          }
+        },
+        "lookbook_slider": {
+          "name": "ルックブックスライダー",
+          "settings": {
+            "block_header": {
+              "label": "ブロックヘッダー"
+            },
+            "product_per_slide": "スライドごとの製品",
+            "product_card": {
+              "content": "製品カード"
+            },
+            "product_card_width": {
+              "label": "製品カードの幅"
+            },
+            "image_position": {
+              "label": "デスクトップ イメージの位置",
+              "option__1": "左",
+              "option__2": "右"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "ルックブック"
+      }
+    },
+    "map": {
+      "name": "地図",
+      "settings": {
+        "header": {
+          "content": "設定"
+        },
+        "address": {
+          "label": "住所",
+          "info": "Googleマップは正確な場所を見つけます。"
+        },
+        "api_key": {
+          "label": "グーグルマップ API キー",
+          "info": "マップを表示するには、[Google マップ API キーの登録](https://help.shopify.com/manual/using テーマ/トラブルシューティング/マップ セクション API キー)が必要です。"
+        },
+        "banner": {
+          "label": "バナー",
+          "info": "Googleマップが初期化されていないときに表示される"
+        },
+        "header_1": {
+          "content": "オプション"
+        },
+        "map_style": {
+          "label": "マップ スタイル",
+          "option__1": "デフォルト",
+          "option__2": "銀",
+          "option__3": "レトロ",
+          "option__4": "暗い",
+          "option__5": "夜",
+          "option__6": "茄子"
+        },
+        "height": "マップの高さ",
+        "zoom": "ズーム",
+        "draggable": "ドラッグ可能",
+        "scroll_wheel": {
+          "label": "スクロールホイール",
+          "info": "ドラッグ可能が有効になっている場合にのみ機能します。"
+        }
+      },
+      "blocks": {
+        "heading": {
+          "name": "見出し",
+          "text": {
+            "label": "テキスト"
+          }
+        },
+        "text": {
+          "name": "テキスト",
+          "text": {
+            "label": "テキスト"
+          }
+        },
+        "button": {
+          "name": "ボタン",
+          "settings": {
+            "button_label": "ボタンラベル",
+            "button_link": "ボタンリンク"
+          }
+        },
+        "social": {
+          "name": "ソーシャルリンク",
+          "paragraph": {
+            "content": "[テーマ設定] - [ソーシャルメディア>]に移動して、ソーシャルリンクを更新します。"
+          }
+        }
+      }
+    },
+    "mobile-sticky-bar": {
+      "name": "モバイルナビゲーションバー",
+      "settings": {
+        "paragraph": {
+          "content": "このセクションはモバイルでのみ表示されますので、設定にモバイルビューに切り替えてください。"
+        },
+        "header_1": {
+          "content": "設定"
+        },
+        "show_text": {
+          "label": "ボタンのラベルを表示"
+        },
+        "enable_sticky_bar": {
+          "label": "モバイル スティッキー バーを有効にする"
+        }
+      },
+      "blocks": {
+        "home": {
+          "name": "家",
+          "settings": {
+            "paragraph": "ホームページにリンクしています。",
+            "title": "タイトル"
+          }
+        },
+        "cart": {
+          "name": "カート",
+          "settings": {
+            "paragraph": "カートの引き出しを開きます。",
+            "title": "タイトル"
+          }
+        },
+        "search": {
+          "name": "捜索",
+          "settings": {
+            "paragraph": "検索ドロワーを開きます。",
+            "title": "タイトル"
+          }
+        },
+        "all_product": {
+          "name": "プロダクツ",
+          "settings": {
+            "paragraph": "コレクション ページにリンクされています。",
+            "collection": {
+              "label": "徴収",
+              "info": "コレクションが選択されていない場合、ボタンは「すべて」コレクションにリンクされます。"
+            },
+            "title": "タイトル"
+          }
+        },
+        "custom_link": {
+          "name": "カスタムリンク",
+          "settings": {
+            "title": "タイトル",
+            "link": "リンク"
+          }
+        }
+      }
+    },
+    "press": {
+      "name": "押す",
+      "blocks": {
+        "press": {
+          "name": "プレス・スチモニー",
+          "settings": {
+            "content": "コンテンツ",
+            "image": "画像",
+            "image_width": "画像の幅"
+          }
+        }
+      },
+      "presets": {
+        "name": "押す"
+      }
+    },
+    "product-information-tabs": {
+      "name": "製品情報タブ",
+      "blocks": {
+        "common": {
+          "tab_heading": "タブ見出し",
+          "tab_content": "タブの内容",
+          "default_open": "モバイルでのデフォルトオープン",
+          "content_page": "ページからのタブコンテンツ"
+        },
+        "description": {
+          "name": "製品の説明",
+          "settings": {
+            "paragraph": "このタブには、製品の説明が表示されます"
+          }
+        },
+        "reviews": {
+          "name": "製品レビュー",
+          "settings": {
+            "header": {
+              "content": "必要条件",
+              "info": "レビューウィジェットを表示するには、Shopifyで[商品レビュー](https://apps.shopify.com/product レビュー)アプリをインストールしてください。"
+            }
+          }
+        },
+        "custom_content": {
+          "name": "カスタムコンテンツ"
+        },
+        "custom_liquid": {
+          "name": "カスタム液体",
+          "settings": {
+            "label": "カスタム液体"
+          }
+        }
+      },
+      "presets": {
+        "name": "製品情報タブ"
+      }
+    },
+    "handpicked-products": {
+      "name": "厳選された製品",
+      "settings": {
+        "pick_product": {
+          "label": "製品の選択"
+        }
+      },
+      "presets": {
+        "name": "厳選された製品"
+      }
+    },
+    "image-comparison": {
+      "name": "画像比較",
+      "header": {
+        "settings": "設定"
+      },
+      "settings": {
+        "layout": {
+          "label": "レイアウト",
+          "option_1": "水平な",
+          "option_2": "垂直"
+        },
+        "image_height": "画像の高さ"
+      },
+      "blocks": {
+        "name": "画像",
+        "image": "画像",
+        "image_mobile": "モバイル画像",
+        "heading": "画像の見出し",
+        "heading_plain_text": "画像の見出しをプレーンテキストとして表示"
+      },
+      "presets": {
+        "name": "画像比較"
+      }
+    },
+    "scrolling-promotion": {
+      "name": "スクロールプロモーション",
+      "settings": {
+        "header": {
+          "settings": "設定"
+        },
+        "direction": {
+          "label": "方向",
+          "option_1": "左",
+          "option_2": "右"
+        },
+        "pause_on_hover": "ホバー時にスクロールを一時停止する",
+        "speed": "速度",
+        "item_gap": "アイテムギャップ",
+        "item_gap_mobile": "アイテムギャップモバイル"
+      },
+      "blocks": {
+        "image": {
+          "name": "画像",
+          "image": "画像",
+          "image_height": "画像の高さ",
+          "image_link": "画像リンク"
+        },
+        "testimonial": {
+          "name": "表彰状"
+        },
+        "announcement": {
+          "name": "告知",
+          "custom_svg": "カスタム SVG アイコン",
+          "icon_size": {
+            "label": "アイコンのサイズ",
+            "option_1": "小さい",
+            "option_2": "Medium",
+            "option_3": "Large"
+          },
+          "text": "Text",
+          "text_size": "Text size",
+          "text_link": "Link"
+        }
+      },
+      "presets": {
+        "name": "スクロールプロモーション"
+      }
+    },
+    "featured-product-slider": {
+      "name": "注目の製品スライダー",
+      "settings": {
+        "tutorial": {
+          "content": "[ハウツーを読む](https://foxecom.link/CO8C5D)"
+        }
+      },
+      "blocks": {
+        "product": {
+          "name": "積",
+          "settings": {
+            "product": {
+              "label": "積"
+            },
+            "custom_image": {
+              "label": "カスタム画像"
+            },
+            "custom_description": {
+              "label": "形容",
+              "info": "製品の説明を使用するには空白のままにします"
+            },
+            "button_label": {
+              "info": "このボタンは商品詳細ページにリダイレクトされます。空白のままにすると、ボタンが非表示になります"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "注目の製品スライダー"
+      }
+    },
+    "collection-tabs": {
+      "name": "コレクション タブ",
+      "settings": {
+        "tab-settings": {
+          "header": "タブ設定"
+        },
+        "image_position": {
+          "label": "デスクトップ イメージの位置",
+          "info": "位置はモバイル向けに自動的に最適化されます。",
+          "options": {
+            "option__1": "左",
+            "option__2": "右"
+          }
+        },
+        "trigger_behavior": {
+          "label": "トリガー オープン タブ",
+          "options": {
+            "option__1": "ホバー",
+            "option__2": "クリック"
+          }
+        },
+        "prefix_header": {
+          "label": "プレフィックスヘッダー",
+          "options": {
+            "option__1": "序数",
+            "option__2": "アイコン"
+          }
+        },
+        "autoplay": {
+          "label": "コンテンツの自動回転"
+        },
+        "autoplay_duration": {
+          "label": "コンテンツの変更間隔"
+        }
+      },
+      "blocks": {
+        "collection": {
+          "name": "徴収",
+          "settings": {
+            "icon": {
+              "label": "アイコン"
+            }
+          }
+        }
+      },
+      "presets": {
+        "name": "コレクション タブ"
+      }
+    },
+    "collections-showcase": {
+      "name": "コレクションショーケース"
+    },
+    "collection-list-slider": {
+      "name": "コレクションリストスライダー",
+      "settings": {
+        "banner_image": {
+          "header": {
+            "content": "拡大画像"
+          }
+        }
+      },
+      "blocks": {
+        "collection": {
+          "settings": {
+            "banner_image": {
+              "label": "拡大画像"
+            }
+          }
+        }
+      }
+    },
+    "age-verifier": {
+      "name": "年齢確認ポップアップ",
+      "settings": {
+        "tutorial": {
+          "content": "[ハウツーを読む](https://foxecom.link/X5Y3Ji)"
+        },
+        "design_mode": {
+          "content": "デザイン モード",
+          "paragraph": "デザイン モードを有効にして、セットアップ中に年齢確認ツールのポップアップがカスタマイズ ページに常に表示されるようにします。",
+          "label": "デザイン モード"
+        },
+        "background": {
+          "content": "背景画像",
+          "label": "画像",
+          "info": "2000 x 800px 推奨",
+          "blur_image": "画像をぼかす"
+        },
+        "age_verifier_content": {
+          "decline_content": "コンテンツの拒否",
+          "heading": "見出し",
+          "return_button": "戻るボタンのテキスト",
+          "decline_paragraph": "このコンテンツは、ユーザーが年齢確認者の要件を満たしていない場合に表示されます。",
+          "decline_content_text": "テキスト"
+        }
+      },
+      "blocks": {
+        "heading": {
+          "name": "見出し",
+          "settings": {
+            "heading": "見出し"
+          }
+        },
+        "subheading": {
+          "name": "小見出し",
+          "settings": {
+            "subheading": "小見出し"
+          }
+        },
+        "text": {
+          "name": "テキスト",
+          "settings": {
+            "text": "コンテンツ"
+          }
+        },
+        "image": {
+          "name": "画像",
+          "settings": {
+            "image": "画像",
+            "use_custom_image_width": "カスタム画像の幅を使用する",
+            "custom_image_width": "カスタム イメージの幅 (PX)"
+          }
+        },
+        "buttons": {
+          "name": "Buttons",
+          "settings": {
+            "decline_button": "Decline button text",
+            "approve_button": "Approve button text"
+          }
+        }
+      }
+    },
+    "image-with-text-slider": {
+      "name": "テキストスライダー付きの画像",
+      "settings": {
+        "slider_height": {
+          "label": "画像の高さ",
+          "options": {
+            "adapt": "適応する",
+            "small": "小さい",
+            "medium": "中くらい",
+            "large": "大きい"
+          }
+        },
+        "image_width": {
+          "label": "画像の幅"
+        },
+        "image_position": {
+          "label": "画像の位置",
+          "option_01": "左",
+          "option_02": "右"
+        },
+        "auto_rotate": {
+          "label": "スライドの自動回転"
+        },
+        "change_slides_speed": {
+          "label": "スライドを切り替える間隔"
+        },
+        "show_text_below": {
+          "label": "モバイルでは画像の下にコンテンツを表示"
+        },
+        "accessibility": {
+          "content": "アクセシビリティ",
+          "label": "スライダーの説明",
+          "info": "スクリーン リーダーを使用している顧客向けにスライダーについて説明します。"
+        }
+      },
+      "blocks": {
+        "slide_item": {
+          "name": "画像スライド",
+          "settings": {
+            "header_bg": {
+              "content": "背景設定"
+            },
+            "image_desktop": {
+              "label": "デスクトップイメージ",
+              "info": "1920×900px推奨"
+            },
+            "image_mobile": {
+              "label": "モバイル画像",
+              "info": "600×480ピクセル推奨"
+            },
+            "header_content": {
+              "content": "コンテンツ設定"
+            },
+            "content_in_container": {
+              "label": "コンテンツコンテナを有効にする"
+            },
+            "subheading": {
+              "info": "カスタム HTML を許可する"
+            },
+            "heading": {
+              "info": "カスタム HTML を許可する"
+            },
+            "image": {
+              "label": "画像リンク",
+              "info": "画像へのリンク"
+            },
+            "header_button": {
+              "content": "ボタン"
+            }
+          }
+        },
+        "slide_video": {
+          "name": "ビデオスライド",
+          "settings": {
+            "video_type": {
+              "label": "ビデオの種類",
+              "option_1": "外部の",
+              "option_2": "Shopify がホストする"
+            },
+            "shopify_video": "Shopify がホストするビデオ",
+            "external_video": "外部ビデオ URL",
+            "video_alt": "動画の代替テキスト"
+          }
+        }
+      }
+    },
+    "products-bundle": {
+      "name": "製品バンドル",
+      "header": {
+        "content": "コンテンツ"
+      },
+      "settings": {
+        "image_position": {
+          "label": "画像の位置",
+          "option__1": "左",
+          "option__2": "右"
+        },
+        "desktop_content_position": {
+          "label": "デスクトップのコンテンツの位置",
+          "option__1": "上",
+          "option__2": "真ん中",
+          "option__3": "底"
+        },
+        "subheading": {
+          "label": "小見出し"
+        },
+        "heading": {
+          "label": "見出し"
+        },
+        "desktop_content_alignment": {
+          "label": "デスクトップコンテンツの配置",
+          "option__1": "左",
+          "option__2": "中心",
+          "option__3": "右"
+        },
+        "mobile_content_alignment": {
+          "label": "モバイルコンテンツの調整",
+          "option__1": "左",
+          "option__2": "中心",
+          "option__3": "右"
+        }
+      }
+    },
+    "highlight-text-with-image": {
+      "name": "画像付きテキストの強調表示",
+      "header": {
+        "content": "テキスト"
+      },
+      "settings": {
+        "heading": {
+          "label": "見出し",
+          "info": "特定のプレースホルダ形式 `[imgX]` を使用して、画像を表示する位置を指定します。X は画像のインデックスです。例えば、`[img1]` は最初の画像に置き換えられます。"
+        }
+      },
+      "blocks": {
+        "name": "画像",
+        "label": "画像",
+        "setting": {
+          "image_link": {
+            "label": "画像リンク"
+          },
+          "image_width": {
+            "label": "画像の幅"
+          },
+          "image_width_mobile": {
+            "label": "モバイルでの画像の幅"
+          }
+        }
+      },
+      "presets": {
+        "name": "画像付きテキストの強調表示"
+      }
+    },
+    "promotion-banner": {
+      "name": "プロモーションバナー",
+      "presets": {
+        "name": "プロモーションバナー"
+      }
+    },
+    "favorite-collection": {
+      "name": "お気に入りコレクション"
+    },
+    "quick-order-list": {
+      "name": "クイックオーダーリスト",
+      "settings": {
+        "show_image": {
+          "label": "画像を表示します"
+        },
+        "show_sku": {
+          "label": "SKUを表示します"
+        }
+      }
+    }
+  }
+}

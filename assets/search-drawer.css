@@ -1,0 +1,231 @@
+.f-search-drawer .f-drawer__header {
+  padding: 0 2rem;
+  margin-bottom: -1px;
+}
+.f-search-drawer__field {
+  position: relative;
+}
+.f-search-drawer__field:before {
+  content: "";
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--color-border);
+}
+.f-search-drawer__field-icon {
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  display: inline-flex;
+  pointer-events: none;
+}
+.f-search-drawer__field .input-focus-border {
+  width: 0;
+  height: 1px;
+  background-color: var(--color-text-body);
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  transition: 0.25s all ease-in-out;
+}
+.f-search-drawer__field input {
+  border: none;
+  border-radius: 0;
+  padding: 18px 30px 18px 36px;
+  background: none;
+  line-height: 24px;
+}
+.f-search-drawer__field input:focus ~ .input-focus-border {
+  width: 100%;
+}
+.f-search-drawer .f-drawer__scroller {
+  padding: 0;
+}
+.f-search-drawer .f-predictive-search__block {
+  position: relative;
+  padding: 2.4rem 2rem;
+}
+.f-search-drawer .f-predictive-search__block:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 2rem;
+  right: 2rem;
+  height: 1px;
+  background: var(--color-border);
+  z-index: -1;
+}
+.f-search-drawer .f-drawer__close {
+  top: 0.8rem;
+  right: 1rem;
+}
+.f-search-drawer .f-drawer__close svg {
+  width: 2.4rem;
+  height: 2.4rem;
+}
+
+.f-predictive-search {
+  display: none;
+  padding: 0 2rem;
+}
+.f-search-drawer .f-predictive-search {
+  height: 100%;
+}
+.f-predictive-search__heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0 1rem;
+}
+.f-predictive-search__results-list {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem 1.2rem;
+}
+.f-predictive-search__results-list li {
+  margin: 0;
+  padding: 0;
+}
+.f-predictive-search__block-products .f-predictive-search__heading,
+.f-predictive-search__block-products .f-predictive-search__subheading {
+  margin-bottom: 2.4rem;
+}
+.f-predictive-search__block-products .f-predictive-search__results-list {
+  flex-direction: column;
+  gap: 2rem;
+}
+.f-predictive-search__item {
+  display: flex;
+  align-items: center;
+  gap: 0 1.2rem;
+  transition: 0.3s all;
+}
+.f-predictive-search__item-image {
+  width: 8rem;
+  flex: 0 0 auto;
+}
+.f-predictive-search__item-heading {
+  margin-bottom: 4px;
+  color: var(--color-text-body);
+}
+.f-predictive-search__item-heading:hover {
+  color: var(--color-link-hover);
+}
+.f-predictive-search__item-content {
+  flex: 1;
+}
+.f-predictive-search__item--term {
+  width: 100%;
+  justify-content: flex-start !important;
+  font-weight: 500;
+}
+.f-predictive-search__item--term:hover {
+  color: var(--color-link-hover);
+}
+.f-predictive-search__item--term svg {
+  width: 1.8rem;
+  height: 1.8rem;
+}
+.f-predictive-search__item-query-result mark {
+  background: none;
+  color: var(--color-text-body);
+}
+.f-predictive-search li[aria-selected=true] > .f-predictive-search__item > .f-predictive-search__item:not(.f-predictive-search__item--link),
+.f-predictive-search li:hover > .f-predictive-search__item:not(.f-predictive-search__item--link) {
+  background-color: rgba(var(--color-foreground), 0.04);
+}
+.f-predictive-search li[aria-selected=true] > .f-predictive-search__item > .f-predictive-search__item--link > p,
+.f-predictive-search li:hover > .f-predictive-search__item--link > p {
+  text-decoration: underline;
+  text-decoration-thickness: 0.1rem;
+  text-underline-offset: 0.2em;
+}
+.f-predictive-search__heading, .f-predictive-search__subheading {
+  text-transform: uppercase;
+  font-size: 1.6rem;
+  line-height: 2.6rem;
+  margin-bottom: 1.2rem;
+}
+.f-predictive-search__keywords ul {
+  gap: 0.4rem;
+}
+.f-predictive-search__keywords a {
+  color: var(--color-text-body);
+}
+.f-predictive-search__keywords a:hover {
+  color: var(--color-link-hover);
+}
+.f-predictive-search__keywords li:not(:last-child) a:after {
+  content: ",";
+}
+.f-predictive-search__result-group {
+  padding: 2.4rem 0;
+  border-top: 1px solid var(--color-border);
+}
+
+predictive-search:not([loading]) .f-predictive-search__heading .f-spinner-icon, predictive-search:not([loading]) .f-predictive-search__loading-state, predictive-search:not([loading]) .predictive-search-status__loading, predictive-search[loading] .f-predictive-search__heading ~ .f-predictive-search__loading-state, predictive-search[loading] .f-predictive-search__results-list:first-child, predictive-search[results=true] .f-predictive-search__recommendations, predictive-search[results=true] .f-predictive-search__keywords, predictive-search[loading] .f-predictive-search__recommendations, predictive-search[loading] .f-predictive-search__keywords, predictive-search[loading] .f-predictive-search__empty {
+  display: none;
+}
+predictive-search[loading] .f-predictive-search__loading-state {
+  display: flex;
+  justify-content: center;
+  padding: 1.6rem;
+}
+predictive-search[loading] .f-predictive-search, predictive-search[open] .f-predictive-search {
+  display: block;
+}
+
+.f-search-no-js {
+  position: absolute;
+  top: 0;
+  width: 100%;
+  left: 0;
+  height: 100%;
+  background: var(--color-header-bg);
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  color: var(--color-header-text);
+}
+.f-search-no-js__form {
+  width: 400px;
+  align-self: center;
+}
+.f-search-no-js__field {
+  position: relative;
+  max-width: calc(100% - 30px);
+  margin: 0 auto;
+}
+.f-search-no-js__field button {
+  position: absolute;
+  right: 0;
+  top: 0;
+  height: 100%;
+  padding: 0 10px !important;
+}
+@media (max-width: 639.98px) {
+  .f-search-no-js__field {
+    max-width: calc(100% - 65px);
+    margin: 0 auto 0 15px;
+  }
+}
+
+.header-search-form details[open] summary {
+  z-index: 5;
+  position: absolute;
+  right: 1.6rem;
+  top: 50%;
+  transform: translateY(-50%);
+}
+.header-search-form details[open] summary .btn {
+  display: none;
+}
+.header-search-form details[open] .f-icon-close {
+  display: block;
+  width: 2.4rem;
+  height: 2.4rem;
+  color: var(--color-header-text);
+}

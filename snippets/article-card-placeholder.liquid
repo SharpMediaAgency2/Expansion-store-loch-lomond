@@ -1,0 +1,35 @@
+<div class="f-article-card f-article-card__placeholder {{ classes }} grid-list__column">
+  <div class="f-article-card__image">
+    <div
+      class="f-image f-card"
+      style="--aspect-ratio: {{ image_aspect_ratio }};"
+    >
+      {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+    </div>
+  </div>
+  <div class="f-article-card__info">
+    {%- if show_date -%}
+      <p class="f-article-card__date">
+        {{ 'now' | date: '%b %d, %y' }}
+      </p>
+    {%- endif -%}
+    <h3 class="f-article-card__title h6">
+      {{ 'onboarding.blog_title' | t }}
+    </h3>
+    {%- if show_excerpt -%}
+      <div class="f-article-card__excerpt text-subtext">
+        <div class="text-limit-2-lines">
+          <p>{{ 'onboarding.blog_excerpt' | t }}</p>
+        </div>
+      </div>
+    {%- endif -%}
+    {%- if show_readmore -%}
+      <a
+        href="#"
+        class="btn btn--underline f-article-card__readmore text-normal"
+      >
+        {{ 'blogs.article.read_more' | t }}
+      </a>
+    {%- endif -%}
+  </div>
+</div>

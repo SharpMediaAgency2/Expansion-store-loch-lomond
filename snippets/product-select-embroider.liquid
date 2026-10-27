@@ -1,0 +1,47 @@
+{% assign courses = metaobjects.courses.values %}
+{% assign dropdown = product.metafields.custom.embroidered_logo_position %}
+
+{% if courses and dropdown %}
+  <div class="variant-clubs">
+    <label class="form__label" for="course-select" style="margin-bottom: 16px; display: block;">
+      <span class="font-semibold logo-placement-text">Logo Placement </span>
+        <span style="font-weight: 400; font-size: 14px;" class="logo-disclaimer">Preview shows left chest only</span>
+
+    </label>
+
+    <select
+      id="select-embroidered"
+      class="form-control"
+      name="properties[Logo Position]"
+      {% if field_required %}
+        required
+      {% endif %}
+      form="{{ product_form_id }}"
+      aria-label="Where would you like the logo embroidered?"
+    >
+      <option value="Left Chest">
+        Left Chest
+      </option>
+      <option value="Left Sleeve">
+        Left Sleeve
+      </option>
+    </select>
+  </div>
+{% endif %}
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    var selectEl = document.getElementById('select-embroidered');
+    var hiddenInput = document.getElementById('select-embroidered-input');
+
+    function updateHiddenValue() {
+      hiddenInput.value = selectEl.value;
+    }
+
+    // Update on load (for default selection)
+    updateHiddenValue();
+
+    // Update on change
+    selectEl.addEventListener('change', updateHiddenValue);
+  });
+</script>

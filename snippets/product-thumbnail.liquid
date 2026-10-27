@@ -1,0 +1,379 @@
+{%- liquid
+  assign media_layout = section.settings.media_layout | default: 'carousel'
+  assign enable_image_zoom = section.settings.enable_image_zoom | default: false
+
+  case media_size
+    when 'small'
+      assign media_width = 0.45
+    when 'medium'
+      assign media_width = 0.55
+    else
+      assign media_width = 0.658575
+  endcase
+
+  assign loading = 'lazy'
+  assign fetchpriority = 'low'
+  if index < 1
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  endif
+-%}
+{% capture all_featured_image_ids_string %}
+  {% for variant in product.variants %}
+    {% if variant.featured_media %}
+      {{ variant.featured_media.id }}-{{ variant.metafields.custom.logo_position }}{% unless forloop.last %}|{% endunless %}
+    {% endif %}
+  {% endfor %}
+{% endcapture %}
+
+{%- assign tempArray = all_featured_image_ids_string | split: "|" | uniq -%}
+
+{%- assign target_id = media.id -%}
+{% comment %}{{ tempArray }}{% endcomment %}
+
+{% assign test = tempArray | find: target_id %}
+{% assign xVar = test | split: "x:"  %}
+{% assign xVarFinal = xVar | split: "," %}
+{% comment %}\\Value of X{{ xVarFinal[1] }} //{% endcomment %}
+
+{% assign yVar = test | split: "y:"  %}
+{% comment %}
+  <--{{ yVar[1] }}-->
+{% endcomment %}
+{% assign yVarFinal = yVar | split: "," %}
+{% comment %}Value of y{{ yVarFinal[1] }} -------{% endcomment %}
+
+
+    {% comment %}
+{% capture all_featured_image_ids_string_values %}
+  {% for variant in product.variants %}
+    {% if variant.featured_media %}
+      {{ variant.featured_media.id }},{{ variant.metafields.custom.logo_position }}{% unless forloop.last %},{% endunless %}
+    {% endif %}
+  {% endfor %}
+{% endcapture %}
+
+    
+{% capture variant_featured_images_and_logo_positions %}
+  [
+  {% assign featured_variants_count = 0 %}
+  {% for variant in product.variants %}
+    {% if variant.featured_media %}
+      {% comment %} Add comma separator for subsequent items after the first one {% endcomment %}
+      {% if featured_variants_count > 0 %},{% endif %}
+      {% assign featured_variants_count = featured_variants_count | plus: 1 %}
+
+      {% assign logo_position_value = null %}
+      {% if variant.metafields.custom.logo_position != blank %}
+        {% assign logo_position_value = variant.metafields.custom.logo_position.value %}
+      {% endif %}
+
+      {
+        "media_id": {{ variant.featured_media.id | json }},
+        "logo_position": {{ logo_position_value | json }}
+      }
+    {% endif %}
+  {% endfor %}
+  ]
+{% endcapture %}
+
+{{ variant_featured_images_and_logo_positions }}
+    
+{{ all_featured_image_ids_string_values }}
+    {% endcomment %}
+
+
+{% capture variant_featured_images_and_logo_positions %}
+  [
+  {% assign featured_variants_count = 0 %}
+  {% for variant in product.variants %}
+    {% if variant.featured_media %}
+     
+      {% if featured_variants_count > 0 %},{% endif %}
+      {% assign featured_variants_count = featured_variants_count | plus: 1 %}
+
+      {% assign logo_position_value = null %}
+      {% if variant.metafields.custom.logo_position != blank %}
+        {% assign logo_position_value = variant.metafields.custom.logo_position.value %}
+      {% endif %}
+
+      {
+        "media_id": {{ variant.featured_media.id | json }},
+        "logo_position": {{ logo_position_value | json }}
+      }
+    {% endif %}
+  {% endfor %}
+  ]
+{% endcapture %}
+
+
+
+    
+
+{% assign coords_string = course_logo_pos %}
+{% assign parts = coords_string | split: "," %}
+
+{% assign x_part = parts[0] %}
+{% assign x_value_string = x_part | split: ":" | last %}
+{% assign x_value = x_value_string | plus: 0 %}
+
+{% assign y_part = parts[1] %}
+{% assign y_value_string = y_part | split: ":" | last %}
+{% assign y_value = y_value_string | plus: 0 %}
+
+
+<div
+  id="f-product__media-{{ media.id }}"
+  class="f-product__media obj-position-{{ index }} {% if all_featured_image_ids_string contains media.id %}need-logo-overlay{% endif %} f-product__media--{{ media.media_type }}{% if media.media_type == 'video' or media.media_type == 'external_video' %} f-video__wrapper{% endif %}{% if 'carousel,standard' contains media_layout %} w-full{% endif %}"
+  data-media-type="{{ media.media_type }}"
+  data-media-id="{{ media.id }}"
+  data-media-index="{{ index }}"
+  data-aspect-ratio="{{ media.preview_image.aspect_ratio | default: '1' }}"
+  tabindex="-1"
+  role="listitem"
+  style="--aspect-ratio: {{ media.preview_image.aspect_ratio | default: 1 }};"
+  data-src="{{ media.preview_image | image_url: width: 1946 }}"
+  data-pswp-width="{{ media.preview_image.width }}"
+  data-pswp-height="{{ media.preview_image.width | divided_by: media.preview_image.aspect_ratio | ceil }}"
+>
+  {%- if media.media_type != 'image' -%}
+    <div>
+      {%- if media.media_type == 'model' -%}
+        <product-model
+          class="deferred-media no-js-hidden"
+          style="padding-top: 100%"
+          data-media-id="{{ media.id }}"
+        >
+      {%- else -%}
+        <deferred-media
+          class="deferred-media no-js-hidden"
+          style="--aspect-ratio: {{ media.preview_image.aspect_ratio | default: 1 }};"
+          data-media-id="{{ media.id }}"
+        >
+      {%- endif -%}
+      <button
+        id="Deferred-Poster-Modal-{{ media.id }}"
+        class="deferred-media__poster"
+        type="button"
+      >
+        <span class="deferred-media__poster-button motion-reduce">
+          {%- if media.media_type == 'model' -%}
+            <span class="visually-hidden">
+              {{- 'products.product.media.play_model' | t -}}
+            </span>
+            {% comment %} theme-check-disable {% endcomment %}
+            {{ 'icon-3d-model.svg' | inline_asset_content }}
+            {% comment %} theme-check-enable {% endcomment %}
+          {%- else -%}
+            <span class="visually-hidden">
+              {{- 'products.product.media.play_video' | t -}}
+            </span>
+            {% comment %} theme-check-disable {% endcomment %}
+            {{ 'icon-play.svg' | inline_asset_content }}
+            {% comment %} theme-check-enable {% endcomment %}
+          {%- endif -%}
+        </span>
+        
+        <img
+          srcset="
+            {% if media.preview_image.width >= 493 %}{{ media.preview_image | image_url: width: 493 }} 493w,{% endif %}
+            {% if media.preview_image.width >= 600 %}{{ media.preview_image | image_url: width: 600 }} 600w,{% endif %}
+            {% if media.preview_image.width >= 713 %}{{ media.preview_image | image_url: width: 713 }} 713w,{% endif %}
+            {% if media.preview_image.width >= 823 %}{{ media.preview_image | image_url: width: 823 }} 823w,{% endif %}
+            {% if media.preview_image.width >= 990 %}{{ media.preview_image | image_url: width: 990 }} 990w,{% endif %}
+            {% if media.preview_image.width >= 1100 %}{{ media.preview_image | image_url: width: 1100 }} 1100w,{% endif %}
+            {% if media.preview_image.width >= 1206 %}{{ media.preview_image | image_url: width: 1206 }} 1206w,{% endif %}
+            {% if media.preview_image.width >= 1346 %}{{ media.preview_image | image_url: width: 1346 }} 1346w,{% endif %}
+            {% if media.preview_image.width >= 1426 %}{{ media.preview_image | image_url: width: 1426 }} 1426w,{% endif %}
+            {% if media.preview_image.width >= 1646 %}{{ media.preview_image | image_url: width: 1646 }} 1646w,{% endif %}
+            {% if media.preview_image.width >= 1946 %}{{ media.preview_image | image_url: width: 1946 }} 1946w,{% endif %}
+            {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
+          "
+          src="{{ media | image_url: width: 1946 }}"
+          sizes="(min-width: {{ settings.container_width }}px) {{ settings.container_width | minus: 100 | times: media_width | round }}px, (min-width: 990px) calc({{ media_width | times: 100 }}vw - 10rem), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+          loading="{{ loading }}"
+          fetchPriority="{{ fetchpriority }}"
+          width="1000"
+          height="{{ 1000 | divided_by: media.preview_image.aspect_ratio | ceil }}"
+          alt="{{ media.preview_image.alt | escape }}"
+        >
+      </button>
+      <template>
+        {%- liquid
+          case media.media_type
+            when 'external_video'
+              assign video_class = 'js-' | append: media.host
+              if media.host == 'youtube'
+                echo media | external_video_url: autoplay: true, loop: loop, playlist: media.external_id | external_video_tag: class: video_class, loading: 'lazy'
+              else
+                echo media | external_video_url: autoplay: true, loop: loop | external_video_tag: class: video_class, loading: 'lazy'
+              endif
+            when 'video'
+              echo media | media_tag: image_size: '2048x', autoplay: true, loop: loop, controls: true, preload: 'none'
+            when 'model'
+              echo media | media_tag: image_size: '2048x', toggleable: true
+          endcase
+        -%}
+      </template>
+
+      {%- if media.media_type == 'model' -%}
+        </product-model>
+      {%- else -%}
+        </deferred-media>
+      {%- endif -%}
+    </div>
+  {%- else -%}
+    <div>
+
+       {% if all_featured_image_ids_string contains media.id %}
+          <svg viewBox="0 0 {{ media.preview_image.width }} {{ media.preview_image.height }}" preserveAspectRatio="xMidYMid meet">
+            <image href="{{  media.preview_image | image_url }}" 
+                   x="0" 
+                   y="0" 
+                   width="{{ media.preview_image.width }}" 
+                   height="{{ media.preview_image.height }}" 
+                   preserveAspectRatio="xMidYMid meet"/>
+            </image>
+        {% if x_position.size > 1 %}
+           <image id="course-logo" href="" x="{{ x_position | replace: " ", ""}}" y="{{ y_position  | replace: " ", ""}}" width="{% if logo_size != '' %}{{ logo_size }}{% else %}10%{% endif %}" preserveAspectRatio="xMidYMid meet" style=" x: {{ x_position }}; y: {{ y_position }}; {% if logo_size != '' %}width:{{ logo_size }}; height:{{logo_size}};{% else %}width:10%;{% endif %}"></image>
+        {% endif %}
+            </svg>
+
+              
+          {% else %}
+      <responsive-image class="f-image" data-image-loading style="--aspect-ratio: {{ media.aspect_ratio }}">
+        <img
+          srcset="
+            {% if media.preview_image.width >= 493 %}{{ media.preview_image | image_url: width: 493 }} 493w,{% endif %}
+            {% if media.preview_image.width >= 600 %}{{ media.preview_image | image_url: width: 600 }} 600w,{% endif %}
+            {% if media.preview_image.width >= 713 %}{{ media.preview_image | image_url: width: 713 }} 713w,{% endif %}
+            {% if media.preview_image.width >= 823 %}{{ media.preview_image | image_url: width: 823 }} 823w,{% endif %}
+            {% if media.preview_image.width >= 990 %}{{ media.preview_image | image_url: width: 990 }} 990w,{% endif %}
+            {% if media.preview_image.width >= 1100 %}{{ media.preview_image | image_url: width: 1100 }} 1100w,{% endif %}
+            {% if media.preview_image.width >= 1206 %}{{ media.preview_image | image_url: width: 1206 }} 1206w,{% endif %}
+            {% if media.preview_image.width >= 1346 %}{{ media.preview_image | image_url: width: 1346 }} 1346w,{% endif %}
+            {% if media.preview_image.width >= 1426 %}{{ media.preview_image | image_url: width: 1426 }} 1426w,{% endif %}
+            {% if media.preview_image.width >= 1646 %}{{ media.preview_image | image_url: width: 1646 }} 1646w,{% endif %}
+            {% if media.preview_image.width >= 1946 %}{{ media.preview_image | image_url: width: 1946 }} 1946w,{% endif %}
+            {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
+          "
+          src="{{ media | image_url: width: 1946 }}"
+          sizes="(min-width: {{ settings.container_width }}px) {{ settings.container_width | minus: 100 | times: media_width | round }}px, (min-width: 990px) calc({{ media_width | times: 100 }}vw - 10rem), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+          loading="{{ loading }}"
+          fetchPriority="{{ fetchpriority }}"
+          width="1000"
+          height="{{ 1000 | divided_by: media.preview_image.aspect_ratio | ceil }}"
+          alt="{{ media.preview_image.alt | escape }}"
+        >
+      </responsive-image>
+         {% endif %}
+    </div>
+  {%- endif -%}
+  {% if enable_image_zoom and media.media_type == 'image' %}
+    <span
+      class="f-product__media-icon f-product__media-zoom f-product__media-badge motion-reduce"
+      aria-hidden="true"
+    >
+      <svg
+        aria-hidden="true"
+        focusable="false"
+        role="presentation"
+        class="f-icon--medium f-icon-zoom-in"
+        viewBox="0 0 20 20"
+        fill="none"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M9.167 15.833a6.667 6.667 0 1 0 0-13.333 6.667 6.667 0 0 0 0 13.333ZM17.5 17.5l-3.625-3.625" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </span>
+    <button
+      class="f-product__modal-toggle js-photoswipe--zoom"
+      type="button"
+      aria-haspopup="dialog"
+      data-media-id="{{ media.id }}"
+      data-media-type="{{ media.media_type }}"
+      data-media-index="{{ index }}"
+    >
+      <span class="visually-hidden">
+        {{ 'products.product.media.open_media' | t: index: position }}
+      </span>
+    </button>
+  {% endif %}
+  <noscript>
+    {%- if media.media_type == 'video'
+      or media.media_type == 'external_video'
+    -%}
+      <span class="product__media-icon f-product__media-badge motion-reduce">
+        {% comment %} theme-check-disable {% endcomment %}
+        {{ 'icon-play.svg' | inline_asset_content }}
+        {% comment %} theme-check-enable {% endcomment %}
+      </span>
+      <div class="product__media product__media--video h-full flex items-center">
+        <img
+          srcset="
+            {% if media.preview_image.width >= 493 %}{{ media.preview_image | image_url: width: 493 }} 493w,{% endif %}
+            {% if media.preview_image.width >= 600 %}{{ media.preview_image | image_url: width: 600 }} 600w,{% endif %}
+            {% if media.preview_image.width >= 713 %}{{ media.preview_image | image_url: width: 713 }} 713w,{% endif %}
+            {% if media.preview_image.width >= 823 %}{{ media.preview_image | image_url: width: 823 }} 823w,{% endif %}
+            {% if media.preview_image.width >= 990 %}{{ media.preview_image | image_url: width: 990 }} 990w,{% endif %}
+            {% if media.preview_image.width >= 1100 %}{{ media.preview_image | image_url: width: 1100 }} 1100w,{% endif %}
+            {% if media.preview_image.width >= 1206 %}{{ media.preview_image | image_url: width: 1206 }} 1206w,{% endif %}
+            {% if media.preview_image.width >= 1346 %}{{ media.preview_image | image_url: width: 1346 }} 1346w,{% endif %}
+            {% if media.preview_image.width >= 1426 %}{{ media.preview_image | image_url: width: 1426 }} 1426w,{% endif %}
+            {% if media.preview_image.width >= 1646 %}{{ media.preview_image | image_url: width: 1646 }} 1646w,{% endif %}
+            {% if media.preview_image.width >= 1946 %}{{ media.preview_image | image_url: width: 1946 }} 1946w,{% endif %}
+            {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
+          "
+          src="{{ media | image_url: width: 1946 }}"
+          sizes="(min-width: {{ settings.container_width }}px) {{ settings.container_width | minus: 100 | times: media_width | round }}px, (min-width: 990px) calc({{ media_width | times: 100 }}vw - 10rem), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+          loading="{{ loading }}"
+          fetchPriority="{{ fetchpriority }}"
+          width="1000"
+          height="{{ 1000 | divided_by: media.preview_image.aspect_ratio | ceil }}"
+          alt="{{ media.preview_image.alt | escape }}"
+        >
+      </div>
+      <a
+        href="{% if media.media_type == 'video' %}{{ media.sources[1].url }}{% else %}{{ media | external_video_url }}{% endif %}"
+        class="f-product__modal-toggle"
+      >
+        <span class="visually-hidden">
+          {{-
+            'products.product.video_exit_message'
+            | t: title: product.title
+            | escape
+          -}}
+        </span>
+      </a>
+    {%- else -%}
+      <div
+        class="product__media ss"
+        style="--aspect-ratio: {{ media.aspect_ratio | default: 1 }}"
+      >
+        <img
+          srcset="
+            {% if media.preview_image.width >= 493 %}{{ media.preview_image | image_url: width: 493 }} 493w,{% endif %}
+            {% if media.preview_image.width >= 600 %}{{ media.preview_image | image_url: width: 600 }} 600w,{% endif %}
+            {% if media.preview_image.width >= 713 %}{{ media.preview_image | image_url: width: 713 }} 713w,{% endif %}
+            {% if media.preview_image.width >= 823 %}{{ media.preview_image | image_url: width: 823 }} 823w,{% endif %}
+            {% if media.preview_image.width >= 990 %}{{ media.preview_image | image_url: width: 990 }} 990w,{% endif %}
+            {% if media.preview_image.width >= 1100 %}{{ media.preview_image | image_url: width: 1100 }} 1100w,{% endif %}
+            {% if media.preview_image.width >= 1206 %}{{ media.preview_image | image_url: width: 1206 }} 1206w,{% endif %}
+            {% if media.preview_image.width >= 1346 %}{{ media.preview_image | image_url: width: 1346 }} 1346w,{% endif %}
+            {% if media.preview_image.width >= 1426 %}{{ media.preview_image | image_url: width: 1426 }} 1426w,{% endif %}
+            {% if media.preview_image.width >= 1646 %}{{ media.preview_image | image_url: width: 1646 }} 1646w,{% endif %}
+            {% if media.preview_image.width >= 1946 %}{{ media.preview_image | image_url: width: 1946 }} 1946w,{% endif %}
+            {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
+          "
+          src="{{ media | image_url: width: 1946 }}"
+          sizes="(min-width: {{ settings.container_width }}px) {{ settings.container_width | minus: 100 | times: media_width | round }}px, (min-width: 990px) calc({{ media_width | times: 100 }}vw - 10rem), (min-width: 750px) calc((100vw - 11.5rem) / 2), calc(100vw - 4rem)"
+          loading="{{ loading }}"
+          fetchPriority="{{ fetchpriority }}"
+          width="1000"
+          height="{{ 1000 | divided_by: media.preview_image.aspect_ratio | ceil }}"
+          alt="{{ media.preview_image.alt | escape }}"
+        >
+      </div>
+    {%- endif -%}
+  </noscript>
+</div>

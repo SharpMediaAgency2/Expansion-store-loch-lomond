@@ -1,0 +1,90 @@
+.f-section__gallery-images .flickity-enabled .flickity-button {
+  transform: translateY(-50%);
+  margin-top: 0;
+  top: 50% !important;
+}
+.f-section__gallery-images .flickity-enabled.flickity-with-dots .flickity-button {
+  top: calc(50% - 3.25rem) !important;
+}
+.f-section__gallery-images-layout-metro {
+  --section-button-gap: 4rem;
+}
+.f-section__gallery-images-layout-metro .metro-column {
+  grid-row-start: 1;
+  height: 100%;
+  padding: 1.6rem;
+  grid-column-start: var(--metro-item-start, 3);
+  grid-column-end: var(--metro-item-end, 5);
+  grid-row-end: var(--metro-item-row-end, 3);
+}
+.f-section__gallery-images-layout-metro .metro-column .section__header {
+  padding: 0;
+  margin-bottom: 0;
+}
+
+.gallery-images__item {
+  position: relative;
+}
+.gallery-images__item-overlay {
+  position: absolute;
+  z-index: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  padding: 1rem;
+  color: #fff;
+  opacity: 0;
+  visibility: hidden;
+  transition: 0.3s all linear;
+}
+.gallery-images__item-overlay:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  background: rgba(0, 0, 0, 0.2);
+  z-index: -1;
+}
+.gallery-images__item-text {
+  word-wrap: break-word;
+  max-width: 100%;
+  margin: 0;
+}
+.gallery-images__item:hover .gallery-images__item-overlay {
+  opacity: 1;
+  visibility: visible;
+}
+
+@media (min-width: 1024px) {
+  .lg\:f-grid-13-cols {
+    grid-template-columns: repeat(13, minmax(0, 1fr));
+  }
+  .lg\:f-grid-14-cols {
+    grid-template-columns: repeat(14, minmax(0, 1fr));
+  }
+  .lg\:f-grid-15-cols {
+    grid-template-columns: repeat(15, minmax(0, 1fr));
+  }
+  .lg\:f-grid-16-cols {
+    grid-template-columns: repeat(16, minmax(0, 1fr));
+  }
+  .lg\:f-grid-17-cols {
+    grid-template-columns: repeat(17, minmax(0, 1fr));
+  }
+  .lg\:f-grid-18-cols {
+    grid-template-columns: repeat(18, minmax(0, 1fr));
+  }
+}
+@media (min-width: 768px) {
+  .f-section__gallery-images-layout-metro .f-grid {
+    gap: 0;
+  }
+}
+@media (max-width: 767.98px) {
+  .f-section__gallery-images-layout-metro .container-full {
+    padding-inline: 1.5rem;
+  }
+}

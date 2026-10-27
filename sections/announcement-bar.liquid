@@ -1,0 +1,337 @@
+{% liquid
+  assign enable_carousel = false
+  assign autoplay = false
+  if section.blocks.size > 1
+    assign enable_carousel = section.settings.enable_carousel
+  endif
+
+  if section.settings.autoplay
+    assign autoplay = section.settings.autorotate_speed | times: 1000
+  endif
+%}
+
+{% style %}
+  .announcement-bar {
+    display: flex;
+    flex-flow: column;
+    overflow: hidden;
+  }
+  .announcement-bar__inner {
+    position: relative;
+  }
+  .announcement-bar__row {
+    padding: 10px 20px;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+  }
+  .announcement-bar__inner.flickity-enabled {
+    min-height: 4.8rem;
+  }
+  .announcement-bar__close {
+    right: 1rem;
+    top: 50%;
+    transform: translateY(-50%);
+    color: currentColor !important;
+    background: none !important;
+    border: none !important;
+    z-index: 9;
+    position: absolute;
+    box-shadow: none !important;
+  }
+  @media (max-width: 639px) {
+    .announcement-bar__close {
+      right: -0.5rem;
+    }
+  }
+  .announcement-bar__close:hover {
+    transform: translateY(-50%) scale(1.2);
+  }
+  .announcement-bar__row p {
+    margin: 0;
+    padding: 0;
+  }
+  .announcement-bar__row p a {
+    text-decoration: underline;
+  }
+  .announcement-bar--carousel-enabled
+    .announcement-bar__inner:not(.flickity-enabled)
+    .announcement-bar__row:not(:first-child) {
+    display: none;
+  }
+  .no-js .announcement-bar__row {
+    display: block !important;
+  }
+{% endstyle %}
+
+{% if section.blocks.size > 0 %}
+  <announcement-bar
+    class="announcement-bar relative color-{{ section.settings.color_schema }}{% if enable_carousel %} announcement-bar--carousel-enabled{% endif %}"
+    data-section-type="announcement-bar"
+  >
+    <flickity-component
+      class="announcement-bar__inner{% if enable_carousel %} flickity-enable{% else %} flickity-disable{% endif %}"
+      data-slider-options='{"pageDots": false, "prevNextButtons": false, "cellSelector": ".announcement-bar__row", "wrapAround": true, "autoPlay": {{ autoplay }}, "adaptiveHeight": true, "pauseAutoPlayOnHover": true}'
+      data-enable-slider="{{ enable_carousel }}"
+      data-calc-button-position="true"
+      data-slider-columns="1"
+    >
+      {%- for block in section.blocks -%}
+        {%- case block.type -%}
+          {%- when 'announcement' -%}
+            {% liquid
+              assign hide_on_page = block.settings.hide_on_page
+              assign should_show = false
+              if block.settings.homepage_only == false or request.page_type == 'index'
+                assign should_show = true
+              endif
+              if hide_on_page != blank
+                if hide_on_page contains handle
+                  assign should_show = false
+                endif
+              endif
+            %}
+            {% if should_show %}
+              {% capture classes %}
+            {% render 'visibility-classes', settings: block.settings %}
+          {% endcapture %}
+              <div
+                class="announcement-bar__row text-center{% if enable_carousel %} w-full{% endif %} {{ classes | strip_newlines | strip }}"
+                role="region"
+                aria-label="{{ 'sections.header.announcement' | t }}"
+                {{ block.shopify_attributes }}
+              >
+                {%- liquid
+                  assign image = block.settings.image
+                  assign image_link = block.settings.image_link
+                  assign image_width = '120' | append: 'px'
+                  assign tag = 'div'
+                  if image_link != blank
+                    assign tag = 'a'
+                  endif
+                -%}
+                {%- if image != blank -%}
+                  {%- if image_link != blank -%}
+                    <{{ tag }}
+                      href="{{ image_link | escape }}"
+                      aria-label="{{ block.settings.image.alt | default: 'image-logo-list-' | append: forloop.index }}"
+                      class="block overflow-hidden w-12/12"
+                      style="max-width: {{ image_width }}; margin: 0 16px;"
+                    >
+                      {% render 'responsive-image',
+                        image: block.settings.image,
+                        alt: image.alt,
+                        section_index: section.index,
+                        index: forloop.index
+                      %}
+                    </{{ tag }}>
+                    {%- else -%}
+                      <div
+                        class="block overflow-hidden w-12/12"
+                        style="max-width: {{ image_width }}; margin: 0 16px;"
+                      >
+                        {% render 'responsive-image',
+                          image: block.settings.image,
+                          alt: image.alt,
+                          section_index: section.index,
+                          index: forloop.index
+                        %}
+                      </div>
+                    {%- endif -%}
+                  {%- endif -%}
+
+                  {%- if block.settings.text != blank -%}
+                    {%- if block.settings.link != blank -%}
+                    <a href="{{ block.settings.link }}" class="announcement-bar__link block">
+                  {%- endif -%}
+                  <div class="announcement-bar__message">
+                    {{ block.settings.text }}
+                  </div>
+                  {%- if block.settings.link != blank -%}
+                    </a>
+                  {%- endif -%}
+                {%- endif -%}
+                {% if section.settings.show_close_button and enable_carousel == false %}
+                  <button
+                    class="announcement-bar__close absolute btn btn--icon no-js-hidden"
+                    data-close-announcement="row"
+                    aria-label="{{ 'accessibility.close' | t }}"
+                  >
+                    <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+                    {% comment %} theme-check-disable {% endcomment %}
+                    {{ 'icon-close-small.svg' | inline_asset_content }}
+                    {% comment %} theme-check-enable {% endcomment %}
+                  </button>
+                {% endif %}
+              </div>
+            {% endif %}
+        {%- endcase -%}
+      {%- endfor -%}
+    </flickity-component>
+    {% if section.settings.show_close_button and enable_carousel %}
+      <button
+        class="announcement-bar__close absolute btn btn--icon no-js-hidden"
+        data-close-announcement
+        aria-label="{{ 'accessibility.close' | t }}"
+      >
+        <span class="visually-hidden">{{ 'accessibility.close' | t }}</span>
+        {% comment %} theme-check-disable {% endcomment %}
+        {{ 'icon-close-small.svg' | inline_asset_content }}
+        {% comment %} theme-check-enable {% endcomment %}
+      </button>
+    {% endif %}
+  </announcement-bar>
+{% endif %}
+
+{% javascript %}
+  class AnnouncementBar extends HTMLElement {
+    constructor() {
+      super();
+    }
+
+    handleClick(e) {
+      e.preventDefault();
+      const { closeAnnouncement } = e.target.dataset;
+      if (closeAnnouncement === 'row') {
+        e.target.closest('.announcement-bar__row').remove();
+      } else {
+        this.remove();
+      }
+    }
+
+    connectedCallback() {
+      if (this.querySelector('.announcement-bar__close')) {
+        this.querySelector('.announcement-bar__close').addEventListener('click', this.handleClick.bind(this));
+      }
+    }
+  }
+
+  customElements.define('announcement-bar', AnnouncementBar);
+{% endjavascript %}
+
+{% schema %}
+{
+  "name": "t:sections.announcement-bar.name",
+  "max_blocks": 12,
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/TN1O3d)"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_close_button",
+      "label": "t:sections.announcement-bar.settings.show_close_button.label",
+      "default": true
+    },
+    {
+      "type": "header",
+      "content": "t:sections.announcement-bar.settings.header_carousel_settings.content",
+      "info": "t:sections.announcement-bar.settings.header_carousel_settings.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_carousel",
+      "label": "t:sections.announcement-bar.settings.enable_carousel.label",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:sections.announcement-bar.settings.autoplay.label",
+      "default": true
+    },
+    {
+      "type": "range",
+      "id": "autorotate_speed",
+      "label": "t:sections.announcement-bar.settings.autorotate_speed.label",
+      "info": "t:sections.announcement-bar.settings.autorotate_speed.info",
+      "max": 10,
+      "min": 2,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    }
+  ],
+  "blocks": [
+    {
+      "type": "announcement",
+      "name": "t:sections.announcement-bar.blocks.announcement.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.logo-list.blocks.logo.settings.image.label"
+        },
+        {
+          "type": "url",
+          "id": "image_link",
+          "label": "t:sections.logo-list.blocks.logo.settings.link.label",
+          "info": "t:sections.logo-list.blocks.logo.settings.link.info"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Welcome to our store</p>",
+          "label": "t:sections.announcement-bar.blocks.announcement.settings.text.label"
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "t:sections.announcement-bar.blocks.announcement.settings.link.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "homepage_only",
+          "label": "t:sections.announcement-bar.blocks.announcement.settings.homepage_only.label",
+          "default": true
+        },
+        {
+          "type": "text",
+          "id": "hide_on_page",
+          "label": "t:sections.announcement-bar.blocks.announcement.settings.hide_on_page.label",
+          "info": "t:sections.announcement-bar.blocks.announcement.settings.hide_on_page.info"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.common.visibility.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_mobile",
+          "label": "t:sections.common.visibility.mobile",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_tablet",
+          "label": "t:sections.common.visibility.tablet",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "show_on_desktop",
+          "label": "t:sections.common.visibility.desktop",
+          "default": true
+        }
+      ]
+    }
+  ],
+  "default": {
+    "blocks": [
+      {
+        "type": "announcement"
+      }
+    ]
+  }
+}
+{% endschema %}

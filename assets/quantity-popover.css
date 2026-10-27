@@ -1,0 +1,84 @@
+quantity-popover {
+  position: relative;
+  display: block;
+}
+quantity-popover .volume-pricing {
+  padding-inline: 0;
+  padding-block-end: 0;
+}
+
+.quantity-popover__info {
+  width: 100%;
+  z-index: 12;
+  position: absolute;
+  background-color: var(--color-background);
+  max-width: 36rem;
+  min-width: 20rem;
+  width: max-content;
+  box-shadow: 0px 4px 5px rgba(var(--color-foreground), 0.04);
+  border: 1px solid rgba(var(--color-foreground), 0.1);
+}
+
+.quantity-popover__info-button span {
+  padding-left: 1rem;
+}
+
+.quantity-popover__info .button-close {
+  width: 3.2rem;
+  height: 3.2rem;
+  position: absolute;
+  top: 0.4rem;
+  right: 0;
+  padding: 0 1.2rem 0 0;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.quantity-popover__info .volume-pricing-label ~ .button {
+  top: -0.2rem;
+}
+
+.quantity-popover__info .button .icon {
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+quantity-popover volume-pricing {
+  margin-top: 1.2rem;
+  display: block;
+}
+
+quantity-popover .quantity__rules span:first-of-type {
+  display: block;
+}
+
+.quantity-popover-container {
+  display: flex;
+  padding: 0.5rem 0.5rem 0.5rem 0;
+}
+
+.quantity-popover-container:not(.quantity-popover-container--hover) {
+  align-items: center;
+}
+
+@media screen and (min-width: 990px) {
+  .quantity-popover-container--empty {
+    margin-right: 2.7rem;
+  }
+  .quantity-popover-container {
+    width: auto;
+    max-width: 20rem;
+  }
+}
+cart-drawer .quantity-popover__info {
+  transform: translateX(0);
+  top: 100%;
+}
+
+quantity-popover .quantity__rules {
+  margin-inline: 0.8rem;
+}
+
+quantity-popover .quantity__rules .divider:nth-child(2)::before {
+  content: none;
+}

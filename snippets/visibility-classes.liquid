@@ -1,0 +1,17 @@
+{% liquid 
+    assign classes = ''
+    if settings.show_on_mobile
+        assign classes = classes | append: 'show-on-mobile'
+    endif
+    if settings.show_on_tablet
+        assign classes = classes | append: ' show-on-tablet'
+    endif
+    if settings.show_on_desktop
+        assign classes = classes | append: ' show-on-desktop'
+    endif
+
+    if classes == ''
+        assign classes = 'hidden'
+    endif
+%}
+{{- classes | strip_newlines | escape -}}

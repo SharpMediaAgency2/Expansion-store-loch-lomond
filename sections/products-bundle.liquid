@@ -1,0 +1,729 @@
+{{ 'products-bundle.css' | asset_url | stylesheet_tag }}
+{{ 'component-lookbook-card.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign section_class = 'f-section-padding color-' | append: section.settings.color_schema
+  assign main_class = 'products-bundle block ' | append: section.settings.container
+  assign image_position = section.settings.image_position
+  assign desktop_content_position = section.settings.desktop_content_position
+  assign desktop_content_alignment = section.settings.desktop_content_alignment
+  assign mobile_content_alignment = section.settings.mobile_content_alignment
+
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+-%}
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+    --section-padding-top-mobile: {{ section.settings.padding_top_mobile }}px;
+    --section-padding-bottom-mobile: {{ section.settings.padding_bottom_mobile }}px;
+  }
+{%- endstyle -%}
+{% render 'divider',
+  show_divider: section.settings.show_section_divider,
+  divider_width: section.settings.divider_width
+%}
+<section
+  id="{{ section.id }}"
+  data-section-type="products-bundle"
+  data-section-id="{{ section.id }}"
+  class="{{ section_class }}"
+>
+  <products-bundle class="{{ main_class }}">
+    <div class="products-bundle__grid products-bundle__grid--{{ image_position }} lg:items-{{ desktop_content_position }}">
+      <div class="products-bundle__grid-item">
+        <div
+          class="products-bundle__content w-full f-blocks-padding{% if section.settings.container == 'container-full' %} f-align-content-container--{{ section.settings.align_content_container }}{% endif %}"
+          style="--padding-left: {{ section.settings.padding_left }}px;--padding-right: {{ section.settings.padding_right }}px;--mobile-padding-left: {{ section.settings.mobile_padding_left }}px;--mobile-padding-right: {{ section.settings.mobile_padding_right }}px;"
+        >
+          {%- if section.settings.subheading != blank -%}
+            <motion-element
+              data-motion="{{ animation_effect }}"
+              data-motion-delay="{{ motion_delay }}"
+              class="block products-bundle__subheading text-subheading text-{{ mobile_content_alignment }} md:text-{{ desktop_content_alignment }}"
+            >
+              {{ section.settings.subheading }}
+            </motion-element>
+            {%- assign motion_delay = motion_delay | plus: 50 -%}
+          {%- endif -%}
+          {%- if section.settings.heading != blank -%}
+            <h2 class="products-bundle__heading {{ section.settings.heading_size }} text-{{ mobile_content_alignment }} md:text-{{ desktop_content_alignment }}">
+              <motion-element
+                data-motion="{{ animation_effect }}"
+                data-motion-delay="{{ motion_delay }}"
+                class="block"
+              >
+                {%- render 'highlight-text',
+                  hl_text: section.settings.heading,
+                  hl_style: section.settings.highlight_style,
+                  enable_hl_text_color: section.settings.enable_highlight_text_color
+                -%}
+              </motion-element>
+            </h2>
+            {%- assign motion_delay = motion_delay | plus: 50 -%}
+          {%- endif -%}
+          {%- assign has_products = false -%}
+          <div class="products-bundle__products">
+            <div class="products-bundle__product-wrapper">
+              {%- for block in section.blocks -%}
+                {%- assign card_product = block.settings.product -%}
+                <motion-element
+                  data-motion="{{ animation_effect }}"
+                  data-motion-delay="{{ motion_delay }}"
+                  class="block products-bundle__product-wrap"
+                >
+                  <product-bundle
+                    data-block-id="{{ block.id }}"
+                    class="products-bundle__product flex items-start md:items-center"
+                  >
+                    {%- if card_product != blank -%}
+                      {%- assign has_products = true -%}
+                      <div class="products-bundle__image">
+                        <div class="products-bundle__count">
+                          {{ forloop.index }}
+                        </div>
+                        <div class="products-bundle__image-wrapper">
+                          <a href="{{ card_product.url }}">
+                            <div
+                              class="f-image"
+                              style="--aspect-ratio: {{ card_product.featured_image.aspect_ratio }};"
+                            >
+                              {{
+                                card_product.featured_image
+                                | image_url: width: 1500
+                                | image_tag:
+                                  loading: 'lazy',
+                                  widths: '60, 100, 120, 200',
+                                  sizes: '(max-width: 767px) 60px, 100px'
+                              }}
+                            </div>
+                          </a>
+                        </div>
+                      </div>
+                      <div class="products-bundle__description">
+                        <div class="products-bundle__info">
+                          <h6 class="products-bundle__product-title h6">
+                            <a href="{{ card_product.url }}">
+                              {{- card_product.title -}}
+                            </a>
+                          </h6>
+                          <div class="products-bundle__price flex">
+                            {% render 'price', product: card_product %}
+                          </div>
+                        </div>
+                        {%- if card_product.available -%}
+                          <div class="products-bundle__product-option">
+                            {%- unless card_product.has_only_default_variant -%}
+                              <select-wrapper class="flex">
+                                <select
+                                  class="form-control"
+                                  name="id"
+                                  data-price_varies="{{ card_product.price_varies }}"
+                                  data-compare_at_price_varies="{{ card_product.compare_at_price_varies }}"
+                                >
+                                  {%- for variant in card_product.variants -%}
+                                    <option
+                                      {% if variant
+                                          == product.selected_or_first_available_variant
+                                      %}
+                                        selected="selected"
+                                      {% endif %}
+                                      {% if variant.available == false %}
+                                        disabled="disabled"
+                                      {% endif %}
+                                      value="{{ variant.id }}"
+                                      data-available="{{ variant.available }}"
+                                      data-price="{{ variant.price }}"
+                                      data-compare_at_price="{{ variant.compare_at_price }}"
+                                    >
+                                      {{ variant.title }}
+                                      {%- if variant.available == false %}
+                                        - {{ 'products.product.sold_out' | t -}}
+                                      {%- endif -%}
+                                    </option>
+                                  {%- endfor -%}
+                                </select>
+                              </select-wrapper>
+                            {%- else -%}
+                              <input
+                                type="hidden"
+                                name="id"
+                                value="{{ card_product.selected_or_first_available_variant.id }}"
+                              >
+                            {%- endunless -%}
+                          </div>
+                        {%- endif -%}
+                      </div>
+                    {%- else -%}
+                      <div class="products-bundle__image">
+                        <div class="products-bundle__count">
+                          {{ forloop.index }}
+                        </div>
+                        <div class="products-bundle__image-wrapper">
+                          {%- assign index = forloop.index
+                            | modulo: 3
+                            | plus: 1
+                          -%}
+                          {{
+                            'product-'
+                            | append: index
+                            | placeholder_svg_tag: 'placeholder-svg'
+                          }}
+                        </div>
+                      </div>
+                      <div class="products-bundle__description">
+                        <div class="products-bundle__info">
+                          <p class="products-bundle__product-title h6">
+                            {{ 'onboarding.product_title' | t }}
+                          </p>
+                        </div>
+                      </div>
+                    {%- endif -%}
+                  </product-bundle>
+                </motion-element>
+                {%- assign motion_delay = motion_delay | plus: 50 -%}
+              {%- endfor -%}
+            </div>
+            {%- if has_products -%}
+              <motion-element
+                data-motion="{{ animation_effect }}"
+                data-motion-delay="{{ motion_delay }}"
+                class="block products-bundle__action"
+              >
+                <button
+                  type="button"
+                  class="products-bundle__button-atc btn btn--primary w-full"
+                >
+                  <span class="product-card__atc-text">
+                    {{- 'products.product.add_all_to_cart' | t -}}
+                  </span>
+                  {% comment %} theme-check-disable {% endcomment %}
+                  {{ 'icon-spinner.svg' | inline_asset_content }}
+                  {% comment %} theme-check-enable {% endcomment %}
+                </button>
+              </motion-element>
+              <div class="product-form__error-message"></div>
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+      <div class="products-bundle__grid-item relative f-card">
+        <motion-element
+          data-motion="{{ animation_effect }}"
+          data-motion-delay="{{ motion_delay }}"
+          class="block products-bundle__image"
+        >
+          <div
+            class="f-image"
+            {% if section.settings.image != blank %}
+              style="--aspect-ratio: {{ section.settings.image.aspect_ratio }};"
+            {% endif %}
+          >
+            {%- if section.settings.image != blank -%}
+              {{
+                section.settings.image
+                | image_url: width: 1500
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '165, 360, 535, 750, 1100, 1500'
+              }}
+            {%- else -%}
+              {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            {%- endif -%}
+          </div>
+        </motion-element>
+        {%- assign icon_motion_delay = settings.animation_duration
+          | times: 1000
+          | floor
+        -%}
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign top = block.settings.vertical
+            assign left = block.settings.horizontal
+            assign icon_motion_delay = icon_motion_delay | plus: 50
+          -%}
+          <lookbook-icon
+            style="top: {{ top }}%; left: {{ left }}%;"
+            class="absolute f-lookbook-card__annotation"
+          >
+            <div
+              data-block-id="{{ block.id }}"
+              class="f-lookbook-card__pin f-lookbook-card__pin--{{ block.settings.hotspot_color }}"
+            >
+              <motion-element
+                data-motion="zoom-in-lg"
+                data-motion-delay="{{ icon_motion_delay }}"
+                class="f-lookbook-card__pin-icon flex items-center justify-center"
+              >
+                {{- forloop.index -}}
+              </motion-element>
+            </div>
+          </lookbook-icon>
+        {%- endfor -%}
+      </div>
+    </div>
+  </products-bundle>
+</section>
+<script src="{{ 'products-bundle.js' | asset_url }}" defer="defer"></script>
+{% schema %}
+{
+  "name": "t:sections.products-bundle.name",
+  "class": "shopify-products-bundle",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/rN0WbY)"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.container.label"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.common.image_picker.label"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "t:sections.products-bundle.settings.image_position.label",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.products-bundle.settings.image_position.option__1"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.products-bundle.settings.image_position.option__2"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "desktop_content_position",
+      "label": "t:sections.products-bundle.settings.desktop_content_position.label",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.products-bundle.settings.desktop_content_position.option__1"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.products-bundle.settings.desktop_content_position.option__2"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.products-bundle.settings.desktop_content_position.option__3"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.products-bundle.header.content"
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "label": "t:sections.products-bundle.settings.subheading.label",
+      "default": "<p>Bundle & save</p>"
+    },
+    {
+      "type": "richtext",
+      "id": "heading",
+      "info": "t:sections.common.highlight_text.paragraph.content",
+      "label": "t:sections.products-bundle.settings.heading.label",
+      "default": "<p>Build your own bundle<p>"
+    },
+    {
+      "type": "select",
+      "id": "highlight_style",
+      "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+        },
+        {
+          "value": "drawer_line",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+        },
+        {
+          "value": "underline",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight_text_color",
+      "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "default": "h2",
+      "label": "t:sections.common.text_size.heading.label",
+      "options": [
+        {
+          "value": "h3",
+          "label": "t:sections.common.text_size.options__h3.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.text_size.options__h2.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.common.text_size.options__h1.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.common.text_size.options__h0.label"
+        },
+        {
+          "value": "h-xl",
+          "label": "t:sections.common.text_size.options__hd1.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "desktop_content_alignment",
+      "label": "t:sections.products-bundle.settings.desktop_content_alignment.label",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.products-bundle.settings.desktop_content_alignment.option__1"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.products-bundle.settings.desktop_content_alignment.option__2"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.products-bundle.settings.desktop_content_alignment.option__3"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "mobile_content_alignment",
+      "label": "t:sections.products-bundle.settings.mobile_content_alignment.label",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.products-bundle.settings.mobile_content_alignment.option__1"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.products-bundle.settings.mobile_content_alignment.option__2"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.products-bundle.settings.mobile_content_alignment.option__3"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.content_settings.desktop.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_left",
+      "label": "t:sections.common.spacing.padding_left.label",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "default": 100
+    },
+    {
+      "type": "range",
+      "id": "padding_right",
+      "label": "t:sections.common.spacing.padding_right.label",
+      "min": 0,
+      "max": 200,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "select",
+      "id": "align_content_container",
+      "label": "t:sections.common.align_content_container.label",
+      "options": [
+        {
+          "label": "t:sections.common.align_content_container.option__1.label",
+          "value": "none"
+        },
+        {
+          "value": "left",
+          "label": "t:sections.common.align_content_container.option__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.common.align_content_container.option__3.label"
+        }
+      ],
+      "default": "none",
+      "info": "t:sections.common.align_content_container.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.content_settings.mobile.content"
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_left",
+      "label": "t:sections.common.spacing.padding_left.label",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "mobile_padding_right",
+      "label": "t:sections.common.spacing.padding_right.label",
+      "min": 0,
+      "max": 100,
+      "step": 1,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_top_mobile",
+      "label": "t:sections.common.section_padding.mobile_top_padding.label",
+      "min": 0,
+      "max": 120,
+      "step": 2,
+      "default": 60,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom_mobile",
+      "label": "t:sections.common.section_padding.mobile_bottom_padding.label",
+      "min": 0,
+      "max": 120,
+      "step": 2,
+      "default": 60,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.divider.section_heading.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_divider",
+      "default": false,
+      "label": "t:sections.common.divider.show_divider.label"
+    },
+    {
+      "type": "select",
+      "id": "divider_width",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.divider.width.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 6,
+  "blocks": [
+    {
+      "type": "product",
+      "name": "Product",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "Product"
+        },
+        {
+          "type": "header",
+          "content": "Hotspot"
+        },
+        {
+          "type": "select",
+          "id": "hotspot_color",
+          "label": "Color",
+          "options": [
+            {
+              "value": "light",
+              "label": "Light"
+            },
+            {
+              "value": "dark",
+              "label": "Dark"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "horizontal",
+          "label": "Horizontal position",
+          "default": 30,
+          "min": 5,
+          "max": 95,
+          "unit": "%"
+        },
+        {
+          "type": "range",
+          "id": "vertical",
+          "label": "Vertical position",
+          "default": 40,
+          "min": 5,
+          "max": 95,
+          "unit": "%"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Products bundle",
+      "blocks": [
+        {
+          "type": "product",
+          "settings": {
+            "horizontal": 30,
+            "vertical": 40
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "horizontal": 70,
+            "vertical": 45
+          }
+        },
+        {
+          "type": "product",
+          "settings": {
+            "horizontal": 45,
+            "vertical": 65
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

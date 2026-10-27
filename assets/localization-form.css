@@ -1,0 +1,100 @@
+.f-disclosure {
+  position: relative;
+  display: block;
+}
+.f-disclosure__toggle {
+  border: 1px solid var(--color-border);
+  padding: 5px 16px;
+  height: var(--btn-height);
+  cursor: pointer;
+  background-color: transparent;
+  white-space: nowrap;
+  transition: 0.3s all;
+  font-weight: var(--font-body-weight);
+  display: flex;
+  column-gap: 8px;
+  color: currentColor;
+}
+.f-disclosure__toggle:hover {
+  box-shadow: 0 0 0 calc(0.1rem + 1px) rgba(var(--color-foreground), 0.3);
+}
+.f-disclosure--plain .f-disclosure__toggle {
+  padding: 0;
+  border: none;
+  background: none !important;
+  color: currentColor !important;
+  height: auto;
+}
+.f-disclosure--plain .f-disclosure__toggle:hover {
+  text-decoration: underline;
+  box-shadow: none;
+}
+.f-disclosure__toggle svg {
+  width: 9px;
+  height: 9px;
+}
+.f-disclosure-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 170px;
+  background-color: var(--color-background);
+  padding: 1rem;
+  margin: 5px 0 0;
+  visibility: hidden;
+  opacity: 0;
+  border: 1px solid var(--color-border);
+  z-index: 99;
+  border-radius: var(--card-corner-radius);
+  transition: 0.2s ease-in-out;
+  transform: translate3d(0, 12px, 0);
+  max-height: 60vh;
+  overflow-y: auto;
+  max-width: var(--f-max-width, 100%);
+  display: block;
+}
+.f-disclosure--up .f-disclosure-list {
+  bottom: 100%;
+  top: auto;
+  margin: 0 0 5px 0;
+  transform: translate3d(0, -12px, 0);
+}
+.f-disclosure-list__item {
+  list-style: none;
+  color: var(--color-text-body);
+  line-height: 44px !important;
+  white-space: nowrap;
+}
+.f-disclosure-list__item:hover {
+  color: var(--color-link-hover);
+}
+.f-disclosure-list__item--current a {
+  text-decoration: underline;
+}
+.f-disclosure-list__item a {
+  display: flex;
+  align-items: center;
+  column-gap: 8px;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
+  color: currentColor;
+}
+.f-disclosure-list__item a:hover {
+  text-decoration: underline;
+}
+@media (max-width: 639.98px) {
+  .f-disclosure-list {
+    max-height: 300px;
+  }
+}
+.f-disclosure-list__right {
+  left: auto;
+  right: 0;
+}
+.f-disclosure[open] .f-disclosure-list {
+  visibility: visible;
+  opacity: 1;
+  transform: translate3d(0, 0, 0);
+  z-index: 9999;
+}

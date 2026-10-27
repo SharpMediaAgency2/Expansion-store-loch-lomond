@@ -1,0 +1,348 @@
+@keyframes pulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.4);
+  }
+}
+
+.accordion-wrapper {
+  width: 100%;
+  padding: 0 24px;
+}
+
+.accordion-section {
+  margin-top: 12px;
+  box-shadow: 12px 12px 12px 0px #0000000d;
+}
+
+.accordion-header {
+  background: #FFFFFF;
+  width: 100%;
+  text-align: left;
+  padding: 12px 24px;
+  cursor: pointer;
+  border: 1px solid #D1D1D1;
+  border-radius: 4px;
+  text-transform: none;
+  display: block;
+  height: auto;
+}
+
+.accordion-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  margin-left: -12px;
+}
+
+.accordion-box {
+  width: 50%;
+  padding-left: 12px;
+  display: flex;
+  align-items: center;
+}
+
+.accordion-box.left {
+  justify-content: start;
+}
+
+.accordion-box.right {
+  justify-content: end;
+}
+
+.accordion-header svg {
+  transform: rotate(180deg);
+  transition: transform 0.3s ease;
+  margin-left: 8px;
+}
+
+.accordion-panel {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease;
+  background: #FFFFFFE5;
+  padding: 0 1.5em;
+  border-radius: 0 0 4px 4px;
+}
+
+.accordion-header.active {
+  border-radius: 4px 4px 0 0;
+}
+
+.accordion-header.active svg {
+  transform: rotate(0deg);
+}
+
+.accordion-header.active + .accordion-panel {
+  border: 1px solid #D1D1D1;
+  overflow: hidden;
+}
+
+.map-container {
+  position: relative;
+  margin: auto;
+  width: 100%; 
+  max-width: 1400px;
+}
+
+.world-map {
+  width: 100%;
+  display: block;
+  height: auto;
+}
+
+.marker-map {
+  position: absolute;
+  width: 4px;
+  height: 4px;
+  background: #C58A30;
+  box-shadow: 0px 0px 6.89px 1.72px #C58A30;
+  border-radius: 100%;
+  cursor: pointer;
+  transform: translate(-50%, -50%);
+  animation: pulse 1.4s infinite ease-in-out;
+}
+
+.tooltip-marker {
+  position: absolute;
+  display: none; 
+  background: white; 
+  padding: 10px; 
+  border-radius: 10px; 
+  box-shadow: 0px 4px 12px 0px #00000040;
+  z-index: 10;
+}
+
+.tooltip-marker::after {
+  content: "";
+  position: absolute;
+  bottom: -10px; /* position the triangle below the tooltip */
+  left: 50%;
+  transform: translateX(-50%);
+  border-width: 10px 10px 0 10px;
+  border-style: solid;
+  border-color: white transparent transparent transparent;
+}
+
+.info-container {
+  margin-top: 20px;
+  max-width: 600px;
+}
+
+.map-modal {
+  position: absolute;
+  left: auto;
+  top: 64px;
+  right: 64px;
+  bottom: 64px;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: end;
+  width: 100%;
+}
+
+.map-modal.hidden {
+  display: none;
+}
+
+.map-modal-content {
+  background: #FFFFFFE5;
+  padding: 48px 32px;
+  max-width: 450px;
+  width: 100%;
+  border-radius: 10px;
+  position: relative;
+  box-shadow: 0px 4px 8px 0px #0000000D;
+  box-shadow: 0px 14px 14px 0px #0000000A;
+  box-shadow: 0px 32px 19px 0px #00000008;
+  box-shadow: 0px 57px 23px 0px #00000003;
+  box-shadow: 0px 88px 25px 0px #00000000;
+  border: 1px solid #D1D1D1;
+}
+
+.map-modal-content .close {
+  position: absolute;
+  top: 24px;
+  right: 32px;
+  cursor: pointer;
+}
+
+.map-modal-content .close svg {
+  width: 15px;
+  height: 15px;
+}
+
+.country-info {
+  display: flex;
+  align-items: center;
+}
+
+.country-info h6 {
+  margin: 0;
+  font-size: 1.25rem;
+  color: #262626;
+  font-weight: 700;
+}
+
+.country-name {
+  font-size: 1rem;
+  color: #262626;
+  font-weight: 500;
+  margin: 0;
+}
+
+.country-flag {
+  width: 24px;
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+.new-tag {
+  color: #C58A30;
+  margin: 0;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.coming-soon {
+  color: #787878;
+  margin: 0;
+  text-transform: uppercase;
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.clubs-info {
+  display: flex;
+  align-items: center;
+}
+
+.clubs-info button {
+  margin-left: 10px;
+  background-color: transparent;
+  color: #787878;
+  border: none;
+  cursor: pointer;
+  font-size: 0.875rem;
+  text-decoration: underline;
+  text-transform: none;
+  height: auto;
+  padding: 0;
+}
+
+.clubs-info p {
+  margin: 0;
+  font-size: 0.875rem;
+  color: #787878;
+}
+
+.clubs-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.clubs-list::-webkit-scrollbar {
+  width: 10px; /* scrollbar width */
+}
+
+.clubs-list::-webkit-scrollbar-track {
+  background: transparent; /* track color */
+  border-radius: 4px;
+}
+
+.clubs-list::-webkit-scrollbar-thumb {
+  background-color: #D1D1D1; /* thumb color */
+  border-radius: 4px;
+  border: 2px solid #D1D1D1; /* space around thumb */
+}
+
+.club-item {
+  display: block;
+  border-bottom: 1px solid #C58A30;
+}
+
+.club-item:last-child {
+  border-bottom: none;
+}
+
+.club-item.disabled {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.club-item a {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: #262626;
+  justify-content: space-between;
+}
+
+.club-item img {
+  width: 52px; 
+  vertical-align: middle;
+  margin-right: 10px;
+}
+
+.club-item .club-name {
+  font-size: 1rem;
+  font-weight: 700;
+  color: #787878;
+}
+
+.club-item .club-button {
+  width: 32px;
+  height: 32px;
+}
+
+.club-item .club-info {
+  width: 100%;
+  margin-right: 24px;
+  padding: 24px 0;
+  display: flex;
+  align-items: center;
+}
+
+.club-item .club-meta {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.club-item .club-meta span {
+  width: 100%;
+}
+
+@media screen and (min-width: 768px) {
+  .marker-map {
+    width: 12px;
+    height: 12px;
+  }
+  .clubs-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+    margin-top: 20px;
+    height: 360px;
+    overflow-y: scroll;
+    padding-right: 24px; /* space for scrollbar */
+  }
+  .club-item .club-info {
+    border-bottom: 1px solid #C58A30;
+  }
+  .club-item:last-child .club-info {
+    border: none;
+  }
+  .club-item {
+    border: none;
+  }
+}
+  
+

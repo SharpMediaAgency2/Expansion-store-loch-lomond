@@ -1,0 +1,591 @@
+{{ 'featured-product-slider.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign container = section.settings.container
+  assign show_nav = section.settings.show_nav
+  assign show_dots = section.settings.show_dots
+
+  assign autoplay = false
+  if section.settings.autoplay
+    assign autoplay = section.settings.autorotate_speed | times: 1000
+  endif
+
+  assign has_control = false
+  if show_nav or show_dots
+    assign has_control = true
+  endif
+
+  assign flickity_classes = ''
+  if has_control
+    assign flickity_classes = flickity_classes | append: ' flickity-show-controls'
+  endif
+  unless show_nav
+    assign flickity_classes = flickity_classes | append: ' flickity-no-nav'
+  endunless
+  unless show_dots
+    assign flickity_classes = flickity_classes | append: ' flickity-no-page'
+  endunless
+
+  capture styles
+    if section.blocks.size > 9
+      echo '--pagination-width: 4rem;'
+    else
+      echo '--pagination-width: 2.5rem;'
+    endif
+  endcapture
+
+  assign pagination_background = section.settings.pagination_background | default: 'none'
+  assign pagination_class = 'flickity-pagination-bg--' | append: pagination_background
+
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+  if section.settings.heading != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+  if section.settings.subheading != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+  if section.settings.description != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+-%}
+{% render 'divider',
+  show_divider: section.settings.show_section_divider,
+  divider_width: section.settings.divider_width
+%}
+<div
+  id="{{ section_id }}"
+  class="f-featured-product-slider{{ custom_class }} f-section-padding color-{{ section.settings.color_schema }} overflow-hidden"
+  data-section-type="featured-product-slider"
+  data-section-id="{{ section.id }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="{{ container }}">
+    {% render 'index-section-header',
+      animation_effect: animation_effect,
+      section_settings: section.settings
+    %}
+    <div class="f-featured-product-slider__wrapper relative">
+      <flickity-component
+        id="f-featured-product-slider-{{ section.id }}"
+        class="flickity-button-initialized flickity-controls-group flickity-controls-group__bottom flickity-controls-group__bottom--left {{ pagination_class }} flickity-static{{ flickity_classes }}"
+        data-enable-slider="true"
+        data-slider-columns="1"
+        data-slider-options='{"pageDots": false, "prevNextButtons": {{ show_nav }}, "autoPlay": {{ autoplay }}, "wrapAround": true, "percentPosition": true, "contain": true, "cellSelector": ".f-featured-product__slide", "adaptiveHeight": false, "dragThreshold": 20}'
+        {% if show_dots and section.blocks.size > 1 %}
+          style="{{ styles }}"
+        {% endif %}
+      >
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign product = all_products[block.settings.product]
+
+            assign custom_image = block.settings.custom_image
+            assign custom_description = block.settings.custom_description
+            assign button_label = block.settings.button_label
+
+            assign item_motion_delay = motion_delay
+          -%}
+          <div class="f-featured-product__slide">
+            <div class="f-featured-product__slide--wrapper">
+              <div class="f-featured-product__slide--images">
+                <motion-element
+                  data-motion="{{ animation_effect }}"
+                  data-motion-delay="{{ item_motion_delay }}"
+                  class="block f-featured-product__custom--image"
+                >
+                  {%- if custom_image -%}
+                    {%- render 'responsive-image',
+                      image: custom_image,
+                      section_index: section.index,
+                      index: forloop.index
+                    -%}
+                  {%- else -%}
+                    <div class="f-image" style="--aspect-ratio: 3/4;">
+                      {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+                    </div>
+                  {%- endif -%}
+                </motion-element>
+                <div class="f-featured-product__product--image">
+                  {%- assign product_image_motion_delay = item_motion_delay
+                    | plus: 100
+                  -%}
+                  <motion-element
+                    data-motion="{{ animation_effect }}"
+                    data-motion-delay="{{ product_image_motion_delay }}"
+                    class="block"
+                  >
+                    {%- if product != blank and product.featured_image -%}
+                      {% render 'responsive-image',
+                        image: product.featured_image,
+                        section_index: section.index,
+                        index: forloop.index
+                      %}
+                    {%- else -%}
+                      <div class="f-image" style="--aspect-ratio: 3/4;">
+                        {{
+                          'product-1'
+                          | placeholder_svg_tag: 'placeholder-svg'
+                        }}
+                      </div>
+                    {%- endif -%}
+                  </motion-element>
+                </div>
+              </div>
+              <div class="f-featured-product__slide--contents">
+                <h2 class="f-featured-product__title h1">
+                  <motion-element
+                    data-motion="{{ animation_effect }}"
+                    data-motion-delay="{{ item_motion_delay }}"
+                    class="block"
+                  >
+                    {%- if product != blank and product.title -%}
+                      {{ product.title }}
+                    {%- else -%}
+                      {{ 'onboarding.product_title' | t }}
+                    {%- endif -%}
+                  </motion-element>
+                </h2>
+                {%- assign item_motion_delay = item_motion_delay | plus: 50 -%}
+                <motion-element
+                  data-motion="{{ animation_effect }}"
+                  data-motion-delay="{{ item_motion_delay }}"
+                  class="block f-featured-product__prices h5"
+                >
+                  {%- if product != blank -%}
+                    {%- render 'price', product: product -%}
+                  {%- else -%}
+                    <span class="f-price">
+                      <div class="f-price__regular">
+                        <span class="visually-hidden visually-hidden--inline">
+                          {{- 'products.product.price.regular_price' | t -}}
+                        </span>
+                        <span class="f-price-item f-price-item--regular">
+                          {{- 1999 | money -}}
+                        </span>
+                      </div>
+                    </span>
+                  {%- endif -%}
+                </motion-element>
+                {%- assign item_motion_delay = item_motion_delay | plus: 50 -%}
+                <motion-element
+                  data-motion="{{ animation_effect }}"
+                  data-motion-delay="{{ item_motion_delay }}"
+                  class="block f-featured-product__description"
+                >
+                  {%- if custom_description != blank -%}
+                    {{- custom_description -}}
+                  {%- else -%}
+                    {{- product.description | truncatewords: 20 -}}
+                  {%- endif -%}
+                </motion-element>
+                {%- assign item_motion_delay = item_motion_delay | plus: 50 -%}
+                {%- if button_label != blank -%}
+                  <motion-element
+                    data-motion="{{ animation_effect }}"
+                    data-motion-delay="{{ item_motion_delay }}"
+                    class="block"
+                  >
+                    <a
+                      class="btn btn--primary"
+                      href="{{ product.url | default: "#" }}"
+                    >
+                      {{- button_label -}}
+                    </a>
+                  </motion-element>
+                {%- endif -%}
+              </div>
+            </div>
+          </div>
+        {%- endfor -%}
+        {%- if show_dots and section.blocks.size > 1 -%}
+          <div class="flickity-page-counter no-js-hidden hidden">
+            <span class="flickity-counter--current">1</span>
+            <span aria-hidden="true"> / </span>
+            <span class="visually-hidden">
+              {{- 'sections.slideshow.of' | t -}}
+            </span>
+            <span class="flickity-counter--total">
+              {{- section.blocks.size -}}
+            </span>
+          </div>
+        {%- endif -%}
+      </flickity-component>
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "t:sections.featured-product-slider.name",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.featured-product-slider.settings.tutorial.content"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.container.label"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.header.name"
+    },
+    {
+      "type": "select",
+      "id": "section_header_padding_bottom",
+      "label": "t:sections.common.spacing.section_header_padding_bottom.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__1.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__2.label"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__3.label"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "section_header_content_spacing",
+      "label": "t:sections.common.content_spacing.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.common.content_spacing.options__sm.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.common.content_spacing.options__md.label"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "info": "t:sections.common.highlight_text.paragraph.content",
+      "label": "t:sections.common.header.heading",
+      "default": "Featured product slider"
+    },
+    {
+      "type": "select",
+      "id": "highlight_style",
+      "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+        },
+        {
+          "value": "drawer_line",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+        },
+        {
+          "value": "underline",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight_text_color",
+      "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "default": "h2",
+      "label": "t:sections.common.text_size.heading.label",
+      "options": [
+        {
+          "value": "h3",
+          "label": "t:sections.common.text_size.options__h3.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.text_size.options__h2.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.common.text_size.options__h1.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.common.text_size.options__h0.label"
+        },
+        {
+          "value": "h-xl",
+          "label": "t:sections.common.text_size.options__hd1.label"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "t:sections.common.heading_color.label",
+      "info": "t:sections.common.heading_color.info"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:sections.common.header.subheading"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.common.header.description"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.slider.header"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_nav",
+      "label": "t:sections.common.slider.show_nav",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "t:sections.common.slider.show_dots",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "pagination_background",
+      "label": "t:sections.common.slider.pagination_background.label",
+      "options": [
+        {
+          "label": "t:sections.common.slider.pagination_background.options.option_1",
+          "value": "dark"
+        },
+        {
+          "label": "t:sections.common.slider.pagination_background.options.option_2",
+          "value": "light"
+        },
+        {
+          "label": "t:sections.common.slider.pagination_background.options.option_3",
+          "value": "none"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:sections.slideshow.settings.auto_rotate.label",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autorotate_speed",
+      "label": "t:sections.slideshow.settings.change_slides_speed.label",
+      "max": 10,
+      "min": 2,
+      "step": 1,
+      "unit": "s",
+      "default": 3
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.divider.section_heading.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_divider",
+      "default": false,
+      "label": "t:sections.common.divider.show_divider.label"
+    },
+    {
+      "type": "select",
+      "id": "divider_width",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.divider.width.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "t:sections.featured-product-slider.blocks.product.name",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "t:sections.featured-product-slider.blocks.product.settings.product.label"
+        },
+        {
+          "type": "image_picker",
+          "id": "custom_image",
+          "label": "t:sections.featured-product-slider.blocks.product.settings.custom_image.label"
+        },
+        {
+          "type": "richtext",
+          "label": "t:sections.featured-product-slider.blocks.product.settings.custom_description.label",
+          "id": "custom_description",
+          "default": "<p>This area is used to describe your product’s details. Tell customers about the look, feel, and style of your product. Add details on color, materials used, sizing, and where it was made.</p>",
+          "info": "t:sections.featured-product-slider.blocks.product.settings.custom_description.info"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:sections.common.button.button_label.label",
+          "default": "Shop now",
+          "info": "t:sections.featured-product-slider.blocks.product.settings.button_label.info"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.featured-product-slider.presets.name",
+      "blocks": [
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

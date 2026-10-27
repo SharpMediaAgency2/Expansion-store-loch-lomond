@@ -1,0 +1,83 @@
+.f-cartgoal {
+  --cartgoal-pending-color: rgb(var(--color-foreground));
+  --cartgoal-success-color: rgb(var(--color-foreground));
+  color: var(--cartgoal-pending-color);
+  transition: 0.3s all;
+  position: relative;
+  padding: 2rem 2rem 0;
+  z-index: 2;
+}
+.f-cartgoal__success-message {
+  display: none;
+}
+.f-cartgoal--done {
+  color: var(--cartgoal-success-color);
+}
+.f-cartgoal--done .f-cartgoal__success-message {
+  display: block;
+}
+.f-cartgoal--done .f-cartgoal__default-message {
+  display: none;
+}
+.f-cartgoal__inner {
+  position: relative;
+}
+.f-cartgoal__title {
+  font-size: 1.5rem;
+  margin-bottom: 1.2rem;
+  text-transform: none;
+  line-height: 2.4rem;
+}
+.f-cartgoal__bar {
+  height: 0.4rem;
+  border-radius: 1rem;
+  background: #e9e9e9;
+  color: currentColor;
+  position: relative;
+}
+.f-cartgoal__bar span {
+  background: currentColor;
+  position: absolute;
+  height: 100%;
+  left: 0;
+  top: 0;
+  width: var(--progress, 0%);
+  display: block;
+  transition: width 0.35s ease-in-out;
+  transition-delay: 0.5s;
+  border-radius: 1rem;
+}
+.f-cartgoal__icon {
+  position: absolute;
+  left: var(--progress, 0%);
+  top: -0.5rem;
+  border: 0.1rem solid currentColor;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: currentColor;
+  background: currentColor;
+  width: 1.4rem;
+  height: 1.4rem;
+  transition: left 0.35s ease-in-out, transform 0.2s ease;
+  transition-delay: 0.5s;
+  margin-left: -1.3rem;
+}
+.f-cartgoal:not(.f-cartgoal__drawer):not(.hidden) {
+  padding: 0;
+  text-align: center;
+  display: block;
+  margin: 0 auto 3rem;
+}
+@media (min-width: 1024px) {
+  .f-cartgoal:not(.f-cartgoal__drawer):not(.hidden) {
+    max-width: 40%;
+    padding: 0;
+    margin: 0 auto 5rem;
+  }
+  .f-cartgoal:not(.f-cartgoal__drawer):not(.hidden) .f-cartgoal__title {
+    font-size: 1.6rem;
+    margin-bottom: 1.5rem;
+  }
+}

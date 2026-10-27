@@ -1,0 +1,36 @@
+{% assign title = 'sections.cart.estimate_shipping_title' | t %}
+{% capture content %}
+    <div class="{{ class }} flex flex-col" data-index="{{ index }}" data-block="{{ block.type }}" {{ block.shopify_attributes }}>
+        <div class="px-xs">
+            <div class="form-field">
+                <label class="form-label" for="AddressCountry">{{ 'customer.addresses.country' | t }}</label>
+                <select id="AddressCountry" class="form-control" name="address[country]" data-default="{{ settings.cart_default_country }}">
+                </select>
+            </div>
+
+            <div class="form-field" id="AddressProvinceContainer" style="display: none;">
+                <label class="form-label" for="AddressProvince">{{ 'customer.addresses.province' | t }}</label>
+                <select id="AddressProvince" class="form-control" name="address[province]" data-default="{{ form.province }}"></select>
+            </div>
+
+            <div class="form-field">
+                <label class="form-label" for="AddressZip">{{ 'customer.addresses.zip' | t }}</label>
+                <input type="text" class="form-control" id="AddressZip" name="address[zip]" value="{{ form.zip }}" autocapitalize="characters">
+            </div>
+        </div>
+        <div class="f-cart-drawer__shipping-buttons flex flex-col items-center">
+            <button class="btn btn--secondary text-upper btn-calc" aria-label="{{ 'sections.cart.estimate_shipping_button' | t }}">
+                <span>{{ 'sections.cart.estimate_shipping_button' | t }}</span>
+                {% comment %} theme-check-disable {% endcomment %}
+                {{ 'icon-spinner.svg' | inline_asset_content }}
+                {% comment %} theme-check-enable {% endcomment %}
+            </button>
+            <button class="btn btn--underline btn-cancel" aria-label=">{{ 'accessibility.close' | t }}">{{ 'accessibility.close' | t }}</button>
+        </div>
+        <div class="f-cart-drawer__shipping-message py-md pb-0"></div>
+    </div>
+{% endcapture %}
+<calc-shipping-rate-block class="block" data-block-id="{{ id }}">
+  {% render 'collapsible-item', title: title, content: content, id: id %}
+  <template>{{ all_country_option_tags }}</template>
+</calc-shipping-rate-block>

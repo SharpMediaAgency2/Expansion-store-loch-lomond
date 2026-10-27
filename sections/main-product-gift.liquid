@@ -1,0 +1,595 @@
+{% comment %}
+  Section: main-product-gift.liquid
+  Location: sections/main-product-gift.liquid
+  Usage: Add this section to your Gift Card product page via the theme editor
+{% endcomment %}
+
+{%- assign product = section.settings.product | default: product -%}
+
+
+<style>
+  .gc-section {
+    --forest:       #2d3a2e;
+    --forest-mid:   #3d4f3e;
+    --forest-light: #4e6350;
+    --cream:        #ffffff;
+    --cream-dark:   #ffffff;
+    --sand:         #c8b89a;
+    --text-dark:    #1a1f1b;
+    --text-mid:     #5a6b5c;
+    --text-light:   #8a9b8c;
+    --white:        #ffffff;
+    --radius-card:  10px;
+    --radius-btn:   8px;
+    --transition:   0.22s cubic-bezier(0.4, 0, 0.2, 1);
+    font-family: 'Rubik', sans-serif;
+    color: var(--text-dark);
+    -webkit-font-smoothing: antialiased;
+    background: var(--cream);
+  }
+
+  .gc-section *, .gc-section *::before, .gc-section *::after { box-sizing: border-box; }
+
+  /* ─── BANNER ──────────────────────────────────────── */
+  .gc-banner {
+    background: var(--forest);
+    color: var(--white);
+    padding: 12px 24px;
+    text-align: center;
+    font-size: 13px;
+    font-weight: 400;
+    letter-spacing: 0.04em;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+  }
+  .gc-banner svg { flex-shrink: 0; opacity: 0.85; }
+  .gc-banner strong { font-weight: 500; }
+
+  /* ─── HERO ────────────────────────────────────────── */
+  .gc-hero {
+    background: var(--white);
+    border-bottom: 1px solid var(--cream-dark);
+    padding: 52px 24px 44px;
+    text-align: center;
+  }
+  .gc-hero__icon {
+    width: 60px; height: 60px;
+    background: #000;
+    border-radius: 50%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 20px;
+  }
+  .gc-hero__title {
+    font-family: "Noto Serif";
+    font-size: 36px;
+    font-weight: 400;
+    color:#0A0A0A;
+    letter-spacing: -0.01em;
+    line-height: 1;
+    margin-bottom: 12px;
+  }
+  .gc-section-label.select-amt{
+font-family: "Noto Serif";
+font-weight: 400;
+font-size: clamp(20px, 5vw, 24px);
+text-transform:unset!important;
+letter-spacing: -0.01em;
+    color:#0A0A0A;
+}
+  .gc-hero__sub {
+    font-size: 15px;
+    color: #4A5565;
+    font-weight: 400;
+  }
+.gc-sendto .gc-sendto-btn {
+  font-weight: 500;
+}
+  /* ─── LAYOUT ──────────────────────────────────────── */
+  .gc-layout {
+    max-width: 1040px;
+    margin: 56px auto;
+    padding: 0 0px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    align-items: start;
+  }
+  @media (max-width: 768px) {
+    .gc-layout { grid-template-columns: 1fr; gap: 40px; margin: 36px 20px; }
+  }
+
+  /* ─── CARD VISUAL ─────────────────────────────────── */
+  @media screen and (min-width:999px){
+    .gc-card-wrap { position: sticky; top: 24px; }
+  }
+  .gc-card {
+    background: linear-gradient(135deg, #222F1D 0%, #596255 100%);
+    border-radius: var(--radius-card);
+    padding: 36px 36px 32px;
+    color: var(--white);
+    aspect-ratio: 1.586 / 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0px 8px 10px -6px #0000001A, 0px 20px 25px -5px #0000001A;
+    transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .gc-card:hover { transform: translateY(-4px) rotate(-0.4deg); }
+  .gc-card::before, .gc-card::after { display: none; }
+  .gc-card__corner-icon { position: absolute; top: 28px; right: 32px; opacity: 0.18; }
+
+  .gc-card__brand {
+    opacity: 1;
+  position: relative;
+  z-index: 1;
+  font-family: "Rubik";
+  font-weight: 400;
+  font-size: 14px;
+  line-height: 20px;
+  letter-spacing: -0.05px;
+  text-transform: uppercase;
+    
+  }
+  .gc-card__name {
+font-family: "Noto Serif";
+    font-size: clamp(28px, 4vw, 38px);
+    font-weight: 500; letter-spacing: 0.01em;
+    margin-top: 6px; position: relative; z-index: 1;
+  }
+  .gc-card__footer {
+    position: relative; z-index: 1;
+    display: flex; justify-content: space-between; align-items: flex-end;
+  }
+  .gc-card__value-label {
+    font-size: 14px; font-weight: 400;
+    letter-spacing: 0.12em; 
+    opacity: 1; margin-bottom: 4px;
+    color: #D1D5DC;text-transform:uppercase;
+
+  }
+  .gc-card__value {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(30px, 4vw, 40px);
+    font-weight: 400; letter-spacing: -0.01em; line-height: 1;
+    transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+  }
+  .gc-card__value.bump { transform: scale(1.08); color: var(--sand); }
+
+  .gc-card__chip { display: none; }
+
+  /* ─── FORM ────────────────────────────────────────── */
+  .gc-form { display: flex; flex-direction: column; gap: 28px; }
+
+  .gc-section-label {
+    font-family: 'Rubik';
+font-weight: 600;
+font-style: Medium;
+font-size: 14px;
+line-height: 20px;
+letter-spacing: -0.15px;
+margin-top:15px;
+
+  }
+
+  /* Amount pills */
+  .gc-amounts {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 2px 0 4px;
+  }
+  .gc-amount-btn {
+    flex: 1 1 auto;
+    min-width: 72px;
+    background: #ffffff;
+    border: 1.5px solid #D1D5DC;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-family: 'Rubik', sans-serif;
+    font-size: 16px;
+    font-weight: 600;
+    height:60px;
+    line-height: 24px;
+    letter-spacing: -0.31px;
+    text-align: center;
+    color: #111827;
+    cursor: pointer;
+    transition: all var(--transition);
+    white-space: nowrap;
+  }
+  .gc-amount-btn:hover:not(.active) {
+    border-color: #222F1D;
+    color: #222F1D;
+  }
+  .gc-amount-btn.active {
+    background: #222F1D;
+    border-color: #222F1D;
+    color: #ffffff;
+  }
+
+  /* Send To */
+  .gc-sendto { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .gc-sendto-btn {
+    background: var(--white); border: 1.5px solid #D1D5DC;
+    border-radius: var(--radius-btn); padding: 15px 12px;
+    font-family: 'Rubik', sans-serif; font-size: 16px; font-weight: 600;
+    color: var(--text-dark); cursor: pointer;
+    transition: all var(--transition);
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    text-transform:unset!important;
+    height:52px;
+  }
+  .gc-sendto-btn:hover { border-color: var(--forest); }
+  .gc-sendto-btn.active {
+    background: var(--forest); border-color: var(--forest);
+    color: var(--white);
+  }
+
+  /* Recipient form */
+  .gc-recipient-form {
+    display: none; flex-direction: column; gap: 14px;
+    background: var(--white); border: 1.5px solid var(--cream-dark);
+    border-radius: var(--radius-card); padding: 24px 0px; margin-top: 12px;
+    animation: gcSlideDown 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  .gc-recipient-form.visible { display: flex; }
+
+  @keyframes gcSlideDown {
+    from { opacity: 0; transform: translateY(-10px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  .gc-field { display: flex; flex-direction: column; gap: 6px; }
+  .gc-field label {
+    color: #0a0a0a;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -0.15px;
+  }
+  .gc-field input:focus-visible, .gc-field textarea:focus-visible {
+    box-shadow: none;
+    border-color: #2d3a2e;
+  }
+  .gc-field input, .gc-field textarea {
+    border: 1.5px solid #D1D5DC; border-radius: 8px;
+    padding: 12px 14px;
+    font-family: 'Rubik', sans-serif; font-size: 14px; color: var(--text-dark);
+    background: var(--cream); transition: border-color var(--transition);
+    outline: none; resize: none; width: 100%;
+    min-height:50px;
+  }
+  .gc-field input:focus, .gc-field textarea:focus { border-color: var(--forest); background: var(--white); }
+  .gc-field textarea { height: 80px; line-height: 1.5; }
+  .gc-field .gc-optional { opacity: 0.5; text-transform: none; font-size: 10px; }
+
+  /* Add to Cart */
+  .gc-atc-btn {
+    background: var(--forest); color: var(--white);
+    border: none; border-radius: var(--radius-btn);
+    padding: 18px 28px;
+    font-family: 'Rubik', sans-serif; font-size: 15px; font-weight: 600;
+    letter-spacing: 0.02em; cursor: pointer; width: 100%;
+    display: flex; align-items: center; justify-content: center; gap: 10px;
+    transition: all var(--transition); position: relative; overflow: hidden;
+    margin-top:20px;
+    height:56px;
+
+  }
+  .gc-atc-btn::before {
+    content: ''; position: absolute; inset: 0;
+    background: rgba(255,255,255,0.1);
+    transform: translateX(-100%); transition: transform 0.4s ease;
+  }
+  .gc-atc-btn:active { transform: translateY(0); }
+
+  /* How It Works */
+  .gc-info {
+    background: #F9FAFB; border: 1.5px solid var(--cream-dark);
+    border-radius: var(--radius-card); padding: 22px 24px;
+  }
+  .gc-info__title {
+    font-size: 18px; font-weight: 600;
+    color: #0a0a0a; margin-bottom: 14px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .gc-info__list { list-style: none; display: flex; flex-direction: column; gap: 9px; padding-left:0px; }
+  .gc-info__list li {
+    font-size: 14px; color:#4A5565; font-weight: 400;
+    display: flex; align-items: center; gap: 10px; line-height: 1.4;
+  }
+  .gc-info__list li::before {
+    content: ''; width: 5px; height: 5px;
+    border-radius: 50%; background: #4A5565; flex-shrink: 0;
+  }
+  #gcCardValue {
+  font-family: "Rubik", sans-serif;
+  font-weight: bold;
+  font-size: 24px;
+}
+.gc-hero.container {
+  max-width: 1040px;
+  background: #F9FAFB;
+  margin-top: 50px;
+}
+</style>
+
+{%- comment -%} ── BANNER ──────────────────────────────────────── {%- endcomment -%}
+{%- if section.settings.show_banner -%}
+<div class="gc-section">
+  <div class="gc-banner">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+    <span>{{ section.settings.banner_text }}</span>
+  </div>
+</div>
+{%- endif -%}
+
+<div class="gc-section">
+
+  {%- comment -%} ── HERO ──────────────────────────────────────── {%- endcomment -%}
+  {%- if section.settings.show_hero -%}
+  <section class="gc-hero container">
+    <div class="gc-hero__icon">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12v10H4V12"/><path d="M2 7h20v5H2z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></svg>
+    </div>
+    <h1 class="gc-hero__title">{{ section.settings.hero_title }}</h1>
+    <p class="gc-hero__sub">{{ section.settings.hero_subtitle }}</p>
+  </section>
+  {%- endif -%}
+
+  {%- comment -%} ── MAIN LAYOUT ───────────────────────────────── {%- endcomment -%}
+  <div class="gc-layout">
+
+    {%- comment -%} LEFT — Interactive card graphic {%- endcomment -%}
+    <div class="gc-card-wrap">
+      <div class="gc-card">
+        
+        <div>
+          <div class="gc-card__brand">{{ shop.name }}</div>
+          <div class="gc-card__name">Gift Card</div>
+        </div>
+        <div class="gc-card__footer">
+          <div>
+            <div class="gc-card__value-label">Value</div>
+            <div class="gc-card__value" id="gcCardValue">
+              {{ product.selected_or_first_available_variant.price | money }}
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    {%- comment -%} RIGHT — Purchase form {%- endcomment -%}
+    <div class="gc-form">
+      {%- form 'product', product, id: 'gc-product-form', novalidate: 'novalidate' -%}
+
+        <input type="hidden" name="id" id="gc-variant-id" value="{{ product.selected_or_first_available_variant.id }}">
+
+        {%- comment -%} 1. Amount {%- endcomment -%}
+        <div>
+          <p class="gc-section-label select-amt">Select Amount</p>
+          <div class="gc-amounts">
+            {%- for variant in product.variants -%}
+              <button
+                type="button"
+                class="gc-amount-btn{% if forloop.first %} active{% endif %}"
+                data-variant-id="{{ variant.id }}"
+                data-price="{{ variant.price | money }}"
+              >{{ variant.price | money_without_trailing_zeros }}</button>
+            {%- endfor -%}
+          </div>
+        </div>
+
+        {%- comment -%} 2. Send To {%- endcomment -%}
+        <div>
+          <p class="gc-section-label">Send To</p>
+          <div class="gc-sendto">
+            <button type="button" class="gc-sendto-btn active" id="gcSendMyself">
+              
+              Myself
+            </button>
+            <button type="button" class="gc-sendto-btn" id="gcSendOther">
+              
+              Someone Else
+            </button>
+          </div>
+
+          <div class="gc-recipient-form" id="gcRecipientForm">
+            <div class="gc-field">
+              <label for="gc-recipient-name">Name</label>
+              <input type="text" id="gc-recipient-name" name="properties[Recipient Name]" placeholder="Enter their name" autocomplete="off">
+            </div>
+            <div class="gc-field">
+              <label for="gc-recipient-email">Email</label>
+              <input type="email" id="gc-recipient-email" name="properties[Recipient Email]" placeholder="their@email.com" autocomplete="off">
+            </div>
+            <div class="gc-field">
+              <label for="gc-message">
+                Personal Message
+             
+              </label>
+              <textarea id="gc-message" name="properties[Gift Message]" placeholder="Add a personal message…"></textarea>
+            </div>
+            <div class="gc-field">
+              <label for="gc-send-date">Send Date</label>
+              <input type="date" id="gc-send-date" name="properties[Send Date]">
+            </div>
+          </div>
+        </div>
+
+        {%- comment -%} 3. Add to Cart {%- endcomment -%}
+        <button type="submit" class="gc-atc-btn" name="add">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M7.57739 5.00018L7.05719 5.54045C7.19694 5.67501 7.38339 5.75018 7.57739 5.75018V5.00018ZM21.0002 5.00018L21.7279 5.18208C21.7839 4.95803 21.7335 4.72066 21.5914 4.53862C21.4493 4.35659 21.2312 4.25018 21.0002 4.25018V5.00018ZM19.0002 13.0002V13.7502C19.3444 13.7502 19.6444 13.516 19.7279 13.1821L19.0002 13.0002ZM15.885 13.0002V12.2502C15.5791 12.2502 15.3038 12.436 15.1894 12.7197C15.075 13.0034 15.1444 13.3282 15.3648 13.5404L15.885 13.0002ZM19.0002 16.0002V16.7502C19.3062 16.7502 19.5814 16.5644 19.6958 16.2807C19.8102 15.9969 19.7408 15.6722 19.5205 15.46L19.0002 16.0002ZM8.00024 13.0002V13.7502C8.2312 13.7502 8.44927 13.6438 8.5914 13.4617C8.73353 13.2797 8.78386 13.0423 8.72785 12.8183L8.00024 13.0002ZM5.50024 3.00018L6.02045 2.45991C5.7795 2.22792 5.41405 2.18351 5.12456 2.35106C4.83507 2.5186 4.69151 2.85759 4.77264 3.18208L5.50024 3.00018ZM8.00024 19.0002V19.7502C8.13832 19.7502 8.25024 19.8621 8.25024 20.0002H9.00024H9.75024C9.75024 19.0337 8.96674 18.2502 8.00024 18.2502V19.0002ZM9.00024 20.0002H8.25024C8.25024 20.1383 8.13832 20.2502 8.00024 20.2502V21.0002V21.7502C8.96674 21.7502 9.75024 20.9667 9.75024 20.0002H9.00024ZM8.00024 21.0002V20.2502C7.86217 20.2502 7.75024 20.1383 7.75024 20.0002H7.00024H6.25024C6.25024 20.9667 7.03375 21.7502 8.00024 21.7502V21.0002ZM7.00024 20.0002H7.75024C7.75024 19.8621 7.86217 19.7502 8.00024 19.7502V19.0002V18.2502C7.03375 18.2502 6.25024 19.0337 6.25024 20.0002H7.00024ZM18.0002 19.0002V19.7502C18.1383 19.7502 18.2502 19.8621 18.2502 20.0002H19.0002H19.7502C19.7502 19.0337 18.9667 18.2502 18.0002 18.2502V19.0002ZM19.0002 20.0002H18.2502C18.2502 20.1383 18.1383 20.2502 18.0002 20.2502V21.0002V21.7502C18.9667 21.7502 19.7502 20.9667 19.7502 20.0002H19.0002ZM18.0002 21.0002V20.2502C17.8622 20.2502 17.7502 20.1383 17.7502 20.0002H17.0002H16.2502C16.2502 20.9667 17.0337 21.7502 18.0002 21.7502V21.0002ZM17.0002 20.0002H17.7502C17.7502 19.8621 17.8622 19.7502 18.0002 19.7502V19.0002V18.2502C17.0337 18.2502 16.2502 19.0337 16.2502 20.0002H17.0002ZM7.57739 5.00018V5.75018H21.0002V5.00018V4.25018H7.57739V5.00018ZM21.0002 5.00018L20.2726 4.81828L18.2726 12.8183L19.0002 13.0002L19.7279 13.1821L21.7279 5.18208L21.0002 5.00018ZM19.0002 13.0002V12.2502H15.885V13.0002V13.7502H19.0002V13.0002ZM15.885 13.0002L15.3648 13.5404L18.48 16.5404L19.0002 16.0002L19.5205 15.46L16.4053 12.46L15.885 13.0002ZM19.0002 16.0002V15.2502H7.50024V16.0002V16.7502H19.0002V16.0002ZM7.50024 16.0002V15.2502C7.08603 15.2502 6.75024 14.9144 6.75024 14.5002H6.00024H5.25024C5.25024 15.7428 6.2576 16.7502 7.50024 16.7502V16.0002ZM6.00024 14.5002H6.75024C6.75024 14.086 7.08603 13.7502 7.50024 13.7502V13.0002V12.2502C6.2576 12.2502 5.25024 13.2575 5.25024 14.5002H6.00024ZM7.50024 13.0002V13.7502H8.00024V13.0002V12.2502H7.50024V13.0002ZM8.00024 13.0002L8.72785 12.8183L6.22785 2.81828L5.50024 3.00018L4.77264 3.18208L7.27264 13.1821L8.00024 13.0002ZM5.50024 3.00018L4.98004 3.54045L7.05719 5.54045L7.57739 5.00018L8.09759 4.45991L6.02045 2.45991L5.50024 3.00018Z" fill="white"/>
+</svg>
+          {{ section.settings.atc_label }}
+        </button>
+
+      {%- endform -%}
+
+      {%- comment -%} 4. How It Works {%- endcomment -%}
+      <div class="gc-info">
+        <div class="gc-info__title">How It Works</div>
+        <ul class="gc-info__list">
+          {%- for i in (1..4) -%}
+            {%- assign key = 'info_' | append: i -%}
+            {%- if section.settings[key] != blank -%}
+              <li>{{ section.settings[key] }}</li>
+            {%- endif -%}
+          {%- endfor -%}
+        </ul>
+      </div>
+
+    </div>{%- comment -%} /.gc-form {%- endcomment -%}
+  </div>{%- comment -%} /.gc-layout {%- endcomment -%}
+</div>{%- comment -%} /.gc-section {%- endcomment -%}
+
+<script>
+(function () {
+  var cardValue    = document.getElementById('gcCardValue');
+  var variantInput = document.getElementById('gc-variant-id');
+  var amountBtns   = document.querySelectorAll('.gc-amount-btn');
+  var sendMyself   = document.getElementById('gcSendMyself');
+  var sendOther    = document.getElementById('gcSendOther');
+  var recipientForm = document.getElementById('gcRecipientForm');
+  var emailInput   = document.getElementById('gc-recipient-email');
+  var dateInput    = document.getElementById('gc-send-date');
+
+  // Amount selection
+  amountBtns.forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      amountBtns.forEach(function(b) { b.classList.remove('active'); });
+      btn.classList.add('active');
+      if (cardValue) {
+        cardValue.textContent = btn.dataset.price;
+        cardValue.classList.add('bump');
+        setTimeout(function() { cardValue.classList.remove('bump'); }, 320);
+      }
+      if (variantInput && btn.dataset.variantId) {
+        variantInput.value = btn.dataset.variantId;
+      }
+    });
+  });
+
+  // Send To — Myself
+  if (sendMyself) {
+    sendMyself.addEventListener('click', function() {
+      sendMyself.classList.add('active');
+      sendOther.classList.remove('active');
+      recipientForm.classList.remove('visible');
+      if (emailInput) emailInput.removeAttribute('required');
+    });
+  }
+
+  // Send To — Someone Else
+  if (sendOther) {
+    sendOther.addEventListener('click', function() {
+      sendOther.classList.add('active');
+      sendMyself.classList.remove('active');
+      recipientForm.classList.add('visible');
+      if (emailInput) emailInput.setAttribute('required', 'required');
+      if (dateInput && !dateInput.value) {
+        dateInput.value = new Date().toISOString().split('T')[0];
+      }
+    });
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Gift Card Product",
+  "tag": "div",
+  "class": "gc-section-wrapper",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Banner"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_banner",
+      "label": "Show banner",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "banner_text",
+      "label": "Banner text",
+      "default": "Free delivery via email · No expiration date · Valid on all products"
+    },
+    {
+      "type": "header",
+      "content": "Hero"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_hero",
+      "label": "Show hero section",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "hero_title",
+      "label": "Title",
+      "default": "Gift Cards"
+    },
+    {
+      "type": "text",
+      "id": "hero_subtitle",
+      "label": "Subtitle",
+      "default": "Give the gift of premium golf apparel and exclusive club collections"
+    },
+    {
+      "type": "header",
+      "content": "Form"
+    },
+    {
+      "type": "text",
+      "id": "atc_label",
+      "label": "Add to cart button label",
+      "default": "Add to Cart"
+    },
+    {
+      "type": "header",
+      "content": "How It Works"
+    },
+    {
+      "type": "text",
+      "id": "info_1",
+      "label": "Point 1",
+      "default": "Gift cards are delivered instantly by email"
+    },
+    {
+      "type": "text",
+      "id": "info_2",
+      "label": "Point 2",
+      "default": "No expiration date — balance never expires"
+    },
+    {
+      "type": "text",
+      "id": "info_3",
+      "label": "Point 3",
+      "default": "Redeemable on any product in our store"
+    },
+    {
+      "type": "text",
+      "id": "info_4",
+      "label": "Point 4",
+      "default": "Multiple gift cards can be combined at checkout"
+    }
+  ],
+  "presets": [
+    {
+      "name": "Gift Card Product"
+    }
+  ]
+}
+{% endschema %}

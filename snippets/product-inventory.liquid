@@ -1,0 +1,90 @@
+{%- liquid
+  assign inventory_visible = false
+  assign show_progress = block.settings.show_as_progress
+  assign is_show_progress = false
+  if current_variant.inventory_management == 'shopify'
+    if current_variant.inventory_quantity <= block.settings.inventory_threshold and current_variant.inventory_quantity >= 0
+      assign inventory_visible = true
+    endif
+  endif
+
+  if current_variant.inventory_quantity <= 0 or current_variant.inventory_policy == 'continue'
+    assign inventory_visible = false
+  endif
+
+  assign show_incoming = false
+  if current_variant.incoming and current_variant.inventory_quantity <= block.settings.inventory_threshold
+    assign show_incoming = true
+  endif
+
+  if show_progress and inventory_visible
+    assign is_show_progress = true
+  endif
+-%}
+
+<div
+  class="f-product-single__block-inventory-status"
+  data-product-id="{{ product.id }}"
+  {{ block.shopify_attributes }}
+  id="Inventory-{{ section.id }}"
+>
+  <ul class="f-inventory-status">
+    <li class="f-inventory--point">
+      <span class="f-inventory--icon-text{% if inventory_visible == true %} f-inventory--low{% endif %}{% unless current_variant.available %} hidden{% endunless %}">
+        <span class="f-inventory--icon{% if is_show_progress %} hidden{% endif %}"></span>
+        <span data-product-inventory data-threshold="{{ block.settings.inventory_threshold }}">
+          {%- if inventory_visible -%}
+            {{ 'products.product.stock_label' | t: count: current_variant.inventory_quantity }}
+          {%- else -%}
+            {{ 'products.product.in_stock_label' | t }}
+          {%- endif -%}
+        </span>
+      </span>
+      <f-progress-bar
+        data-quantity="{{ current_variant.inventory_quantity }}"
+        data-show="{{ show_progress }}"
+        {% if is_show_progress %}
+          style="display: block;"
+        {% endif %}
+      ></f-progress-bar>
+    </li>
+    {%- if block.settings.enable_inventory_transfer -%}
+      <li
+        data-incoming-inventory
+        data-show="{{ show_incoming }}"
+        class="f-inventory--point{% unless show_incoming %} hidden{% endunless %}"
+      >
+        <span class="f-inventory--icon-text">
+          <span class="f-inventory--icon"></span>
+          <span class="f-inventory--incoming-text f-js-incoming-text">
+            {%- if current_variant.next_incoming_date -%}
+              {%- assign date = current_variant.next_incoming_date | date: format: 'date' -%}
+              {%- if current_variant.available -%}
+                {{ 'products.product.will_not_ship_until' | t: date: date }}
+              {%- else -%}
+                {{ 'products.product.will_be_in_stock_after' | t: date: date }}
+              {%- endif -%}
+            {%- else -%}
+              {{ 'products.product.waiting_for_stock' | t }}
+            {%- endif -%}
+          </span>
+        </span>
+      </li>
+    {%- endif -%}
+  </ul>
+</div>
+
+{%- assign variants_with_inventory_tracking = product.variants | where: 'inventory_management', 'shopify' -%}
+
+<script>
+  window.FoxInventories = window.FoxInventories || {}
+  window.FoxInventories['{{ product.id }}'] = {}
+  {% for variant in variants_with_inventory_tracking %}
+    window.FoxInventories['{{ product.id }}'][{{ variant.id }}] = {
+      'quantity': {{ variant.inventory_quantity | default: 0 }},
+      'policy': '{{ variant.inventory_policy | default: false }}',
+      'incoming': '{{ variant.incoming | default: false }}',
+      'next_incoming_date': {{ variant.next_incoming_date | date: format: 'date' | json }}
+    };
+  {% endfor %}
+</script>

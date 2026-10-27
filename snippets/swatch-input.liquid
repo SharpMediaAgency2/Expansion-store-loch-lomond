@@ -1,0 +1,39 @@
+{%- liquid
+  assign swatch_value = null
+  if swatch.image
+    assign image_url = swatch.image | image_url: width: image_size
+    assign swatch_value = 'url(' | append: image_url | append: ')'
+  elsif swatch.color
+    assign swatch_value = 'rgb(' | append: swatch.color.rgb | append: ')'
+  endif
+-%}
+<div
+  class="variant-picker__option{% if visually_disabled %} variant-picker__option--soldout{% endif %}"
+  data-tippy-theme="color-{{ color_schema }}"
+  data-tippy-content="{{ value }}"
+  data-tippy-placement="top"
+>
+  <input
+    type="{{ type | default: 'radio' }}"
+    id="{{ id }}"
+    name="{{ name }}"
+    value="{{ value }}"
+    form="{{ product_form_id }}"
+    {% if visually_disabled %}
+      class="disabled"
+    {% endif %}
+    {% if checked %}
+      checked
+    {% endif %}
+    {% if additional_props %}
+      {{ additional_props }}
+    {% endif %}
+  >
+  <label
+    class="variant-picker__option-button variant-picker__option-button--{{ picker_type }}"
+    for="{{ id }}"
+    style="--swatch-background: {{ swatch_value }};{% if swatch_focal_point %} --swatch-focal-point: {{ swatch_focal_point }};{% endif %}"
+  >
+    {{- value -}}
+  </label>
+</div>

@@ -1,0 +1,78 @@
+{% liquid
+  assign group_collapsible = section.settings.group_collapsible
+  assign open_first_group = section.settings.open_first_group
+%}
+{% if collection.filters.size > 0 %}
+  <aside class="main-collection__sidebar">
+    <div class="collection-filter">
+      {%- for filter in collection.filters -%}
+        {% liquid
+          assign total_active_values = total_active_values | plus: filter.active_values.size
+          if open_first_group and forloop.first
+            assign default_state = true
+          else
+            assign default_state = section.settings.default_state
+          endif
+        %}
+        <div
+          class="collection-filter__group"
+          data-collapsible="{{ group_collapsible }}"
+          data-default-state="{{ default_state }}"
+          data-type="{{ filter.type }}"
+          data-index="{{ forloop.index }}"
+        >
+          <div class="collection-filter__group-header">
+            <h3>{{ filter.label | escape }}</h3>
+            <span class="count-bubble">
+              {%- if filter.active_values.size > 0 -%}{{ filter.active_values.size }}{%- endif -%}
+            </span>
+            {% comment %} theme-check-disable {% endcomment %}
+            {{ 'icon-arrow-down.svg' | inline_asset_content }}
+            {% comment %} theme-check-enable {% endcomment %}
+          </div>
+          {% case filter.type %}
+            {% when 'list' %}
+              <div class="facets__display">
+                <div class="facets__header">
+                  <span class="facets__selected no-js-hidden">
+                    {{- 'sections.collection_template.filters_selected' | t: count: filter.active_values.size -}}
+                  </span>
+                  <a href="{{ filter.url_to_remove }}" class="facets__reset underlined-link js-facet-remove">
+                    {{- 'products.facets.reset' | t -}}
+                  </a>
+                </div>
+
+                <ul class="facets__list list-unstyled" role="list">
+                  {%- for value in filter.values -%}
+                    <li class="list-menu__item facets__item">
+                      <label
+                        for="Filter-{{ filter.label | escape }}-{{ forloop.index }}"
+                        class="facet-checkbox{% if value.count == 0 and value.active == false %} facet-checkbox--disabled{% endif %}"
+                      >
+                        <input
+                          type="checkbox"
+                          name="{{ value.param_name }}"
+                          value="{{ value.value }}"
+                          id="Filter-{{ filter.label | escape }}-{{ forloop.index }}"
+                          {% if value.active %}
+                            checked
+                          {% endif %}
+                          {% if value.count == 0 and value.active == false %}
+                            disabled
+                          {% endif %}
+                        >
+
+                        {{ value.label | escape }} ({{ value.count }})
+                      </label>
+                    </li>
+                  {%- endfor -%}
+                </ul>
+              </div>
+            {% when 'price_range' %}
+              <div></div>
+          {% endcase %}
+        </div>
+      {% endfor %}
+    </div>
+  </aside>
+{% endif %}

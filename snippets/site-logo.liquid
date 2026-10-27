@@ -1,0 +1,270 @@
+{% liquid
+  assign logo = section.settings.logo
+  assign logo_mobile = section.settings.logo_mobile
+  assign logo_transparent = section.settings.logo_transparent
+  assign logo_on_dropdown_menu = section.settings.logo_on_dropdown_menu
+  assign logo_width = section.settings.logo_width
+  assign logo_mobile_width = section.settings.logo_mobile_width
+
+  assign class = 'site-logo'
+  unless logo_mobile == blank
+    assign class = class | append: ' with-mobile'
+  endunless
+  unless logo_transparent == blank
+    assign class = class | append: ' with-transparent'
+  endunless
+  unless logo_on_dropdown_menu == blank
+    assign class = class | append: ' with-dropdown-hover'
+  endunless
+
+  if show_toggle_menu == null
+    assign show_toggle_menu = true
+  endif
+
+  assign logo_alt = logo.alt | default: shop.name | escape
+  assign logo_height = section.settings.logo_width | divided_by: logo.aspect_ratio | round
+  assign sizes = section.settings.logo_width | append: 'px'
+
+  assign tag = 'div'
+  if h1_tag == null
+    assign h1_tag = true
+  endif
+  if request.page_type == 'index' and h1_tag
+    assign tag = 'h1'
+  endif
+
+  assign mobile_menu = section.settings.mobile_menu | default: section.settings.main_menu
+  assign menu_links = linklists[mobile_menu].links
+  assign show_social = section.settings.mobile_show_social
+
+  assign account_url = routes.account_login_url
+  assign account_text = 'layout.customer.log_in' | t
+
+  if customer
+    assign account_url = routes.account_url
+    assign account_text = 'layout.customer.account' | t
+  endif
+%}
+
+<noscript>
+  <div class="mobile-nav-toggle">
+    <details class="parent-group">
+      <summary
+        class="header__icon header__icon--menu header__icon--summary focus-inset hidden md-down:flex"
+        aria-label="Menu"
+      >
+        <span class="flex">
+          {% comment %} theme-check-disable {% endcomment %}
+          {{ 'icon-hamburger.svg' | inline_asset_content }}
+          {{ 'icon-close.svg' | inline_asset_content }}
+          {% comment %} theme-check-enable {% endcomment %}
+        </span>
+      </summary>
+      <div id="menu-drawer" class="menu-drawer" tabindex="-1">
+        <div class="menu-drawer__inner-container">
+          <div class="menu-drawer__navigation-container">
+            <nav class="menu-drawer__navigation">
+              <ul class="menu-drawer__menu has-submenu list-menu" role="list">
+                {%- for link in menu_links -%}
+                  <li>
+                    {%- if link.links != blank -%}
+                      <details id="Details-menu-drawer-menu-item-{{ forloop.index }}">
+                        <summary class="menu-drawer__menu-item list-menu__item focus-inset{% if link.child_active %} menu-drawer__menu-item--active{% endif %}">
+                          {{ link.title | escape }}
+                          <span data-collapsible-icon>
+                            <svg width="2" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <svg width="2" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </span>
+                        </summary>
+                        <div
+                          id="link-{{ link.title | escape }}"
+                          class="menu-drawer__submenu has-submenu gradient motion-reduce"
+                          tabindex="-1"
+                        >
+                          <div class="menu-drawer__inner-submenu">
+                            <button
+                              class="menu-drawer__close-button focus-inset"
+                              aria-expanded="true"
+                            >
+                              {{ link.title | escape }}
+                            </button>
+                            <ul class="menu-drawer__menu list-menu" role="list" tabindex="-1">
+                              {%- for childlink in link.links -%}
+                                <li>
+                                  {%- if childlink.links == blank -%}
+                                    <a
+                                      href="{{ childlink.url }}"
+                                      class="menu-drawer__menu-item list-menu__item focus-inset{% if childlink.current %} menu-drawer__menu-item--active{% endif %}"
+                                      {% if childlink.current %}
+                                        aria-current="page"
+                                      {% endif %}
+                                    >
+                                      {{ childlink.title | escape }}
+                                    </a>
+                                  {%- else -%}
+                                    <details id="Details-menu-drawer-submenu-{{ forloop.index }}">
+                                      <summary class="menu-drawer__menu-item list-menu__item focus-inset">
+                                        {{ childlink.title | escape }}
+                                        <span data-collapsible-icon>
+                                          <svg width="2" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                          </svg>
+                                          <svg width="2" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                          </svg>
+                                        </span>
+                                      </summary>
+                                      <div
+                                        id="childlink-{{ childlink.title | escape }}"
+                                        class="menu-drawer__submenu has-submenu gradient motion-reduce"
+                                      >
+                                        <button
+                                          class="menu-drawer__close-button focus-inset"
+                                          aria-expanded="true"
+                                        >
+                                          {{ childlink.title | escape }}
+                                        </button>
+                                        <ul class="menu-drawer__menu list-menu" role="list" tabindex="-1">
+                                          {%- for grandchildlink in childlink.links -%}
+                                            <li>
+                                              <a
+                                                href="{{ grandchildlink.url }}"
+                                                class="menu-drawer__menu-item list-menu__item focus-inset{% if grandchildlink.current %} menu-drawer__menu-item--active{% endif %}"
+                                                {% if grandchildlink.current %}
+                                                  aria-current="page"
+                                                {% endif %}
+                                              >
+                                                {{ grandchildlink.title | escape }}
+                                              </a>
+                                            </li>
+                                          {%- endfor -%}
+                                        </ul>
+                                      </div>
+                                    </details>
+                                  {%- endif -%}
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+                          </div>
+                        </div>
+                      </details>
+                    {%- else -%}
+                      <a
+                        href="{{ link.url }}"
+                        class="menu-drawer__menu-item list-menu__item focus-inset{% if link.current %} menu-drawer__menu-item--active{% endif %}"
+                        {% if link.current %}
+                          aria-current="page"
+                        {% endif %}
+                      >
+                        {{ link.title | escape }}
+                      </a>
+                    {%- endif -%}
+                  </li>
+                {%- endfor -%}
+              </ul>
+            </nav>
+            <div class="f-mobile-nav__addons">
+              {% if shop.customer_accounts_enabled %}
+                <a class="f-mobile-nav__addons-user-link btn btn--primary w-full" href="{{ account_url }}">
+                  <span>{{ account_text }}</span>
+                </a>
+              {% endif %}
+              {% if show_social %}
+                {% render 'social-links', class: 'justify-center' %}
+              {% endif %}
+            </div>
+          </div>
+        </div>
+      </div>
+    </details>
+  </div>
+</noscript>
+
+<{{ tag }} class="{{ class }}">
+  <a
+    href="{{ routes.root_url }}"
+    class="{% if logo != blank or logo_on_dropdown_menu != blank %}site-logo__img{% endif %}"
+    title="{{ shop.name }}"
+  >
+    <div class="site-logos--normal{% if logo == blank %} flex justify-center{% endif %}">
+      {% if logo != blank %}
+        {% if logo != blank %}
+          <div class="site-logo--image site-logo--default site-logo--desktop">
+            {{
+              logo
+              | image_url: width: 500
+              | image_tag:
+                widths: '50, 100, 150, 200, 250, 300, 400, 500',
+                sizes: sizes,
+                height: logo_height,
+                width: section.settings.logo_width,
+                alt: logo_alt
+            }}
+          </div>
+        {% endif %}
+        {% if logo_mobile != blank %}
+          <div class="site-logo--image site-logo--mobile hidden lg-down:block">
+            {% liquid
+              assign logo_alt = logo_mobile.alt | default: shop.name | escape
+              assign logo_height_mobile = section.settings.logo_mobile_width | divided_by: logo_mobile.aspect_ratio | round
+            %}
+            {{
+              logo_mobile
+              | image_url: width: 300
+              | image_tag:
+                widths: '50, 100, 150, 200, 250, 300',
+                sizes: sizes,
+                height: logo_height_mobile,
+                width: section.settings.logo_mobile_width,
+                alt: logo_alt
+            }}
+          </div>
+        {% endif %}
+        {% if logo_transparent != blank %}
+          <div class="site-logo--image site-logo--transparent">
+            {% liquid
+              assign logo_alt = logo_transparent.alt | default: shop.name | escape
+              assign logo_height = section.settings.logo_width | divided_by: logo_transparent.aspect_ratio | round
+            %}
+            {{
+              logo_transparent
+              | image_url: width: 500
+              | image_tag:
+                widths: '50, 100, 150, 200, 250, 300, 400, 500',
+                sizes: sizes,
+                height: logo_height,
+                width: section.settings.logo_width,
+                alt: logo_alt
+            }}
+          </div>
+        {% endif %}
+      {% else %}
+        <span class="site-logo__text h5">{{ shop.name }}</span>
+      {% endif %}
+    </div>
+    {% if logo_on_dropdown_menu != blank %}
+      <div class="site-logos--hover">
+        <div class="site-logo--image site-logo--dropdown">
+          {% liquid
+            assign logo_alt = logo_on_dropdown_menu.alt | default: shop.name | escape
+            assign logo_height = section.settings.logo_width | divided_by: logo_on_dropdown_menu.aspect_ratio | round
+          %}
+          {{
+            logo_on_dropdown_menu
+            | image_url: width: 500
+            | image_tag:
+              widths: '50, 100, 150, 200, 250, 300, 400, 500',
+              sizes: sizes,
+              height: logo_height,
+              width: section.settings.logo_width,
+              alt: logo_alt
+          }}
+        </div>
+      </div>
+    {% endif %}
+  </a>
+</{{ tag }}>

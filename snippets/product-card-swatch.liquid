@@ -1,0 +1,139 @@
+{%- liquid
+  assign swatch_trigger_list = settings.color_swatches_trigger | downcase | split: ','
+  assign color_count = 0
+-%}
+{% for option in product.options_with_values %}
+  {%- liquid
+    assign is_color = false
+    assign option_name = option.name | downcase
+    for trigger in swatch_trigger_list
+      assign swatch_trigger = trigger | strip
+      if option_name contains swatch_trigger
+        assign is_color = true
+      elsif swatch_trigger == 'color' and option_name contains 'colour'
+        assign is_color = true
+      endif
+
+      if is_color == true
+        break
+      endif
+    endfor
+  -%}
+  {%- if is_color -%}
+    {%- liquid
+      assign option_index = forloop.index0
+      assign values = ''
+      assign max_color_count = 10
+      assign rest_values = option.values.size | minus: max_color_count
+    -%}
+    <color-swatch class="product-card__swatch color-swatch no-js-hidden" tabIn>
+      {%- for variant in product.variants -%}
+        {%- assign value = variant.options[option_index] %}
+        {%- unless values contains value -%}
+          {%- liquid
+            assign values = values | join: ',' | append: ',' | append: value | split: ','
+            assign color_count = color_count | plus: 1
+            assign color_title = product.title | append: ' - ' | append: value
+
+            assign swatch = blank
+            if value.swatch != blank
+              assign swatch = value.swatch
+            endif
+
+            if settings.pcard_swatch_type == 'variant_image' and variant.image
+              assign swatch = variant
+            endif
+            if settings.pcard_swatch_type == 'custom'
+              assign swatch = blank
+            endif
+          -%}
+          {%- if color_count <= max_color_count -%}
+            {%- liquid
+              if swatch == blank
+                assign file_extension = file_extension | default: 'png'
+                assign file_name = value | handle | append: '.' | append: file_extension
+                assign swatch_fallback = value | split: ' ' | last | handle
+                assign swatch_fallback_override = false
+
+                assign value_downcase = value | downcase
+                assign swatch_config = settings.custom_colors | replace: ',', '' | newline_to_br | split: '<br />'
+                for swatch in swatch_config
+                  assign swatch_parts = swatch | strip | split: ':'
+                  assign swatch_name = swatch_parts.first | downcase | strip
+
+                  if swatch_name == value_downcase
+                    assign swatch_value = swatch_parts.last | strip
+                    if swatch_value contains '#'
+                      assign swatch_fallback = swatch_value
+                      assign swatch_fallback_override = true
+                    else
+                      assign file_name = swatch_value
+                    endif
+                    break
+                  endif
+                endfor
+
+                assign swatch_image = blank
+                if images[file_name] != blank
+                  assign swatch_image = images[file_name] | image_url: width: 72
+                  assign swatch_fallback_override = false
+                elsif file_name contains '//cdn.shopify.com/'
+                  assign swatch_image = file_name
+                endif
+              else
+                assign swatch_image = blank
+                assign swatch_fallback = value | split: ' ' | last | handle
+                assign swatch_focal_point = null
+                if swatch.image
+                  assign swatch_image = swatch.image | image_url: width: 72
+                  assign swatch_fallback_override = false
+                  assign swatch_focal_point = swatch.image.presentation.focal_point
+                elsif swatch.color
+                  assign swatch_fallback = swatch.color
+                endif
+              endif
+            -%}
+            <a
+              href="{{ product_url }}"
+              class="color-swatch__item focus-inset"
+              data-option-position="{{ option.position }}"
+              data-tippy-theme="color-{{ color_schema }}"
+              data-tippy-content="{{ value }}"
+              data-tippy-placement="top"
+              data-value="{{- value | escape -}}"
+              title="{{ color_title | escape }}"
+              style="--swatch-background: {{ swatch_fallback }};{% if swatch_fallback_override == false and swatch_image != blank %} background-image: url({{ swatch_image }});{% endif %}{% if swatch_focal_point %} --swatch-focal-point: {{ swatch_focal_point }}{% endif %}"
+            >
+              <span class="visually-hidden">{{- value -}}</span>
+            </a>
+          {%- endif -%}
+        {%- endunless -%}
+      {%- endfor -%}
+      {% if color_count > max_color_count %}
+        <a
+          class="color-swatch__item focus-inset btn btn--plain btn-rest"
+          href="{{ product_url }}"
+          tabindex="-1"
+          data-tippy-theme="color-{{ color_schema }}"
+          data-tippy-content="{{ 'products.product.view_more_options' | t }}"
+          data-tippy-placement="top"
+        >
+          <span>+{{ rest_values }}</span>
+        </a>
+      {% endif %}
+    </color-swatch>
+    <script type="application/json">
+{
+"variants": {{ product.variants | json }},
+"logo_data": {
+{%- for variant in product.variants -%}
+"{{ variant.id }}": {
+  "logo_position": {{ variant.metafields.custom.logo_position | json }},
+  "logo_size": {{ variant.metafields.custom.logo_size | json }}
+}{% unless forloop.last %},{% endunless %}
+{%- endfor -%}
+}
+}
+</script>
+  {%- endif -%}
+{% endfor %}

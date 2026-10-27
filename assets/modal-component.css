@@ -1,0 +1,119 @@
+.f-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  max-width: 100vw;
+  z-index: 999;
+  display: none;
+  justify-content: center;
+  align-items: flex-end;
+  pointer-events: none;
+  padding-top: 6.4rem;
+}
+@media (min-width: 768px) {
+  .f-modal {
+    align-items: center;
+    padding-top: 0;
+  }
+}
+.f-modal.open, .f-modal[open] {
+  display: flex;
+  animation: f-fade-in 0.45s ease;
+  pointer-events: auto;
+}
+.f-modal.open .f-modal__content, .f-modal[open] .f-modal__content {
+  display: flex;
+  animation: f-fade-in-up 0.45s ease;
+}
+.f-modal.closing, .f-modal[closing] {
+  animation: f-fade-out 0.45s ease;
+}
+.f-modal.closing .f-modal__content, .f-modal[closing] .f-modal__content {
+  animation: f-fade-out-down 0.45s ease;
+}
+.f-modal:before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: var(--color-overlay-bg, #000);
+  transition: 0.3s all;
+  opacity: calc(var(--color-overlay-alpha, 40) * 1%);
+}
+.f-modal__content {
+  width: var(--modal-width, 600px);
+  position: relative;
+  z-index: 1;
+  max-height: 90vh;
+  display: none;
+  flex-flow: column;
+  box-shadow: none;
+  outline: 0;
+}
+@media (min-width: 768px) {
+  .f-modal__content {
+    max-width: 90vw;
+  }
+}
+.f-modal__inner {
+  padding: 2.4rem;
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  border-radius: var(--card-corner-radius);
+  background: #fff;
+}
+@media (max-width: 639.98px) {
+  .f-modal__inner {
+    padding: 3rem 1.6rem;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+  }
+  .f-modal-quickview .f-modal__inner {
+    padding-top: 0;
+  }
+}
+product-modal .f-modal__inner {
+  border-radius: 0;
+}
+.f-modal__close {
+  width: 3rem;
+  height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border-radius: 50%;
+  background-color: #fff;
+  position: absolute;
+  top: 1.6rem;
+  right: 1.6rem;
+  transition: 0.22s all;
+  z-index: 1;
+}
+.f-modal__close svg {
+  width: 2rem;
+  height: 2rem;
+  transition: 0.22s transform;
+}
+.f-modal__close:hover svg {
+  transform: rotate(180deg);
+}
+.f-modal-quickview {
+  padding-top: 0;
+}
+
+modal-opener button {
+  height: 4rem;
+}
+
+@media (max-width: 767.98px) {
+  .f-modal-quickview .f-modal__content {
+    max-height: 100%;
+    height: 100%;
+  }
+}

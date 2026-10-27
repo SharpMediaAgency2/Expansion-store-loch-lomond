@@ -1,0 +1,57 @@
+{% liquid
+  assign default_placeholder = 'newsletter.placeholder' | t
+  assign design = design | default: 'design-1'
+%}
+<div
+  class="newsletter-form newsletter-form__{{ design }}"
+  {% if form_width %}
+    style="--form-width: {{ form_width }}px;"
+  {% endif %}
+>
+  {%- assign form_id = 'ContactSubscribe-' | append: custom_id -%}
+  {% form 'customer', id: form_id %}
+    <input type="hidden" name="contact[tags]" value="newsletter">
+    <label class="block{% if hide_label %} visually-hidden{% endif %}" for="{{ form_id }}-email">
+      {{- 'newsletter.label' | t -}}
+    </label>
+    <div class="flex items-center justify-center flex-wrap newsletter-form__wrapper">
+      <input
+        type="email"
+        name="contact[email]"
+        id="{{ form_id }}-email"
+        value="{% if customer.email != blank %}{{ customer.email }}{% endif %}"
+        placeholder="{{ placeholder | default: default_placeholder }}"
+        autocorrect="off"
+        autocapitalize="off"
+        autocomplete="off"
+        spellcheck="false"
+        class="form-control"
+        required
+      >
+      {%- if design == 'design-2' %}
+        <button type="submit" name="commit" aria-label="Submit" class="newsletter-form__submit btn btn--primary newsletter-submit">
+          {{ button_placeholder }}
+        </button>
+      {%- else %}
+        <button type="submit" name="commit" aria-label="Submit" class="newsletter-form__submit btn btn--primary newsletter-submit">
+          {{ button_placeholder }}
+        </button>
+      {%- endif %}
+    </div>
+    {%- if form.posted_successfully? -%}
+      <div class="form-status">
+        <div class="form-message--success" data-form-status tabindex="-1" autofocus>
+          {{ 'newsletter.success' | t }}
+        </div>
+      </div>
+    {%- endif -%}
+    {%- if form.errors -%}
+      <div class="form-status">
+        <div class="form-status__error form-message--error">
+          {{ form.errors.translated_fields.email | capitalize }}
+          {{ form.errors.messages.email }}
+        </div>
+      </div>
+    {%- endif -%}
+  {% endform %}
+</div>

@@ -1,0 +1,96 @@
+<div
+  id="{{ section.id }}"
+  class="f-section__breadcrumb f-section-padding"
+  data-section-type="breadcrumb"
+  data-section-id="{{ section.id }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  {% render 'breadcrumb', container: section.settings.brc_container, justify: section.settings.brc_text_alignment %}
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.breadcrumb.name",
+  "disabled_on": {
+    "groups": [
+      "header",
+      "footer"
+    ]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "select",
+      "id": "brc_container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.container.label"
+    },
+    {
+      "type": "select",
+      "id": "brc_text_alignment",
+      "label": "t:sections.common.text_align.label",
+      "default": "start",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.common.text_align.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.common.text_align.options__2.label"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.common.text_align.options__3.label"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 0,
+      "min": 0,
+      "max": 32,
+      "step": 1,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 0,
+      "min": 0,
+      "max": 32,
+      "step": 1,
+      "unit": "px"
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.breadcrumb.name"
+    }
+  ]
+}
+{% endschema %}

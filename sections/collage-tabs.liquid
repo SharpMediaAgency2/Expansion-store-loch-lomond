@@ -1,0 +1,607 @@
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+
+  assign tab_inline_style = '--tab-image-width: ' | append: section.settings.desktop_image_width | append: '%;'
+  if section.settings.desktop_image_width > 75
+    assign tab_inline_style = tab_inline_style | append: '--tab-content-px: 2rem;'
+    assign tab_inline_style = tab_inline_style | append: '--md-tab-content-px: 2rem;'
+  elsif section.settings.desktop_image_width > 70
+    assign tab_inline_style = tab_inline_style | append: '--tab-content-px: 4.8rem;'
+  endif
+-%}
+{{ 'collage-tabs.css' | asset_url | stylesheet_tag }}
+{{ 'tabs-component.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'tabs-component.js' | asset_url }}" defer="defer"></script>
+<div
+  id="{{ section_id }}"
+  class="f-collage-tabs f-section-padding color-{{ section.settings.color_schema }} no-js-hidden{{ custom_class }}"
+  data-section-type="collage-with-tabs"
+  data-section-id="{{ section.id }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="container">
+    {% if section.blocks.size > 0 %}
+      <motion-element
+        data-motion="{{ animation_effect }}"
+        class="block"
+      >
+        <tabs-component class="f-tabs f-collage-tabs__wrapper">
+          {%- if section.blocks.size > 1 -%}
+            <div
+              class="f-collage-tabs__header f-tabs__header flex justify-{{ section.settings.desktop_navigation_alignment }}"
+              role="tablist"
+            >
+              <div class="f-tabs__header-group">
+                {%- for block in section.blocks -%}
+                  {%- liquid
+                    if block.settings.navigation_title != blank
+                      assign tab_name = block.settings.navigation_title
+                    else
+                      assign tab_name = 'Tab ' | append: forloop.index
+                    endif
+                  -%}
+                  <button
+                    class="f-tabs__nav focus-inset h6"
+                    role="tab"
+                    id="{{- block.id -}}"
+                  >
+                    {{ tab_name }}
+                  </button>
+                {%- endfor -%}
+              </div>
+            </div>
+          {%- endif -%}
+          <div class="f-collage-tabs__blocks">
+            {%- for block in section.blocks -%}
+              {%- liquid
+                assign aspect_ratio = section.settings.image_aspect_ratio | default: '1/1'
+                if aspect_ratio == 'adapt'
+                  if block.settings.image != blank
+                    assign aspect_ratio = block.settings.image.aspect_ratio
+                  else
+                    assign aspect_ratio = '1/1'
+                  endif
+                endif
+
+                assign text_alignment = block.settings.text_alignment
+                assign mobile_text_alignment = block.settings.mobile_text_alignment | default: 'inherit'
+
+                if mobile_text_alignment == 'inherit'
+                  assign mobile_text_alignment = text_alignment
+                endif
+
+                assign motion_delay = 50
+              -%}
+              <div
+                class="f-tabs__content"
+                id="tab-{{ block.id }}"
+                data-index="{{ forloop.index0 }}"
+                role="tabpanel"
+                {% unless forloop.first %}
+                  hidden
+                {% endunless %}
+                {{ block.shopify_attributes }}
+              >
+                <motion-element
+                  data-motion="{{ animation_effect }}"
+                  class="flex flex-wrap{% if section.settings.desktop_image_position == 'right' %} flex-row-reverse{% endif %} color-{{ block.settings.content_color_schema }}"
+                  style="{{ tab_inline_style }}"
+                >
+                  <div class="f-collage-tab--image">
+                    {%- if block.settings.image != blank -%}
+                      {% render 'responsive-image',
+                        image: block.settings.image,
+                        aspect_ratio: aspect_ratio,
+                        section_index: section.index,
+                        index: forloop.index
+                      %}
+                    {%- else -%}
+                      <div
+                        class="f-image"
+                        style="--aspect-ratio: {{ aspect_ratio }};"
+                      >
+                        {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+                      </div>
+                    {%- endif -%}
+                  </div>
+                  <div class="f-collage-tab--content flex-1 flex items-center">
+                    <div class="f-collage-tab--content-inner f-text-blocks flex flex-col w-full spacing--normal text-{{ mobile_text_alignment }} md:text-{{ text_alignment }}">
+                      {%- if block.settings.subheading != blank -%}
+                        <motion-element
+                          data-motion="{{ animation_effect }}"
+                          data-motion-delay="{{ motion_delay }}"
+                          class="block f-collage-tab--subheading text-subheading"
+                        >
+                          {{ block.settings.subheading }}
+                        </motion-element>
+                        {%- assign motion_delay = motion_delay | plus: 50 -%}
+                      {%- endif -%}
+                      {%- if block.settings.heading != blank -%}
+                        <h2
+                          class="f-collage-tab--heading {{ block.settings.heading_size }}"
+                          {% if block.settings.heading_color != blank
+                            and block.settings.heading_color != 'rgba(0,0,0,0)'
+                          %}
+                            style="color: {{ block.settings.heading_color }}"
+                          {% endif %}
+                        >
+                          <motion-element
+                            data-motion="{{ animation_effect }}"
+                            data-motion-delay="{{ motion_delay }}"
+                            class="block"
+                          >
+                            {%- render 'highlight-text',
+                              hl_text: block.settings.heading,
+                              hl_style: block.settings.highlight_style,
+                              enable_hl_text_color: block.settings.enable_highlight_text_color
+                            -%}
+                          </motion-element>
+                        </h2>
+                        {%- assign motion_delay = motion_delay | plus: 50 -%}
+                      {%- endif -%}
+                      {%- if block.settings.description != blank -%}
+                        <motion-element
+                          data-motion="{{ animation_effect }}"
+                          data-motion-delay="{{ motion_delay }}"
+                          class="block f-collage-tab--description"
+                        >
+                          {{ block.settings.description }}
+                        </motion-element>
+                        {%- assign motion_delay = motion_delay | plus: 50 -%}
+                      {%- endif -%}
+                      {%- if block.settings.button_label != blank -%}
+                        <motion-element
+                          data-motion="{{ animation_effect }}"
+                          data-motion-delay="{{ motion_delay }}"
+                          class="f-collage-tab--button f-text-blocks__btn block"
+                        >
+                          <a
+                            class="btn {{ block.settings.button_style }}"
+                            {% if block.settings.button_link != blank %}
+                              href="{{ block.settings.button_link }}"
+                            {% else %}
+                              role="link"
+                              aria-disabled="true"
+                            {% endif %}
+                          >
+                            {{- block.settings.button_label -}}
+                          </a>
+                        </motion-element>
+                        {%- assign motion_delay = motion_delay | plus: 50 -%}
+                      {%- endif -%}
+                    </div>
+                  </div>
+                </motion-element>
+              </div>
+            {%- endfor -%}
+          </div>
+        </tabs-component>
+      </motion-element>
+    {%- endif -%}
+  </div>
+</div>
+{% schema %}
+{
+  "name": "t:sections.collage-tabs.name",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/dbSFJlw)"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.collage-tabs.settings.tab_settings.content"
+    },
+    {
+      "type": "select",
+      "id": "tab_heading_size",
+      "default": "h4",
+      "label": "t:sections.common.text_size.heading.label",
+      "options": [
+        {
+          "value": "h6",
+          "label": "t:sections.common.text_size.options__h6.label"
+        },
+        {
+          "value": "h5",
+          "label": "t:sections.common.text_size.options__h5.label"
+        },
+        {
+          "value": "h4",
+          "label": "t:sections.common.text_size.options__h4.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.common.text_size.options__h3.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.text_size.options__h2.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.common.text_size.options__h1.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.common.text_size.options__h0.label"
+        },
+        {
+          "value": "h-xl",
+          "label": "t:sections.common.text_size.options__hd1.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "desktop_navigation_alignment",
+      "label": "t:sections.collage-tabs.settings.desktop_navigation_alignment.label",
+      "default": "center",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.collage-tabs.settings.desktop_navigation_alignment.options.option__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.collage-tabs.settings.desktop_navigation_alignment.options.option__2.label"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.collage-tabs.settings.desktop_navigation_alignment.options.option__3.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "desktop_image_position",
+      "label": "t:sections.collage-tabs.settings.desktop_image_position.label",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.collage-tabs.settings.desktop_image_position.options.option__1.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.collage-tabs.settings.desktop_image_position.options.option__2.label"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "desktop_image_width",
+      "label": "t:sections.collage-tabs.settings.desktop_image_width.label",
+      "default": 50,
+      "min": 0,
+      "max": 80,
+      "step": 1,
+      "unit": "%"
+    },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "t:settings_schema.global.settings.image_aspect_ratio_options.label",
+      "default": "adapt",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__1.label"
+        },
+        {
+          "value": "1/1",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__2.label"
+        },
+        {
+          "value": "3/4",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__3.label"
+        },
+        {
+          "value": "4/3",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__5.label"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "tab",
+      "name": "t:sections.collage-tabs.blocks.tab.name",
+      "settings": [
+        {
+          "type": "color_scheme",
+          "id": "content_color_schema",
+          "label": "t:sections.common.color_schema.label",
+          "default": "background-2"
+        },
+        {
+          "type": "text",
+          "label": "t:sections.collage-tabs.blocks.tab.settings.navigation_title.label",
+          "id": "navigation_title"
+        },
+        {
+          "type": "image_picker",
+          "label": "t:sections.collage-tabs.blocks.tab.settings.image.label",
+          "id": "image"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "label": "t:sections.common.header.heading",
+          "info": "t:sections.common.highlight_text.paragraph.content",
+          "default": "Collage tabs heading"
+        },
+        {
+          "type": "select",
+          "id": "highlight_style",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+            },
+            {
+              "value": "drawer_line",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+            },
+            {
+              "value": "underline",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_highlight_text_color",
+          "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "default": "h2",
+          "label": "t:sections.common.text_size.heading.label",
+          "options": [
+            {
+              "value": "h3",
+              "label": "t:sections.common.text_size.options__h3.label"
+            },
+            {
+              "value": "h2",
+              "label": "t:sections.common.text_size.options__h2.label"
+            },
+            {
+              "value": "h1",
+              "label": "t:sections.common.text_size.options__h1.label"
+            },
+            {
+              "value": "h0",
+              "label": "t:sections.common.text_size.options__h0.label"
+            },
+            {
+              "value": "h-xl",
+              "label": "t:sections.common.text_size.options__hd1.label"
+            }
+          ]
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "t:sections.common.heading_color.label",
+          "info": "t:sections.common.heading_color.info"
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "t:sections.common.header.subheading"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "t:sections.common.header.description",
+          "default": "<p>Tell your brand's story through images</p>"
+        },
+        {
+          "type": "select",
+          "id": "text_alignment",
+          "label": "t:sections.common.text_align.label",
+          "default": "center",
+          "options": [
+            {
+              "value": "left",
+              "label": "t:sections.common.text_align.options__1.label"
+            },
+            {
+              "value": "center",
+              "label": "t:sections.common.text_align.options__2.label"
+            },
+            {
+              "value": "right",
+              "label": "t:sections.common.text_align.options__3.label"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "t:sections.common.button.header.content"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:sections.common.button.button_label.label",
+          "info": "t:sections.common.button.button_label.info",
+          "default": "Button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "t:sections.common.button.button_url.label"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "t:sections.common.button.button_style.label",
+          "options": [
+            {
+              "value": "btn--primary",
+              "label": "t:sections.common.button.button_style.options.option__1"
+            },
+            {
+              "value": "btn--secondary",
+              "label": "t:sections.common.button.button_style.options.option__2"
+            }
+          ],
+          "default": "btn--primary"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.common.mobile.header__1"
+        },
+        {
+          "type": "select",
+          "id": "mobile_text_alignment",
+          "label": "t:sections.common.text_align.label",
+          "default": "inherit",
+          "options": [
+            {
+              "value": "inherit",
+              "label": "t:sections.common.text_align.options__4.label"
+            },
+            {
+              "value": "left",
+              "label": "t:sections.common.text_align.options__1.label"
+            },
+            {
+              "value": "center",
+              "label": "t:sections.common.text_align.options__2.label"
+            },
+            {
+              "value": "right",
+              "label": "t:sections.common.text_align.options__3.label"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.collage-tabs.presets.name",
+      "blocks": [
+        {
+          "type": "tab",
+          "settings": {
+            "navigation_title": "Tab 1",
+            "heading": "Collage tab heading",
+            "description": "<p>Fill in the text content of the tab item here. You can provide details information tab item here.</p>",
+            "button_label": "Button text",
+            "button_link": "#"
+          }
+        },
+        {
+          "type": "tab",
+          "settings": {
+            "navigation_title": "Tab 2",
+            "heading": "Collage tab heading",
+            "description": "<p>Fill in the text content of the tab item here. You can provide details information tab item here.</p>",
+            "button_label": "Button text",
+            "button_link": "#"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

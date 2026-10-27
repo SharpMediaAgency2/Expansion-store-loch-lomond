@@ -1,0 +1,25 @@
+{%- liquid
+  if image_ratio == blank or image_ratio == 'adapt'
+    assign image_ratio = '1/1'
+  endif
+-%}
+<div class="product-card grid-list__column{{ custom_class }}">
+  <div class="product-card__wrapper">
+    <div class="product-card__image-wrapper f-card">
+      <div class="f-image" style="--aspect-ratio: {{ image_ratio }};">
+        {%- capture current -%}{% cycle 1, 2, 3, 4, 5, 6 %}{%- endcapture -%}
+        {{
+          'product-'
+          | append: current
+          | placeholder_svg_tag: 'placeholder-svg'
+        }}
+      </div>
+    </div>
+    <div class="product-card__info">
+      <h3 class="product-card__title h6">
+        {{ 'onboarding.product_title' | t }}
+      </h3>
+      {% render 'price' %}
+    </div>
+  </div>
+</div>

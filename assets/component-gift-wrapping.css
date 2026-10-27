@@ -1,0 +1,44 @@
+.f-gift-wrapping {
+  display: block;
+  position: relative;
+}
+.f-gift-wrapping--text {
+  display: inline-block;
+  padding-left: 2.5rem;
+}
+.f-gift-wrapping--label {
+  position: relative;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  line-height: normal;
+  padding-bottom: 1.2rem;
+  margin-top: 0.5rem;
+}
+.f-gift-wrapping--icon {
+  width: 1.8rem;
+  height: 1.8rem;
+  position: absolute;
+  left: 0;
+}
+.f-gift-wrapping--icon path:last-child {
+  opacity: 0;
+}
+.f-gift-wrapping--loading {
+  display: none;
+  position: absolute;
+  left: 0;
+  top: 2px;
+  background: #fff;
+  z-index: 1;
+}
+.f-gift-wrapping--loading svg {
+  width: 1.8rem;
+  height: 1.8rem;
+}
+.f-gift-wrapping--loading.show {
+  display: inline-flex;
+}
+.f-gift-wrapping > input:checked ~ .f-gift-wrapping--label .f-gift-wrapping--icon path:last-child {
+  opacity: 1;
+}

@@ -1,0 +1,639 @@
+{% comment %}
+  Section: Three Column Image Cards
+  ---------------------------------
+  Up to 3 cards, each with image, heading, subtext, button (label + URL + SVG icon).
+
+  Per-block:
+    • Content position — 9-way (top/center/bottom × left/center/right)
+    • Secondary style — toggles a frosted container around the content
+    • Button SVG — raw SVG markup, editable
+    • Show gradient — bottom-to-top gradient overlay (default: off)
+
+  Section-level:
+    • Content inset (padding from card edges)
+    • Vertical padding (top/bottom)
+{% endcomment %}
+
+{%- liquid
+  assign sid = section.id
+  assign inset = section.settings.content_inset
+-%}
+
+{%- style -%}
+  #shopify-section-{{ sid }} {
+    --section-pt: {{ section.settings.padding_top }}px;
+    --section-pb: {{ section.settings.padding_bottom }}px;
+    --card-inset: {{ inset }}px;
+    --card-inset-mobile: {{ inset | divided_by: 1.5 | round }}px;
+  }
+
+  .three-cards-{{ sid }} {
+    padding-top: var(--section-pt);
+    padding-bottom: var(--section-pb);
+  }
+
+  /* ── Section header ── */
+  .three-cards-{{ sid }} .three-cards__header {
+    max-width: 1400px;
+    margin: 0 auto 24px;
+    padding: 0 clamp(16px, 4vw, 60px);
+  }
+  .three-cards-{{ sid }} .three-cards__header--left   { text-align: left; }
+  .three-cards-{{ sid }} .three-cards__header--center { text-align: center; }
+  .three-cards-{{ sid }} .three-cards__header--right  { text-align: right; }
+
+  .three-cards-{{ sid }} .three-cards__section-heading {
+    font-family: 'Noto Serif', serif;
+    font-weight: 400;
+    font-size: clamp(1.75rem, 2.2vw + 0.5rem, 2.5rem);
+    line-height: 1.2;
+    color: #0A0A0A;
+    margin: 0;
+    letter-spacing: -0.01em;
+  }
+
+  .three-cards-{{ sid }} .three-cards__section-subheading {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 300;
+    font-size: clamp(0.9375rem, 0.3vw + 0.85rem, 1.0625rem);
+    line-height: 1.55;
+    color: #4A5565;
+    margin: 8px 0 0 0;
+    max-width: 60ch;
+  }
+  .three-cards-{{ sid }} .three-cards__header--center .three-cards__section-subheading { margin-inline: auto; }
+  .three-cards-{{ sid }} .three-cards__header--right  .three-cards__section-subheading { margin-left: auto; }
+
+  .three-cards-{{ sid }} .three-cards__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 0 clamp(16px, 4vw, 60px);
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .three-cards-{{ sid }} .three-cards__card {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .three-cards-{{ sid }} .three-cards__image-wrap {
+    position: relative;
+    width: 100%;
+    padding-bottom: 120%;
+  }
+
+  .three-cards-{{ sid }} .three-cards__image-wrap img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  .three-cards-{{ sid }} .three-cards__image-placeholder {
+    position: absolute;
+    inset: 0;
+    background: #c8c8c8;
+  }
+
+  /* Gradient overlay — bottom to top, only when enabled per block */
+  .three-cards-{{ sid }} .three-cards__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to top,
+      rgba(0,0,0,0.85) 0%,
+      rgba(0,0,0,0.0) 80%
+    );
+    pointer-events: none;
+  }
+
+  .three-cards-{{ sid }} .three-cards__content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    padding: var(--card-inset);
+  }
+
+  /* Horizontal */
+  .three-cards-{{ sid }} .three-cards__content[data-pos$="-left"]   { justify-content: flex-start; }
+  .three-cards-{{ sid }} .three-cards__content[data-pos$="-center"] { justify-content: center; }
+  .three-cards-{{ sid }} .three-cards__content[data-pos$="-right"]  { justify-content: flex-end; }
+
+  /* Vertical */
+  .three-cards-{{ sid }} .three-cards__content[data-pos^="top-"]    { align-items: flex-start; }
+  .three-cards-{{ sid }} .three-cards__content[data-pos^="center-"] { align-items: center; }
+  .three-cards-{{ sid }} .three-cards__content[data-pos^="bottom-"] { align-items: flex-end; }
+
+  .three-cards-{{ sid }} .three-cards__content-inner {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 100%;
+  }
+
+  .three-cards-{{ sid }} .three-cards__content[data-pos$="-left"]   .three-cards__content-inner { text-align: left;   align-items: flex-start; }
+  .three-cards-{{ sid }} .three-cards__content[data-pos$="-center"] .three-cards__content-inner { text-align: center; align-items: center; }
+  .three-cards-{{ sid }} .three-cards__content[data-pos$="-right"]  .three-cards__content-inner { text-align: right;  align-items: flex-end; }
+
+  /* Secondary (frosted) style */
+  .three-cards-{{ sid }} .three-cards__card--secondary .three-cards__content-inner {
+    background: rgba(255, 255, 255, 0.30);
+    backdrop-filter: blur(2px);
+    -webkit-backdrop-filter: blur(2px);
+    border-radius: 10px;
+    padding: 38px 24px;
+    width: calc(100% - 0px);
+  }
+
+  .three-cards-{{ sid }} .three-cards__heading {
+    font-family: 'Noto Serif', serif;
+    font-weight: 400;
+    font-size: 30px;
+    line-height: 36px;
+    color: #ffffff;
+    margin: 0;
+  }
+
+  .three-cards-{{ sid }} .three-cards__subtext {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -0.15px;
+    color: #ffffff;
+    margin: 0;
+  }
+
+  .three-cards-{{ sid }} .three-cards__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -0.15px;
+    color: #ffffff;
+    text-decoration: none;
+    font-weight:500;
+    padding-bottom: 1px;
+    margin-top: 6px;
+    transition: border-color 0.2s, opacity 0.2s;
+    pointer-events: auto;
+  }
+
+  .three-cards-{{ sid }} .three-cards__btn:hover {
+    border-color: #ffffff;
+    opacity: 0.85;
+  }
+
+  .three-cards-{{ sid }} .three-cards__btn svg {
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+
+  .three-cards-{{ sid }} .three-cards__card:hover .three-cards__btn svg {
+    transform: translateX(3px);
+  }
+
+  @media screen and (max-width: 767px) {
+    .three-cards-{{ sid }} .three-cards__grid {
+      display: flex;
+      grid-template-columns: none;
+      gap: 12px;
+      padding: 0 16px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      scroll-padding: 0 16px;
+      scrollbar-width: none;
+      -ms-overflow-style: none;
+      -webkit-overflow-scrolling: touch;
+    }
+    .three-cards-{{ sid }} .three-cards__grid::-webkit-scrollbar {
+      display: none;
+    }
+
+    .three-cards-{{ sid }} .three-cards__card {
+      flex: 0 0 100%;
+      scroll-snap-align: center;
+      scroll-snap-stop: always;
+    }
+
+    .three-cards-{{ sid }} .three-cards__heading {
+      font-size: 26px;
+      line-height: 32px;
+    }
+    .three-cards-{{ sid }} .three-cards__image-wrap {
+      padding-bottom: 130%;
+    }
+    .three-cards-{{ sid }} .three-cards__content {
+      padding: var(--card-inset-mobile);
+    }
+
+    .three-cards-{{ sid }} .three-cards__dots {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 16px;
+      margin-top: 24px;
+      padding: 0 16px;
+    }
+    .three-cards-{{ sid }} .three-cards__dot {
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      background: #D1D5DB;
+      border: 0;
+      padding: 0;
+      cursor: pointer;
+      transition: background 0.2s, transform 0.2s;
+    }
+    .three-cards-{{ sid }} .three-cards__dot.is-active {
+      background: #0A0A0A;
+      transform: scale(1.5);
+    }
+  }
+
+  @media screen and (min-width: 768px) {
+    .three-cards-{{ sid }} .three-cards__dots {
+      display: none;
+    }
+  }
+
+  @media screen and (min-width: 768px) and (max-width: 989px) {
+    .three-cards-{{ sid }} .three-cards__grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="three-cards-{{ sid }} color-{{ section.settings.color_scheme }}">
+  {%- liquid
+    assign s_heading    = section.settings.heading
+    assign s_subheading = section.settings.subheading
+    assign s_h_tag      = section.settings.heading_tag | default: 'h2'
+    assign s_align      = section.settings.heading_align | default: 'left'
+  -%}
+  {%- if s_heading != blank or s_subheading != blank -%}
+    <div class="three-cards__header three-cards__header--{{ s_align }}">
+      {%- if s_heading != blank -%}
+        <{{ s_h_tag }} class="three-cards__section-heading">{{ s_heading }}</{{ s_h_tag }}>
+      {%- endif -%}
+      {%- if s_subheading != blank -%}
+        <p class="three-cards__section-subheading">{{ s_subheading | escape }}</p>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  <div class="three-cards__grid">
+    {%- for block in section.blocks -%}
+      {%- liquid
+        assign btn_label    = block.settings.button_label | default: 'Shop Now'
+        assign btn_url      = block.settings.button_url   | default: '#'
+        assign position     = block.settings.content_position | default: 'center-center'
+        assign btn_svg      = block.settings.button_svg
+        assign show_gradient = block.settings.show_gradient
+      -%}
+      <a
+        href="{{ btn_url }}"
+        class="three-cards__card{% if block.settings.secondary_style %} three-cards__card--secondary{% endif %}"
+        {{ block.shopify_attributes }}
+        aria-label="{{ block.settings.heading | escape }}"
+      >
+        <div class="three-cards__image-wrap">
+          {%- if block.settings.image != blank -%}
+            {{
+              block.settings.image
+              | image_url: width: 900
+              | image_tag:
+                loading: 'lazy',
+                widths: '400, 600, 900',
+                sizes: '(max-width: 749px) 100vw, 33vw',
+                alt: block.settings.heading | escape
+            }}
+          {%- else -%}
+            <div class="three-cards__image-placeholder">
+              {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            </div>
+          {%- endif -%}
+
+          {%- if show_gradient -%}
+            <div class="three-cards__overlay"></div>
+          {%- endif -%}
+
+          <div class="three-cards__content" data-pos="{{ position }}">
+            <div class="three-cards__content-inner">
+              {%- if block.settings.heading != blank -%}
+                <h3 class="three-cards__heading">{{ block.settings.heading }}</h3>
+              {%- endif -%}
+
+              {%- if block.settings.subtext != blank -%}
+                <p class="three-cards__subtext">{{ block.settings.subtext }}</p>
+              {%- endif -%}
+
+              {%- if btn_label != blank -%}
+                <span class="three-cards__btn">
+                  {{ btn_label }}
+                  {%- if btn_svg != blank -%}
+                    {{ btn_svg }}
+                  {%- else -%}
+                    <svg xmlns="http://www.w3.org/2000/svg" width="6" height="10" viewBox="0 0 6 10" fill="none">
+                      <path d="M0.666748 8.66669L4.66675 4.66669L0.666748 0.666687" stroke="white" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  {%- endif -%}
+                </span>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      </a>
+    {%- endfor -%}
+  </div>
+
+  {%- if section.blocks.size > 1 -%}
+    <div class="three-cards__dots" id="three-cards-dots-{{ sid }}" role="tablist" aria-label="Card carousel pagination">
+      {%- for block in section.blocks -%}
+        <button
+          type="button"
+          class="three-cards__dot{% if forloop.first %} is-active{% endif %}"
+          data-index="{{ forloop.index0 }}"
+          aria-label="Go to slide {{ forloop.index }}"
+        ></button>
+      {%- endfor -%}
+    </div>
+  {%- endif -%}
+</div>
+
+<script>
+(function () {
+  var sid  = '{{ sid }}';
+  var root = document.querySelector('.three-cards-' + sid);
+  if (!root) return;
+
+  var grid = root.querySelector('.three-cards__grid');
+  var dots = root.querySelectorAll('.three-cards__dot');
+  if (!grid || dots.length < 2) return;
+
+  function isMobile() {
+    return window.matchMedia('(max-width: 767px)').matches;
+  }
+
+  var raf;
+  function updateActiveDot() {
+    if (!isMobile()) return;
+    if (raf) cancelAnimationFrame(raf);
+    raf = requestAnimationFrame(function () {
+      var cards = grid.querySelectorAll('.three-cards__card');
+      if (!cards.length) return;
+      var scrollCenter = grid.scrollLeft + grid.clientWidth / 2;
+      var closestIdx = 0;
+      var closestDist = Infinity;
+      cards.forEach(function (card, i) {
+        var cardCenter = card.offsetLeft + card.clientWidth / 2;
+        var dist = Math.abs(scrollCenter - cardCenter);
+        if (dist < closestDist) {
+          closestDist = dist;
+          closestIdx = i;
+        }
+      });
+      dots.forEach(function (d, i) {
+        d.classList.toggle('is-active', i === closestIdx);
+      });
+    });
+  }
+
+  dots.forEach(function (dot) {
+    dot.addEventListener('click', function () {
+      if (!isMobile()) return;
+      var idx = parseInt(dot.getAttribute('data-index'), 10);
+      var card = grid.querySelectorAll('.three-cards__card')[idx];
+      if (card) {
+        grid.scrollTo({
+          left: card.offsetLeft - grid.offsetLeft,
+          behavior: 'smooth'
+        });
+      }
+    });
+  });
+
+  grid.addEventListener('scroll', updateActiveDot, { passive: true });
+  window.addEventListener('resize', updateActiveDot);
+  updateActiveDot();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Image Cards (3-Col)",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "header",
+      "content": "Section heading"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "More Collections"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "Heading HTML tag",
+      "default": "h2",
+      "options": [
+        { "value": "h1", "label": "h1" },
+        { "value": "h2", "label": "h2" },
+        { "value": "h3", "label": "h3" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "heading_align",
+      "label": "Heading alignment",
+      "default": "left",
+      "options": [
+        { "value": "left",   "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right",  "label": "Right" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "range",
+      "id": "content_inset",
+      "label": "Content inset",
+      "min": 16,
+      "max": 64,
+      "step": 4,
+      "unit": "px",
+      "default": 24,
+      "info": "Padding between the card edge and the content."
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "New Arrivals"
+        },
+        {
+          "type": "text",
+          "id": "subtext",
+          "label": "Subtext",
+          "default": "Fresh styles for the season"
+        },
+        {
+          "type": "header",
+          "content": "Button"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "Button URL"
+        },
+        {
+          "type": "textarea",
+          "id": "button_svg",
+          "label": "Button icon (SVG)",
+          "info": "Paste raw SVG markup. Leave blank to use the default right arrow."
+        },
+        {
+          "type": "header",
+          "content": "Layout"
+        },
+        {
+          "type": "select",
+          "id": "content_position",
+          "label": "Content position",
+          "default": "center-center",
+          "options": [
+            { "value": "top-left",      "label": "Top left" },
+            { "value": "top-center",    "label": "Top center" },
+            { "value": "top-right",     "label": "Top right" },
+            { "value": "center-left",   "label": "Middle left" },
+            { "value": "center-center", "label": "Middle center" },
+            { "value": "center-right",  "label": "Middle right" },
+            { "value": "bottom-left",   "label": "Bottom left" },
+            { "value": "bottom-center", "label": "Bottom center" },
+            { "value": "bottom-right",  "label": "Bottom right" }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "secondary_style",
+          "label": "Secondary style",
+          "info": "Adds a frosted background container behind the text.",
+          "default": false
+        },
+        {
+          "type": "checkbox",
+          "id": "show_gradient",
+          "label": "Show gradient overlay",
+          "info": "Adds a bottom-to-top gradient behind the text.",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image Cards (3-Col)",
+      "blocks": [
+        {
+          "type": "card",
+          "settings": {
+            "heading": "New Arrivals",
+            "subtext": "Fresh styles for the season",
+            "button_label": "Shop Now"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "heading": "Best Sellers",
+            "subtext": "Fan favorites & must-haves",
+            "button_label": "Shop Now"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "heading": "F&D Favorites",
+            "subtext": "Curated selections",
+            "button_label": "Shop Now",
+            "secondary_style": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

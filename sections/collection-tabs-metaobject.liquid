@@ -1,0 +1,98 @@
+{{ 'collection-tabs.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'collapsible-tab.js' | asset_url }}" defer="defer"></script>
+{% comment %}Make sure collapsible tab load before collection tabs{% endcomment %}
+<script src="{{ 'collection-tabs.js' | asset_url }}" defer="defer"></script>
+{%- liquid
+  assign image_width = 'w-full md:w-1/2 lg:w-1/2'
+
+  assign image_aspect_ratio = '1/1'
+
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = 'fade-in'
+  endif
+
+  if metaobject.collection_tabs_title.value != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+  if metaobject.collection_tabs_description != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+-%}
+<div
+  id="collection-tabs-golfclub"
+  class="f-collection-tabs f-collection-tabs--image-right f-section-padding color-scheme-f7766e94-ae1a-4012-8b15-ecf91dfd3a5b"
+  style="--section-padding-top: 64px; --section-padding-bottom: 64px;"
+>
+  <div class="container">
+    {% render 'index-section-header-metaobject',
+      animation_effect: animation_effect,
+      metaobject: metaobject,
+      header_alignment: 'left',
+      header_alignment_mobile: 'left',
+      custom_css_class: 'md:hidden'
+    %}
+    <collection-tabs
+      class="flex items-center flex-wrap m-0 flex-row-reverse"
+      data-autoplay="true"
+      data-autoplay-duration="{{ 4 | default: 5 }}"
+      data-trigger-behavior="{{ 'hover' | default: 'hover' }}"
+    >
+      <motion-element
+        data-motion="{{ animation_effect }}"
+        class="block f-collection-tab__images {{ image_width }}"
+        style="--aspect-ratio: {{ image_aspect_ratio }}"
+      >
+        {%- for collection in metaobject.collection_list.value %}
+          {%- liquid
+
+            assign current_collection = collections[collection.collection_in_tab]
+            assign tab_image = blank
+            if collection.image_collection_in_tab != blank
+              assign tab_image = collection.image_collection_in_tab | image_url: 'master'
+            endif
+          -%}
+          <div
+            class="f-collection-tab__image f-card block{% if forloop.first %} is-active{% endif %}"
+            data-block-id="{{ current_collection.id }}"
+          >
+            {%- if tab_image != blank -%}
+              {% render 'responsive-image-metaobject',
+                image: tab_image,
+                aspect_ratio: image_aspect_ratio,
+                section_index: section.index,
+                index: forloop.index
+              %}
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </motion-element>
+      
+      <div class="f-collection-tab__content flex-1">
+        {% render 'index-section-header-metaobject',
+          animation_effect: animation_effect,
+          metaobject: metaobject,
+          header_alignment: 'left',
+          header_alignment_mobile: 'left',
+          custom_css_class: 'md-down:hidden'
+        %}
+
+        <div class="f-collection-tab__content-wrap" data-collapsible-parent>
+          {%- for collection in metaobject.collection_list.value %}
+            {% render 'collection-tab-metaobject',
+              collection: collection,
+              content: collection.description_collection_in_tab,
+              open: forloop.first,
+              attrs: collection.shopify_attributes,
+              index: forloop.index,
+              motion_delay: motion_delay,
+              animation_effect: animation_effect
+            %}
+            {%- assign motion_delay = motion_delay | plus: 50 -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </collection-tabs>
+  </div>
+</div>

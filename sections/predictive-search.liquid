@@ -1,0 +1,206 @@
+{%- if predictive_search.performed -%}
+  {% liquid
+    assign product_title_class = 'text-product-title font-' | append: settings.pcard_title_font
+  %}
+  <div id="f-predictive-search-results" class="f-predictive-search-results">
+    {%- if predictive_search.resources.articles.size > 0 or predictive_search.resources.pages.size > 0 -%}
+      <div class="f-predictive-search__result-group">
+       
+        <ul
+          id="f-predictive-search-results-list"
+          class="f-predictive-search__results-list list-none list-inline"
+          role="listbox"
+          aria-labelledby="f-predictive-search-products"
+        >
+          {%- for page in predictive_search.resources.pages -%}
+            {%if forloop.index == 1 %}
+               <h2 id="f-predictive-search-page" class="f-predictive-search__heading font-body-bolder">
+          Clubs
+          {% comment %} theme-check-disable {% endcomment %}
+          {{ 'icon-spinner.svg' | inline_asset_content }}
+          {% comment %} theme-check-enable {% endcomment %}
+        </h2>
+        {%endif %}
+             {% assign logo = page.metafields.custom.selected_course.value %}
+              {% assign logo_url = logo.display_logo | image_url:width:190 %}
+              {% if logo_url.size > 1 %}
+            <li
+              id="f-predictive-search-option-page-{{ forloop.index }}"
+              class="f-predictive-search__list-item"
+              role="option"
+              aria-selected="false"
+            >
+              
+              <a href="{{ page.url }}" class="f-predictive-search__item f-predictive-search__item--link" tabindex="-1">
+                {{ logo.display_logo | image_url: width: 190 | image_tag: class: 'predictive-club-logo' }}
+                <p class="f-predictive-search__item-heading">{{ page.title }}</p>
+              </a>
+            </li>
+          {% endif %}
+          {%  assign logo_url = '' %}
+          {%- endfor -%}
+          {%- for article in predictive_search.resources.articles -%}
+            <li
+              id="f-predictive-search-option-article-{{ forloop.index }}"
+              class="f-predictive-search__list-item"
+              role="option"
+              aria-selected="false"
+            >
+              <a
+                href="{{ article.url }}"
+                class="f-predictive-search__item f-predictive-search__item--link"
+                tabindex="-1"
+              >
+                <p class="f-predictive-search__item-heading">{{ article.title }}</p>
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+    {%- if predictive_search.resources.queries.size > 0 or predictive_search.resources.collections.size > 0 -%}
+      <div class="f-predictive-search__result-group f-predictive-search__result-seggestions">
+        <h2 id="f-predictive-search-queries" class="f-predictive-search__heading font-body-bolder">
+          {{ 'templates.search.suggestions' | t }}
+          {% comment %} theme-check-disable {% endcomment %}
+          {{ 'icon-spinner.svg' | inline_asset_content }}
+          {% comment %} theme-check-enable {% endcomment %}
+        </h2>
+        <ul
+          id="f-predictive-search-results-list"
+          class="f-predictive-search__results-list list-none list-inline"
+          role="listbox"
+          aria-labelledby="f-predictive-search-products"
+        >
+          {%- for query in predictive_search.resources.queries -%}
+            <li
+              id="f-predictive-search-option-query-{{ forloop.index }}"
+              class="predictive-search__list-item"
+              role="option"
+              aria-selected="false"
+            >
+              <a href="{{ query.url }}" class="f-predictive-search__item f-predictive-search__item--link" tabindex="-1">
+                <p
+                  class="f-predictive-search__item-heading f-predictive-search__item-query-result"
+                  aria-label="{{ query.text }}"
+                >
+                  {{ query.styled_text }}
+                </p>
+              </a>
+            </li>
+          {%- endfor -%}
+          {%- for collection in predictive_search.resources.collections -%}
+            <li
+              id="f-predictive-search-option-collection-{{ forloop.index }}"
+              class="predictive-search__list-item"
+              role="option"
+              aria-selected="false"
+            >
+              <a
+                href="{{ collection.url }}"
+                class="f-predictive-search__item f-predictive-search__item--link"
+                tabindex="-1"
+              >
+                <p class="f-predictive-search__item-heading">{{ collection.title }}</p>
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {%- endif -%}
+    
+    {%- if predictive_search.resources.products.size > 0 -%}
+      <div class="f-predictive-search__result-group f-predictive-search__result-products f-predictive-search__block-products">
+        <h2 id="f-predictive-search-products" class="f-predictive-search__heading font-body-bolder">
+          {{ 'templates.search.products' | t }}
+          {% comment %} theme-check-disable {% endcomment %}
+          {{ 'icon-spinner.svg' | inline_asset_content }}
+          {% comment %} theme-check-enable {% endcomment %}
+        </h2>
+        <ul
+          id="f-predictive-search-results-list"
+          class="f-predictive-search__results-list list-none"
+          role="listbox"
+          aria-labelledby="predictive-search-products"
+        >
+          {%- for product in predictive_search.resources.products -%}
+            <li id="f-predictive-search-option-{{ forloop.index }}" role="option" aria-selected="false">
+              <a
+                href="{{ product.url }}"
+                class="f-predictive-search__item f-image-hover-effect__{{settings.image_hover_effect}}"
+                tabindex="-1"
+              >
+                {%- if product.featured_media != blank -%}
+                  <div
+                    class="f-predictive-search__item-image f-image"
+                    style="--aspect-ratio: {{ product.featured_media.preview_image.aspect_ratio | default: '1' }}"
+                  >
+                    <img
+                      src="{{ product.featured_media | image_url: width: 150 }}"
+                      alt="{{ product.featured_media.alt }}"
+                      width="70"
+                      height="{{ 70 | divided_by: product.featured_media.preview_image.aspect_ratio }}"
+                      loading="lazy"
+                    >
+                  </div>
+                {%- endif -%}
+                <div class="f-predictive-search__item-content">
+                  {%- if settings.predictive_search_show_vendor -%}
+                    <span class="visually-hidden">{{ 'accessibility.vendor' | t }}</span>
+                    <div class="f-predictive-search__item-vendor text-subtext">{{ product.vendor }}</div>
+                  {%- endif -%}
+                  <h3 class="f-predictive-search__item-heading {{ product_title_class }}">{{ product.title }}</h3>
+                  {%- if settings.predictive_search_show_price -%}
+                    {% render 'price', product: product, use_variant: true %}
+                  {%- endif -%}
+                </div>
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+      </div>
+    {% endif %}
+    
+    <div class="f-predictive-search__loading-state" aria-hidden="true">
+      {% comment %} theme-check-disable {% endcomment %}
+      {{ 'icon-spinner.svg' | inline_asset_content }}
+      {% comment %} theme-check-enable {% endcomment %}
+    </div>
+  </div>
+
+  <div id="f-predictive-search-option-search-keywords" class="f-predictive-search__list-item" role="option">
+    <button
+      class="f-predictive-search__item f-predictive-search__item--term btn btn--plain btn--with-icon text-normal font-body-bolder"
+      tabindex="-1"
+    >
+      <span data-predictive-search-search-for-text>
+        {{- 'templates.search.search_for' | t: terms: predictive_search.terms -}}
+      </span>
+      <svg
+        stroke="currentColor"
+        stroke-width="1.5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        viewBox="0 0 18 18"
+        fill="none"
+        aria-hidden="true"
+        focusable="false"
+        role="presentation"
+        xmlns="http://www.w3.org/2000/svg"
+      >
+        <path d="M2.8125 9H15.1875"/><path d="M10.125 3.9375L15.1875 9L10.125 14.0625"/>
+      </svg>
+    </button>
+  </div>
+
+  <span class="f-hidden" data-predictive-search-live-region-count-value>
+    {%- if search.results_count == 0 -%}
+      {{ 'templates.search.no_results' | t: terms: predictive_search.terms }}
+    {%- else -%}
+      {{
+        'templates.search.results_with_count'
+        | t: terms: predictive_search.terms, count: predictive_search.resources.products.size
+      }}
+    {%- endif -%}
+  </span>
+{%- endif -%}

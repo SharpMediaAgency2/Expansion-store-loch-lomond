@@ -1,0 +1,789 @@
+{%- liquid
+  assign sort_by = results.sort_by | default: results.default_sort_by
+  if results.url
+    assign results_url = results.url
+  else
+    assign terms = results.terms | escape
+    assign results_url = '?q=' | append: terms | append: '&options%5Bprefix%5D=last&sort_by=' | append: sort_by
+  endif
+
+  assign group_collapsible = section.settings.group_collapsible
+  assign open_first_group = section.settings.open_first_group
+  assign default_state_collapsible = section.settings.default_state_collapsible
+  assign show_results_count = section.settings.show_results_count
+  assign filter_color_type = section.settings.filter_color_type
+  assign show_more_text = 'products.facets.show_more' | t
+  assign show_less_text = 'products.facets.show_less' | t
+  if show_more_text contains 'translation missing'
+    assign show_more_text = 'Show more'
+  endif
+  if show_less_text contains 'translation missing'
+    assign show_less_text = 'Show less'
+  endif
+-%}
+
+<drawer-component
+  id="Drawer-Facets"
+  class="f-drawer f-drawer--left f-drawer-facets no-js-hidden f-facets--{{ sidebar_position }}"
+  role="dialog"
+  data-can-move="false"
+  aria-modal="true"
+  hidden
+  style="--f-drawer-width: 100vw;"
+>
+  <div class="f-drawer__overlay" data-drawer-overlay></div>
+  <motion-element
+    data-motion="{% if sidebar_position != 'drawer' %}{{ animation_effect }}{% else %}none{% endif %}"
+    class="f-drawer__content w-full focus-inset"
+    tabindex="-1"
+  >
+    {% if results.filters != empty %}
+      <div class="f-facets__header items-center justify-between">
+        <h3 class="f-facets__heading h5">
+          {{ 'products.facets.filter_by_label' | t }}
+        </h3>
+        <div class="collection-product-count" role="status" data-product-count>
+          {%- if results.results_count -%}
+            {{-
+              'templates.search.results_with_count'
+              | t: terms: results.terms, count: results.results_count
+            -}}
+          {%- elsif results.products_count == results.all_products_count -%}
+            {{-
+              'products.facets.product_count_simple'
+              | t: count: results.products_count
+            -}}
+          {%- else -%}
+            {{-
+              'products.facets.product_count'
+              | t:
+                product_count: results.products_count,
+                count: results.all_products_count
+            -}}
+          {%- endif -%}
+        </div>
+        <button
+          id="DrawerClose-Facets"
+          class="f-drawer__close btn btn--plain"
+          aria-label="{{ 'accessibility.close' | t }}"
+        >
+          {% comment %} theme-check-disable {% endcomment %}
+          {{ 'icon-close.svg' | inline_asset_content }}
+          {% comment %} theme-check-enable {% endcomment %}
+        </button>
+      </div>
+    {% endif %}
+    <div class="f-drawer__inner scroll-container">
+      <div
+        class="f-facets__container f-facets__container--{{ sidebar_position }}"
+        data-collapsible="{{ group_collapsible | default: false }}"
+        data-open-first="{{ open_first_group | default: false }}"
+        data-facets-type="{{ sidebar_position }}"
+      >
+        <facet-filters-form class="f-facets">
+          <form id="FacetFiltersForm" class="f-facets__form" data-facet-form>
+            {%- if results.terms -%}
+              <input
+                type="hidden"
+                name="q"
+                value="{{ results.terms | escape }}"
+              >
+              <input name="options[prefix]" type="hidden" value="last">
+            {%- endif -%}
+
+            <div class="f-facets__wrapper" data-facets-wrapper>
+              {%- if results.filters != empty
+                and sidebar_position != 'drawer'
+              -%}
+                <h3 class="f-facets__heading visually-hidden">
+                  {{ 'products.facets.filter_by_label' | t }}
+                </h3>
+              {%- endif -%}
+              <div class="f-facets__blocks" data-collapsible-parent>
+                {% if enable_sorting %}
+                  <div
+                    class="f-facets__block f-facets__block--divider js-filter f-facets__block-sortby md:hidden"
+                    data-index="{{ results.filters.size | plus: 1 }}"
+                  >
+                    <div id="Mobile-SortBy-Block" class="flex items-center">
+                      <label for="facets-SortBy" class="h5 whitespace-nowrap">
+                        {{- 'products.facets.sort_by_label' | t }}:</label
+                      >
+                      <select
+                        id="Mobile-SortBy"
+                        name="sort_by"
+                        class="form-control "
+                        aria-describedby="a11y-refresh-page-message a11y-selection-message"
+                      >
+                        {%- for option in results.sort_options -%}
+                          <option
+                            value="{{ option.value }}"
+                            {% if option.value == sort_by %}
+                              selected="selected"
+                            {% endif %}
+                          >
+                            {{ option.name }}
+                          </option>
+                        {%- endfor -%}
+                      </select>
+                    </div>
+                  </div>
+                {% endif %}
+                {%- for filter in results.filters -%}
+                  {% liquid
+                    assign isOpen = false
+                    assign isHidden = false
+
+                    if default_state_collapsible == 'collapsed'
+                      assign isHidden = true
+                      unless open_first_group and forloop.first and group_collapsible
+                        assign isHidden = true
+                      endunless
+
+                      if open_first_group and forloop.first
+                        assign isOpen = true
+                      endif
+                    else
+                      assign isOpen = true
+                    endif
+
+                    if filter.min_value.value != blank or filter.max_value.value != blank or filter.active_values.size > 0
+                      assign isOpen = true
+                    endif
+                    assign is_color = false
+                    if settings.color_swatches_enable and settings.color_swatches_trigger != blank
+                      assign filter_label = filter.label | downcase
+                      assign color_swatches_trigger = settings.color_swatches_trigger | downcase | split: ','
+                      assign has_color = color_swatches_trigger | where: filter_label | first
+                      if has_color != blank
+                        assign is_color = true
+                      endif
+                    endif
+
+                    assign sorted_values = filter.values
+                    # Keep the selected values grouped together when operator is AND
+                    if filter.operator == 'AND'
+                      assign active_filter_values = filter.values | where: 'active', true
+                      assign inactive_filter_values = filter.values | where: 'active', false
+                      assign sorted_values = active_filter_values | concat: inactive_filter_values
+                    endif
+                  %}
+                  {% if is_color %}
+                    <script
+                      src="{{ 'filter-color-swatch.js' | asset_url }}"
+                      defer="defer"
+                    ></script>
+                  {% endif %}
+                  <div
+                    class="f-facets__block js-filter {{ filter.label | handle }}"
+                    data-index="{{ forloop.index }}">
+                    <collapsible-tab
+                      class="collapsible__item parent-display {{ filter.label | escape | downcase }}"
+                      data-one-open="false"
+                      {% if isOpen %}
+                        open="true"
+                      {% endif -%}
+                      {% unless group_collapsible %}
+                        data-destroy="true"
+                      {% endunless %}
+                    >
+                      <button
+                        class="f-facets__block-header focus-inset m-0 {{ heading_size }}"
+                        data-trigger
+                      >
+                        <span class="font-body text-button">
+                          {{- filter.label | escape -}}
+                        </span>
+                        {% if group_collapsible %}
+                          <span data-collapsible-icon class="no-js-hidden">
+                            <svg
+                              width="2"
+                              height="12"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path d="M1 1.333v9.334" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            <svg
+                              width="2"
+                              height="12"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                          </span>
+                        {% endif %}
+                      </button>
+                      <div
+                        class="f-facets__block-content"
+                        data-content
+                        {% if isHidden %}
+                          hidden
+                        {% endif %}
+                      >
+                      {% comment %} 
+                      {%- if filter.operator == 'AND' -%}
+                        <small class="filter-and-operator-text text-sm text-normal">
+                          {{- 'products.facets.match_all' | t -}}
+                        </small>
+                      {%- endif -%} 
+                      {% endcomment %}
+                        {% case filter.type %}
+                          {% when 'list' %}
+                            {%- if is_color
+                              or filter.presentation == 'swatch'
+                            -%}
+                              <ul
+                                class="list-none f-facets__list f-facets__list--color f-filter__color--{{ filter_color_type }}"
+                                role="list"
+                              >
+                                {%- for value in sorted_values -%}
+                                  {% capture label %}
+                                    {{ value.label | escape }} {% if show_results_count %}<span class="f-facets__results-count">({{ value.count }})</span>{% endif %}
+                                  {% endcapture %}
+                                  {% capture id %}Filter-{{ filter.label | escape }}-{{ forloop.index }}{% endcapture %}
+
+                                  {%- liquid
+                                    assign disabled = false
+                                    if value.count == 0 and value.active == false
+                                      assign disabled = true
+                                    endif
+                                  -%}
+
+                                  <li class="f-facets__item{% if forloop.index > 10 %} show-more-item hidden{% endif %}">
+                                    {%- if filter.presentation == 'swatch' -%}
+                                      {%- render 'facet-swatch',
+                                        id: id,
+                                        disabled: disabled,
+                                        value: value,
+                                        label: label,
+                                        filter_color_type: filter_color_type,
+                                        swatch: value.swatch
+                                      -%}
+                                    {%- else -%}
+                                      {%- render 'facet-swatch',
+                                        id: id,
+                                        disabled: disabled,
+                                        value: value,
+                                        label: label,
+                                        filter_color_type: filter_color_type
+                                      -%}
+                                    {%- endif -%}
+                                  </li>
+                                {%- endfor -%}
+                              </ul>
+                            {%- elsif filter.presentation == 'image' -%}
+                              <ul class="list-none f-facets__list f-facets__images">
+                                {%- for value in sorted_values -%}
+                                  {% capture label %}
+                                    {{ value.label | escape }} {% if show_results_count %}<span class="f-facets__results-count">({{ value.count }})</span>{% endif %}
+                                  {% endcapture %}
+                                  {% capture id %}Filter-{{ filter.label | escape }}-{{ forloop.index }}{% endcapture %}
+                                  {%- liquid
+                                    assign disabled = false
+                                    if value.count == 0 and value.active == false
+                                      assign disabled = true
+                                    endif
+
+                                    assign swatch_image = blank
+                                    assign swatch_fallback = value.value | split: ' ' | last | handle
+                                    if value.image
+                                      assign swatch_image = value.image | image_url: width: 144
+                                    endif
+                                  -%}
+                                  <li class="f-facets__item{% if forloop.index > 10 %} show-more-item hidden{% endif %}">
+                                    <div
+                                      class="filter-image-swatch"
+                                    >
+                                      <label
+                                        for="{{- id -}}"
+                                      >
+                                        <input
+                                          type="checkbox"
+                                          id="{{- id -}}"
+                                          name="{{- value.param_name -}}"
+                                          value="{{- value.value -}}"
+                                          {% if value.active %}
+                                            checked
+                                          {% endif %}
+                                        >
+                                        <span
+                                          class="image-check"
+                                          style="--swatch-background: {{ swatch_fallback }};{% if swatch_image != blank %} background-image: url({{ swatch_image }});{% endif %}"
+                                        ></span>
+                                        <span class="filter-label">
+                                          {{- label -}}
+                                        </span>
+                                      </label>
+                                    </div>
+                                  </li>
+                                {%- endfor -%}
+                              </ul>
+                            {%- else -%}
+                              <ul
+                                class="list-none f-facets__list{% if is_color or filter.presentation == 'swatch' %} f-facets__list--color f-filter__color--{{ filter_color_type }}{% endif %}"
+                                role="list"
+                              >
+                                {%- for value in sorted_values -%}
+                                  {% capture label %}
+                                    {{ value.label | escape }} {% if show_results_count %}<span class="f-facets__results-count">({{ value.count }})</span>{% endif %}
+                                  {% endcapture %}
+                                  {% capture id %}Filter-{{ filter.label | escape }}-{{ forloop.index }}{% endcapture %}
+
+                                  {%- liquid
+                                    assign disabled = false
+                                    if value.count == 0 and value.active == false
+                                      assign disabled = true
+                                    endif
+                                  -%}
+                                  <li class="f-facets__item{% if forloop.index > 10 %} show-more-item hidden{% endif %}">
+                                    <label
+                                      for="{{ id }}"
+                                      class="f-checkbox{% if disabled %} f-checkbox--disabled{% endif %}"
+                                    >
+                                      <input
+                                        type="checkbox"
+                                        name="{{ value.param_name }}"
+                                        value="{{ value.value }}"
+                                        id="{{ id }}"
+                                        {% if value.active %}
+                                          checked
+                                        {% endif %}
+                                        {% if disabled %}
+                                          disabled
+                                        {% endif %}
+                                      >
+                                      <span class="checkmark"></span>
+                                      {%- liquid
+  assign size_abbr = ''
+  if filter.label == 'Size'
+    assign label_parts = value.label | split: '('
+    if label_parts.size > 1
+      assign size_abbr = label_parts[1] | split: ')' | first | strip
+    endif
+  endif
+-%}
+{% if size_abbr != blank %}
+  <span>{{ size_abbr }}</span>
+{% else %}
+  <span>{{ label }}</span>
+{% endif %}
+                                    </label>
+                                  </li>
+                                {%- endfor -%}
+                              </ul>
+                            {%- endif -%}
+                            {%- if filter.values.size > 10 -%}
+                              <show-more-button>
+                                <button
+                                  class="button-show-more btn btn--underline no-js-hidden"
+                                  id="Show-More-{{ forloop.index }}-{{ section.id }}"
+                                  type="button"
+                                >
+                                  <span class="label-show-more label-text"
+                                    ><span aria-hidden="true">+ </span>
+                                    {{- show_more_text -}}
+                                  </span>
+                                  <span class="label-show-less label-text hidden"
+                                    ><span aria-hidden="true">- </span>
+                                    {{- show_less_text -}}
+                                  </span>
+                                </button>
+                              </show-more-button>
+                            {%- endif %}
+                          {% when 'price_range' %}
+                            {% liquid
+                              assign currencies_using_comma_decimals = 'ANG,ARS,BRL,BYN,BYR,CLF,CLP,COP,CRC,CZK,DKK,EUR,HRK,HUF,IDR,ISK,MZN,NOK,PLN,RON,RUB,SEK,TRY,UYU,VES,VND' | split: ','
+                              assign uses_comma_decimals = false
+                              if currencies_using_comma_decimals contains cart.currency.iso_code
+                                assign uses_comma_decimals = true
+                              endif
+
+                              if uses_comma_decimals
+                                assign from_value = filter.min_value.value | money_without_currency | replace: '.', '' | replace: ',', '.'
+                                assign to_value = filter.max_value.value | money_without_currency | replace: '.', '' | replace: ',', '.'
+                                assign max = filter.range_max | money_without_currency | replace: '.', '' | replace: ',', '.'
+                              else
+                                assign from_value = filter.min_value.value | money_without_currency | replace: ',', ''
+                                assign to_value = filter.max_value.value | money_without_currency | replace: ',', ''
+                                assign max = filter.range_max | money_without_currency | replace: ',', ''
+                              endif
+                              assign to_value = to_value | default: max
+                              assign range_min = from_value | divided_by: max | times: 100
+                              assign range_max = to_value | divided_by: max | times: 100
+                              assign price_gap = 5
+                            %}
+                            <price-range
+                              class="f-facets-price"
+                              data-price-max="{{ max }}"
+                              data-price-gap="{{ price_gap }}"
+                              style="--price-min: {{ range_min | default: 0 }}%; --price-max: {{ range_max | default: 100 }}%"
+                            >
+                              <div class="f-facets-price__range-group">
+                                <input
+                                  data-type="min-range"
+                                  type="range"
+                                  aria-label="{{ 'products.facets.from' | t }}"
+                                  tabindex="-1"
+                                  class="f-facets-price__range focus-none f-facets-price__range--min"
+                                  min="0"
+                                  max="{{ max }}"
+                                  value="{{ from_value | default: 0 }}"
+                                >
+                                <input
+                                  data-type="max-range"
+                                  type="range"
+                                  aria-label="{{ 'products.facets.to' | t }}"
+                                  tabindex="-1"
+                                  class="f-facets-price__range focus-none f-facets-price__range--max"
+                                  min="0"
+                                  max="{{ max }}"
+                                  value="{{ to_value }}"
+                                >
+                              </div>
+                              <div class="f-facets-price__inputs">
+                                <div class="f-facets-price__field">
+                                  <span class="visually-hidden">
+                                    {{- 'products.facets.from' | t -}}
+                                  </span>
+                                  <span class="f-facets-price__field-currency">
+                                    {{- cart.currency.symbol -}}
+                                  </span>
+                                  <input
+                                    class="form-control"
+                                    name="{{ filter.min_value.param_name }}"
+                                    id="Filter-{{ filter.label | escape }}-GTE"
+                                    {%- if filter.min_value.value -%}
+                                      value="{{ from_value }}"
+                                    {%- endif -%}
+                                    type="number"
+                                    inputmode="numeric"
+                                    placeholder="0"
+                                    min="0"
+                                    max="{{ to_value | minus: price_gap }}"
+                                    data-type="min-input"
+                                  >
+                                </div>
+                                <span class="f-facets-price__to">
+                                  {{- 'products.facets.to' | t -}}
+                                </span>
+                                <div class="f-facets-price__field">
+                                  <span class="visually-hidden">
+                                    {{- 'products.facets.to' | t -}}
+                                  </span>
+                                  <span class="f-facets-price__field-currency">
+                                    {{- cart.currency.symbol -}}
+                                  </span>
+                                  <input
+                                    class="form-control"
+                                    name="{{ filter.max_value.param_name }}"
+                                    id="Filter-{{ filter.label | escape }}-LTE"
+                                    {%- if filter.max_value.value -%}
+                                      value="{{ to_value }}"
+                                    {%- endif -%}
+                                    type="number"
+                                    inputmode="numeric"
+                                    min="{{ from_value | plus: price_gap }}"
+                                    max="{{ max }}"
+                                    placeholder="{{ max }}"
+                                    data-type="max-input"
+                                  >
+                                </div>
+                              </div>
+                            </price-range>
+                        {% endcase %}
+                      </div>
+                    </collapsible-tab>
+                  </div>
+                {%- endfor -%}
+              </div>
+              <noscript>
+                <div class="py-sm">
+                  <button class="btn btn--primary w-full">
+                    {{ 'products.facets.apply' | t }}
+                  </button>
+                </div>
+              </noscript>
+            </div>
+
+            {% if results.current_vendor or results.current_type %}
+              <input
+                type="hidden"
+                name="q"
+                value="{{ results.current_vendor }}{{ results.current_type }}"
+              >
+            {% endif %}
+          </form>
+        </facet-filters-form>
+      </div>
+    </div>
+    <div class="f-facets__footer flex justify-between items-center">
+      <facet-remove class="text-left">
+        <a
+          href="{{ results_url }}"
+          class="btn btn--underline"
+          aria-label="{{ 'products.facets.clear_all' | t }}"
+        >
+          <span>{{ 'products.facets.clear_all' | t }}</span>
+        </a>
+      </facet-remove>
+      <facet-apply>
+        <button
+          class="btn btn--primary w-full"
+          aria-label="{{ 'products.facets.apply' | t }}"
+        >
+          {{- 'products.facets.apply' | t -}}
+        </button>
+      </facet-apply>
+    </div>
+  </motion-element>
+
+  <script type="text/javascript">
+// ============================================================
+// CONFIG
+// ============================================================
+const STOREFRONT_TOKEN = '8611b4189a5da8d9673654e5649d1bf5';
+const SHOP_DOMAIN = 'fescueanddunes.myshopify.com';
+const METAOBJECT_TYPE = 'courses';
+const LOGOS_FIELD_KEY = 'course_logos';
+const TITLE_FIELD_KEY = 'title';
+const DISPLAY_TITLE_FIELD_KEY = 'display_title';
+
+// ============================================================
+// GLOBAL STATE
+// ============================================================
+let clubImageMap = {}; // { "club name": ["url1", "url2", ...] }
+
+// ============================================================
+// UTILITY FUNCTIONS
+// ============================================================
+
+// 1. Fetch all course metaobjects and build name -> logos[] map
+async function fetchClubImageMap() {
+  const query = `{
+    metaobjects(type: "${METAOBJECT_TYPE}", first: 250) {
+      edges {
+        node {
+          handle
+          fields {
+            key
+            value
+            references(first: 10) {
+              nodes {
+                ... on MediaImage {
+                  image { url }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  }`;
+
+  try {
+    const res = await fetch(`https://${SHOP_DOMAIN}/api/2024-01/graphql.json`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-Shopify-Storefront-Access-Token': STOREFRONT_TOKEN
+      },
+      body: JSON.stringify({ query })
+    });
+
+    if (!res.ok) {
+      console.error('❌ API HTTP error:', res.status);
+      return {};
+    }
+
+    const data = await res.json();
+
+    if (data.errors) {
+      console.error('❌ GraphQL errors:', data.errors);
+    }
+
+    if (!data?.data?.metaobjects) {
+      console.error('❌ Unexpected API response:', data);
+      return {};
+    }
+
+    const map = {};
+
+    data.data.metaobjects.edges.forEach(({ node }) => {
+      const titleField        = node.fields.find(f => f.key === TITLE_FIELD_KEY);
+      const displayTitleField = node.fields.find(f => f.key === DISPLAY_TITLE_FIELD_KEY);
+      const logosField        = node.fields.find(f => f.key === LOGOS_FIELD_KEY);
+
+      const logoUrls = logosField?.references?.nodes
+        ?.map(n => n?.image?.url)
+        ?.filter(Boolean) ?? [];
+
+      console.log(`📦 Node: ${node.handle} | logos found: ${logoUrls.length}`, logoUrls);
+
+      if (logoUrls.length > 0) {
+        if (titleField?.value) {
+          const key = titleField.value.toLowerCase().trim();
+          map[key] = logoUrls;
+          console.log(`🗺️ Mapped title: "${key}" → ${logoUrls.length} logos`);
+        }
+        if (displayTitleField?.value) {
+          const key = displayTitleField.value.toLowerCase().trim();
+          map[key] = logoUrls;
+          console.log(`🗺️ Mapped display_title: "${key}" → ${logoUrls.length} logos`);
+        }
+      } else {
+        console.warn(`⚠️ No logos resolved for node: ${node.handle} — check references(first:10) or field data`);
+      }
+    });
+
+    console.log('✅ Final clubImageMap:', map);
+    return map;
+
+  } catch (e) {
+    console.error('❌ fetchClubImageMap failed:', e);
+    return {};
+  }
+}
+
+// 2. Reset processed flags so checkboxes get re-evaluated after re-render
+function resetProcessedFlags() {
+  document.querySelectorAll('input[type="checkbox"][data-club-processed]').forEach(cb => {
+    cb.removeAttribute('data-club-processed');
+    cb.removeAttribute('data-club-key');
+  });
+  console.log('♻️ Processed flags reset');
+}
+
+function applyDataClubKey() {
+  let applied = 0;
+  let skipped = 0;
+
+  document.querySelectorAll('input[type="checkbox"]:not([data-club-processed])').forEach(cb => {
+    const label = cb.closest('label');
+    if (!label) return;
+
+    const spanText  = label.querySelector('span:last-child')?.textContent?.trim();
+    const rawText   = spanText || label.textContent?.trim();
+
+    const labelText = rawText?.replace(/\s*\(\d+\)\s*$/, '').trim().toLowerCase();
+
+    cb.setAttribute('data-club-processed', 'true');
+
+    if (!labelText) { skipped++; return; }
+
+    if (clubImageMap[labelText]) {
+      cb.setAttribute('data-club-key', labelText);
+      applied++;
+    } else {
+      skipped++;
+    }
+  });
+
+  console.log(`📊 applyDataClubKey — applied: ${applied}, skipped: ${skipped}`);
+}
+
+// 4. Get logos for the currently checked club checkbox
+function getSelectedClubLogos() {
+  const checked = document.querySelectorAll('input[type="checkbox"][data-club-key]:checked');
+
+  if (checked.length === 0) {
+    console.log('🔍 No club selected');
+    return [];
+  }
+
+  const allLogos = [];
+  checked.forEach(cb => {
+    const key   = cb.getAttribute('data-club-key');
+    const logos = clubImageMap[key] ?? [];
+    console.log(`🔍 Selected: "${key}" → ${logos.length} logos`, logos);
+    allLogos.push(...logos);
+  });
+
+  return allLogos;
+}
+
+// 5. Update logoSources based on selected club, or revert to default
+function updateLogoSources() {
+  const selectedLogos = getSelectedClubLogos();
+
+  if (selectedLogos.length > 0) {
+    console.log(`🏌️ Setting fcFacetLogos with ${selectedLogos.length} logos:`, selectedLogos);
+    window.fcFacetLogos = selectedLogos;
+  } else {
+    console.log('🔄 No club selected — clearing fcFacetLogos');
+    window.fcFacetLogos = [];
+  }
+
+  window.LogoEngine.restart();
+}
+
+// ============================================================
+// ON DEMAND — call after every Ajax re-render
+// ============================================================
+function onFacetsRerendered() {
+  console.log('♻️ onFacetsRerendered called');
+  resetProcessedFlags();
+  applyDataClubKey();
+  updateLogoSources();
+}
+
+// ============================================================
+// ON LOAD
+// ============================================================
+async function onLoad() {
+  console.log('🚀 Club logo facets — onLoad started');
+
+  clubImageMap = await fetchClubImageMap();
+
+  if (Object.keys(clubImageMap).length === 0) {
+    console.warn('⚠️ clubImageMap empty — aborting');
+    return;
+  }
+
+  applyDataClubKey();
+  updateLogoSources();
+
+  document.addEventListener('collection:rerendered', function () {
+    console.log('🔄 collection:rerendered fired');
+    onFacetsRerendered();
+  });
+  document.addEventListener('search:rerendered', function () {
+  console.log('🔄 search:rerendered fired');
+  onFacetsRerendered();
+});
+
+  // Radio-style: only one club at a time
+  document.addEventListener('change', function (e) {
+    if (!e.target.matches('input[type="checkbox"][data-club-key]')) return;
+
+    const clicked = e.target;
+    console.log(`🖱️ Clicked: "${clicked.getAttribute('data-club-key')}" | checked: ${clicked.checked}`);
+
+    if (clicked.checked) {
+      document.querySelectorAll('input[type="checkbox"][data-club-key]').forEach(cb => {
+        if (cb !== clicked && cb.checked) {
+          console.log(`🔄 Unchecking: "${cb.getAttribute('data-club-key')}"`);
+          cb.checked = false;
+          cb.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    }
+
+    updateLogoSources();
+  });
+
+  console.log('✅ Club logo facets — ready');
+}
+
+// ============================================================
+// BOOT
+// ============================================================
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', onLoad);
+} else {
+  onLoad();
+}
+</script>
+
+</drawer-component>

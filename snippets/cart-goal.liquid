@@ -1,0 +1,44 @@
+{%- liquid 
+    assign free_shipping_text = settings.free_shipping_message
+    assign enable_confetti = settings.enable_confetti_effect
+    assign limit = settings.free_shipping_limit | plus: 0
+    assign enable_free_shipping_mess = false
+    assign limit_currency = limit | times: 100
+    assign qualified_shipping_message = 'general.cart.qualified_shipping_message' | t
+    assign class_message = ''
+    
+    if template and template == 'drawer'
+        assign class_message = 'f-cartgoal__drawer'
+    endif
+
+    if cart.item_count <= 0
+        assign class_message = class_message | append: ' hidden'
+    endif
+    
+    if settings.show_free_shipping_message and settings.free_shipping_limit != blank and free_shipping_text != blank
+        assign enable_free_shipping_mess = true
+    endif
+-%}
+
+{%- capture left_to_spend -%}
+    <span data-left-to-spend>{{ limit_currency | minus: cart.total_price | money }}</span>
+{%- endcapture -%}
+
+{%- assign free_shipping_message = free_shipping_text | replace: '{{amount}}', left_to_spend -%}
+
+{%- if enable_free_shipping_mess -%}
+    <link rel="stylesheet" href="{{ 'cart-goal.css' | asset_url }}" media="print" onload="this.media='all'">
+    <f-cart-goal class="f-cartgoal {{ class_message }}" data-enable-confetti="{{ enable_confetti }}" data-cart-total="{{ cart.total_price | plus: 0 }}" data-cart-goal="{{ limit }}" style="--progress: 0%;">
+        <h4 class="f-cartgoal__title font-body text-body">
+            <span class="f-cartgoal__default-message">{{ free_shipping_message }}</span>
+            <span class="f-cartgoal__success-message">{{ qualified_shipping_message }}</span>
+        </h4>
+        <div class="f-cartgoal__inner">
+            <div class="f-cartgoal__bar">
+                <span data-progress="0"></span>
+            </div>
+            <span class="f-cartgoal__icon"> </span>
+        </div>
+    </f-cart-goal>
+    <script src="{{ 'cart-goal.js' | asset_url }}" defer="defer"></script>
+{%- endif -%}

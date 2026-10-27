@@ -1,0 +1,134 @@
+<ul class="social-links flex flex-wrap items-center list-none {{ class }}">
+  {% if settings.social_instagram_link != blank %}
+    <li class="social-links__link">
+      <a
+        href="{{ settings['social_instagram_link'] }}"
+        title="{{ 'general.social.links.instagram' | t }}"
+        aria-label="{{ 'general.social.links.instagram' | t }}"
+      >
+        {% render 'icon-instagram', size: icon_size %}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_facebook_link != blank -%}
+    <li class="social-links__link">
+      <a
+        href="{{ settings['social_facebook_link'] }}"
+        title="{{ 'general.social.links.facebook' | t }}"
+        aria-label="{{ 'general.social.links.facebook' | t }}"
+      >
+        {% render 'icon-facebook', size: icon_size %}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_linkedin_link != blank -%}
+    <li class="social-links__link">
+      <a
+        href="{{ settings['social_linkedin_link'] }}"
+        title="{{ 'general.social.links.linkedin' | t }}"
+        aria-label="{{ 'general.social.links.linkedin' | t }}"
+      >
+        {% render 'icon-linkedin', size: icon_size %}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_twitter_link != blank -%}
+    <li class="social-links__link">
+      <a
+        href="{{ settings['social_twitter_link'] }}"
+        title="{{ 'general.social.links.twitter' | t }}"
+        aria-label="{{ 'general.social.links.twitter' | t }}"
+      >
+        {% render 'icon-twitter', size: icon_size %}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_pinterest_link != blank -%}
+    <li class="social-links__link">
+      <a
+        href="{{ settings['social_pinterest_link'] }}"
+        title="{{ 'general.social.links.pinterest' | t }}"
+        aria-label="{{ 'general.social.links.pinterest' | t }}"
+      >
+        {% render 'icon-pinterest', size: icon_size %}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_snapchat_link != blank -%}
+    <li class="social-links__link">
+      <a
+        href="{{ settings['social_snapchat_link'] }}"
+        title="{{ 'general.social.links.snapchat' | t }}"
+        aria-label="{{ 'general.social.links.snapchat' | t }}"
+      >
+        {% render 'icon-snapchat', size: icon_size %}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_tumblr_link != blank -%}
+    <li class="social-links__link">
+      <a
+        href="{{ settings['social_tumblr_link'] }}"
+        title="{{ 'general.social.links.tumblr' | t }}"
+        aria-label="{{ 'general.social.links.tumblr' | t }}"
+      >
+        {% render 'icon-tumblr', size: icon_size %}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_vimeo_link != blank -%}
+    <li class="social-links__link">
+      <a
+        href="{{ settings['social_vimeo_link'] }}"
+        title="{{ 'general.social.links.vimeo' | t }}"
+        aria-label="{{ 'general.social.links.vimeo' | t }}"
+      >
+        {% render 'icon-vimeo', size: icon_size %}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_youtube_link != blank -%}
+    <li class="social-links__link">
+      <a
+        href="{{ settings['social_youtube_link'] }}"
+        title="{{ 'general.social.links.youtube' | t }}"
+        aria-label="{{ 'general.social.links.youtube' | t }}"
+      >
+        {% render 'icon-youtube', size: icon_size %}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_tiktok_link != blank -%}
+    <li class="social-links__link">
+      <a
+        href="{{ settings['social_tiktok_link'] }}"
+        title="{{ 'general.social.links.tiktok' | t }}"
+        aria-label="{{ 'general.social.links.tiktok' | t }}"
+      >
+        {% render 'icon-tiktok', class: 'f-icon-tiktok', size: icon_size %}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_spotify_link != blank -%}
+    <li class="social-links__link">
+      <a
+        href="{{ settings['social_spotify_link'] }}"
+        title="{{ 'general.social.links.spotify' | t }}"
+        aria-label="{{ 'general.social.links.spotify' | t }}"
+      >
+        {% render 'icon-spotify', size: icon_size %}
+      </a>
+    </li>
+  {%- endif -%}
+  {%- if settings.social_whatsapp_link != blank -%}
+    <li class="social-links__link">
+      <a
+        href="{{ settings['social_whatsapp_link'] }}"
+        title="{{ 'general.social.links.whatsapp' | t }}"
+        aria-label="{{ 'general.social.links.whatsapp' | t }}"
+      >
+        {% render 'icon-whatsapp', size: icon_size %}
+      </a>
+    </li>
+  {%- endif -%}
+</ul>

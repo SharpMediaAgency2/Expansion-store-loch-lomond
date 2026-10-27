@@ -1,0 +1,511 @@
+{{ 'blog.css' | asset_url | stylesheet_tag }}
+
+{% if section.settings.show_breadcrumb %}
+  {% render 'breadcrumb', container: section.settings.brc_container, justify: section.settings.brc_text_alignment %}
+{% endif %}
+<article class="f-article-template f-section" itemscope itemtype="http://schema.org/BlogPosting">
+  {%- for block in section.blocks -%}
+    {%- case block.type -%}
+      {%- when '@app' -%}
+        <div class="container-narrow">
+          {% render block %}
+        </div>
+      {%- when 'featured_image' -%}
+        {%- if article.image -%}
+          <div class="f-article-template__hero-container f-article-template__block-item" {{ block.shopify_attributes }}>
+            <div class="{{ block.settings.image_width }}">
+              <div class="f-article-template__hero--{{ block.settings.image_height }}">
+                {% render 'responsive-image', image: article.image, section_index: section.index, index: 1 %}
+              </div>
+            </div>
+          </div>
+        {%- endif -%}
+      {%- when 'title' -%}
+        <header
+          class="container-narrow text-{{ block.settings.title_text_align }} f-article-template__block-item"
+          {{ block.shopify_attributes }}
+        >
+          {%- if block.settings.blog_show_author or block.settings.blog_show_date -%}
+            <div class="f-article-template__metas">
+              {%- if block.settings.blog_show_author -%}
+                {% assign author = article.metafields.custom.author.value | default: article.author %}
+                <span
+                  class="f-article-template__author text-subtext circle-divider"
+                  itemprop="author"
+                  itemscope
+                  itemtype="http://schema.org/Person"
+                >
+                  <span itemprop="name">{{ author }}</span>
+                </span>
+              {%- endif -%}
+              {%- if block.settings.blog_show_date -%}
+                <span class="f-article-template__date text-subtext" itemprop="dateCreated pubdate datePublished">
+                  {{- article.published_at | time_tag: format: 'date' -}}
+                </span>
+              {%- endif -%}
+            </div>
+          {%- endif -%}
+          <h1 class="f-article-template__title h3" itemprop="headline">{{ article.title | escape }}</h1>
+        </header>
+      {%- when 'content' -%}
+        <div
+          class="f-article-template__content container-narrow rte f-article-template__block-item"
+          itemprop="articleBody"
+          {{ block.shopify_attributes }}
+        >
+          {{ article.content }}
+        </div>
+      {%- when 'tags-share' -%}
+        <div class="container-narrow f-article-template__block-item" {{ block.shopify_attributes }}>
+          <div class="f-article-template__tags-share">
+            {% if block.settings.show_tags and article.tags.size > 0 %}
+              <div class="f-article-template__tags">
+                <span>{{ 'blogs.article.tags_label' | t }}</span>
+                <ul>
+                  {% for tag in article.tags %}
+                    <li>
+                      <a href="{{ blog.url }}/tagged/{{ tag | handle }}" class="f-article-template__tag link--animated">
+                        {{- tag -}}
+                      </a>
+                      {% unless forloop.last %},{% endunless %}
+                    </li>
+                  {% endfor %}
+                </ul>
+              </div>
+            {% endif %}
+            {% if block.settings.show_share %}
+              {% assign url = shop.url | append: article.url %}
+              <div class="f-article-template__sharing">
+                <span>{{ 'blogs.article.share_label' | t }}</span>
+                <div class="f-article-template__sharing-list">
+                  <a href="https://www.facebook.com/sharer/sharer.php?u={{ url }}" target="_blank">
+                    {% render 'icon-facebook', size: 'small' %}
+                  </a>
+                  <a href="https://www.linkedin.com/sharing/share-offsite/?url={{ url | url_escape }}" target="_blank">
+                    {% render 'icon-linkedin', size: 'small' %}
+                  </a>
+                  <a href="https://pinterest.com/pin/create/button/?url={{ url }}" target="_blank">
+                    {% render 'icon-pinterest', size: 'small' %}
+                  </a>
+                  <a href="https://twitter.com/intent/tweet?url={{ url }}" target="_blank">
+                    {% render 'icon-twitter', size: 'small' %}
+                  </a>
+                </div>
+              </div>
+            {% endif %}
+          </div>
+        </div>
+      {%- when 'next-prev-article' -%}
+        <div class="container-narrow f-article-template__block-item" {{ block.shopify_attributes }}>
+          <div class="f-article-template__next-prev-article flex {% if blog.previous_article != nil and blog.next_article != nil %}justify-between{% elsif blog.previous_article != nil %}justify-start{% else %}justify-end{% endif %}">
+            {% if blog.previous_article != null %}
+              <a href="{{ blog.previous_article.url }}" class="f-article-template__prev-article">
+                <span class="f-article-template__prev-article-icon">
+                  {% comment %} theme-check-disable {% endcomment %}
+                  {{ 'icon-arrow-left.svg' | inline_asset_content }}
+                  {% comment %} theme-check-enable {% endcomment %}
+                  <span>{{ 'blogs.article.previous_post' | t }}</span>
+                </span>
+              </a>
+            {% endif %}
+            <a
+              href="{{ blog.url }}"
+              class="f-article-template__back {% if blog.previous_article != nil and blog.next_article != nil %}items-center{% elsif blog.previous_article != nil %}items-end{% else %}items-start{% endif %}"
+            >
+              <span class="link--animated inline-flex">{{ 'blogs.article.back_to_blog' | t: title: blog.title }}</span>
+            </a>
+            {% if blog.next_article != null %}
+              <a href="{{ blog.next_article.url }}" class="f-article-template__next-article text-right">
+                <span class="f-article-template__next-article-icon">
+                  <span>{{ 'blogs.article.next_post' | t }}</span>
+                  {% comment %} theme-check-disable {% endcomment %}
+                  {{ 'icon-arrow-right.svg' | inline_asset_content }}
+                  {% comment %} theme-check-enable {% endcomment %}
+                </span>
+              </a>
+            {% endif %}
+          </div>
+        </div>
+    {%- endcase -%}
+  {%- endfor -%}
+  {%- if blog.comments_enabled? -%}
+    <div class="f-article-template__comment-wrapper">
+      <div id="comments" class="container-narrow">
+        {%- if article.comments_count > 0 -%}
+          {%- assign anchorId = '#Comments-' | append: article.id -%}
+
+          <h2 class="f-article-template__comments-heading-top h3" id="Comments-{{ article.id }}">
+            {{ 'blogs.article.comments' | t: count: article.comments_count }}
+          </h2>
+          {% paginate article.comments by 5 %}
+            <div class="f-article-template__comments">
+              {%- if comment.status == 'pending' and comment.content -%}
+                <article id="{{ comment.id }}" class="f-article-template__comments-comment">
+                  {{ comment.content }}
+                  <footer class="text-subtext">
+                    <span class="circle-divider">{{ comment.author }}</span>
+                  </footer>
+                </article>
+              {%- endif -%}
+
+              {%- for comment in article.comments -%}
+                <article id="{{ comment.id }}" class="f-article-template__comments-comment">
+                  {{ comment.content }}
+                  <footer class="text-subtext">
+                    <span class="circle-divider">{{ comment.author }}</span
+                    ><span>{{ comment.created_at | time_tag: format: 'date' }}</span>
+                  </footer>
+                </article>
+              {%- endfor -%}
+              <div class="f-pagination__wrapper text-center">
+                {% render 'pagination', paginate: paginate, anchor: anchorId %}
+              </div>
+            </div>
+          {% endpaginate %}
+        {%- endif -%}
+        {% form 'new_comment', article %}
+          {%- liquid
+            assign post_message = 'blogs.article.success'
+            if blog.moderated? and comment.status == 'unapproved'
+              assign post_message = 'blogs.article.success_moderated'
+            endif
+          -%}
+          <h2 class="f-article-template__comments-heading h3">{{ 'blogs.article.comment_form_title' | t }}</h2>
+          {%- if form.errors -%}
+            <div class="form__message" role="alert">
+              <p class="form-status caption-large f-notification warning show" tabindex="-1" autofocus>
+                {% comment %} theme-check-disable {% endcomment %}
+                {{ 'icon-alert-circle.svg' | inline_asset_content }}
+                {% comment %} theme-check-enable {% endcomment %}
+                {{ 'templates.contact.form.error_heading' | t }}
+              </p>
+            </div>
+            <ul class="form-status-list caption-large">
+              {%- for field in form.errors -%}
+                <li>
+                  <a href="#CommentForm-{{ field }}" class="link">
+                    {%- if form.errors.translated_fields[field] contains 'author' -%}
+                      {{ 'blogs.article.name' | t }}
+                    {%- elsif form.errors.translated_fields[field] contains 'body' -%}
+                      {{ 'blogs.article.message' | t }}
+                    {%- else -%}
+                      {{ form.errors.translated_fields[field] }}
+                    {%- endif -%}
+                    {{ form.errors.messages[field] }}
+                  </a>
+                </li>
+              {%- endfor -%}
+            </ul>
+          {%- elsif form.posted_successfully? -%}
+            <div class="form-status-list form__message" role="status">
+              <p class="form-status f-notification success show" tabindex="-1" autofocus>
+                {% comment %} theme-check-disable {% endcomment %}
+                {{ 'icon-check-circle.svg' | inline_asset_content }}
+                {% comment %} theme-check-enable {% endcomment %}
+                {{ post_message | t }}
+              </p>
+            </div>
+          {%- endif -%}
+
+          <div
+            {% if blog.moderated? == false %}
+              class="article-template__comments-fields"
+            {% endif %}
+          >
+            <div class="form-field">
+              <input
+                type="text"
+                name="comment[author]"
+                id="CommentForm-author"
+                class="form-control"
+                autocomplete="name"
+                value="{{ form.author }}"
+                aria-required="true"
+                {% if form.errors contains 'author' %}
+                  aria-invalid="true"
+                  aria-describedby="CommentForm-author-error"
+                {% endif %}
+                placeholder="{{ 'blogs.article.name' | t }}"
+              >
+              <label class="hidden" for="CommentForm-author">
+                {{- 'blogs.article.name' | t }}
+                <span aria-hidden="true">*</span></label
+              >
+              {%- if form.errors contains 'author' -%}
+                <small id="CommentForm-author-error">
+                  <span class="form__message f-notification show warning">
+                    {% comment %} theme-check-disable {% endcomment %}
+                    {{ 'icon-alert-circle.svg' | inline_asset_content }}
+                    {% comment %} theme-check-enable {% endcomment %}
+                    {{- 'blogs.article.name' | t }}
+                    {{ form.errors.messages.author }}.</span
+                  >
+                </small>
+              {%- endif -%}
+            </div>
+            <div class="form-field">
+              <input
+                type="email"
+                name="comment[email]"
+                id="CommentForm-email"
+                autocomplete="email"
+                class="form-control"
+                value="{{ form.email }}"
+                autocorrect="off"
+                autocapitalize="off"
+                aria-required="true"
+                {% if form.errors contains 'email' %}
+                  aria-invalid="true"
+                  aria-describedby="CommentForm-email-error"
+                {% endif %}
+                placeholder="{{ 'blogs.article.email' | t }}"
+              >
+              <label class="hidden" for="CommentForm-email">
+                {{- 'blogs.article.email' | t }}
+                <span aria-hidden="true">*</span></label
+              >
+              {%- if form.errors contains 'email' -%}
+                <small id="CommentForm-email-error">
+                  <span class="form__message f-notification show warning">
+                    {% comment %} theme-check-disable {% endcomment %}
+                    {{ 'icon-alert-circle.svg' | inline_asset_content }}
+                    {% comment %} theme-check-enable {% endcomment %}
+                    {{- 'blogs.article.email' | t }}
+                    {{ form.errors.messages.email }}.</span
+                  >
+                </small>
+              {%- endif -%}
+            </div>
+            <div class="form-field">
+              <textarea
+                rows="5"
+                name="comment[body]"
+                id="CommentForm-body"
+                class="form-control form-control--textarea"
+                aria-required="true"
+                {% if form.errors contains 'body' %}
+                  aria-invalid="true"
+                  aria-describedby="CommentForm-body-error"
+                {% endif %}
+                placeholder="{{ 'blogs.article.message' | t }}"
+              >{{ form.body }}</textarea>
+              <label class="hidden" for="CommentForm-body">
+                {{- 'blogs.article.message' | t }}
+                <span aria-hidden="true">*</span></label
+              >
+            </div>
+            {%- if form.errors contains 'body' -%}
+              <small id="CommentForm-body-error">
+                <span class="form__message f-notification show warning">
+                  {% comment %} theme-check-disable {% endcomment %}
+                  {{ 'icon-alert-circle.svg' | inline_asset_content }}
+                  {% comment %} theme-check-enable {% endcomment %}
+                  {{- 'blogs.article.message' | t }}
+                  {{ form.errors.messages.body }}.</span
+                >
+              </small>
+            {%- endif -%}
+            <div class="form-field">
+              {%- if blog.moderated? -%}
+                <p class="f-article-template__comment-warning text-subtext">{{ 'blogs.article.moderated' | t }}</p>
+              {%- endif -%}
+              <input type="submit" class="btn btn--primary" value="{{ 'blogs.article.post' | t }}">
+            </div>
+          </div>
+        {% endform %}
+      </div>
+    </div>
+  {%- endif -%}
+</article>
+
+<script type="application/ld+json">
+  {{ article | structured_data }}
+</script>
+
+{% schema %}
+{
+  "name": "t:sections.main-article.name",
+  "tag": "section",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.breadcrumb.name"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "t:sections.breadcrumb.enable_breadcrumb",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "brc_container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.container.label"
+    },
+    {
+      "type": "select",
+      "id": "brc_text_alignment",
+      "label": "t:sections.common.text_align.label",
+      "default": "center",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.common.text_align.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.common.text_align.options__2.label"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.common.text_align.options__3.label"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "featured_image",
+      "name": "t:sections.main-article.blocks.featured_image.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "select",
+          "id": "image_width",
+          "options": [
+            {
+              "value": "container-narrow",
+              "label": "t:sections.common.container.narrow"
+            },
+            {
+              "value": "container",
+              "label": "t:sections.common.container.fixed"
+            },
+            {
+              "value": "container-fluid",
+              "label": "t:sections.common.container.stretched"
+            },
+            {
+              "value": "container-full",
+              "label": "t:sections.common.container.fullwidth"
+            }
+          ],
+          "default": "container-narrow",
+          "label": "t:sections.main-article.blocks.featured_image.settings.image_width.label"
+        },
+        {
+          "type": "select",
+          "id": "image_height",
+          "options": [
+            {
+              "value": "adapt",
+              "label": "t:sections.main-article.blocks.featured_image.settings.image_height.options__1.label"
+            },
+            {
+              "value": "small",
+              "label": "t:sections.main-article.blocks.featured_image.settings.image_height.options__2.label"
+            },
+            {
+              "value": "medium",
+              "label": "t:sections.main-article.blocks.featured_image.settings.image_height.options__3.label"
+            },
+            {
+              "value": "large",
+              "label": "t:sections.main-article.blocks.featured_image.settings.image_height.options__4.label"
+            }
+          ],
+          "default": "adapt",
+          "label": "t:sections.main-article.blocks.featured_image.settings.image_height.label",
+          "info": "t:sections.main-article.blocks.featured_image.settings.image_height.info"
+        }
+      ]
+    },
+    {
+      "type": "title",
+      "name": "t:sections.main-article.blocks.title.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "blog_show_date",
+          "default": true,
+          "label": "t:sections.main-article.blocks.title.settings.blog_show_date.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "blog_show_author",
+          "default": false,
+          "label": "t:sections.main-article.blocks.title.settings.blog_show_author.label"
+        },
+        {
+          "type": "select",
+          "id": "title_text_align",
+          "label": "t:sections.common.text_align.label",
+          "default": "center",
+          "options": [
+            {
+              "value": "left",
+              "label": "t:sections.common.text_align.options__1.label"
+            },
+            {
+              "value": "center",
+              "label": "t:sections.common.text_align.options__2.label"
+            },
+            {
+              "value": "right",
+              "label": "t:sections.common.text_align.options__3.label"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "content",
+      "name": "t:sections.main-article.blocks.content.name",
+      "limit": 1
+    },
+    {
+      "type": "tags-share",
+      "name": "t:sections.main-article.blocks.share.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_tags",
+          "default": true,
+          "label": "t:sections.main-article.blocks.share.settings.show_tag"
+        },
+        {
+          "type": "checkbox",
+          "id": "show_share",
+          "default": true,
+          "label": "t:sections.main-article.blocks.share.settings.show_share"
+        }
+      ]
+    },
+    {
+      "type": "next-prev-article",
+      "name": "t:sections.main-article.blocks.navigation.name",
+      "limit": 1
+    }
+  ]
+}
+{% endschema %}

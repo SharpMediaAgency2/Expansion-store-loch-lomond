@@ -1,0 +1,101 @@
+.quick-order-list__table th {
+  padding: 2rem;
+  border-bottom: 1px solid var(--color-border);
+}
+.quick-order-list__table td {
+  padding-block: 1.6rem;
+  padding-inline: 2rem;
+  border-block-end: 0.1rem solid var(--color-border);
+}
+@media (max-width: 767.98px) {
+  .quick-order-list__table td {
+    padding-inline: 1.2rem;
+  }
+}
+.quick-order-list__table tbody tr:last-child td {
+  border-block-end: 0;
+}
+.quick-order-list__total {
+  flex: 0 0 30%;
+}
+@media (min-width: 1024px) {
+  .quick-order-list__total {
+    position: sticky;
+    bottom: 0;
+    background-color: rgb(var(--color-background));
+    z-index: 1;
+  }
+}
+@media (min-width: 1024px) {
+  .quick-order-list__container {
+    padding-inline-end: 3rem;
+    margin-inline-end: 3rem;
+    border-inline-end: 0.1rem solid var(--color-border);
+  }
+  .quick-order-list__container.has-only-default-variant {
+    padding: 0;
+    margin: 0;
+    border: 0;
+  }
+}
+.quick-order-list-total__info, .quick-order-list-total__confirmation {
+  background-color: rgba(var(--color-foreground), 0.04);
+  padding: 2.4rem;
+  border-radius: var(--medium-blocks-radius);
+}
+.quick-order-list-total__info[hidden], .quick-order-list-total__confirmation[hidden] {
+  display: none;
+}
+.quick-order-list__loader, .quick-order-list__remove {
+  padding-inline-start: 0.8rem;
+}
+.quick-order-list__loader.btn--loading + .quick-order-list__remove {
+  display: none;
+}
+.quick-order-list__loader[hidden] {
+  display: none;
+}
+.quick-order-list-total__info {
+  row-gap: 1rem;
+  --column-gap-mobile: 0px;
+}
+.quick-order-list__column {
+  --row-gap: 0.8rem;
+}
+.quick-order-list-buttons {
+  gap: 0.8rem;
+}
+.quick-order-list-total__confirmation {
+  gap: 1.2rem;
+}
+.quick-order-list .quantity-popover__info {
+  top: calc(100% + 0.5rem);
+}
+.quick-order-list .f-quantity {
+  width: 110px;
+}
+.quick-order-list price-per-item {
+  gap: 0.8rem;
+}
+
+.variant-item {
+  --item-media-width: 7.5rem;
+}
+.variant-item__media {
+  width: var(--item-media-width);
+}
+.variant-item__media img {
+  height: auto;
+}
+.variant-item__title {
+  line-height: 1.25;
+}
+@media (max-width: 767.98px) {
+  .variant-item {
+    --item-media-width: 5rem;
+  }
+}
+
+.price-per-item--price_compare {
+  color: rgba(var(--color-foreground), 0.75);
+}

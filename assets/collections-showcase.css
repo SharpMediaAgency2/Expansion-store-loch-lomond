@@ -1,0 +1,92 @@
+.collections-showcase [hidden] {
+  display: none !important;
+}
+.collections-showcase .container-full .collections-showcase__nav-list {
+  padding-inline: 1.5rem;
+}
+@media (min-width: 768px) {
+  .collections-showcase .f-grid {
+    gap: 5rem;
+  }
+}
+@media (min-width: 1024px) {
+  .collections-showcase .f-grid {
+    gap: 10rem;
+  }
+}
+@media (max-width: 767.98px) {
+  .collections-showcase .f-grid {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 2.4rem;
+  }
+}
+.collections-showcase__contents {
+  grid-column: span 2;
+}
+.collections-showcase__nav-list {
+  gap: 3.2rem;
+}
+@media (max-width: 767.98px) {
+  .collections-showcase__nav-list {
+    gap: 2.4rem;
+  }
+}
+.collections-showcase__title-name {
+  transition: all 0.5s;
+}
+.collections-showcase__title-name span {
+  --reversed-link-gap: 0.1rem;
+  background: linear-gradient(to var(--transform-origin-end), currentColor, currentColor) 0 var(--reversed-link-gap)/0 var(--reversed-link-gap) no-repeat;
+  background-position-x: var(--transform-origin-end);
+  background-position-y: bottom;
+  transition: background-size 0.5s;
+}
+.collections-showcase__title.is-active .collections-showcase__title-name {
+  transform: skewX(-15deg);
+}
+.collections-showcase__title.is-active .collections-showcase__title-name span {
+  background-position-x: var(--transform-origin-start);
+  background-size: 100% var(--reversed-link-gap);
+  background-position-y: bottom;
+}
+.collections-showcase__title-inner {
+  gap: 1.2rem;
+}
+.collections-showcase__image {
+  transition: all 0s ease;
+  transform: translateY(2rem);
+}
+.collections-showcase__info {
+  transition: all 0s ease;
+  transform: translateX(2rem);
+  opacity: 0;
+}
+@media (max-width: 767.98px) {
+  .collections-showcase__info {
+    transform: translateY(2rem);
+  }
+}
+@media (min-width: 768px) {
+  .collections-showcase__info {
+    max-width: 33rem;
+  }
+}
+.collections-showcase__content {
+  transition: all 0s ease;
+  opacity: 0;
+}
+.collections-showcase__content.is-active {
+  opacity: 1;
+  transition-duration: 1s;
+}
+.collections-showcase__content.is-active .collections-showcase__image {
+  transform: translate3d(0, 0, 0);
+  transition-duration: 1s;
+}
+.collections-showcase__content.is-active .collections-showcase__info {
+  transform: translate3d(0, 0, 0);
+  opacity: 1;
+  transition-duration: 1s;
+}

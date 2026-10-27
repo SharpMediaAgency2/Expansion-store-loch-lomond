@@ -1,0 +1,70 @@
+.f-countdown-timer {
+  display: block;
+}
+.f-countdown-timer__block {
+  min-width: 55px;
+  display: inline-flex;
+  flex-flow: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: var(--btn-rounded);
+  margin: 0 1rem;
+}
+.f-countdown-timer__block div {
+  width: 100%;
+  line-height: 1;
+  position: relative;
+  text-align: center;
+}
+.f-countdown-timer__block div::after {
+  content: ":";
+  position: absolute;
+  top: 50%;
+  right: -1.3rem;
+  font-size: 0.5em;
+  transform: translateY(-50%);
+}
+.f-countdown-timer__block:last-child div::after {
+  display: none;
+}
+.f-countdown-timer--highlight .f-countdown-timer__block {
+  min-width: 70px;
+  min-height: 70px;
+  margin: 0 5px;
+  padding: 8px 5px 5px;
+  background-color: #fff5f4;
+  border: 1px solid #ffd7d6;
+}
+.f-countdown-timer--highlight .f-countdown-timer__block:first-child {
+  margin-left: -1px;
+}
+.f-countdown-timer--highlight .f-countdown-timer__block > div {
+  line-height: 26px;
+  color: #ff706b;
+}
+.f-countdown-timer--highlight .f-countdown-timer__block > div::after {
+  display: none;
+}
+.f-countdown-timer--highlight .f-countdown-timer__block > span {
+  color: rgb(var(--color-base-text));
+}
+@media (min-width: 1024px) {
+  .f-countdown-timer__spacing--small {
+    margin: 0 1rem;
+  }
+  .f-countdown-timer__spacing--small > div::after {
+    right: -1.3rem;
+  }
+  .f-countdown-timer__spacing--medium {
+    margin: 0 2rem;
+  }
+  .f-countdown-timer__spacing--medium > div::after {
+    right: -2.3rem;
+  }
+  .f-countdown-timer__spacing--large {
+    margin: 0 3rem;
+  }
+  .f-countdown-timer__spacing--large > div::after {
+    right: -3.3rem;
+  }
+}

@@ -1,0 +1,662 @@
+{% comment %}
+  Section: Partner Clubs Slider
+  -----------------------------
+  Section-level: heading, description, location icon SVG, autoplay + speed
+  Block-level (slides): image, heading, location, richtext, link text + URL
+
+  Layout:
+    Desktop → 40% image / 60% content
+    Mobile  → stacked (image, then content)
+
+  Navigation:
+    Arrows vertically centered on the slide edges
+    Dots below the slide
+    Optional autoplay with configurable interval
+{% endcomment %}
+
+{%- liquid
+  assign sid           = section.id
+  assign s_heading     = section.settings.heading
+  assign s_description = section.settings.description
+  assign location_svg  = section.settings.location_svg
+  assign autoplay      = section.settings.autoplay
+  assign speed_ms      = section.settings.autoplay_speed | times: 1000
+
+  # Default location pin SVG if section setting is blank
+  assign default_pin_svg = '<svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 10c0 7-8 12-8 12s-8-5-8-12a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/></svg>'
+-%}
+
+<style>
+  #pcs-{{ sid }} {
+    --pcs-pad-top:    {{ section.settings.padding_top }}px;
+    --pcs-pad-bottom: {{ section.settings.padding_bottom }}px;
+    --pcs-gap:        {{ section.settings.gap }}px;
+    --pcs-radius:     {{ section.settings.radius }}px;
+  }
+
+  #pcs-{{ sid }} {
+    padding-top:    var(--pcs-pad-top);
+    padding-bottom: var(--pcs-pad-bottom);
+  }
+
+  /* ── Section header ── */
+  #pcs-{{ sid }} .pcs-header {
+    margin-bottom: 32px;
+  }
+
+  #pcs-{{ sid }} .pcs-section-heading {
+    font-family: 'Noto Serif', serif;
+    font-weight: 400;
+    font-size: clamp(1.75rem, 2.2vw + 0.5rem, 2.5rem);
+    line-height: 1.2;
+    letter-spacing: -0.01em;
+    color: #0A0A0A;
+    margin: 0;
+  }
+
+  #pcs-{{ sid }} .pcs-section-description {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 300;
+    font-size: clamp(0.9375rem, 0.3vw + 0.85rem, 1.0625rem);
+    line-height: 1.55;
+    color: #4A5565;
+    margin: 8px 0 0 0;
+    max-width: 70ch;
+  }
+
+  /* ── Slider stage (positioning anchor for arrows) ── */
+  #pcs-{{ sid }} .pcs-stage {
+    position: relative;
+  }
+
+  /* ── Viewport: clipped, snap scroller ── */
+  #pcs-{{ sid }} .pcs-viewport {
+    overflow: hidden;
+    border-radius: 0;
+  }
+
+  /* ── Track: holds all slides side by side ── */
+  #pcs-{{ sid }} .pcs-track {
+    display: flex;
+    transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+  }
+
+  /* ── Slide: 40/60 grid on desktop ── */
+  #pcs-{{ sid }} .pcs-slide {
+    flex: 0 0 100%;
+    min-width: 100%;
+    display: grid;
+    grid-template-columns: 45% 55%;
+    gap: var(--pcs-gap);
+    align-items: stretch;
+    background:#F9FAFB;
+    border-radius:10px;
+  }
+
+  /* ── Image cell — height driven by the uploaded image's aspect ratio ── */
+  #pcs-{{ sid }} .pcs-image {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--pcs-radius);
+    /* aspect-ratio is set inline per-slide from the image's real dimensions */
+  }
+  
+
+  #pcs-{{ sid }} .pcs-image img,
+  #pcs-{{ sid }} .pcs-image svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  /* ── Content cell (vertically centered) ── */
+  #pcs-{{ sid }} .pcs-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: clamp(24px, 4vw, 56px);
+    border-radius: var(--pcs-radius);
+  }
+
+  #pcs-{{ sid }} .pcs-heading {
+    font-family: 'Noto Serif', serif;
+    font-weight: 400;
+    font-size: clamp(1.75rem, 2.6vw + 0.5rem, 3rem);
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: #0A0A0A;
+    margin: 0 0 16px 0;
+  }
+
+  #pcs-{{ sid }} .pcs-location {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    font-family: 'Rubik', sans-serif;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #4A5565;
+    margin: 0 0 24px 0;
+  }
+
+  #pcs-{{ sid }} .pcs-location-icon {
+    flex-shrink: 0;
+    display: inline-flex;
+    color: #4A5565;
+  }
+
+  #pcs-{{ sid }} .pcs-location-icon svg {
+    display: block;
+    width: 18px;
+    height: 18px;
+  }
+
+  #pcs-{{ sid }} .pcs-richtext {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 400;
+    font-size: clamp(0.9375rem, 0.3vw + 0.85rem, 1.0625rem);
+    line-height: 1.6;
+    color: #364153;
+    margin: 0 0 28px 0;
+    max-width: 56ch;
+  }
+
+  #pcs-{{ sid }} .pcs-richtext p { margin: 0 0 12px 0; }
+  #pcs-{{ sid }} .pcs-richtext p:last-child { margin-bottom: 0; }
+
+  #pcs-{{ sid }} .pcs-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 600;
+    font-size: 15px;
+    line-height: 1.4;
+    color: #0A0A0A;
+    text-decoration: none;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s, gap 0.2s, border-color 0.2s;
+    align-self: flex-start;
+  }
+
+  #pcs-{{ sid }} .pcs-link:hover {
+    color: #000;
+    gap: 14px;
+  }
+
+  #pcs-{{ sid }} .pcs-link svg {
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+
+  #pcs-{{ sid }} .pcs-link:hover svg {
+    transform: translateX(3px);
+  }
+
+  /* ── Arrows ── */
+  #pcs-{{ sid }} .pcs-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    background: #ffffff;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.12);
+    color: #0A0A0A;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    transition: background 0.2s, transform 0.2s, opacity 0.2s;
+    padding: 0;
+  }
+
+  #pcs-{{ sid }} .pcs-arrow:hover {
+    background: #f5f5f5;
+  }
+
+  #pcs-{{ sid }} .pcs-arrow:disabled {
+    opacity: 0.4;
+    cursor: default;
+  }
+
+  #pcs-{{ sid }} .pcs-arrow--prev { left: 16px; }
+  #pcs-{{ sid }} .pcs-arrow--next { right: 16px; }
+
+  #pcs-{{ sid }} .pcs-arrow svg {
+    width: 18px;
+    height: 18px;
+    display: block;
+    stroke: #0A0A0A !important;
+    fill: none !important;
+  }
+  #pcs-{{ sid }} .pcs-arrow svg * {
+    stroke: #0A0A0A !important;
+  }
+
+  /* ── Dots ── */
+  #pcs-{{ sid }} .pcs-dots {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    margin-top: 28px;
+  }
+
+  #pcs-{{ sid }} .pcs-dot {
+    width: 16px;
+    height: 16px;
+    border-radius: 50%;
+    border: 0;
+    padding: 0;
+    cursor: pointer;
+    background: #D1D5DB;
+    transition: background 0.2s, transform 0.2s;
+  }
+
+  #pcs-{{ sid }} .pcs-dot.is-active {
+    background: #222F1D;
+    transform: scale(1.5);
+  }
+
+  /* ── Mobile: stack ── */
+  @media (max-width: 767px) {
+    #pcs-{{ sid }} .pcs-slide {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+#pcs-{{ sid }} .pcs-image {
+  aspect-ratio: unset !important;
+  height: 280px;
+  border-bottom-left-radius: 0;
+  border-bottom-right-radius: 0;
+}
+    #pcs-{{ sid }} .pcs-content {
+      border-top-left-radius: 0;
+      border-top-right-radius: 0;
+      padding: clamp(20px, 5vw, 32px);
+    }
+
+    #pcs-{{ sid }} .pcs-arrow {
+      display:none;
+      width: 36px;
+      height: 36px;
+    }
+
+    #pcs-{{ sid }} .pcs-arrow--prev { left: 8px; }
+    #pcs-{{ sid }} .pcs-arrow--next { right: 8px; }
+  }
+</style>
+
+<div id="pcs-{{ sid }}" class="pcs-section">
+  <div class="container">
+
+    {%- if s_heading != blank or s_description != blank -%}
+      <div class="pcs-header">
+        {%- if s_heading != blank -%}
+          <h2 class="pcs-section-heading">{{ s_heading }}</h2>
+        {%- endif -%}
+        {%- if s_description != blank -%}
+          <p class="pcs-section-description">{{ s_description | escape }}</p>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+    {%- if section.blocks.size > 0 -%}
+      <div
+        class="pcs-stage"
+        data-autoplay="{{ autoplay }}"
+        data-speed="{{ speed_ms }}"
+        data-total="{{ section.blocks.size }}"
+      >
+        <div class="pcs-viewport">
+          <div class="pcs-track" id="pcs-track-{{ sid }}">
+            {%- for block in section.blocks -%}
+              {%- liquid
+                # Compute aspect ratio from the image's real dimensions.
+                # Fallback: 1/1 when no image is set yet (placeholder).
+                assign slide_ratio = '1 / 1'
+                if block.settings.image != blank
+                  assign slide_ratio = block.settings.image.aspect_ratio
+                endif
+              -%}
+              <div class="pcs-slide" {{ block.shopify_attributes }}>
+
+                <div class="pcs-image" style="aspect-ratio: {{ slide_ratio }};">
+                  {%- if block.settings.image != blank -%}
+                    {{
+                      block.settings.image
+                      | image_url: width: 1200
+                      | image_tag:
+                        loading: 'lazy',
+                        widths: '480, 720, 960, 1200',
+                        sizes: '(max-width: 767px) 100vw, 40vw',
+                        alt: block.settings.heading | default: block.settings.image.alt
+                    }}
+                  {%- else -%}
+                    {{ 'lifestyle-1' | placeholder_svg_tag }}
+                  {%- endif -%}
+                </div>
+
+                <div class="pcs-content">
+                  {%- if block.settings.heading != blank -%}
+                    <h3 class="pcs-heading">{{ block.settings.heading }}</h3>
+                  {%- endif -%}
+
+                  {%- if block.settings.location != blank -%}
+                    <p class="pcs-location">
+                      <span class="pcs-location-icon">
+                        {%- if location_svg != blank -%}
+                          {{ location_svg }}
+                        {%- else -%}
+                          {{ default_pin_svg }}
+                        {%- endif -%}
+                      </span>
+                      {{ block.settings.location }}
+                    </p>
+                  {%- endif -%}
+
+                  {%- if block.settings.richtext != blank -%}
+                    <div class="pcs-richtext">{{ block.settings.richtext }}</div>
+                  {%- endif -%}
+
+                  {%- if block.settings.link_text != blank -%}
+                    <a class="pcs-link" href="{{ block.settings.link_url | default: '#' }}">
+                      {{ block.settings.link_text }}
+                      <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="5" y1="12" x2="19" y2="12"/>
+                        <polyline points="12 5 19 12 12 19"/>
+                      </svg>
+                    </a>
+                  {%- endif -%}
+                </div>
+              </div>
+            {%- endfor -%}
+          </div>
+        </div>
+
+        {%- if section.blocks.size > 1 -%}
+          <button type="button" class="pcs-arrow pcs-arrow--prev" aria-label="Previous slide" data-dir="-1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="15 18 9 12 15 6"/>
+            </svg>
+          </button>
+          <button type="button" class="pcs-arrow pcs-arrow--next" aria-label="Next slide" data-dir="1">
+            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="#0A0A0A" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <polyline points="9 18 15 12 9 6"/>
+            </svg>
+          </button>
+
+          <div class="pcs-dots" role="tablist" aria-label="Slide pagination">
+            {%- for block in section.blocks -%}
+              <button
+                type="button"
+                class="pcs-dot{% if forloop.first %} is-active{% endif %}"
+                data-index="{{ forloop.index0 }}"
+                aria-label="Go to slide {{ forloop.index }}"
+              ></button>
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+    {%- endif -%}
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var sid   = '{{ sid }}';
+  var stage = document.querySelector('#pcs-{{ sid }} .pcs-stage');
+  if (!stage) return;
+
+  var track    = stage.querySelector('.pcs-track');
+  var slides   = track ? track.children : [];
+  var arrows   = stage.querySelectorAll('.pcs-arrow');
+  var dots     = stage.querySelectorAll('.pcs-dot');
+  var total    = parseInt(stage.dataset.total, 10) || slides.length;
+  if (total < 2) return;
+
+  var autoplay = stage.dataset.autoplay === 'true';
+  var speed    = parseInt(stage.dataset.speed, 10) || 5000;
+  var current  = 0;
+  var timer    = null;
+
+  function goTo(idx) {
+    current = (idx + total) % total;
+    track.style.transform = 'translateX(-' + (current * 100) + '%)';
+    dots.forEach(function (d, i) {
+      d.classList.toggle('is-active', i === current);
+    });
+  }
+
+  function step(dir) {
+    goTo(current + dir);
+    restart();
+  }
+
+  function start() {
+    if (!autoplay) return;
+    stop();
+    timer = setInterval(function () { step(1); }, speed);
+  }
+
+  function stop() {
+    if (timer) { clearInterval(timer); timer = null; }
+  }
+
+  function restart() {
+    if (autoplay) start();
+  }
+
+  arrows.forEach(function (a) {
+    a.addEventListener('click', function () {
+      step(parseInt(a.dataset.dir, 10));
+    });
+  });
+
+  dots.forEach(function (d) {
+    d.addEventListener('click', function () {
+      goTo(parseInt(d.dataset.index, 10));
+      restart();
+    });
+  });
+
+  /* Pause autoplay on hover (desktop) */
+  stage.addEventListener('mouseenter', stop);
+  stage.addEventListener('mouseleave', start);
+
+  /* Pause when tab not visible */
+  document.addEventListener('visibilitychange', function () {
+    if (document.hidden) stop();
+    else start();
+  });
+
+  /* Basic swipe support */
+  var startX = 0;
+  var deltaX = 0;
+  track.addEventListener('touchstart', function (e) {
+    startX = e.touches[0].clientX;
+    deltaX = 0;
+    stop();
+  }, { passive: true });
+  track.addEventListener('touchmove', function (e) {
+    deltaX = e.touches[0].clientX - startX;
+  }, { passive: true });
+  track.addEventListener('touchend', function () {
+    if (Math.abs(deltaX) > 50) step(deltaX < 0 ? 1 : -1);
+    else start();
+  });
+
+  start();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Partner Clubs Slider",
+  "tag": "section",
+  "class": "section-partner-clubs-slider",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Section heading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Newly Added Partner Clubs"
+    },
+    {
+      "type": "text",
+      "id": "description",
+      "label": "Description",
+      "default": "We're thrilled to announce our partnerships with these exceptional golf destinations. Explore their exclusive collections now available."
+    },
+    {
+      "type": "header",
+      "content": "Location icon"
+    },
+    {
+      "type": "textarea",
+      "id": "location_svg",
+      "label": "Location icon (SVG)",
+      "info": "Paste raw SVG markup. Leave blank to use the default pin icon."
+    },
+    {
+      "type": "header",
+      "content": "Autoplay"
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "Enable autoplay",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Autoplay interval",
+      "min": 3,
+      "max": 12,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap between image & content",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 8
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 56
+    }
+  ],
+  "blocks": [
+    {
+      "type": "slide",
+      "name": "Slide",
+      "limit": 12,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Dumbarnie Links"
+        },
+        {
+          "type": "text",
+          "id": "location",
+          "label": "Location",
+          "default": "Fife, Scotland"
+        },
+        {
+          "type": "richtext",
+          "id": "richtext",
+          "label": "Description",
+          "default": "<p>A modern masterpiece on the coast of Fife, offering stunning views of the Firth of Forth.</p><p>Browse 12 exclusive items from this prestigious venue, including limited-edition apparel, accessories, and club-branded merchandise available only through our partnership.</p>"
+        },
+        {
+          "type": "header",
+          "content": "Link (displayed as text)"
+        },
+        {
+          "type": "text",
+          "id": "link_text",
+          "label": "Link text",
+          "default": "Explore Dumbarnie Links Collection"
+        },
+        {
+          "type": "url",
+          "id": "link_url",
+          "label": "Link URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Partner Clubs Slider",
+      "blocks": [
+        { "type": "slide" },
+        { "type": "slide" },
+        { "type": "slide" }
+      ]
+    }
+  ]
+}
+{% endschema %}

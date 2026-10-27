@@ -1,0 +1,119 @@
+.f-hero .container-full {
+  padding: 0;
+}
+.f-hero:not(.f-hero--mobile) .f-hero--small {
+  --hero-height: 29rem;
+}
+.f-hero:not(.f-hero--mobile) .f-hero--medium {
+  --hero-height: 36rem;
+}
+.f-hero:not(.f-hero--mobile) .f-hero--large {
+  --hero-height: 42rem;
+}
+.f-hero__description {
+  font-size: 1rem;
+}
+
+.f-hero__description--container {
+  max-width: 700px;
+  margin: auto;
+}
+@media (min-width: 768px) {
+  .f-hero--small {
+    --hero-height: 42rem;
+  }
+  .f-hero--medium {
+    --hero-height: 56rem;
+  }
+  .f-hero--large {
+    --hero-height: 72rem;
+  }
+  .f-hero:not(.f-hero--adapt) .f-hero__wrapper::before {
+    display: none;
+  }
+  .f-hero__description {
+    font-size: 1.25rem;
+  }
+}
+@media (max-width: 767.98px) {
+  .f-hero-mobile--small {
+    --hero-height: 29rem;
+  }
+  .f-hero-mobile--medium {
+    --hero-height: 36rem;
+  }
+  .f-hero-mobile--large {
+    --hero-height: 42rem;
+  }
+  .f-hero-mobile--extra-large {
+    --hero-height: 66rem;
+  }
+  .f-hero:not(.f-hero-mobile--adapt) .f-hero__wrapper::before {
+    display: none;
+  }
+}
+.f-hero__wrapper {
+  padding: 64px 0;
+  /* min-height: var(--hero-height); */
+}
+.f-hero__wrapper--short {
+  padding: 64px 0;
+}
+.f-hero__content {
+  z-index: 1;
+  color: var(--text-color);
+}
+@media (min-width: 768px) {
+  .f-hero__wrapper {
+    padding: 128px 0;
+  }
+  .f-hero__content {
+    max-width: 60%;
+  }
+}
+.f-hero__content .btn--underline {
+  color: currentColor;
+}
+.f-hero__content-wrapper:not(.container) {
+  max-width: 100%;
+}
+@media (max-width: 767.98px) {
+  /* .f-hero__wrapper--mobile-stack {
+    padding: 0;
+  } */
+  .f-hero__wrapper--mobile-stack:before,
+  .f-hero__wrapper--mobile-stack .bg-overlay {
+    display: none;
+  }
+  /* .f-hero__wrapper--mobile-stack .f-hero__content-wrapper {
+    padding: 0;
+    position: static;
+  } */
+  .f-hero__wrapper--mobile-stack .f-hero__bg--mobile {
+    position: relative;
+  }
+  .f-hero__wrapper--mobile-stack .f-hero__bg--desktop {
+    position: relative !important;
+  }
+  .f-hero__wrapper--mobile-stack .f-hero__bg {
+    height: var(--hero-height);
+    position: relative;
+  }
+  .f-hero__wrapper--mobile-stack .f-hero__content {
+    width: 100%;
+    padding: 2rem 1.5rem 0;
+  }
+  .f-hero__wrapper--mobile-stack .f-video-wrapper {
+    position: relative !important;
+  }
+}
+.f-hero:not(.f-hero--adapt) .f-video-wrapper,
+.f-hero:not(.f-hero--adapt) .f-hero__bg {
+  height: var(--hero-height);
+}
+.f-hero .f-hero__bg img,
+.f-hero .f-hero__bg svg {
+  height: 100%;
+  width: 100%;
+  object-fit: cover;
+}

@@ -1,0 +1,45 @@
+<!-- Hidden by default -->
+<div 
+  id="yotpo-widget"
+  style="display: none;"
+  class="yotpo-widget-instance" 
+  data-yotpo-instance-id="1146753" 
+  data-yotpo-product-id="{{ product.id }}" 
+  data-yotpo-name="{{ product.title | escape }}" 
+  data-yotpo-url="{{ shop.url }}{{ product.url }}" 
+  data-yotpo-image-url="{{ product.featured_image | image_url: 'large' | prepend: 'https:' | replace: '?', '%3F' | replace: '&','%26' }}" 
+  data-yotpo-price="{{ product.price | divided_by: 100.00 }}" 
+  data-yotpo-currency="{{ shop.currency }}" 
+  data-yotpo-description="{{ product.description | escape }}"
+></div>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    // Wait for Yotpo to load (may already be initialized)
+    function waitForYotpo(callback) {
+      if (window.yotpo && window.yotpo.initializedWidgets) {
+        callback();
+      } else {
+        setTimeout(function () {
+          waitForYotpo(callback);
+        }, 300);
+      }
+    }
+
+    waitForYotpo(function () {
+      const productId = "{{ product.id }}";
+      const appKey = "1146753"; // your Yotpo instance ID
+
+      // Yotpo API: fetch reviews summary
+      fetch(`https://api.yotpo.com/products/${appKey}/${productId}/bottomline`)
+        .then(res => res.json())
+        .then(data => {
+          const rating = data?.response?.bottomline?.average_score;
+          if (rating && rating > 4) {
+            document.getElementById("yotpo-widget").style.display = "block";
+            window.yotpo.initWidgets();
+          }
+        });
+    });
+  });
+</script>

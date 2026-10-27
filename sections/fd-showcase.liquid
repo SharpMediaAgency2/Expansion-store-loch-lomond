@@ -1,0 +1,438 @@
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --section-pt: {{ section.settings.padding_top }}px;
+    --section-pb: {{ section.settings.padding_bottom }}px;
+    --card-height: {{ section.settings.card_height }}px;
+    --card-bg: {{ section.settings.card_background }};
+  }
+
+  .fd-brands-{{ section.id }} {
+    padding-top: var(--section-pt);
+    padding-bottom: var(--section-pb);
+  }
+
+  /* ── Header ── */
+  .fd-brands-{{ section.id }} .fd-brands__header {
+    text-align: center;
+    margin-bottom: 40px;
+    padding: 0 clamp(20px, 5vw, 60px);
+  }
+
+  .fd-brands-{{ section.id }} .fd-brands__heading {
+    font-family: 'Noto Serif', serif;
+    font-weight: 400;
+    font-size: 36px;
+    line-height: 40px;
+    letter-spacing: 0px;
+    margin: 0 0 12px;
+    color: currentColor;
+  }
+
+  .fd-brands-{{ section.id }} .fd-brands__subheading {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 28px;
+    letter-spacing: -0.44px;
+    color: currentColor;
+    margin: 0;
+  }
+
+  /* ── Carousel outer ── */
+  .fd-brands-{{ section.id }} .fd-brands__carousel-outer {
+    position: relative;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 60px);
+  }
+
+  /* ── Track ── */
+  .fd-brands-{{ section.id }} .fd-brands__track {
+    display: flex;
+    gap: 16px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+  }
+
+  .fd-brands-{{ section.id }} .fd-brands__track::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* ── Card ── */
+  .fd-brands-{{ section.id }} .fd-brands__card {
+    flex: 0 0 calc((100% - 5 * 16px) / 6);
+    height: var(--card-height);
+    background: var(--card-bg);
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    scroll-snap-align: start;
+    text-decoration: none;
+    overflow: hidden;
+    padding: 16px;
+    box-sizing: border-box;
+    transition: opacity 0.2s;
+  }
+
+  .fd-brands-{{ section.id }} .fd-brands__card:hover {
+    opacity: 0.85;
+  }
+
+  .fd-brands-{{ section.id }} .fd-brands__card img {
+    max-width: 100%;
+    max-height: 100%;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
+  .fd-brands-{{ section.id }} .fd-brands__card-placeholder {
+    width: 80px;
+    height: 80px;
+    background: #d4d4d4;
+    border-radius: 8px;
+  }
+
+  /* ── Nav arrows — overlap the track edges ── */
+  .fd-brands-{{ section.id }} .fd-brands__nav {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    background: #222F1D;
+    color: #ffffff;
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 2;
+    transition: opacity 0.2s;
+    padding: 0;
+    flex-shrink: 0;
+  }
+
+  .fd-brands-{{ section.id }} .fd-brands__nav:hover {
+    opacity: 0.8;
+  }
+
+  /* Prev: overlaps left edge of first card */
+  .fd-brands-{{ section.id }} .fd-brands__nav--prev {
+    left: clamp(20px, 5vw, 60px);
+    transform: translateY(-50%) translateX(-50%);
+  }
+
+  /* Next: overlaps right edge of last visible card */
+  .fd-brands-{{ section.id }} .fd-brands__nav--next {
+    right: clamp(20px, 5vw, 60px);
+    transform: translateY(-50%) translateX(50%);
+  }
+
+  /* Hide prev when at start */
+  .fd-brands-{{ section.id }} .fd-brands__nav--prev.is-hidden {
+    display: none;
+  }
+
+  /* ── Mobile: 2 cards ── */
+  @media screen and (max-width: 749px) {
+    .fd-brands-{{ section.id }} .fd-brands__card {
+      flex: 0 0 calc((100% - 16px) / 2);
+    }
+
+    .fd-brands-{{ section.id }} .fd-brands__carousel-outer {
+      padding: 0 16px;
+    }
+
+    .fd-brands-{{ section.id }} .fd-brands__nav--prev {
+      left: 16px;
+    }
+
+    .fd-brands-{{ section.id }} .fd-brands__nav--next {
+      right: 16px;
+    }
+
+    .fd-brands-{{ section.id }} .fd-brands__heading {
+      font-size: 30px;
+      line-height: 36px;
+    }
+    .fd-brands-{{ section.id }} .fd-brands__nav {
+    width: 26px;
+    height: 26px;
+    }
+    .fd-brands-{{ section.id }} .fd-brands__heading {
+      text-align: center;
+      font-family: 'Rubik' !important;
+      font-size: 24px !important;
+      font-weight: 400 !important;
+    }
+    .fd-brands-{{ section.id }} .fd-brands__header {
+      margin-bottom:0px!important;
+    }
+  }
+{%- endstyle -%}
+
+<div class="fd-brands-{{ section.id }}">
+
+  {%- comment -%} Header {%- endcomment -%}
+  {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+    <div class="fd-brands__header">
+      {%- if section.settings.heading != blank -%}
+        <h2 class="fd-brands__heading">{{ section.settings.heading }}</h2>
+      {%- endif -%}
+      {%- if section.settings.subheading != blank -%}
+        <p class="fd-brands__subheading">{{ section.settings.subheading }}</p>
+      {%- endif -%}
+    </div>
+  {%- endif -%}
+
+  {%- comment -%} Carousel {%- endcomment -%}
+  <div class="fd-brands__carousel-outer" id="fd-brands-outer-{{ section.id }}">
+
+    {%- comment -%} Prev arrow {%- endcomment -%}
+    <button
+      class="fd-brands__nav fd-brands__nav--prev is-hidden"
+      id="fd-brands-prev-{{ section.id }}"
+      aria-label="Previous brands"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none" style="transform: scaleX(-1);">
+        <path d="M0.75 0.750001L5.75 5.75L0.75 10.75" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+    {%- comment -%} Track {%- endcomment -%}
+    <div
+      class="fd-brands__track"
+      id="fd-brands-track-{{ section.id }}"
+      aria-label="{{ section.settings.heading | escape }}"
+    >
+      {%- for block in section.blocks -%}
+        <a
+          href="{{ block.settings.url | default: '#' }}"
+          class="fd-brands__card"
+          {{ block.shopify_attributes }}
+          aria-label="{{ block.settings.brand_name | default: 'Brand' | escape }}"
+        >
+          {%- if block.settings.logo != blank -%}
+            {{
+              block.settings.logo
+              | image_url: width: 400
+              | image_tag:
+                loading: 'lazy',
+                widths: '200, 300, 400',
+                sizes: '(max-width: 749px) 45vw, 15vw',
+                alt: block.settings.brand_name | escape
+            }}
+          {%- else -%}
+            <div class="fd-brands__card-placeholder"></div>
+          {%- endif -%}
+        </a>
+      {%- endfor -%}
+    </div>
+
+    {%- comment -%} Next arrow {%- endcomment -%}
+    <button
+      class="fd-brands__nav fd-brands__nav--next"
+      id="fd-brands-next-{{ section.id }}"
+      aria-label="Next brands"
+    >
+      <svg xmlns="http://www.w3.org/2000/svg" width="7" height="12" viewBox="0 0 7 12" fill="none">
+      <path d="M0.75 0.750001L5.75 5.75L0.75 10.75" stroke="white" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+    </button>
+
+  </div>
+</div>
+
+<script>
+(function () {
+  var track    = document.getElementById('fd-brands-track-{{ section.id }}');
+  var prevBtn  = document.getElementById('fd-brands-prev-{{ section.id }}');
+  var nextBtn  = document.getElementById('fd-brands-next-{{ section.id }}');
+  var autoplaySpeed = {{ section.settings.autoplay_speed | times: 1000 }};
+  var autoplayTimer = null;
+
+  if (!track) return;
+
+  /* ── Card scroll step ── */
+  function getStep() {
+    var card = track.querySelector('.fd-brands__card');
+    return card ? card.offsetWidth + 16 : 200;
+  }
+
+  /* ── Update arrow visibility ── */
+  function updateArrows() {
+    if (!prevBtn || !nextBtn) return;
+    var atStart = track.scrollLeft <= 2;
+    var atEnd   = track.scrollLeft >= track.scrollWidth - track.clientWidth - 2;
+    prevBtn.classList.toggle('is-hidden', atStart);
+    nextBtn.classList.toggle('is-hidden', atEnd);
+  }
+
+  /* ── Scroll helpers ── */
+  function scrollNext() {
+    var maxScroll = track.scrollWidth - track.clientWidth;
+    if (track.scrollLeft >= maxScroll - 2) {
+      track.scrollLeft = 0;
+    } else {
+      track.scrollLeft += getStep();
+    }
+  }
+
+  function scrollPrev() {
+    if (track.scrollLeft <= 2) {
+      track.scrollLeft = track.scrollWidth - track.clientWidth;
+    } else {
+      track.scrollLeft -= getStep();
+    }
+  }
+
+  /* ── Button listeners ── */
+  if (nextBtn) {
+    nextBtn.addEventListener('click', function () {
+      scrollNext();
+      resetAutoplay();
+    });
+  }
+
+  if (prevBtn) {
+    prevBtn.addEventListener('click', function () {
+      scrollPrev();
+      resetAutoplay();
+    });
+  }
+
+  /* ── Update arrows on scroll ── */
+  track.addEventListener('scroll', updateArrows, { passive: true });
+
+  /* ── Autoplay ── */
+  function startAutoplay() {
+    if (autoplaySpeed <= 0) return;
+    autoplayTimer = setInterval(scrollNext, autoplaySpeed);
+  }
+
+  function resetAutoplay() {
+    if (autoplaySpeed <= 0) return;
+    clearInterval(autoplayTimer);
+    startAutoplay();
+  }
+
+  track.addEventListener('mouseenter', function () { clearInterval(autoplayTimer); });
+  track.addEventListener('mouseleave', startAutoplay);
+
+  /* ── Init ── */
+  updateArrows();
+  startAutoplay();
+})();
+</script>
+
+{% schema %}
+{
+  "name": "F&D Brand Carousel",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 20,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Shop by Brand"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading"
+    },
+    {
+      "type": "color",
+      "id": "card_background",
+      "label": "Card background color",
+      "default": "#FAF7F2"
+    },
+    {
+      "type": "range",
+      "id": "card_height",
+      "label": "Card height",
+      "min": 100,
+      "max": 300,
+      "step": 10,
+      "unit": "px",
+      "default": 200
+    },
+    {
+      "type": "range",
+      "id": "autoplay_speed",
+      "label": "Autoplay speed",
+      "min": 0,
+      "max": 10,
+      "step": 1,
+      "unit": "s",
+      "default": 3,
+      "info": "Set to 0 to disable autoplay"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 60
+    }
+  ],
+  "blocks": [
+    {
+      "type": "brand",
+      "name": "Brand",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo",
+          "label": "Brand logo"
+        },
+        {
+          "type": "text",
+          "id": "brand_name",
+          "label": "Brand name",
+          "info": "Used for accessibility alt text"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link URL"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "F&D Brand Carousel",
+      "blocks": [
+        { "type": "brand", "settings": { "brand_name": "Johnnie-O" } },
+        { "type": "brand", "settings": { "brand_name": "Straight Down" } },
+        { "type": "brand", "settings": { "brand_name": "Zero Restriction" } },
+        { "type": "brand", "settings": { "brand_name": "B. Draddy" } },
+        { "type": "brand", "settings": { "brand_name": "Galvin Green" } },
+        { "type": "brand", "settings": { "brand_name": "Imperial" } }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,1674 @@
+{% liquid
+  assign paginate_type = section.settings.paginate_type
+  assign products_per_page = section.settings.products_per_page
+  assign columns = section.settings.columns
+
+  assign enable_filtering = section.settings.enable_filtering
+  assign enable_sorting = section.settings.enable_sorting
+  assign enable_product_count = section.settings.enable_product_count
+  assign sidebar_position = section.settings.sidebar_position
+
+  assign columns_tablet = columns | minus: 1
+  if columns < 3 or request.design_mode
+    assign columns_tablet = columns
+  endif
+
+  assign animation_effect = settings.animations
+%}
+{% assign course_handle = collection.metafields.custom.selected_course.value.title  %}
+{% assign course_handle = course_handle | handle %}
+{{ 'collection.css' | asset_url | stylesheet_tag }}
+<link
+  id="ModalComponent"
+  rel="stylesheet"
+  href="{{ 'modal-component.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+{% if enable_filtering or enable_sorting %}
+  <script src="{{ 'facets.js' | asset_url }}" defer="defer"></script>
+{% endif %}
+<script
+  src="{{ 'product-grid-container.js' | asset_url }}"
+  defer="defer"
+></script>
+
+{% if sidebar_position == 'top' %}
+  <style>
+    [data-sidebar-position="top"] .main-collection__wrapper--top {
+      display: block !important;
+      padding: 0 !important;
+    }
+    [data-sidebar-position="top"] .main-collection__list {
+      max-width: 100%;
+    }
+
+    [data-sidebar-position="top"] .f-drawer-facets {
+      position: static !important;
+      display: block !important;
+      visibility: visible !important;
+      transform: none !important;
+      pointer-events: auto !important;
+      background: transparent !important;
+      width: 100% !important;
+      max-width: none !important;
+      height: auto !important;
+      z-index: auto !important;
+    }
+    [data-sidebar-position="top"] .f-drawer-facets[hidden] {
+      display: block !important;
+    }
+    [data-sidebar-position="top"] .f-drawer-facets .f-drawer__overlay,
+    [data-sidebar-position="top"] .f-drawer-facets .f-drawer__close,
+    [data-sidebar-position="top"] .f-drawer-facets .f-facets__header,
+    [data-sidebar-position="top"] .f-drawer-facets .f-facets__footer {
+      display: none !important;
+    }
+
+    [data-sidebar-position="top"] .f-drawer-facets .f-drawer__content {
+      width: 100% !important;
+      height: auto !important;
+      max-height: none !important;
+      transform: none !important;
+      background: transparent !important;
+      padding: 0 !important;
+      overflow: visible !important;
+    }
+
+    [data-sidebar-position="top"] .f-drawer-facets .f-drawer__inner {
+      overflow: visible !important;
+      max-height: none !important;
+      padding: 0 !important;
+    }
+
+    [data-sidebar-position="top"] .f-facets__container--top {
+      padding: 0 !important;
+      border: none !important;
+      background: transparent !important;
+    }
+
+    /* ── Toggle bar wrapper ── */
+    [data-sidebar-position="top"] .product-grid__header {
+      display: block !important;
+      padding: 0 !important;
+      border-bottom: none !important;
+      margin: 0 !important;
+    }
+
+    /* ── Inner row wrapper ── */
+    [data-sidebar-position="top"] .product-grid__header-inner {
+      display: flex !important;
+      align-items: center !important;
+      justify-content: space-between !important;
+      padding: 16px 80px !important;
+      gap: 16px;
+      flex-wrap: wrap;
+      max-width:1580px;
+      margin:auto;
+    }
+
+    [data-sidebar-position="top"] .product-grid__header drawer-opener {
+      display: block !important;
+    }
+    [data-sidebar-position="top"] .product-grid__header drawer-opener.hidden {
+      display: block !important;
+    }
+    @media (min-width: 1025px) {
+      [data-sidebar-position="top"] .product-grid__header drawer-opener,
+      [data-sidebar-position="top"] .product-grid__header drawer-opener.hidden {
+        display: block !important;
+      }
+    }
+    [data-sidebar-position="top"] .product-grid__header drawer-opener .btn--filter-sort {
+      pointer-events: auto;
+      cursor: pointer;
+    }
+
+    [data-sidebar-position="top"] .f-drawer-facets {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.35s ease, padding 0.35s ease, border-color 0.35s ease;
+      background: #fff;
+    }
+
+    [data-sidebar-position="top"][data-filters-open="true"] .f-drawer-facets {
+      max-height: 2000px;
+      padding: 0px 0 28px !important;
+      background:white!important;
+    }
+    [data-sidebar-position="top"] .f-drawer-facets {
+      background:white!important;
+    }
+    #FacetFiltersForm .f-facets__wrapper {
+      padding-left: 20px;
+    }
+    .f-checkbox .checkmark {
+      margin-right: 0px !important;
+    }
+    .f-drawer-facets .scroll-container { border-top: unset !important; }
+
+    [data-sidebar-position="top"][data-filters-open="true"][data-view-all="true"] .f-drawer-facets {
+      max-height: calc(100vh - 100px);
+      overflow-y: auto;
+    }
+ @media (min-width: 1500px) {
+      [data-sidebar-position="top"] .f-facets__block-header span {
+        font-weight: 600 !important;
+      }
+
+      [data-sidebar-position="top"] .f-facets__blocks {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(180px, 18%)) !important;
+        gap: 32px 28px !important;
+        align-items: start !important;
+        padding: 0 !important;
+      }
+      .f-facets__container.f-facets__container--top {
+          padding-left: 80px !important;
+          padding-right: 80px !important;
+      }
+    }
+    /* ─────────────────────────────────────────────
+       DESKTOP-ONLY top-strip layout (≥1025px)
+       Single-column accordion is the mobile default.
+       ───────────────────────────────────────────── */
+    @media (min-width: 1025px) {
+      [data-sidebar-position="top"] .f-facets__block-header span {
+        font-weight: 600 !important;
+      }
+
+      [data-sidebar-position="top"] .f-facets__blocks {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)) !important;
+        gap: 32px 28px !important;
+        align-items: start !important;
+        padding: 0 !important;
+      }
+      .f-facets__container.f-facets__container--top {
+          padding-left: 20px !important;
+          padding-right: 20px !important;
+      }
+
+      [data-sidebar-position="top"] .f-facets__block {
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        min-width: 0 !important;
+      }
+
+      [data-sidebar-position="top"] .f-facets__block-header {
+        font-family: 'Rubik', sans-serif !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.05em !important;
+        text-transform: uppercase !important;
+        color: #0A0A0A !important;
+        padding: 0 0 12px 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        pointer-events: none;
+        background: transparent !important;
+      }
+      [data-sidebar-position="top"] .f-facets__block-header [data-collapsible-icon] {
+        display: none !important;
+      }
+
+      [data-sidebar-position="top"] .f-facets__block-content {
+        display: block !important;
+        padding: 0 !important;
+        max-height: none !important;
+        height: auto !important;
+        overflow: visible !important;
+        padding-left:5px!important;
+      }
+      [data-sidebar-position="top"] .f-facets__block-content[aria-hidden="true"] {
+        display: block !important;
+        height: auto !important;
+      }
+
+      [data-sidebar-position="top"]:not([data-view-all="true"]) .f-facets__list .f-facets__item:nth-child(n+7) {
+        display: none !important;
+      }
+
+      [data-sidebar-position="top"] .cg-view-all-btn {
+        display: none;
+        margin-top: 10px;
+        font-family: 'Rubik', sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        color: #0A0A0A;
+        background: transparent;
+        border: 1px solid #E5E5E5;
+        padding: 0px 14px;
+        border-radius: 999px;
+        cursor: pointer;
+        min-height: unset;
+        height: 20px;
+        font-family: Rubik;
+        font-weight: 400;
+        font-size: 14px;
+        line-height: 16px;
+        letter-spacing: -0.15px;
+        margin-top: 25px;
+        text-transform: none !important;
+      }
+      [data-sidebar-position="top"]:not([data-view-all="true"]) .f-facets__block[data-has-more] .cg-view-all-btn {
+        display: inline-block;
+      }
+      [data-sidebar-position="top"] .cg-view-all-btn:hover {
+        background: #f3f4f6;
+      }
+
+      product-grid-container .product-grid__header.flex.items-center.justify-between {
+        display: none !important;
+      }
+
+      [data-sidebar-position="top"] show-more-button { display: none !important; }
+
+      [data-sidebar-position="top"][data-view-all="true"] .f-facets__block-content {
+        overflow: visible !important;
+      }
+      [data-sidebar-position="top"][data-view-all="true"] .f-facets__list .f-facets__item {
+        display: block !important;
+      }
+
+      [data-sidebar-position="top"] .f-facets__list {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 8px !important;
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+      [data-sidebar-position="top"] .f-facets__item {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      [data-sidebar-position="top"] .f-checkbox {
+        display: flex !important;
+        align-items: center !important;
+        gap: 5px !important;
+        font-family: 'Rubik', sans-serif !important;
+        font-size: 14px !important;
+        color: #4A5565 !important;
+        cursor: pointer;
+        padding: 2px 0;
+        line-height: 1.4;
+        min-height: unset;
+      }
+
+      [data-sidebar-position="top"] .f-checkbox input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        accent-color: #C58A30;
+      }
+
+      [data-sidebar-position="top"] show-more-button {
+        display: block;
+        margin-top: 10px;
+      }
+      [data-sidebar-position="top"] show-more-button .button-show-more {
+        font-family: 'Rubik', sans-serif !important;
+        font-size: 13px !important;
+        font-weight: 500 !important;
+        color: #0A0A0A !important;
+        text-decoration: underline !important;
+        background: transparent !important;
+        border: 1px solid #d1d5db !important;
+        padding: 6px 14px !important;
+        border-radius: 999px !important;
+      }
+      [data-sidebar-position="top"] show-more-button .button-show-more:hover {
+        background: #f3f4f6 !important;
+      }
+
+      [data-sidebar-position="top"] .collection-sortby {
+        margin-left: auto !important;
+      }
+      [data-sidebar-position="top"] .collection-sortby label {
+        display: inline-block !important;
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        clip: auto !important;
+        overflow: visible !important;
+        font-family: 'Rubik', sans-serif !important;
+        font-size: 14px !important;
+        color: #4A5565 !important;
+        margin-right: 10px !important;
+      }
+
+      [data-sidebar-position="top"] .f-facets__block-content:has(price-range) {
+        overflow: visible;
+        max-height: none;
+      }
+
+      product-grid-container .active-facets { display: none !important; }
+    } /* end @media (min-width: 1025px) */
+
+    .f-checkbox .checkmark::before {
+      content: '';
+      width: 11px;
+      height: 11px;
+      background-size: contain !important;
+      background-image: url("data:image/svg+xml,%3Csvg width='12' height='9' viewBox='0 0 12 9' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M11.25 0.75L4.25 7.74969L0.75 4.25' stroke='white' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+      display: block;
+      top: 2.5px;
+      left: 2.5px;
+      position: absolute;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+    .active-facets__button-inner{
+      text-transform:capitalize!important;
+    }
+
+    .main-collection__wrapper.main-collection__wrapper--top.flex .main-collection__list {
+      max-width: 100% !important;
+    }
+    .f-checkbox .checkmark {
+      position: relative;
+      left: 1px;
+      width: 16px;
+      height: 16px;
+    }
+
+    [data-sidebar-position="top"] .active-facets {
+      display: flex !important;
+      flex-wrap: wrap !important;
+      gap: 8px !important;
+      align-items: center !important;
+      padding: 16px 0 16px !important;
+      margin: 0 !important;
+      border: none !important;
+      background:white;
+      box-shadow: 50vw 0 white, -50vw 0 white;
+    }
+    #product-grid {
+      margin-top: 50px;
+      padding-bottom: 65px;
+    }
+    #ProductGridContainer[data-filters-open="true"] .active-facets {
+      background: white !important;
+      box-shadow: 50vw 0 white, -50vw 0 white;
+    }
+    #ProductGridContainer[data-filters-open="false"] .active-facets {
+      background: #f9fafb !important;
+      box-shadow: 50vw 0 #f9fafb, -50vw 0 #f9fafb;
+    }
+    [data-sidebar-position="top"][data-view-all="true"] .f-drawer-facets .active-facets-clone {
+      display: flex !important;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+    [data-sidebar-position="top"] .active-facets-clone {
+      display: none;
+    }
+
+    [data-sidebar-position="top"] .active-facets__button {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding: 0px 14px !important;
+      background: #ffffff !important;
+      border-radius: 999px !important;
+      border: 1px solid #EEEEEE !important;
+      font-size: 13px !important;
+      margin-right:5px!important;
+      color: #0A0A0A !important;
+    }
+    [data-sidebar-position="top"] .active-facets__button-clear {
+      background: transparent !important;
+      text-transform: capitalize;
+    }
+    a.active-facets__button:before, a.active-facets__button:after {
+      content: unset !important;
+    }
+    .active-facets__button.btn.btn--small.btn--underline.active-facets__button-clear {
+      background: #eee !important;
+    }
+    .active-facets__button.btn.btn--small.btn--underline.active-facets__button-clear:after {
+      display: none !important;
+    }
+
+    /* Product grid background color */
+    #ProductGridContainer .main-collection__list {
+      background-color: {{ section.settings.product_grid_bg_color }};
+    }
+    .f-facets__container.f-facets__container--top {
+      max-width: 1580px;
+      margin: auto;
+      padding-left: 80px ;
+      padding-right: 80px;
+      padding-top:50px !important;
+    }
+    .active-facets-clone:has(> facet-remove:only-child) {
+      display: none !important;
+    }
+    #Drawer-Facets .active-facets-clone {
+      max-width: 1400px;
+      margin: auto;
+    }
+
+    /* Hide the active-facets bar / clone entirely when there are no real
+       filter chips applied (i.e. only the "Clear All" button would show).
+       A real filter chip is an .active-facets__button WITHOUT the
+       .active-facets__button-clear modifier. These selectors are scoped
+       tightly so they out-specify the desktop/mobile "show" rules above. */
+    [data-sidebar-position="top"] .active-facets:not(:has(.active-facets__button:not(.active-facets__button-clear))) {
+      display: none !important;
+    }
+    [data-sidebar-position="top"] .f-drawer-facets .active-facets-clone:not(:has(.active-facets__button:not(.active-facets__button-clear))) {
+      display: none !important;
+    }
+    @media screen and (min-width:1025px){
+      [data-sidebar-position="top"] .fc-stacked-col {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 32px !important;
+      }
+    }
+    .f-pagination__wrapper {
+      padding: 32px 0 !important;
+    }
+
+    .f-pagination {
+      width: 100% !important;
+      display: flex !important;
+      justify-content: center !important;
+    }
+
+    .f-pagination__list {
+      display: grid !important;
+      grid-template-columns: 1fr auto 1fr !important;
+      align-items: center !important;
+      width: 100% !important;
+      padding: 0 !important;
+      margin: 0 !important;
+      gap: 0 !important;
+      list-style: none !important;
+    }
+
+    .f-pagination__list li:has(.f-pagination__item--prev) {
+      justify-self: start !important;
+    }
+
+    .f-pagination__list li:has(.f-pagination__item--next) {
+      justify-self: end !important;
+    }
+
+    .f-pagination__list li:not(:has(.f-pagination__item--prev)):not(:has(.f-pagination__item--next)) {
+      justify-self: center !important;
+    }
+
+    .f-pagination__list {
+      grid-auto-flow: dense;
+    }
+
+    .f-pagination__item {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      min-width: 36px !important;
+      height: 36px !important;
+      padding: 0 8px !important;
+      border-radius: 6px !important;
+      font-family: 'Rubik', sans-serif !important;
+      font-size: 14px !important;
+      color: #667085 !important;
+      border: 1px solid transparent !important;
+      text-decoration: none !important;
+      font-weight:bold!important;
+    }
+    .f-pagination__item.f-pagination__item--prev.f-pagination__item--disabled {
+      opacity: 0.5;
+    }
+    .f-pagination__item:hover {
+      border-color: #E5E7EB !important;
+      color: #0A0A0A !important;
+    }
+    .main-collection__pagination {
+      border-top: 1px solid #EAECF0;
+    }
+    .main-collection__pagination.f-pagination__wrapper.text-center {
+      background: white;
+      box-shadow: -50vw 0 white, 50vw 0 white;
+    }
+    .f-pagination__item--current, .f-pagination__item--current:hover {
+      background: #04534E !important;
+      color: #ffffff !important;
+      border-color: #04534E !important;
+      font-weight: 600 !important;
+    }
+
+    .f-pagination__item--prev, .f-pagination__item--next {
+      display: inline-flex !important;
+      align-items: center !important;
+      gap: 8px !important;
+      padding: 0 20px !important;
+      height: 36px !important;
+      border: 1px solid #D0D5DD !important;
+      border-radius: 6px !important;
+      font-size: 14px !important;
+      color: #0A0A0A !important;
+      font-family: 'Rubik', sans-serif !important;
+      white-space: nowrap !important;
+      text-decoration: none !important;
+      box-shadow: 0px 1px 2px 0px #1018280D;
+      font-family: Rubik;
+      font-weight: 500;
+      font-size: 14px;
+      line-height: 20px;
+      letter-spacing: 0%;
+      color: #344054;
+    }
+
+    .f-pagination__item--prev:hover,
+    .f-pagination__item--next:hover {
+      background: #f3f4f6 !important;
+    }
+
+    /* ─────────────────────────────────────────────
+       MOBILE (≤1024px) — Inline collapsible
+       Single column, native accordion behavior,
+       reduced padding, "View More" link instead of
+       custom "View All" pill.
+       ───────────────────────────────────────────── */
+    @media (max-width: 1024px) {
+      /* Header row: Filters button + Sort dropdown side-by-side */
+      [data-sidebar-position="top"] .product-grid__header-inner {
+        padding: 12px 16px !important;
+        gap: 12px !important;
+        justify-content: flex-start !important;
+      }
+      [data-sidebar-position="top"] .product-grid__header drawer-opener {
+        display: block !important;
+      }
+      [data-sidebar-position="top"] .collection-sortby {
+        margin-left: auto !important;
+      }
+
+      /* Container padding */
+      .f-facets__container.f-facets__container--top {
+        padding-left: 0 !important;
+        padding-right: 0 !important;
+        padding-top: 0 !important;
+      }
+
+      /* Single column layout for filter blocks */
+      [data-sidebar-position="top"] .f-facets__blocks {
+        display: block !important;
+        padding: 0 !important;
+      }
+      [data-sidebar-position="top"] .fc-stacked-col {
+        display: block !important;
+      }
+      [data-sidebar-position="top"] .f-facets__block {
+        border: none !important;
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+      }
+
+      /* Accordion-style header: tappable with chevron */
+      [data-sidebar-position="top"] .f-facets__block-header {
+        font-family: 'Rubik', sans-serif !important;
+        font-size: 13px !important;
+        font-weight: 700 !important;
+        letter-spacing: 0.05em !important;
+        text-transform: uppercase !important;
+        color: #0A0A0A !important;
+        padding: 16px 0 !important;
+        margin: 0 !important;
+        border: none !important;
+        background: transparent !important;
+        cursor: pointer !important;
+        display: flex !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        width: 100% !important;
+        /* pointer-events explicitly enabled (desktop sets it to none) */
+        pointer-events: auto !important;
+      }
+      [data-sidebar-position="top"] .f-facets__block-header span {
+        font-weight: 700 !important;
+      }
+
+      /* Chevron icon — visible, on the right, rotates 90° when open
+         Starts pointing RIGHT (›) when collapsed, rotates to point DOWN (▾) when expanded */
+      [data-sidebar-position="top"] .f-facets__block-header [data-collapsible-icon] {
+        display: inline-flex !important;
+        align-items: center !important;
+        justify-content: center !important;
+        flex-shrink: 0 !important;
+        margin-left: auto !important;
+        width: 20px !important;
+        height: 20px !important;
+        transition: transform 0.25s ease !important;
+        transform: rotate(0deg) !important;
+        top:15px;
+      }
+      /* Our own chevron — uniquely classed so no theme CSS targets it.
+         JS removes any pre-existing children from [data-collapsible-icon]
+         and inserts only this element. */
+      [data-sidebar-position="top"] .f-facets__block-header .fc-chevron-mobile {
+        display: inline-block !important;
+        width: 14px !important;
+        height: 14px !important;
+        background-repeat: no-repeat !important;
+        background-position: center center !important;
+        background-size: contain !important;
+        background-image: url("data:image/svg+xml,%3Csvg width='14' height='14' viewBox='0 0 14 14' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M5.25 3.5L8.75 7L5.25 10.5' stroke='%230A0A0A' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") !important;
+      }
+      /* Rotate chevron 90° when block is expanded — points DOWN */
+      [data-sidebar-position="top"] .f-facets__block-header[aria-expanded="true"] [data-collapsible-icon],
+      [data-sidebar-position="top"] .f-facets__block:has(.f-facets__block-content[aria-hidden="false"]) .f-facets__block-header [data-collapsible-icon],
+      [data-sidebar-position="top"] .f-facets__block.is-open .f-facets__block-header [data-collapsible-icon],
+      [data-sidebar-position="top"] .f-facets__block[open] .f-facets__block-header [data-collapsible-icon] {
+        transform: rotate(90deg) !important;
+      }
+
+      /* DEFAULT COLLAPSED — content hidden until aria-hidden flips to false */
+      [data-sidebar-position="top"] .f-facets__block-content {
+        padding: 0 0 16px 0 !important;
+        max-height: 0 !important;
+        overflow: hidden !important;
+        padding-bottom: 0 !important;
+        transition: max-height 0.3s ease, padding 0.3s ease !important;
+      }
+      [data-sidebar-position="top"] .f-facets__block-content[aria-hidden="false"] {
+        max-height: none !important;
+        overflow: visible !important;
+        padding: 0 0 16px 0 !important;
+      }
+      /* Fallback: if theme uses .is-open or [open] on the block itself */
+      [data-sidebar-position="top"] .f-facets__block.is-open .f-facets__block-content,
+      [data-sidebar-position="top"] .f-facets__block[open] .f-facets__block-content {
+        max-height: none !important;
+        overflow: visible !important;
+        padding: 0 0 16px 0 !important;
+      }
+
+      /* List items single column */
+      [data-sidebar-position="top"] .f-facets__list {
+        display: flex !important;
+        flex-direction: column !important;
+        gap: 10px !important;
+        padding: 0 0 0 10px !important;
+        margin: 0 !important;
+      }
+      [data-sidebar-position="top"] .f-facets__item {
+        padding: 0 !important;
+        margin: 0 !important;
+      }
+
+      /* Checkbox styling for mobile */
+      [data-sidebar-position="top"] .f-checkbox {
+        display: flex !important;
+        align-items: center !important;
+        gap: 8px !important;
+        font-family: 'Rubik', sans-serif !important;
+        font-size: 14px !important;
+        color: #4A5565 !important;
+        cursor: pointer;
+        padding: 2px 0;
+        line-height: 1.4;
+        min-height: unset;
+      }
+      [data-sidebar-position="top"] .f-checkbox input[type="checkbox"] {
+        width: 16px;
+        height: 16px;
+        flex-shrink: 0;
+        accent-color: #C58A30;
+      }
+
+      /* Hide the custom desktop "View All" pill on mobile —
+         we use the theme's native show-more-button instead */
+      [data-sidebar-position="top"] .cg-view-all-btn {
+        display: none !important;
+      }
+
+      /* Show the native "View More" link inline on mobile */
+      [data-sidebar-position="top"] show-more-button {
+        display: block !important;
+        margin-top: 8px !important;
+        text-align: left !important;
+        padding-left: 10px !important;
+      }
+      [data-sidebar-position="top"] show-more-button .button-show-more {
+        font-family: 'Rubik', sans-serif !important;
+        font-size: 14px !important;
+        font-weight: 400 !important;
+        color: #4A5565 !important;
+        text-decoration: none !important;
+        background: transparent !important;
+        border: none !important;
+        padding: 0 !important;
+        border-radius: 0 !important;
+        min-height: unset !important;
+        height: auto !important;
+        cursor: pointer;
+      }
+      [data-sidebar-position="top"] show-more-button .button-show-more:hover {
+        background: transparent !important;
+        color: #0A0A0A !important;
+      }
+      /* Suppress the theme's "+" prefix that appears before "Show more" */
+      [data-sidebar-position="top"] show-more-button .button-show-more::before {
+        content: none !important;
+        display: none !important;
+      }
+
+      /* Active facets on mobile:
+         - HIDE the original .active-facets (sits outside the drawer)
+         - SHOW .active-facets-clone (injected by JS inside the drawer,
+           above the filter blocks, inheriting container padding) */
+      [data-sidebar-position="top"] product-grid-container .active-facets {
+        display: none !important;
+      }
+      [data-sidebar-position="top"] .f-drawer-facets .active-facets-clone {
+        display: flex !important;
+        flex-wrap: wrap !important;
+        gap: 8px !important;
+        align-items: center !important;
+        padding: 0 0 0px 0 !important;
+        margin: 0 0 0px 0 !important;
+        border: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+      }
+      [data-sidebar-position="top"] .f-drawer-facets .active-facets-clone .active-facets__button {
+        margin-right: 0 !important;
+      }
+
+      /* Hide the duplicate sort-by that the facets snippet renders inside the drawer
+         (we already have a sort dropdown in the header row) */
+      [data-sidebar-position="top"] .f-drawer-facets .collection-sortby,
+      [data-sidebar-position="top"] .f-drawer-facets .facets__sort,
+      [data-sidebar-position="top"] .f-drawer-facets .f-facets__sortby,
+      [data-sidebar-position="top"] .f-drawer-facets .sort-by,
+      [data-sidebar-position="top"] .f-drawer-facets [data-sort-by],
+      [data-sidebar-position="top"] .f-drawer-facets .f-facets__sort {
+        display: none !important;
+      }
+
+      /* Hide the default product-grid header that desktop hides too */
+      product-grid-container .product-grid__header.flex.items-center.justify-between {
+        display: none !important;
+      }
+
+      /* Sort dropdown label visibility on mobile */
+      [data-sidebar-position="top"] .collection-sortby label {
+        display: none !important;
+        position: static !important;
+        width: auto !important;
+        height: auto !important;
+        clip: auto !important;
+        overflow: visible !important;
+        font-family: 'Rubik', sans-serif !important;
+        font-size: 14px !important;
+        color: #4A5565 !important;
+        margin-right: 8px !important;
+      }
+
+      /* Drawer expand override — open state respects content height */
+      [data-sidebar-position="top"][data-filters-open="true"] .f-drawer-facets {
+        max-height: 3000px !important;
+        padding: 0 0 16px !important;
+      }
+
+      /* Product grid spacing on mobile */
+      #product-grid {
+        margin-top: 60px;
+        padding-bottom: 40px;
+      }
+
+      /* Pagination padding on mobile */
+      .f-pagination__item--prev span,
+      .f-pagination__item--next span {
+        display: none;
+      }
+      .f-pagination__item--prev,
+      .f-pagination__item--next {
+        padding: 0 12px !important;
+        min-width: 36px !important;
+      }
+      .column-switcher, #Mobile-SortBy-Block {
+        display: none;
+      }
+.button-show-more::after {
+  display: none;
+}
+    }
+  </style>
+
+  <script>
+    (function () {
+      var sectionId = '{{ section.id }}';
+      var container = null;
+
+      function setOpen(open) {
+        if (!container) return;
+        container.setAttribute('data-filters-open', open ? 'true' : 'false');
+        if (!open) {
+          container.setAttribute('data-view-all', 'false');
+        }
+        /* full-width border via section wrapper */
+        var sectionWrapper = document.getElementById('shopify-section-' + sectionId);
+        if (sectionWrapper) {
+          sectionWrapper.style.borderBottom = open ? 'none' : '1px solid #E5E7EB';
+        }
+        var strip = container.querySelector('.f-drawer-facets');
+        if (strip) {
+          strip.style.borderBottom = open ? '1px solid #E5E7EB' : '';
+        }
+      }
+
+      function init() {
+        container = document.getElementById('ProductGridContainer');
+        if (!container) return;
+        if (container.getAttribute('data-sidebar-position') !== 'top') return;
+
+        var wrapper = container.querySelector('.main-collection__wrapper--top');
+        var strip   = wrapper && wrapper.querySelector('.f-drawer-facets');
+        var header  = wrapper && wrapper.querySelector('.product-grid__header');
+
+        /* wrap header children in .product-grid__header-inner */
+        if (header && !header.__fcInnerWrapped) {
+          header.__fcInnerWrapped = true;
+          var inner = document.createElement('div');
+          inner.className = 'product-grid__header-inner';
+          while (header.firstChild) {
+            inner.appendChild(header.firstChild);
+          }
+          header.appendChild(inner);
+        }
+
+        if (wrapper && strip && header && !header.__fcTopMoved) {
+          header.__fcTopMoved = true;
+          wrapper.insertBefore(header, strip);
+        }
+
+        setOpen(false);
+
+        function doToggle(e) {
+          /* Works on all viewport sizes — mobile uses the same toggle pattern */
+          if (e) {
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            e.stopPropagation();
+          }
+          var currentlyOpen = container.getAttribute('data-filters-open') === 'true';
+          setOpen(!currentlyOpen);
+        }
+
+        function bindToggle() {
+          var bound = 0;
+          var openers = container.querySelectorAll('drawer-opener[data-drawer="#Drawer-Facets"]');
+          openers.forEach(function (opener) {
+            if (!opener.__fcTopBound) {
+              opener.__fcTopBound = true;
+              opener.addEventListener('click', doToggle, true);
+              bound++;
+            }
+          });
+          return bound;
+        }
+
+        var attempts = 0;
+        var maxAttempts = 20;
+        function tryBind() {
+          var count = bindToggle();
+          attempts++;
+          if (count === 0 && attempts < maxAttempts) {
+            setTimeout(tryBind, 200);
+          }
+        }
+        tryBind();
+
+        document.addEventListener('collection:rerendered', bindToggle);
+        document.addEventListener('search:rerendered', bindToggle);
+
+        var observer = new MutationObserver(bindToggle);
+        observer.observe(container, { childList: true, subtree: true });
+
+        function injectViewAllButtons() {
+          /* Desktop only — mobile uses the theme's native show-more-button */
+          if (window.innerWidth <= 1024) return;
+
+          var blocks = container.querySelectorAll('.f-facets__block');
+          blocks.forEach(function (block) {
+            if (block.__fcViewAllInjected) return;
+            var list = block.querySelector('.f-facets__list');
+            if (!list) return;
+            var items = list.querySelectorAll('.f-facets__item');
+            if (items.length < 7) return;
+
+            block.setAttribute('data-has-more', 'true');
+            var btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'cg-view-all-btn';
+            btn.textContent = 'View All';
+            btn.addEventListener('click', function (e) {
+              e.preventDefault();
+              e.stopPropagation();
+              container.setAttribute('data-view-all', 'true');
+              syncActiveFacetsClone();
+            });
+
+            var content = block.querySelector('.f-facets__block-content');
+            (content || block).appendChild(btn);
+            block.__fcViewAllInjected = true;
+          });
+        }
+
+        function syncActiveFacetsClone() {
+          var strip = container.querySelector('.f-drawer-facets');
+          var activeFacets = container.querySelector('.active-facets');
+          if (!strip || !activeFacets) return;
+
+          /* Remove any existing clone first */
+          var existing = strip.querySelector('.active-facets-clone');
+          if (existing) existing.remove();
+
+          var clone = activeFacets.cloneNode(true);
+          clone.classList.remove('active-facets');
+          clone.classList.add('active-facets-clone');
+
+          /* On mobile, insert ABOVE the filter blocks but INSIDE the container
+             so it aligns with the SHOP BY CLUB section padding.
+             On desktop, keep the existing behavior (top of strip). */
+          if (window.innerWidth <= 1024) {
+            var blocksWrap = strip.querySelector('.f-facets__blocks');
+            var facetsContainer = strip.querySelector('.f-facets__container--top') || strip.querySelector('.f-facets__container');
+            if (blocksWrap && blocksWrap.parentNode) {
+              blocksWrap.parentNode.insertBefore(clone, blocksWrap);
+            } else if (facetsContainer) {
+              facetsContainer.insertBefore(clone, facetsContainer.firstChild);
+            } else {
+              strip.insertBefore(clone, strip.firstChild);
+            }
+          } else {
+            strip.insertBefore(clone, strip.firstChild);
+          }
+
+          /* hide clone if only clear-all button present (no actual filters active) */
+          var facetRemoves = clone.querySelectorAll('facet-remove');
+          var hasActiveFilters = false;
+          facetRemoves.forEach(function(fr) {
+            var btn = fr.querySelector('.active-facets__button');
+            if (btn && !btn.classList.contains('active-facets__button-clear')) {
+              hasActiveFilters = true;
+            }
+          });
+          clone.style.display = hasActiveFilters ? '' : 'none';
+        }
+
+        injectViewAllButtons();
+
+        /* On mobile, always sync the active facets clone so chips appear
+           inside the drawer at the top, above SHOP BY CLUB */
+        if (window.innerWidth <= 1024) {
+          syncActiveFacetsClone();
+        }
+
+        document.addEventListener('collection:rerendered', function () {
+          setTimeout(function () {
+            injectViewAllButtons();
+            if (window.innerWidth <= 1024 || container.getAttribute('data-view-all') === 'true') {
+              syncActiveFacetsClone();
+            }
+          }, 50);
+        });
+
+        document.addEventListener('search:rerendered', function () {
+          setTimeout(function () {
+            if (window.innerWidth <= 1024) {
+              syncActiveFacetsClone();
+            }
+          }, 50);
+        });
+
+        /* Re-evaluate viewport on resize so toggling desktop/mobile works correctly */
+        var resizeTimer;
+        window.addEventListener('resize', function () {
+          clearTimeout(resizeTimer);
+          resizeTimer = setTimeout(function () {
+            if (window.innerWidth > 1024) {
+              injectViewAllButtons();
+            } else {
+              initMobileAccordion();
+              renameShowMoreButtons();
+              ensureFirstBlockOpen();
+            }
+          }, 150);
+        });
+
+        /* ─────────────────────────────────────────────
+           Find the first REAL, VISIBLE filter block.
+           The drawer can render a hidden sort/utility block before
+           "Shop by Club", so we skip blocks hidden via CSS (display:none)
+           and blocks that contain no actual filter content.
+           ───────────────────────────────────────────── */
+        function getFirstFilterBlock() {
+          var blocks = container.querySelectorAll('.f-facets__block');
+          for (var i = 0; i < blocks.length; i++) {
+            var b = blocks[i];
+            if (window.getComputedStyle(b).display === 'none') continue;
+            if (b.querySelector('.f-facets__list, .f-facets__item, price-range')) {
+              return b;
+            }
+          }
+          return blocks[0] || null;
+        }
+
+        /* ─────────────────────────────────────────────
+           Force the first filter block open. Guarded by __fcUserToggled so
+           it never re-opens a block the user has deliberately collapsed.
+           Called with retries on load to beat the theme's own collapsible
+           JS, which can re-collapse blocks shortly after init.
+           ───────────────────────────────────────────── */
+        function ensureFirstBlockOpen() {
+          if (window.innerWidth > 1024) return;
+          if (container.__fcUserToggled) return;
+          var block = getFirstFilterBlock();
+          if (!block) return;
+          var header = block.querySelector('.f-facets__block-header');
+          var content = block.querySelector('.f-facets__block-content');
+          if (!header || !content) return;
+          content.setAttribute('aria-hidden', 'false');
+          header.setAttribute('aria-expanded', 'true');
+          block.classList.add('is-open');
+        }
+
+        /* ─────────────────────────────────────────────
+           MOBILE ACCORDION — collapse by default + tap to toggle
+           Runs only on mobile. Idempotent (safe to call repeatedly).
+           Sets aria-hidden on .f-facets__block-content so CSS
+           handles the show/hide animation. The first visible filter
+           block (Shop by Club) starts expanded.
+           ───────────────────────────────────────────── */
+        function initMobileAccordion() {
+          if (window.innerWidth > 1024) return;
+
+          var firstFilterBlock = getFirstFilterBlock();
+          var blocks = container.querySelectorAll('.f-facets__block');
+          blocks.forEach(function (block) {
+            var header = block.querySelector('.f-facets__block-header');
+            var content = block.querySelector('.f-facets__block-content');
+            if (!header || !content) return;
+
+            /* Set initial state (only once per block).
+               First visible filter block starts expanded. */
+            if (!block.__fcMobileInit) {
+              block.__fcMobileInit = true;
+              var startOpen = (block === firstFilterBlock);
+              content.setAttribute('aria-hidden', startOpen ? 'false' : 'true');
+              header.setAttribute('aria-expanded', startOpen ? 'true' : 'false');
+              if (startOpen) block.classList.add('is-open');
+
+              /* Normalize the chevron across ALL blocks:
+                 1. Find or create the [data-collapsible-icon] slot
+                 2. Empty it entirely (removes any theme-rendered arrow from the DOM)
+                 3. Append our own uniquely-classed chevron span
+                 The unique class .fc-chevron-mobile cannot be targeted by other
+                 theme CSS, so it won't get overridden. */
+              var iconSlot = header.querySelector('[data-collapsible-icon]');
+              if (!iconSlot) {
+                iconSlot = document.createElement('span');
+                iconSlot.setAttribute('data-collapsible-icon', '');
+                header.appendChild(iconSlot);
+              }
+              /* Empty the slot — removes any existing theme arrow from the DOM */
+              while (iconSlot.firstChild) {
+                iconSlot.removeChild(iconSlot.firstChild);
+              }
+              /* Insert our standardized chevron (background-image based,
+                 no SVG element for theme CSS to fight with) */
+              var chevron = document.createElement('span');
+              chevron.className = 'fc-chevron-mobile';
+              chevron.setAttribute('aria-hidden', 'true');
+              iconSlot.appendChild(chevron);
+            }
+
+            /* Bind click handler once */
+            if (!header.__fcMobileBound) {
+              header.__fcMobileBound = true;
+              header.addEventListener('click', function (e) {
+                if (window.innerWidth > 1024) return;
+                e.preventDefault();
+                e.stopPropagation();
+                /* Mark that the user has interacted, so ensureFirstBlockOpen()
+                   stops re-asserting the default open state. */
+                container.__fcUserToggled = true;
+                var isOpen = content.getAttribute('aria-hidden') === 'false';
+                content.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
+                header.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+                block.classList.toggle('is-open', !isOpen);
+              });
+            }
+          });
+        }
+
+        /* ─────────────────────────────────────────────
+           Rename "Show more / Show less" labels to "View more / View less"
+           on the show-more-button elements (mobile only, since these are
+           hidden on desktop). Idempotent; safe to run multiple times.
+           Walks text nodes only so it doesn't touch SVG/icon markup.
+           ───────────────────────────────────────────── */
+        function renameShowMoreButtons() {
+          if (window.innerWidth > 1024) return;
+
+          var buttons = container.querySelectorAll('show-more-button');
+          buttons.forEach(function (btn) {
+            /* Walk every descendant text node and rewrite the label.
+               This catches text directly inside the button as well as
+               text inside any wrapper spans the theme may render. */
+            var walker = document.createTreeWalker(
+              btn,
+              NodeFilter.SHOW_TEXT,
+              null,
+              false
+            );
+            var node;
+            while ((node = walker.nextNode())) {
+              var t = node.nodeValue;
+              if (!t) continue;
+              var replaced = t
+                .replace(/show\s+more/gi, 'View more')
+                .replace(/show\s+less/gi, 'View less');
+              if (replaced !== t) {
+                node.nodeValue = replaced;
+              }
+            }
+          });
+        }
+
+        /* Run accordion init + button-renaming on load and after AJAX rerenders */
+        initMobileAccordion();
+        renameShowMoreButtons();
+        /* Open the first filter block, then re-assert a few times to beat
+           the theme's own collapsible JS that runs slightly later. */
+        ensureFirstBlockOpen();
+        [150, 400, 800].forEach(function (delay) {
+          setTimeout(ensureFirstBlockOpen, delay);
+        });
+        document.addEventListener('collection:rerendered', function () {
+          setTimeout(function () {
+            initMobileAccordion();
+            renameShowMoreButtons();
+            /* Fresh facets DOM after a rerender — restore the default. */
+            container.__fcUserToggled = false;
+            ensureFirstBlockOpen();
+          }, 50);
+        });
+        document.addEventListener('search:rerendered', function () {
+          setTimeout(function () {
+            initMobileAccordion();
+            renameShowMoreButtons();
+            container.__fcUserToggled = false;
+            ensureFirstBlockOpen();
+          }, 50);
+        });
+
+        /* Catch theme JS swapping the label between "Show more" and "Show less"
+           when the button is clicked. Observes character data changes only
+           inside show-more-button elements to avoid excess work. */
+        if (container && !container.__fcShowMoreObs) {
+          container.__fcShowMoreObs = true;
+          var smObserver = new MutationObserver(function (mutations) {
+            var needsRename = false;
+            for (var i = 0; i < mutations.length; i++) {
+              var m = mutations[i];
+              if (m.target && m.target.closest && m.target.closest('show-more-button')) {
+                needsRename = true;
+                break;
+              }
+            }
+            if (needsRename) {
+              renameShowMoreButtons();
+            }
+          });
+          smObserver.observe(container, { childList: true, subtree: true, characterData: true });
+        }
+      }
+
+      function start() {
+        setTimeout(init, 100);
+      }
+
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', start);
+      } else {
+        start();
+      }
+    })();
+
+    
+  </script>
+  <script>
+(function() {
+  function stackGenderAvail() {
+    /* Desktop-only grouping — on mobile each block is its own row */
+    if (window.innerWidth <= 1024) return;
+
+    var blocksGrid = document.querySelector('[data-sidebar-position="top"] .f-facets__blocks');
+    if (!blocksGrid) return;
+    var genderBlock = blocksGrid.querySelector('.f-facets__block.gender');
+    var availBlock = blocksGrid.querySelector('.f-facets__block.availability');
+    if (!genderBlock || !availBlock) return;
+    if (blocksGrid.__fcStackedInjected) return;
+    blocksGrid.__fcStackedInjected = true;
+    var stackCol = document.createElement('div');
+    stackCol.className = 'fc-stacked-col';
+    genderBlock.parentNode.insertBefore(stackCol, genderBlock);
+    stackCol.appendChild(genderBlock);
+    stackCol.appendChild(availBlock);
+  }
+
+  setTimeout(stackGenderAvail, 200);
+  document.addEventListener('collection:rerendered', function() {
+    setTimeout(stackGenderAvail, 50);
+  });
+})();
+</script>
+{% endif %}
+
+<div
+  id="ProductGridContainer"
+  data-section-id="{{ section.id }}"
+  data-sidebar-position="{{ sidebar_position }}"
+  data-filters-open="false"
+  class="main-collection block f-section-padding color-{{ section.settings.color_schema }}"
+>
+  <div class="main-collection__container">
+    {%- paginate collection.products by section.settings.products_per_page -%}
+
+        <div class="main-collection__wrapper main-collection__wrapper--{{ sidebar_position }} flex{% unless enable_filtering %} main-collection__wrapper--hide-filters{% endunless %}">
+
+          {% if enable_filtering %}
+            {% render 'facets',
+              results: collection,
+              sidebar_position: sidebar_position,
+              heading_size: section.settings.filter_group_heading_size,
+              enable_sorting: enable_sorting,
+              animation_effect: animation_effect
+            %}
+            <noscript>
+              {% render 'facets-nojs',
+                results: collection,
+                form_id: 'facets-1',
+                sidebar_position: sidebar_position,
+                heading_size: section.settings.filter_group_heading_size,
+                enable_sorting: enable_sorting,
+                animation_effect: animation_effect
+              %}
+            </noscript>
+          {% endif %}
+          <div class="main-collection__list" data-product-container>
+            {% if section.settings.show_subcollection %}
+              {% render 'collection-tabs' %}
+            {% endif %}
+            <product-grid-container data-section-id="{{ section.id }}">
+              <div class="container">
+              {% render 'product-grid-header',
+                results: collection,
+                sidebar_position: sidebar_position,
+                enable_filtering: enable_filtering,
+                products_per_page: products_per_page,
+                enable_sorting: enable_sorting,
+                enable_product_count: enable_product_count,
+                breadcrumb: true,
+              %}
+              {%- if collection.products.size == 0 -%}
+                <div
+                  class="product-grid product-grid--empty"
+                  data-id="{{ section.id }}"
+                >
+                  <div class="text-center">
+                    <h2 class="h4">
+                      {{ 'sections.collection_template.empty' | t }}
+                    </h2>
+                    <p>
+                      {{
+                        'sections.collection_template.use_fewer_filters_html'
+                        | t: link: collection.url, class: 'underlined-link'
+                      }}
+                    </p>
+                  </div>
+                </div>
+              {%- else -%}
+                <grid-list
+                  data-motion="{{ animation_effect }}"
+                  id="product-grid"
+                  data-id="{{ section.id }}"
+                  class="product-grid f-grid f-grid-2-cols md:f-grid-{{ columns_tablet }}-cols xl:f-grid-{{ columns }}-cols f-grid--gap-{{ section.settings.column_gap }} f-grid--row-gap-{{ section.settings.row_gap }}"
+                  data-products-grid
+                >
+                  {%- for product in collection.products -%}
+                    <div class="f-column">
+                      {%- render 'product-card',
+                        color_schema: section.settings.color_schema,
+                        product: product,
+                        section_index: 1,
+                        course_handle: course_handle,
+                        index: forloop.index,
+                        enable_swatches: section.settings.enable_swatch_colors,
+                      -%}
+                    </div>
+                  {%- endfor -%}
+                </grid-list>
+              {% endif %}
+              {% if paginate.pages > 1 %}
+                <div
+                  class="main-collection__pagination f-pagination__wrapper text-center"
+                  data-paginate="{{ paginate_type }}"
+                  data-total-pages="{{ paginate.pages }}"
+                >
+                  {%- if paginate_type == 'number' -%}
+                   {%- if paginate.parts.size > 0 -%}
+                    <nav class="f-pagination flex justify-center" role="navigation" aria-label="{{ 'general.pagination.label' | t }}">
+                      <ul class="f-pagination__list list-none" role="list">
+
+                        {%- comment -%} Always show Previous — disabled on page 1 {%- endcomment -%}
+                        <li>
+                          {%- if paginate.previous -%}
+                            <a href="{{ paginate.previous.url }}" class="f-pagination__item f-pagination__item--prev" aria-label="{{ 'general.pagination.previous' | t }}">
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12.5016 6.66829H0.834961M6.66829 0.834961L0.834961 6.66829L6.66829 12.5016" stroke="#344054" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+                              <span>{{ 'general.pagination.previous' | t }}</span>
+                            </a>
+                          {%- else -%}
+                            <span class="f-pagination__item f-pagination__item--prev f-pagination__item--disabled" aria-disabled="true">
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M12.5016 6.66829H0.834961M6.66829 0.834961L0.834961 6.66829L6.66829 12.5016" stroke="#344054" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+                              <span>{{ 'general.pagination.previous' | t }}</span>
+                            </span>
+                          {%- endif -%}
+                        </li>
+
+                        {%- comment -%} Number items wrapped {%- endcomment -%}
+                        <li class="fc-pagination__numbers">
+                          <ul class="list-none" role="list" style="display:flex;align-items:center;gap:4px;padding:0;margin:0;">
+                            {%- for part in paginate.parts -%}
+                              <li>
+                                {%- if part.is_link -%}
+                                  <a href="{{ part.url }}" class="f-pagination__item" aria-label="{{ 'general.pagination.page' | t: number: part.title }}">{{ part.title }}</a>
+                                {%- else -%}
+                                  {%- if part.title == paginate.current_page -%}
+                                    <span class="f-pagination__item f-pagination__item--current" aria-current="page" aria-label="{{ 'general.pagination.page' | t: number: part.title }}">{{ part.title }}</span>
+                                  {%- else -%}
+                                    <span class="f-pagination__item">{{ part.title }}</span>
+                                  {%- endif -%}
+                                {%- endif -%}
+                              </li>
+                            {%- endfor -%}
+                          </ul>
+                        </li>
+
+                        {%- comment -%} Always show Next — disabled on last page {%- endcomment -%}
+                        <li>
+                          {%- if paginate.next -%}
+                            <a href="{{ paginate.next.url }}" class="f-pagination__item f-pagination__item--next" aria-label="{{ 'general.pagination.next' | t }}">
+                              <span>{{ 'general.pagination.next' | t }}</span>
+                              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M0.834961 6.66829H12.5016M6.66829 12.5016L12.5016 6.66829L6.66829 0.834961" stroke="#344054" stroke-width="1.67" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            </a>
+                          {%- else -%}
+                            <span class="f-pagination__item f-pagination__item--next f-pagination__item--disabled" aria-disabled="true">
+                              <span>{{ 'general.pagination.next' | t }}</span>
+                              <svg width="6" height="10" viewBox="0 0 6 10" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M1.5 1.25L5.25 5L1.5 8.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                            </span>
+                          {%- endif -%}
+                        </li>
+
+                      </ul>
+                    </nav>
+                    {%- endif -%}
+                  {%- else -%}
+                    <button
+                      class="btn btn--primary btn-loadmore no-js-hidden{% if paginate_type == 'infinite' %} btn--loading{% endif %}"
+                      data-load-more
+                    >
+                      <span class="{%- if paginate_type == 'infinite' -%}visually-hidden{% endif %}">
+                        {{- 'general.pagination.load_more' | t -}}
+                      </span>
+                      {% comment %} theme-check-disable {% endcomment %}
+                      {{ 'icon-spinner.svg' | inline_asset_content }}
+                      {% comment %} theme-check-enable {% endcomment %}
+                    </button>
+                    <noscript>
+                      {%- render 'pagination', paginate: paginate -%}
+                    </noscript>
+                  {%- endif -%}
+                </div>
+              {% endif %}
+              </div>
+            </product-grid-container>
+          </div>
+        </div>
+
+    {%- endpaginate -%}
+  </div>
+</div>
+<style type="text/css">
+  .product-grid__header.flex.items-center.justify-between {
+  background: white;
+  border-bottom: 1px solid #E5E7EB !important;
+  margin-bottom: 1px !important;
+}
+.btn--filter-sort:hover {
+  color: #0A0A0A !important;
+}
+</style>
+
+{% if section.settings.hide-logo-overlay %}
+  <style type="text/css">
+    .logo-overlay {
+      display: none !important;
+    }
+  </style>
+{% endif %}
+
+{% schema %}
+{
+  "name": "t:sections.main-collection-product-grid.name",
+  "class": "f-section-product-grid",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/PKu2OBi)"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "color",
+      "id": "product_grid_bg_color",
+      "label": "Product grid background color",
+      "default": "#ffffff"
+    },
+    {
+      "type": "range",
+      "id": "products_per_page",
+      "min": 6,
+      "max": 50,
+      "step": 1,
+      "default": 16,
+      "label": "t:sections.main-collection-product-grid.settings.products_per_page.label"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "t:sections.common.grid.collection_columns",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "column_gap",
+      "label": "t:sections.common.grid.gap",
+      "options": [
+        { "label": "t:sections.common.grid.gap_options.option_04", "value": "none" },
+        { "label": "t:sections.common.grid.gap_options.option_07", "value": "double-extra-small" },
+        { "label": "t:sections.common.grid.gap_options.option_05", "value": "extra-small" },
+        { "label": "t:sections.common.grid.gap_options.option_03", "value": "small" },
+        { "label": "t:sections.common.grid.gap_options.option_02", "value": "medium" },
+        { "label": "t:sections.common.grid.gap_options.option_01", "value": "large" },
+        { "label": "t:sections.common.grid.gap_options.option_06", "value": "extra-large" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "row_gap",
+      "label": "t:sections.common.grid.row_gap",
+      "options": [
+        { "label": "t:sections.common.grid.gap_options.option_04", "value": "none" },
+        { "label": "t:sections.common.grid.gap_options.option_07", "value": "double-extra-small" },
+        { "label": "t:sections.common.grid.gap_options.option_05", "value": "extra-small" },
+        { "label": "t:sections.common.grid.gap_options.option_03", "value": "small" },
+        { "label": "t:sections.common.grid.gap_options.option_02", "value": "medium" },
+        { "label": "t:sections.common.grid.gap_options.option_01", "value": "large" },
+        { "label": "t:sections.common.grid.gap_options.option_06", "value": "extra-large" }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_swatch_colors",
+      "label": "Enable Swatch colors for products?",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_product_count",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.enable_product_count.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-collection-product-grid.settings.header__1.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_filtering",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.enable_filtering.label",
+      "info": "t:sections.main-collection-product-grid.settings.enable_filtering.info"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_sorting",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.enable_sorting.label"
+    },
+    {
+      "type": "select",
+      "id": "sidebar_position",
+      "label": "t:sections.main-collection-product-grid.settings.position.label",
+      "info": "t:sections.main-collection-product-grid.settings.position.info",
+      "options": [
+        { "value": "left",   "label": "t:sections.main-collection-product-grid.settings.position.option__1" },
+        { "value": "right",  "label": "t:sections.main-collection-product-grid.settings.position.option__2" },
+        { "value": "drawer", "label": "t:sections.main-collection-product-grid.settings.position.option__3" },
+        { "value": "top",    "label": "Top filter strip (toggle)" }
+      ],
+      "default": "left"
+    },
+    {
+      "type": "checkbox",
+      "id": "group_collapsible",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.collapsible.label"
+    },
+    {
+      "type": "select",
+      "id": "default_state_collapsible",
+      "label": "t:sections.main-collection-product-grid.settings.collapsible.default_state.label",
+      "options": [
+        { "value": "collapsed", "label": "t:sections.main-collection-product-grid.settings.collapsible.default_state.options.option__1.label" },
+        { "value": "expanded",  "label": "t:sections.main-collection-product-grid.settings.collapsible.default_state.options.option__2.label" }
+      ],
+      "default": "collapsed"
+    },
+    {
+      "type": "checkbox",
+      "id": "open_first_group",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.open_first_group.label",
+      "info": "t:sections.main-collection-product-grid.settings.open_first_group.info"
+    },
+    {
+      "type": "select",
+      "id": "filter_group_heading_size",
+      "label": "t:sections.main-collection-product-grid.settings.filter_group_heading_size.label",
+      "default": "h5",
+      "options": [
+        { "value": "h6", "label": "t:sections.common.text_size.options__sm.label" },
+        { "value": "h5", "label": "t:sections.common.text_size.options__md.label" },
+        { "value": "h4", "label": "t:sections.common.text_size.options__lg.label" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_results_count",
+      "default": true,
+      "label": "t:sections.main-collection-product-grid.settings.show_results_count.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_subcollection",
+      "default": true,
+      "label": "Show Subcollection"
+    },
+    {
+      "type": "select",
+      "id": "filter_color_type",
+      "label": "t:sections.main-collection-product-grid.settings.filter_color_type.label",
+      "options": [
+        { "value": "inline", "label": "t:sections.main-collection-product-grid.settings.filter_color_type.option_1" },
+        { "value": "list",   "label": "t:sections.main-collection-product-grid.settings.filter_color_type.option_2" }
+      ],
+      "default": "inline"
+    },
+    {
+      "type": "checkbox",
+      "id": "hide-logo-overlay",
+      "default": false,
+      "label": "Hide Overlay Logos?"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.main-collection-product-grid.settings.header__2.content"
+    },
+    {
+      "type": "select",
+      "id": "paginate_type",
+      "label": "t:sections.main-collection-product-grid.settings.paginate_type.label",
+      "options": [
+        { "value": "number",   "label": "t:sections.main-collection-product-grid.settings.paginate_type.options.option_1" },
+        { "value": "loadmore", "label": "t:sections.main-collection-product-grid.settings.paginate_type.options.option_2" },
+        { "value": "infinite", "label": "t:sections.main-collection-product-grid.settings.paginate_type.options.option_3" }
+      ],
+      "default": "number"
+    }
+  ]
+}
+{% endschema %}

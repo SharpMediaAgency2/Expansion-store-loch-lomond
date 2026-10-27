@@ -1,0 +1,169 @@
+{{ 'main-collection-banner.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign text_alignment = section.settings.text_alignment
+  assign collection_desc = collection.description
+
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+-%}
+<div
+  data-section-type="collection-banner"
+  data-section-id="{{ section.id }}"
+  class="f-section-padding collection-banner {{ collection.handle }} color-{{ section.settings.color_schema }}"
+>
+  <div class="container">
+    <div class="collection-banner__wrapper text-{{ text_alignment }}">
+      <div class="collection-banner__inner relative z-1 flex flex-col justify-center">
+        <h1 class="collection-banner__title m-0 h3">
+          <span class="visually-hidden">
+            {{- 'sections.collection_template.title' | t }}:</span
+          >
+          <motion-element
+            data-motion="{{ animation_effect }}"
+            data-motion-delay="{{ motion_delay }}"
+            class="block"
+          >
+            {{ collection.metafields.custom.collection_title.value | default: collection.title }}
+          </motion-element>
+          {%- assign motion_delay = motion_delay | plus: 50 -%}
+        </h1>
+        {%- if section.settings.show_desc and collection_desc != blank -%}
+          <motion-element
+            data-motion="{{ animation_effect }}"
+            data-motion-delay="{{ motion_delay }}"
+            class="block collection-banner__description rte mobile-remove-br"
+          >
+            {{ collection_desc }}
+          </motion-element>
+          {%- assign motion_delay = motion_delay | plus: 50 -%}
+        {%- endif -%}
+        {%- if section.settings.show_product_count -%}
+          <style type="text/css">
+            .block.collection-banner__product-count {
+              color: #4A5565;
+              font-family: Rubik;
+              font-weight: 400;
+              font-size: 16px;
+              line-height: 24px;
+              letter-spacing: -0.31px;
+            }
+          </style>
+            <motion-element
+            data-motion="{{ animation_effect }}"
+            data-motion-delay="{{ motion_delay }}"
+            class="block collection-banner__product-count"
+          >
+            {{ collection.products_count }} products
+          </motion-element>
+          {%- assign motion_delay = motion_delay | plus: 50 -%}
+        {%- endif -%}
+      </div>
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "t:sections.main-collection-banner.name",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/MqdPHXH)"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.main-collection-banner.settings.tutorial.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.main-collection-banner.settings.paragraph.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-11"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "t:settings_schema.global.settings.content_alignment.desktop.label",
+      "default": "center",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:settings_schema.global.settings.content_alignment.option__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:settings_schema.global.settings.content_alignment.option__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:settings_schema.global.settings.content_alignment.option__3.label"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_desc",
+      "label": "t:sections.main-collection-banner.settings.show_collection_description.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_product_count",
+      "label": "t:sections.main-collection-banner.settings.show_product_count.label",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "banner",
+      "name": "t:sections.main-collection-banner.blocks.collection.name",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "t:sections.main-collection-banner.blocks.collection.settings.collection.label",
+          "info": "t:sections.main-collection-banner.blocks.collection.settings.collection.info"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

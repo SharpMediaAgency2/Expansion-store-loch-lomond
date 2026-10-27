@@ -1,0 +1,281 @@
+/*
+ * ------------------------------------------------------------
+ * IMPORTANT: The contents of this file are auto-generated.
+ *
+ * This file may be updated by the Shopify admin theme editor
+ * or related systems. Please exercise caution as any changes
+ * made to this file may be overwritten.
+ * ------------------------------------------------------------
+ */
+{
+  "sections": {
+    "main": {
+      "type": "main-product",
+      "blocks": {
+        "price_title_qAXtTn": {
+          "type": "price_title",
+          "settings": {
+            "heading_size": "h2",
+            "show_vendor": true,
+            "show_reviews": true
+          }
+        },
+        "c67b7c41-4a92-419d-85c6-c970bb43bf2d": {
+          "type": "badge",
+          "settings": {}
+        },
+        "vendor_fpWMfX": {
+          "type": "vendor",
+          "disabled": true,
+          "settings": {}
+        },
+        "title": {
+          "type": "title",
+          "disabled": true,
+          "settings": {
+            "heading_size": "h3"
+          }
+        },
+        "yotpo_product_reviews_star_rating_tgztMG": {
+          "type": "shopify://apps/yotpo-product-reviews/blocks/star-rating/eb7dfd7d-db44-4334-bc49-c893b51b36cf",
+          "disabled": true,
+          "settings": {
+            "product": "{{product}}"
+          }
+        },
+        "price": {
+          "type": "price",
+          "disabled": true,
+          "settings": {
+            "show_sale_badge": false,
+            "sale_badge_type": "percentage"
+          }
+        },
+        "c9d012f0-f3f5-4c1b-b197-e7c8f9de13ac": {
+          "type": "richtext",
+          "settings": {
+            "text": ""
+          }
+        },
+        "variant_picker": {
+          "type": "variant_picker",
+          "disabled": true,
+          "settings": {
+            "option_name": "",
+            "picker_style": "button",
+            "show_selected_value": true,
+            "default_picker_type": "button",
+            "variant_picker_show_selected": true,
+            "variant_picker_dont_select_the_default_variant": false,
+            "size_title": "Size Chart",
+            "size_chart_from_page": "size-chart"
+          }
+        },
+        "variant_picker_color_bnMLXd": {
+          "type": "variant-picker-color",
+          "settings": {
+            "option_name": "Color",
+            "show_selected_value": true
+          }
+        },
+        "custom_liquid_r8hVPx": {
+          "type": "custom_liquid",
+          "settings": {
+            "custom_liquid": "{% render 'product-courses' %}"
+          }
+        },
+        "variant_picker_size_GxQWJq": {
+          "type": "variant-picker-size",
+          "settings": {
+            "option_name": "Size",
+            "show_selected_value": true,
+            "show_size_chart": false,
+            "size_chart_from_page": ""
+          }
+        },
+        "quantity_selector": {
+          "type": "quantity_selector",
+          "settings": {}
+        },
+        "buy_buttons": {
+          "type": "buy_buttons",
+          "settings": {
+            "show_atc_button": true,
+            "show_dynamic_checkout": false,
+            "show_gift_card_recipient": true,
+            "show_name_field": false
+          }
+        },
+        "text_iihwrL": {
+          "type": "text",
+          "settings": {
+            "icon": "none",
+            "text": "All of our apparel is customized when it’s ordered. Most items will ship within 10 days. Visit our return policy for more.",
+            "text_style": "body"
+          }
+        },
+        "4813cc96-81ff-4094-bd6a-4bf96eab69e9": {
+          "type": "complementary",
+          "settings": {
+            "block_heading": "BUY IT WITH",
+            "make_collapsible_row": false,
+            "icon": "none",
+            "product_list_limit": 10,
+            "products_per_page": 1,
+            "enable_slider": true,
+            "image_ratio": "adapt",
+            "enable_quick_add": true,
+            "enable_quick_view": false,
+            "pcard_show_color_swatch": true
+          }
+        },
+        "0bd176fb-80b2-42ce-ae4e-db8cb55fe024": {
+          "type": "collapsible_tab",
+          "settings": {
+            "icon": "none",
+            "heading": "Description",
+            "content": "",
+            "liquid": "{{ product.description }}",
+            "page": "",
+            "default_open": true
+          }
+        }
+      },
+      "block_order": [
+        "price_title_qAXtTn",
+        "c67b7c41-4a92-419d-85c6-c970bb43bf2d",
+        "vendor_fpWMfX",
+        "title",
+        "yotpo_product_reviews_star_rating_tgztMG",
+        "price",
+        "c9d012f0-f3f5-4c1b-b197-e7c8f9de13ac",
+        "variant_picker",
+        "variant_picker_color_bnMLXd",
+        "custom_liquid_r8hVPx",
+        "variant_picker_size_GxQWJq",
+        "quantity_selector",
+        "buy_buttons",
+        "text_iihwrL",
+        "4813cc96-81ff-4094-bd6a-4bf96eab69e9",
+        "0bd176fb-80b2-42ce-ae4e-db8cb55fe024"
+      ],
+      "custom_css": [],
+      "settings": {
+        "show_breadcrumb": true,
+        "enable_sticky_info": true,
+        "media_size": "large",
+        "mobile_thumbnails": "hide",
+        "enable_image_zoom": false,
+        "enable_video_looping": false,
+        "show_featured_media": false,
+        "move_title_price_mobile": true
+      }
+    },
+    "featured_collection_9iJzB8": {
+      "type": "featured-collection",
+      "disabled": true,
+      "name": "t:sections.featured-collection.name",
+      "settings": {
+        "color_schema": "accent",
+        "section_header_padding_bottom": "medium",
+        "section_header_content_spacing": "medium",
+        "heading": "F&D Favorites",
+        "highlight_style": "none",
+        "enable_highlight_text_color": false,
+        "heading_tag": "h2",
+        "heading_size": "h2",
+        "heading_color": "",
+        "subheading": "",
+        "description": "<p>Shop our most loved gear and apparel, crafted for the course—and the memories made along the way.</p>",
+        "collection": "fescue-dunes-favorites",
+        "limit": 4,
+        "columns": 4,
+        "column_gap": "medium",
+        "row_gap": "medium",
+        "disable_logo_overlay": false,
+        "pcard_image_ratio": "3/4",
+        "show_vendor": true,
+        "enable_swatch_colors": true,
+        "enable_slider": false,
+        "show_nav": false,
+        "show_dots": false,
+        "show_all_button_on_top": true,
+        "button_label": "Shop our favorites",
+        "button_style": "btn--primary",
+        "enable_swipe_mobile": false,
+        "column_mobile": "2",
+        "padding_top": 40,
+        "padding_bottom": 40,
+        "custom_id": "",
+        "custom_class": "",
+        "animations": "inherit"
+      }
+    },
+    "product_recommendations_fL7dgf": {
+      "type": "product-recommendations",
+      "custom_css": [
+        ".container {background: #f9fafb !important; border-radius: 16px !important; padding: 32px; border-radius: 16px; overflow: hidden; margin-top: 50px;}",
+        ".section__header--text.text-center.md\\:text-center.section__header--vertical {text-align: left;}",
+        "p {font-size: clamp(14px, 2vw, 16px); font-family: \"Rubik\"; font-weight: 400; color: #4a5565;}",
+        ".h3 {font-size: 24px;}"
+      ],
+      "settings": {
+        "color_schema": "",
+        "remove_params": false,
+        "enable_swatch_colors": true,
+        "section_header_padding_bottom": "medium",
+        "section_header_content_spacing": "small",
+        "heading": "Complete the Look",
+        "highlight_style": "none",
+        "enable_highlight_text_color": false,
+        "heading_size": "h3",
+        "heading_color": "",
+        "description": "<p>Style this piece with our curated selections</p>",
+        "limit": 8,
+        "columns": 4,
+        "column_gap": "small",
+        "row_gap": "medium",
+        "enable_slider": true,
+        "show_nav": true,
+        "show_dots": true,
+        "enable_swipe_mobile": true,
+        "column_mobile": "1",
+        "padding_top": 40,
+        "padding_bottom": 40,
+        "animations": "inherit"
+      }
+    },
+    "175071121364bf6cd2": {
+      "type": "apps",
+      "blocks": {
+        "yotpo_product_reviews_reviews_pD9Ehq": {
+          "type": "shopify://apps/yotpo-product-reviews/blocks/reviews/eb7dfd7d-db44-4334-bc49-c893b51b36cf",
+          "settings": {
+            "product": "{{product}}"
+          }
+        }
+      },
+      "block_order": [
+        "yotpo_product_reviews_reviews_pD9Ehq"
+      ],
+      "settings": {
+        "container": "container",
+        "color_schema": "",
+        "heading": "",
+        "highlight_style": "none",
+        "enable_highlight_text_color": false,
+        "heading_size": "h2",
+        "heading_color": "",
+        "description": "",
+        "padding_top": 40,
+        "padding_bottom": 40
+      }
+    }
+  },
+  "order": [
+    "main",
+    "featured_collection_9iJzB8",
+    "product_recommendations_fL7dgf",
+    "175071121364bf6cd2"
+  ]
+}

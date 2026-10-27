@@ -1,0 +1,410 @@
+{% comment %}
+  Custom "Shop by club" Facet Filter for Dawn Theme - Mobile Only Version
+  Integrates with Dawn's existing AJAX filtering system
+  Only visible on screens < 1025px
+  
+  Instructions:
+  1. Add this code to your collection template or main-collection-product-grid.liquid
+  2. Replace the existing facets render with this code
+  3. This will only show "Shop by club" filter with custom styling on mobile
+{% endcomment %}
+
+<style>
+  .shop-by-club-facets {
+    margin-bottom: 0rem;
+    display: none;
+  }
+
+  @media (max-width: 1024px) {
+    .shop-by-club-facets {
+      display: block;
+    }
+    #product-grid {
+
+}
+  }
+
+  .shop-by-club-disclosure {
+    border: none;
+  }
+
+  .shop-by-club-header {
+    background-color: #c58a30;
+    color: white;
+    padding: 1.5rem 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    list-style: none;
+  }
+
+  .shop-by-club-header::-webkit-details-marker {
+    display: none;
+  }
+
+
+
+  .shop-by-club-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    margin: 0;
+  }
+
+  .shop-by-club-toggle {
+    font-size: 1.5rem;
+    line-height: 1;
+    font-weight: 300;
+    transition: transform 0.3s ease;
+    display: block;
+  }
+
+  .shop-by-club-toggle-minus {
+    display: none;
+  }
+
+  .shop-by-club-toggle-plus {
+    display: block;
+  }
+
+  .shop-by-club-disclosure[open] .shop-by-club-toggle-minus {
+    display: block;
+  }
+
+  .shop-by-club-disclosure[open] .shop-by-club-toggle-plus {
+    display: none;
+  }
+
+  .shop-by-club-content {
+    background-color: white;
+    padding: 0;
+  }
+
+  .shop-by-club-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+  }
+
+  .shop-by-club-item {
+    border-bottom: 1px solid #e5e5e5;
+  }
+
+  .shop-by-club-item:last-child {
+    border-bottom: none;
+  }
+
+  .shop-by-club-label {
+    display: flex;
+    align-items: center;
+    padding: 0.5rem 2rem;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  .shop-by-club-label:hover {
+    background-color: #f9f9f9;
+  }
+
+  .shop-by-club-checkbox {
+    width: 2.4rem;
+    height: 2.4rem;
+    min-width: 2.4rem;
+    margin: 0;
+    margin-right: 0.8rem;
+    cursor: pointer;
+    border: 2px solid #333;
+    border-radius: 0;
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    background-color: white;
+  }
+
+  .shop-by-club-checkbox:checked {
+    background-color: #333;
+    border-color: #333;
+  }
+
+  .shop-by-club-checkbox:checked::after {
+    content: '';
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    width: 0.6rem;
+    height: 1.2rem;
+    border: solid white;
+    border-width: 0 2px 2px 0;
+    transform: translate(-50%, -60%) rotate(45deg);
+  }
+
+  .shop-by-club-label-text {
+    font-size: 1.1rem;
+    color: #767676;
+    line-height: 1.4;
+  }
+
+  .shop-by-club-clear {
+    padding: 1rem 2rem;
+    border-top: 1px solid #e5e5e5;
+  }
+
+  .shop-by-club-clear-link {
+    color: #333;
+    text-decoration: underline;
+    font-size: 0.95rem;
+  }
+
+  .loading-overlay__spinner {
+    display: none;
+  }
+
+  .loading-overlay__spinner.active {
+    display: block;
+    text-align: center;
+    padding: 2rem;
+  }
+
+  .active-facets-mobile {
+    margin-bottom: 2rem;
+    display: none;
+  }
+
+  @media (max-width: 1024px) {
+    .active-facets-mobile {
+      display: block;
+    }
+     /* Horizontal Scrolling Tabs - Fixed Version */
+.f-tabs__group {
+  display: flex !important;
+  flex-wrap: nowrap !important;
+  overflow-x: auto !important;
+  overflow-y: hidden !important;
+  -webkit-overflow-scrolling: touch !important;
+  scroll-behavior: smooth;
+  width: 100%;
+  max-width: 100%;
+}
+
+/* Scrollbar styling */
+.f-tabs__group::-webkit-scrollbar {
+  height: 6px;
+}
+
+.f-tabs__group::-webkit-scrollbar-track {
+  background: #f1f1f1;
+}
+
+.f-tabs__group::-webkit-scrollbar-thumb {
+  background: #888;
+  border-radius: 10px;
+}
+
+/* Prevent items from shrinking */
+.f-tabs__list {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.f-tabs__link {
+  display: inline-block;
+  white-space: nowrap;
+  padding: 0.5rem 1rem;
+}
+.f-tabs__header-group {
+  width: 100vw;
+}
+
+    .shop-by-club-header {
+        padding: 0.6rem 0.8rem;
+    }
+    
+ .custom-liquid .container {
+  margin: 0px!Important;
+  padding: 0px!Important;
+}
+.shop-by-club-title {
+      font-size: 1rem;
+      color:white;
+      font-family:inherit;
+      font-weight:400;
+    }
+    .f-facets__block.js-filter.shop-by-club{
+        display:none!important;
+    }
+  }
+
+  .active-facet-tag {
+    display: inline-flex;
+    align-items: center;
+    padding: 0.5rem 1rem;
+    background: #f0f0f0;
+    border-radius: 20px;
+    text-decoration: none;
+    color: #333;
+    font-size: 0.9rem;
+    margin-right: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .active-facet-remove {
+    margin-left: 0.5rem;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+
+  .remove-all-link {
+    color: #333;
+    text-decoration: underline;
+    font-size: 0.9rem;
+  }
+
+  @media (max-width: 749px) {
+    
+   
+     .shop-by-club-checkbox {
+    width: 20px !important;
+    height: 20px !important;
+    min-width: unset;
+    border: 1px solid #d1d1d1 !important;
+    border-radius: 4px;
+  }
+  .shop-by-club-item{
+    border:unset!important;
+  }
+
+    .shop-by-club-label-text {
+      font-size: 1rem;
+    }
+  }
+  .shop-by-club-toggle {
+  font-size: 1.1rem;
+  line-height: 1;
+  font-weight: 300;
+  margin-left: 3px;
+}
+</style>
+
+{%- liquid
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign total_active_values = 0
+  assign shop_by_club_filter = null
+  
+  for filter in collection.filters
+    assign filter_label = filter.label | downcase
+    if filter_label contains 'shop by club'
+      assign total_active_values = total_active_values | plus: filter.active_values.size
+      assign shop_by_club_filter = filter
+      break
+    endif
+  endfor
+-%}
+
+<div class="shop-by-club-facets">
+  <facet-filters-form class="facets">
+    <form id="FacetFiltersForm" class="facets__form">
+      
+      {%- if collection.terms -%}
+        <input type="hidden" name="q" value="{{ collection.terms | escape }}">
+        <input name="options[prefix]" type="hidden" value="last">
+      {%- endif -%}
+
+      {%- if shop_by_club_filter -%}
+        <details class="shop-by-club-disclosure" {% if shop_by_club_filter.active_values.size > 0 %}open{% endif %}>
+          <summary class="shop-by-club-header">
+            <h3 class="shop-by-club-title">{{ shop_by_club_filter.label | escape }}</h3>
+            <span class="shop-by-club-toggle">
+              <span class="shop-by-club-toggle-minus">−</span>
+              <span class="shop-by-club-toggle-plus">+</span>
+            </span>
+          </summary>
+
+          <div class="shop-by-club-content">
+            <ul class="shop-by-club-list">
+              {%- for value in shop_by_club_filter.values -%}
+                <li class="shop-by-club-item">
+                  <label class="shop-by-club-label" for="Filter-{{ shop_by_club_filter.param_name }}-{{ forloop.index }}">
+                    <input
+                      type="checkbox"
+                      class="shop-by-club-checkbox"
+                      name="{{ value.param_name }}"
+                      value="{{ value.value }}"
+                      id="Filter-{{ shop_by_club_filter.param_name }}-{{ forloop.index }}"
+                      {% if value.active %}checked{% endif %}
+                      {% if value.count == 0 and value.active == false %}disabled{% endif %}
+                    >
+                    <span class="shop-by-club-label-text">{{ value.label | escape }}</span>
+                  </label>
+                </li>
+              {%- endfor -%}
+            </ul>
+
+            {%- if total_active_values > 0 -%}
+              <div class="shop-by-club-clear">
+                <facet-remove>
+                  <a href="{{ shop_by_club_filter.url_to_remove }}" class="shop-by-club-clear-link">
+                    Clear all
+                  </a>
+                </facet-remove>
+              </div>
+            {%- endif -%}
+          </div>
+        </details>
+      {%- endif -%}
+
+      <div class="loading-overlay__spinner">
+        <svg aria-hidden="true" focusable="false" class="spinner" viewBox="0 0 66 66" style="width: 40px; height: 40px;">
+          <circle class="path" fill="none" stroke-width="6" cx="33" cy="33" r="30"></circle>
+        </svg>
+      </div>
+    </form>
+  </facet-filters-form>
+</div>
+
+{%- if total_active_values > 0 and shop_by_club_filter -%}
+  <div class="active-facets-mobile">
+    {%- for filter_value in shop_by_club_filter.active_values -%}
+      <facet-remove style="display: inline-block;">
+        <a href="{{ filter_value.url_to_remove }}" class="active-facet-tag">
+          <span>{{ shop_by_club_filter.label }}: {{ filter_value.label | escape }}</span>
+          <span class="active-facet-remove">×</span>
+        </a>
+      </facet-remove>
+    {%- endfor -%}
+    
+    <facet-remove style="display: inline-block;">
+      <a href="{{ collection.url }}?sort_by={{ sort_by }}" class="remove-all-link">
+        Remove all
+      </a>
+    </facet-remove>
+  </div>
+{%- endif -%}
+
+<script>
+  // This uses Dawn's built-in FacetFiltersForm custom element
+  // The AJAX functionality is already included in Dawn theme
+  
+  // Optional: Add loading state
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('#FacetFiltersForm');
+    const spinner = document.querySelector('.loading-overlay__spinner');
+    
+    if (form) {
+      form.addEventListener('change', function() {
+        if (spinner) {
+          spinner.classList.add('active');
+        }
+      });
+    }
+    
+    // Remove spinner when content loads
+    if (spinner) {
+      setTimeout(() => {
+        spinner.classList.remove('active');
+      }, 500);
+    }
+  });
+</script>

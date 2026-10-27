@@ -1,0 +1,755 @@
+{{ 'contact-form.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+  if section.settings.heading != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+  if section.settings.subheading != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+  if section.settings.description != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+
+  assign form_id = 'ContactForm-' | append: section.id
+-%}
+<div
+  id="{{ section_id }}"
+  class="f-contact-form f-contact-form-{{ section.settings.form_design }} f-section-padding color-{{ section.settings.color_schema }}{{ custom_class }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="container">
+    <div class="flex flex-wrap items-center">
+      <div class="f-contact-form__image">
+        {%- liquid
+          assign aspect_ratio = section.settings.image_aspect_ratio | default: '1/1'
+          if aspect_ratio == 'adapt'
+            if section.settings.image != blank
+              assign aspect_ratio = section.settings.image.aspect_ratio
+            else
+              assign aspect_ratio = '1/1'
+            endif
+          endif
+  
+          assign motion_delay = 50
+        -%}
+        {%- if section.settings.image != blank -%}
+          <div class="relative overflow-hidden w-full f-image-hover-effect__{{ settings.image_hover_effect }} f-card">
+            {% render 'responsive-image',
+              image: section.settings.image,
+              aspect_ratio: aspect_ratio,
+            %}
+          </div>
+        {%- endif -%}
+      </div>
+  
+      <div class="f-contact-form__form">
+        <div 
+          class="f-contact-form f-contact-form-{{ section.settings.form_design }}"
+        >
+          {% render 'index-section-header',
+              section_settings: section.settings,
+              animation_effect: animation_effect,
+              header_alignment: section.settings.form_alignment
+            %}
+            <div class="flex justify-{{- section.settings.form_alignment -}}">
+              <motion-element
+                data-motion="{{ animation_effect }}"
+                data-motion-delay="{{ motion_delay }}"
+                class="block f-contact-form__wrapper"
+                style="width: {{ section.settings.form_width }}px;max-width: 100%;"
+              >
+                {% if section.settings.klaviyo_embed_code %}
+                  {{ section.settings.klaviyo_embed_code }}
+                {% else %}
+                  {%- form 'contact', id: form_id -%}
+                    <div class="f-contact-form__fields f-flex flex-wrap f-grid--gap-medium">
+                      {%- for block in section.blocks -%}
+                        {%- liquid
+                          assign hide_label = block.settings.hide_label
+                          assign required = block.settings.required
+      
+                          assign form_field_class = 'form-field w-full f-column'
+      
+                          if block.settings.field_width != blank
+                            assign field_width = block.settings.field_width | default: 'full'
+                            assign form_field_class = form_field_class | append: ' sm:w-' | append: field_width
+                          endif
+                        -%}
+                        {%- case block.type -%}
+                          {%- when 'name' -%}
+                            <div class="{{ form_field_class }}" block.shopify_attributes>
+                              <label
+                                class="form-label{% if hide_label %} visually-hidden{% endif %}"
+                                for="ContactForm-name-{{ block.id }}"
+                              >
+                                {{- block.settings.label -}}
+                                {%- if required %}
+                                  <span aria-hidden="true">*</span>
+                                {%- endif -%}
+                              </label>
+                              <input
+                                class="form-control"
+                                {% if required %}
+                                  aria-required="true" required
+                                {% endif -%}
+                                autocomplete="name"
+                                type="text"
+                                id="ContactForm-name-{{ block.id }}"
+                                name="contact[{{ 'templates.contact.form.name' | t }}]"
+                                value="{% if form.name %}{{ form.name }}{% elsif customer %}{{ customer.name }}{% endif %}"
+                                placeholder="{{ block.settings.placeholder }}"
+                              >
+                            </div>
+                          {%- when 'email' -%}
+                            <div class="{{ form_field_class }}" block.shopify_attributes>
+                              <label
+                                class="form-label{% if hide_label %} visually-hidden{% endif %}"
+                                for="ContactForm-email-{{ block.id }}"
+                              >
+                                {{- block.settings.label }}
+                                <span aria-hidden="true">*</span></label
+                              >
+                              <input
+                                class="form-control{% if form.errors contains 'email' %} form-control--error{% endif %}"
+                                id="ContactForm-email-{{ block.id }}"
+                                name="contact[email]"
+                                spellcheck="false"
+                                autocapitalize="off"
+                                value="{% if form.email %}{{ form.email }}{% elsif customer %}{{ customer.email }}{% endif %}"
+                                placeholder="{{ block.settings.placeholder }}"
+                                {% if form.errors contains 'email' %}
+                                  aria-invalid="true"
+                                  aria-describedby="ContactForm-email-error"
+                                {% endif %}
+                                aria-required="true"
+                                required
+                              >
+                              {%- if form.errors contains 'email' -%}
+                                <p
+                                  class="form-message form-message--error"
+                                  id="ContactForm-email-error"
+                                >
+                                  <span class="visually-hidden">
+                                    {{- 'accessibility.error' | t -}}
+                                  </span>
+                                  <span>
+                                    {{-
+                                      form.errors.translated_fields.email
+                                      | capitalize
+                                    }}
+                                    {{ form.errors.messages.email -}}
+                                  </span>
+                                </p>
+                              {%- endif -%}
+                            </div>
+                          {%- when 'phone' -%}
+                            <div class="{{ form_field_class }}" block.shopify_attributes>
+                              <label
+                                class="form-label{% if hide_label %} visually-hidden{% endif %}"
+                                for="ContactForm-phone-{{ block.id }}"
+                              >
+                                {{- block.settings.label }}
+                                {% if required %}
+                                  <span aria-hidden="true">*</span>
+                                {%- endif -%}
+                              </label>
+                              <input
+                                class="form-control"
+                                {% if required %}
+                                  aria-required="true" required
+                                {% endif %}
+                                pattern="[0-9\-]*"
+                                autocomplete="phone"
+                                type="tel"
+                                id="ContactForm-phone-{{ block.id }}"
+                                name="contact[phone]"
+                                spellcheck="false"
+                                autocapitalize="off"
+                                value="{% if form.phone %}{{ form.phone }}{% elsif customer %}{{ customer.phone }}{% endif %}"
+                                placeholder="{{ block.settings.placeholder }}"
+                              >
+                            </div>
+                          {%- when 'message' -%}
+                            <div class="{{ form_field_class }}" block.shopify_attributes>
+                              <label
+                                class="form-label{% if hide_label %} visually-hidden{% endif %}"
+                                for="ContactForm-body-{{ block.id }}"
+                              >
+                                {{- block.settings.label }}
+                                <span aria-hidden="true">*</span></label
+                              >
+                              <textarea
+                                class="form-control form-control--textarea"
+                                required
+                                aria-required="true"
+                                rows="3"
+                                id="ContactForm-body-{{ block.id }}"
+                                name="contact[body]"
+                                placeholder="{{ block.settings.placeholder }}"
+                              >
+                                {{- form.body -}}
+                            </textarea>
+                            </div>
+                        {%- endcase -%}
+                      {%- endfor -%}
+                      {%- if section.blocks.size > 0 -%}
+                        <div class="{{ form_field_class }} form-submit flex justify-{{- section.settings.form_alignment -}}">
+                          {% assign default_submit = 'templates.contact.form.send' | t %}
+                          <button
+                            type="submit"
+                            class="btn {{ section.settings.button_style }}"
+                          >
+                            {{ section.settings.button_label | default: default_submit }}
+                          </button>
+                        </div>
+                      {%- endif -%}
+                    </div>
+                    {% render 'form-status', form: form %}
+                  {%- endform -%}
+                {% endif %}
+              </motion-element>
+            </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.contact-form.name",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/yCSeWUT)"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.container.label"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.header.name"
+    },
+    {
+      "type": "select",
+      "id": "section_header_padding_bottom",
+      "label": "t:sections.common.spacing.section_header_padding_bottom.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__1.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__2.label"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__3.label"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "section_header_content_spacing",
+      "label": "t:sections.common.content_spacing.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.common.content_spacing.options__sm.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.common.content_spacing.options__md.label"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "t:settings_schema.global.settings.image_aspect_ratio_options.label",
+      "default": "adapt",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__1.label"
+        },
+        {
+          "value": "1/1",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__2.label"
+        },
+        {
+          "value": "3/4",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__3.label"
+        },
+        {
+          "value": "4/3",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__5.label"
+        }
+      ]
+    },
+    {
+      "type": "image_picker",
+      "label": "t:sections.collage-tabs.blocks.tab.settings.image.label",
+      "id": "image"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "info": "t:sections.common.highlight_text.paragraph.content",
+      "label": "t:sections.common.header.heading",
+      "default": "Contact form"
+    },
+    {
+      "type": "select",
+      "id": "highlight_style",
+      "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+        },
+        {
+          "value": "drawer_line",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+        },
+        {
+          "value": "underline",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight_text_color",
+      "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "default": "h2",
+      "label": "t:sections.common.text_size.heading.label",
+      "options": [
+        {
+          "value": "h3",
+          "label": "t:sections.common.text_size.options__h3.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.text_size.options__h2.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.common.text_size.options__h1.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.common.text_size.options__h0.label"
+        },
+        {
+          "value": "h-xl",
+          "label": "t:sections.common.text_size.options__hd1.label"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "t:sections.common.heading_color.label",
+      "info": "t:sections.common.heading_color.info"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:sections.common.header.subheading"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.common.header.description"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.contact-form.settings.header_form_settings.content"
+    },
+    {
+      "type": "select",
+      "id": "form_design",
+      "label": "t:sections.common.design.label",
+      "options": [
+        {
+          "value": "design-1",
+          "label": "t:sections.common.design.option__1"
+        },
+        {
+          "value": "design-2",
+          "label": "t:sections.common.design.option__2"
+        }
+      ],
+      "default": "design-1"
+    },
+    {
+      "type": "range",
+      "id": "form_width",
+      "min": 300,
+      "max": 800,
+      "step": 5,
+      "unit": "px",
+      "label": "t:sections.contact-form.settings.form_width.label",
+      "default": 500
+    },
+    {
+      "type": "select",
+      "id": "form_alignment",
+      "label": "t:sections.contact-form.settings.form_alignment.label",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:settings_schema.global.settings.content_alignment.option__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:settings_schema.global.settings.content_alignment.option__2.label"
+        },
+        {
+          "value": "end",
+          "label": "t:settings_schema.global.settings.content_alignment.option__3.label"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.contact-form.settings.header_submit_button.content"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "t:sections.contact-form.settings.button_label.label",
+      "default": "Send"
+    },
+    {
+      "type": "select",
+      "id": "button_style",
+      "label": "t:sections.common.button.button_style.label",
+      "options": [
+        {
+          "value": "btn--primary",
+          "label": "t:sections.common.button.button_style.options.option__1"
+        },
+        {
+          "value": "btn--secondary",
+          "label": "t:sections.common.button.button_style.options.option__2"
+        }
+      ],
+      "default": "btn--primary"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    },
+    {
+      "type": "textarea",
+      "id": "klaviyo_embed_code",
+      "label": "Klaviyo embed form code",
+      "info": "Paste the embed code from Klaviyo here. HTML/JS will be rendered as-is.",
+    },
+  ],
+  "blocks": [
+    {
+      "type": "name",
+      "name": "t:sections.contact-form.blocks.field_name.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.contact-form.blocks.field_label",
+          "default": "Name"
+        },
+        {
+          "type": "text",
+          "id": "placeholder",
+          "label": "t:sections.contact-form.blocks.placeholder",
+          "default": "Enter your name"
+        },
+        {
+          "type": "select",
+          "id": "field_width",
+          "label": "t:sections.contact-form.blocks.field_width.label",
+          "default": "full",
+          "options": [
+            {
+              "value": "full",
+              "label": "100%"
+            },
+            {
+              "value": "1/2",
+              "label": "50%"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_label",
+          "label": "t:sections.contact-form.blocks.hide_label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "t:sections.contact-form.blocks.required",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "email",
+      "name": "t:sections.contact-form.blocks.field_email.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.contact-form.blocks.field_label",
+          "default": "Email"
+        },
+        {
+          "type": "text",
+          "id": "placeholder",
+          "label": "t:sections.contact-form.blocks.placeholder",
+          "default": "Enter your email"
+        },
+        {
+          "type": "select",
+          "id": "field_width",
+          "label": "t:sections.contact-form.blocks.field_width.label",
+          "default": "full",
+          "options": [
+            {
+              "value": "full",
+              "label": "100%"
+            },
+            {
+              "value": "1/2",
+              "label": "50%"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_label",
+          "label": "t:sections.contact-form.blocks.hide_label",
+          "default": true
+        },
+        {
+          "type": "paragraph",
+          "content": "t:sections.contact-form.blocks.field_email.info"
+        }
+      ]
+    },
+    {
+      "type": "phone",
+      "name": "t:sections.contact-form.blocks.field_phone.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.contact-form.blocks.field_label",
+          "default": "Phone number"
+        },
+        {
+          "type": "text",
+          "id": "placeholder",
+          "label": "t:sections.contact-form.blocks.placeholder",
+          "default": "Enter your phone number"
+        },
+        {
+          "type": "select",
+          "id": "field_width",
+          "label": "t:sections.contact-form.blocks.field_width.label",
+          "default": "full",
+          "options": [
+            {
+              "value": "full",
+              "label": "100%"
+            },
+            {
+              "value": "1/2",
+              "label": "50%"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_label",
+          "label": "t:sections.contact-form.blocks.hide_label",
+          "default": true
+        },
+        {
+          "type": "checkbox",
+          "id": "required",
+          "label": "t:sections.contact-form.blocks.required",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "message",
+      "name": "t:sections.contact-form.blocks.field_message.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "t:sections.contact-form.blocks.field_label",
+          "default": "Message"
+        },
+        {
+          "type": "text",
+          "id": "placeholder",
+          "label": "t:sections.contact-form.blocks.placeholder",
+          "default": "Enter your message"
+        },
+        {
+          "type": "checkbox",
+          "id": "hide_label",
+          "label": "t:sections.contact-form.blocks.hide_label",
+          "default": true
+        },
+        {
+          "type": "paragraph",
+          "content": "t:sections.contact-form.blocks.field_message.info"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.contact-form.presets.name",
+      "blocks": [
+        {
+          "type": "name"
+        },
+        {
+          "type": "email"
+        },
+        {
+          "type": "message"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,709 @@
+{%- liquid
+  assign variant = product.selected_or_first_available_variant
+  assign compare_at_price = variant.compare_at_price
+  assign price = variant.price
+  assign on_sale = false
+  if compare_at_price > price
+    assign on_sale = true
+  endif
+
+  assign show_on_sale_badge = settings.pcard_show_sale_badge
+  unless on_sale
+    assign show_on_sale_badge = false
+  endunless
+  assign show_soldout = settings.pcard_show_badge_soldout
+
+  assign image_ratio = image_ratio | default: settings.pcard_image_ratio
+
+  if show_vendor == null
+    assign show_vendor = settings.pcard_show_vendor
+  endif
+
+  if show_product_option == null
+    assign show_product_option = settings.pcard_show_color_swatch
+  endif
+
+  if is_complementary == null
+    assign is_complementary = false
+  endif
+
+  if image_ratio == null or image_ratio == blank
+    assign image_ratio = settings.pcard_image_ratio | default: '1/1'
+  endif
+
+  assign first_media_type = product.media.first.media_type
+
+  assign preview_image = product.featured_media
+  if image_ratio == 'adapt'
+    if first_media_type == 'video'
+      assign image_ratio = product.media.first.preview_image.aspect_ratio
+    else
+      assign image_ratio = product.featured_media.aspect_ratio
+    endif
+  endif
+
+  if product.selected_variant.image != null
+    assign preview_image = product.selected_variant.image
+  endif
+
+  assign second_image = ''
+  if settings.pcard_show_second_img and product.images.size > 1 and product.images[1] != blank and list_layout != true
+    assign second_image = product.images[1]
+  endif
+
+  assign main_img_class = 'product-card__image product-card__image--main'
+  if enable_quick_add == null
+    assign enable_quick_add = settings.pcard_show_cart_button
+  endif
+  if enable_quick_view == null
+    assign enable_quick_view = settings.pcard_show_quickview_button
+  endif
+
+  assign mobile_hide_quick_add = settings.pcard_mobile_hide_quick_add
+  assign mobile_hide_quick_view = settings.pcard_mobile_hide_quick_view
+
+  assign custom_tags = product.tags | where: 'tag__'
+
+  assign choose_options_tag = 'a'
+  unless settings.pcard_choose_options_actions == 'product_page'
+    assign choose_options_tag = 'button'
+  endunless
+
+  assign product_url = product.url | within: collection
+
+  if remove_params
+    assign product_url = product_url | split: '?' | first
+  endif
+
+  assign product_title_class = 'font-' | append: settings.pcard_title_font
+  assign actions_class = ''
+  if mobile_hide_quick_add
+    assign actions_class = actions_class | append: ' mobile-hide-quick-add'
+  endif
+  if mobile_hide_quick_view
+    assign actions_class = actions_class | append: ' mobile-hide-quick-view'
+  endif
+  if enable_quick_view
+    assign custom_class = custom_class | append: ' quick-view-enabled'
+  endif
+  if enable_quick_add
+    assign custom_class = custom_class | append: ' quick-add-enabled'
+  endif
+
+  assign loading = 'lazy'
+  assign fetchpriority = 'low'
+  if section_index < 2 and index == 1
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  endif
+-%}
+{%- capture atc_icon -%}{% render 'icon-cart', name: settings.cart_icon %}{%- endcapture -%}
+<div class="product-card{% if list_layout %} product-card--list{% endif %} grid-list__column {{ custom_class }}">
+  <div class="product-card__wrapper{% if second_image == blank %} image-hover-effect__zoom{% endif %}">
+    <a href="{{ product_url }}{% if course_handle.size > 2 %}/?club={{ course_handle }}{% endif %}" class="full-width-link product-card__link">
+      <span class="visually-hidden">{{- product.title -}}</span>
+    </a>
+     
+    <div class="product-card__image-wrapper f-card{% if second_image == blank %} product-card__image-wrapper--main-only{% endif %}">
+      {% assign labels = product.metafields.custom.labels_on_product.value %}
+     {% if labels != blank %}
+            <div class="product-labels">
+              {% for label in labels %}
+                {% assign label_class = label | downcase | replace: ' ', '-' %}
+                <span class="product-label product-label--{{ label_class }}">{{ label }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+      {% if preview_image != blank or first_media_type == 'video' %}
+        {% if first_media_type == 'video' and settings.show_video_instead %}
+          <deferred-media
+            class="deferred-media no-js-hidden"
+            data-image-ratio="{{ image_ratio }}"
+            style="--aspect-ratio: {{ image_ratio | default: 1 }}"
+          >
+            <template>
+              {{
+                product.media.first
+                | media_tag:
+                  autoplay: true,
+                  image_size: '533x',
+                  loop: true,
+                  controls: false,
+                  preload: 'none',
+                  class: 'video-playsinline'
+              }}
+            </template>
+          </deferred-media>
+        {% else %}
+          {% assign input_string = product.variants.first.metafields.custom.logo_position %}
+          {% assign parts = input_string | split: ';' %}
+          {% assign x_value = parts[0] | split: ':' | last %}
+          {% assign y_value = parts[1] | split: ':' | last %}
+
+           {% if x_value != blank and x_value != null and x_value != '' %}
+            <span style="display: block;position: absolute;z-index: 99; left: {{ x_value }}; top: {{ y_value }}; height: {{ product.variants.first.metafields.custom.logo_size }}; width:{{ product.variants.first.metafields.custom.logo_size }}" class="logo-overlay"></span>
+          {% endif %}
+          <responsive-image
+            class="f-image {{ main_img_class }}"
+            data-image-loading
+            style="--aspect-ratio: {{ image_ratio | default: 1 }}"
+          >
+           
+            <img
+              srcset="
+                {%- if preview_image.width >= 165 -%}{{ preview_image | image_url: width: 165 }} 165w,{%- endif -%}
+                {%- if preview_image.width >= 360 -%}{{ preview_image | image_url: width: 360 }} 360w,{%- endif -%}
+                {%- if preview_image.width >= 533 -%}{{ preview_image | image_url: width: 533 }} 533w,{%- endif -%}
+                {%- if preview_image.width >= 720 -%}{{ preview_image | image_url: width: 720 }} 720w,{%- endif -%}
+                {%- if preview_image.width >= 940 -%}{{ preview_image | image_url: width: 940 }} 940w,{%- endif -%}
+                {%- if preview_image.width >= 1066 -%}{{ preview_image | image_url: width: 1066 }} 1066w,{%- endif -%}
+                {{ preview_image | image_url }} {{ preview_image.width }}w
+              "
+              src="{{ preview_image | image_url: width: 533 }}"
+              sizes="(min-width: {{ settings.container_width }}px) {{ settings.container_width | minus: 130 | divided_by: 4 }}px, (min-width: 990px) calc((100vw - 130px) / 4), (min-width: 750px) calc((100vw - 120px) / 3), calc((100vw - 35px) / 2)"
+              alt="{{ preview_image.alt | default: product.title | escape }}"
+              class="motion-reduce"
+              loading="{{ loading }}"
+              fetchpriority="{{ fetchpriority }}"
+              width="533"
+              height="{{ 533 | divided_by: preview_image.aspect_ratio | round }}"
+            >
+          </responsive-image>
+        {% endif %}
+        {% unless second_image == blank %}
+          <responsive-image
+            class="f-image f-image--no-zoom product-card__image product-card__image--second inset-full hidden md:block"
+            data-image-loading
+            style="--aspect-ratio: {{ image_ratio }}"
+          >
+            <img
+              srcset="
+                {%- if second_image.width >= 165 -%}{{ second_image | image_url: width: 165 }} 165w,{%- endif -%}
+                {%- if second_image.width >= 360 -%}{{ second_image | image_url: width: 360 }} 360w,{%- endif -%}
+                {%- if second_image.width >= 533 -%}{{ second_image | image_url: width: 533 }} 533w,{%- endif -%}
+                {%- if second_image.width >= 720 -%}{{ second_image | image_url: width: 720 }} 720w,{%- endif -%}
+                {%- if second_image.width >= 940 -%}{{ second_image | image_url: width: 940 }} 940w,{%- endif -%}
+                {%- if second_image.width >= 1066 -%}{{ second_image | image_url: width: 1066 }} 1066w,{%- endif -%}
+                {{ second_image | image_url }} {{ second_image.width }}w
+              "
+              class="motion-reduce"
+              src="{{ second_image | image_url: width: 533 }}"
+              sizes="(min-width: {{ settings.container_width }}px) {{ settings.container_width | minus: 130 | divided_by: 4 }}px, (min-width: 990px) calc((100vw - 130px) / 4), (min-width: 750px) calc((100vw - 120px) / 3), calc((100vw - 35px) / 2)"
+              alt="{{ second_image.alt | default: product.title | escape }}"
+              loading="lazy"
+              width="{{ 533 }}"
+              height="{{ 533 | divided_by: second_image.aspect_ratio | round }}"
+            >
+          </responsive-image>
+        {% endunless %}
+      {% else %}
+        <div
+          class="product-card__image product-card__image--main color-background-2"
+          style="--aspect-ratio: 1;"
+        >
+          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        </div>
+      {% endif %}
+
+      {% if product.available == false or on_sale or custom_tags.size > 0 %}
+        <div class="product-card__badge">
+          {%- if product.available == false
+            and show_soldout
+            and list_layout != true
+          -%}
+            <span class="f-badge f-badge--soldout" aria-hidden="true">
+              {{ 'products.product.sold_out' | t }}
+            </span>
+          {% endif %}
+          {% if show_on_sale_badge
+            and product.available
+            and list_layout != true
+          %}
+            {% liquid
+              assign sale_badge = ''
+              assign amount = 0
+              case settings.pcard_sale_badge_type
+                when 'show_percentage'
+                  if compare_at_price > price
+                    assign amount = compare_at_price | minus: price | times: 100 | divided_by: compare_at_price
+                  endif
+                  assign sale_badge = amount | times: -1 | append: '%'
+                when 'show_amount'
+                  if compare_at_price > price
+                    assign amount = compare_at_price | minus: price | money
+                  endif
+                  assign sale_badge = 'products.product.price.save_price_html' | t: amount: amount
+                else
+                  assign sale_badge = 'products.product.on_sale' | t
+              endcase
+            %}
+            <span class="f-badge f-badge--sale" aria-hidden="true">
+              {{- sale_badge -}}
+            </span>
+          {% endif %}
+          {% for tag in custom_tags %}
+            {%- liquid
+              assign tag_content = tag | split: '__' | last
+              assign type = tag_content | split: '_' | first
+              assign tag_name = tag_content | split: '_' | last
+            -%}
+            <span class="f-badge f-badge--{{ type }}">{{ tag_name }}</span>
+          {% endfor %}
+        </div>
+      {% endif %}
+      {% unless list_layout %}
+        {% if enable_quick_add or enable_quick_view %}
+          <div class="product-card__actions{{ actions_class }}">
+            {% if enable_quick_add and enable_quick_view %}
+              {%- if product.has_only_default_variant -%}
+                {%- if product.selected_or_first_available_variant.quantity_rule.min
+                    > 1
+                -%}
+                  <{{ choose_options_tag }}
+                    {% if settings.pcard_choose_options_actions
+                        == 'product_page'
+                    %}
+                      href="{{- product_url -}}"
+                    {% else %}
+                      data-product-quickview="{{ product.handle }}"
+                    {% endif %}
+                    class="product-card__atc product-card__action-button btn btn--white no-color-schema"
+                  >
+                    <span class="product-card__atc-icon product-card__action-icon hidden">
+                      {% render 'icon-cart', name: settings.cart_icon %}
+                    </span>
+                    <span class="product-card__action-icon-loading f-spinner-icon">
+                      <svg
+                        aria-hidden="true"
+                        class="f-icon-svg f-icon-svg--medium"
+                        viewBox="0 0 66 66"
+                        xmlns="http://www.w3.org/2000/svg"
+                      >
+                        <circle fill="none" cx="33" cy="33" r="30"/>
+                      </svg>
+                    </span>
+                    <span class="product-card__atc-text product-card__action-text">
+                      {{- 'products.product.select_options' | t -}}
+                    </span>
+                  </{{ choose_options_tag }}>
+                {%- else -%}
+                  <product-form
+                    class="f-product-form w-full product-card__action-button"
+                    data-type="product-card"
+                  >
+                    {%- form 'product',
+                      product,
+                      id: product_form_id,
+                      class: 'product-card-form',
+                      novalidate: 'novalidate'
+                    -%}
+                      <input
+                        type="hidden"
+                        name="id"
+                        value="{{- variant.id -}}"
+                      >
+                      <button
+                        class="product-card__atc btn btn--white"
+                        name="add"
+                        {% if variant.available == false %}
+                          disabled
+                        {% endif %}
+                        aria-label="{{ 'products.product.add_to_cart' | t }}"
+                      >
+                        <span class="product-card__atc-icon product-card__action-icon hidden">
+                          {%- render 'icon-cart', name: settings.cart_icon -%}
+                        </span>
+                        <span class="product-card__action-icon-loading f-spinner-icon">
+                          <svg
+                            aria-hidden="true"
+                            class="f-icon-svg f-icon-svg--medium"
+                            viewBox="0 0 66 66"
+                            xmlns="http://www.w3.org/2000/svg"
+                          >
+                            <circle fill="none" cx="33" cy="33" r="30"/>
+                          </svg>
+                        </span>
+                        <span class="product-card__atc-text product-card__action-text">
+                          {%- if variant.available -%}
+                            {{ 'products.product.add_to_cart' | t }}
+                          {%- else -%}
+                            {{ 'products.product.sold_out' | t }}
+                          {%- endif -%}
+                        </span>
+                      </button>
+                    {%- endform -%}
+                  </product-form>
+                {%- endif -%}
+              {% else %}
+                <{{ choose_options_tag }}
+                  {% if settings.pcard_choose_options_actions == 'product_page'
+                  %}
+                    href="{{- product_url -}}"
+                  {% else %}
+                    data-product-quickview="{{ product.handle }}"
+                  {% endif %}
+                  class="product-card__atc product-card__action-button btn btn--white no-color-schema"
+                >
+                  <span class="product-card__atc-icon product-card__action-icon hidden">
+                    {% render 'icon-cart', name: settings.cart_icon %}
+                  </span>
+                  <span class="product-card__action-icon-loading f-spinner-icon">
+                    <svg
+                      aria-hidden="true"
+                      class="f-icon-svg f-icon-svg--medium"
+                      viewBox="0 0 66 66"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle fill="none" cx="33" cy="33" r="30"/>
+                    </svg>
+                  </span>
+                  <span class="product-card__atc-text product-card__action-text">
+                    {{- 'products.product.select_options' | t -}}
+                  </span>
+                </{{ choose_options_tag }}>
+              {%- endif -%}
+            {% endif %}
+            {% if enable_quick_view %}
+              <button
+                class="btn btn--white no-color-schema product-card__quickview product-card__action-button no-js-hidden{% unless enable_quick_add %} product-card__quickview--only{% endunless %}"
+                aria-label="{{ 'products.product.quick_view' | t }}"
+                data-product-quickview="{{ product.handle }}"
+              >
+                <span class="product-card__quick-view-icon product-card__action-icon">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    focusable="false"
+                    role="presentation"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="f-icon-svg f-icon-svg--medium f-icon-eye"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </span>
+                <span class="product-card__action-icon-loading f-spinner-icon">
+                  <svg
+                    aria-hidden="true"
+                    class="f-icon-svg f-icon-svg--medium"
+                    viewBox="0 0 66 66"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle fill="none" cx="33" cy="33" r="30"/>
+                  </svg>
+                </span>
+                <span class="product-card__quick-view-text product-card__action-text">
+                  {{- 'products.product.quick_view' | t -}}
+                </span>
+              </button>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endunless %}
+    </div>
+      <button 
+          class="add-to-wishlist" 
+          data-product-handle="{{ product.handle }}"
+          data-product-id="{{ product.handle }}/{{ current_variant.id | json }}" 
+          data-variant-id="{{ current_variant.id }}" 
+          aria-label="Add {{ product.title }} to wishlist"
+           onclick="addToWishlistByHandle(this)"
+        >
+          {% render 'icon-wishlist', name: settings.wishlist_icon %}
+        </button>
+        
+        <div id="wishlist-tooltip-{{ product.id }}" class="tooltip-advice wishlist" role="alert" aria-live="assertive"></div> 
+    <div class="product-card__info{% if is_complementary %} text-left{% else %} text-{{ settings.pcard_content_alignment }}{% endif %}">
+      <div class="product-card__information">
+        <h3 class="product-card__title text-product-title {{ product_title_class }}">
+          {{- product.title -}}
+        </h3>
+       
+        
+      </div>
+      {%- if show_vendor -%}
+        <span class="product-card__vendor">
+          {{- product.vendor -}}
+        </span>
+      {%- endif -%}
+      {% if settings.pcard_show_review_badge %}
+        <div class="product-card__reviews">
+          {%- render 'product-rating', product: product -%}
+        </div>
+      {% endif %}
+      {% render 'price',
+        product: product,
+        alignment: settings.pcard_content_alignment
+      %}
+      {% if is_complementary and show_product_option and enable_swatches %}
+        <div class="product-card__options relative text-left block">
+          {% render 'product-card-swatch',
+            product: product,
+            product_url: product_url
+          %}
+        </div>
+      {% endif %}
+      {% if list_layout or is_lookbook %}
+        {% if enable_quick_add or enable_quick_view %}
+          {%- liquid
+            assign button_class = 'btn--white'
+          -%}
+          <div class="product-card__actions{{ actions_class }}">
+            {% if enable_quick_add %}
+              {%- if product.has_only_default_variant -%}
+                {%- if product.selected_or_first_available_variant.quantity_rule.min
+                    > 1
+                -%}
+                  <{{ choose_options_tag }}
+                    {% if settings.pcard_choose_options_actions
+                        == 'product_page'
+                    %}
+                      href="{{- product_url -}}"
+                    {% endif %}
+                    class="product-card__atc btn {{ button_class }} btn--small no-color-schema"
+                    data-product-quickview="{{ product.handle }}"
+                  >
+                    <span class="product-card__atc-text">
+                      {{- 'products.product.select_options' | t -}}
+                    </span>
+                    <span class="product-card__atc-icon hidden">
+                      {% if is_complementary %}
+                        {% render 'icon-cart', name: settings.cart_icon %}
+                      {% else %}
+                        {{ atc_icon }}
+                      {% endif %}
+                    </span>
+                    <svg
+                      aria-hidden="true"
+                      class="f-icon-svg f-icon-svg--medium f-spinner-icon"
+                      viewBox="0 0 66 66"
+                      xmlns="http://www.w3.org/2000/svg"
+                    >
+                      <circle fill="none" cx="33" cy="33" r="30"/>
+                    </svg>
+                  </{{ choose_options_tag }}>
+                {%- else -%}
+                  <product-form class="f-product-form w-full">
+                    {%- form 'product',
+                      product,
+                      id: product_form_id,
+                      class: 'product-card-form',
+                      novalidate: 'novalidate'
+                    -%}
+                      <input
+                        type="hidden"
+                        name="id"
+                        value="{{- variant.id -}}"
+                      >
+                      <button
+                        class="product-card__atc btn {{ button_class }} btn--small"
+                        name="add"
+                        {% if variant.available == false %}
+                          disabled
+                        {% endif %}
+                        aria-label="{{ 'products.product.add_to_cart' | t }}"
+                      >
+                        <span class="product-card__atc-text">
+                          {%- if variant.available -%}
+                            {{ 'products.product.add_to_cart' | t }}
+                          {%- else -%}
+                            {{ 'products.product.sold_out' | t }}
+                          {%- endif -%}
+                        </span>
+                        <span class="product-card__atc-icon hidden">
+                          {% render 'icon-cart', name: settings.cart_icon %}
+                        </span>
+                        {% comment %} theme-check-disable {% endcomment %}
+                        {{ 'icon-spinner.svg' | inline_asset_content }}
+                        {% comment %} theme-check-enable {% endcomment %}
+                      </button>
+                    {%- endform -%}
+                  </product-form>
+                {%- endif -%}
+              {% else %}
+                <{{ choose_options_tag }}
+                  {% if settings.pcard_choose_options_actions == 'product_page'
+                  %}
+                    href="{{- product_url -}}"
+                  {% endif %}
+                  class="product-card__atc btn {{ button_class }} btn--small no-color-schema"
+                  data-product-quickview="{{ product.handle }}"
+                >
+                  <span class="product-card__atc-text">
+                    {{- 'products.product.select_options' | t -}}
+                  </span>
+                  <span class="product-card__atc-icon hidden">
+                    {% if is_complementary %}
+                      {% render 'icon-cart', name: settings.cart_icon %}
+                    {% else %}
+                      {{ atc_icon }}
+                    {% endif %}
+                  </span>
+                  <svg
+                    aria-hidden="true"
+                    class="f-icon-svg f-icon-svg--medium f-spinner-icon"
+                    viewBox="0 0 66 66"
+                    xmlns="http://www.w3.org/2000/svg"
+                  >
+                    <circle fill="none" cx="33" cy="33" r="30"/>
+                  </svg>
+                </{{ choose_options_tag }}>
+              {%- endif -%}
+            {% endif %}
+            {% if enable_quick_view %}
+              <button
+                class="btn btn--white btn--small no-color-schema product-card__quickview no-js-hidden"
+                aria-label="{{ 'products.product.quick_view' | t }}"
+                data-product-quickview="{{ product.handle }}"
+              >
+                <span>
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    focusable="false"
+                    role="presentation"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    stroke-width="2"
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    class="f-icon-svg f-icon-svg--medium f-icon-eye"
+                  >
+                    <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path><circle cx="12" cy="12" r="3"></circle>
+                  </svg>
+                </span>
+                <svg
+                  aria-hidden="true"
+                  class="f-icon-svg f-icon-svg--medium f-spinner-icon"
+                  viewBox="0 0 66 66"
+                  xmlns="http://www.w3.org/2000/svg"
+                >
+                  <circle fill="none" cx="33" cy="33" r="30"/>
+                </svg>
+              </button>
+            {% endif %}
+          </div>
+        {% endif %}
+      {% endif %}
+      {% if is_lookbook and show_product_option and enable_swatches %}
+        <div class="product-card__options relative text-center block md:hidden">
+          {% render 'product-card-swatch',
+            product: product,
+            product_url: product_url
+          %}
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  {% if show_product_option and is_complementary == false and enable_swatches %}
+    <div class="product-card__options relative text-{{ settings.pcard_content_alignment }}">
+      {%- render 'product-card-swatch',
+        product: product,
+        product_url: product_url
+      -%}
+    </div>
+  {% endif %}
+</div>
+{% capture metaobject_sources %}
+{% for logo in metaobject.course_logos.value %}
+  "{{ logo | image_url: width: 300 }}" {% unless forloop.last %},{% endunless %}
+{% endfor %}
+{% endcapture %}
+{%- liquid
+  assign logo_sources = ''
+  assign has_logos = false
+  assign overrideAllowed = false
+  
+  # Priority 1: Collection metafields
+  if collection.metafields.custom.course_logo_1 != blank
+    if collection.metafields.custom.course_logo_1 != blank
+      assign logo_url = collection.metafields.custom.course_logo_1 | image_url: width: 200
+      if has_logos == false
+        assign logo_sources = logo_sources | append: '"' | append: logo_url | append: '"'
+        assign has_logos = true
+      else
+        assign logo_sources = logo_sources | append: ',"' | append: logo_url | append: '"'
+      endif
+    endif
+    
+    if collection.metafields.custom.course_logo_2 != blank
+      assign logo_url = collection.metafields.custom.course_logo_2 | image_url: width: 200
+      if has_logos == false
+        assign logo_sources = logo_sources | append: '"' | append: logo_url | append: '"'
+        assign has_logos = true
+      else
+        assign logo_sources = logo_sources | append: ',"' | append: logo_url | append: '"'
+      endif
+    endif
+    
+    if collection.metafields.custom.course_logo_3 != blank
+      assign logo_url = collection.metafields.custom.course_logo_3 | image_url: width: 200
+      if has_logos == false
+        assign logo_sources = logo_sources | append: '"' | append: logo_url | append: '"'
+        assign has_logos = true
+      else
+        assign logo_sources = logo_sources | append: ',"' | append: logo_url | append: '"'
+      endif
+    endif
+  
+  # Priority 2: Page metafields
+  elsif page.metafields.custom.course_logo_1 != blank or page.metafields.custom.course_logo_2 != blank or page.metafields.custom.course_logo_3 != blank
+    if page.metafields.custom.course_logo_1 != blank
+      assign logo_url = page.metafields.custom.course_logo_1 | image_url: width: 200
+      if has_logos == false
+        assign logo_sources = logo_sources | append: '"' | append: logo_url | append: '"'
+        assign has_logos = true
+      else
+        assign logo_sources = logo_sources | append: ',"' | append: logo_url | append: '"'
+      endif
+    endif
+    
+    if page.metafields.custom.course_logo_2 != blank
+      assign logo_url = page.metafields.custom.course_logo_2 | image_url: width: 200
+      if has_logos == false
+        assign logo_sources = logo_sources | append: '"' | append: logo_url | append: '"'
+        assign has_logos = true
+      else
+        assign logo_sources = logo_sources | append: ',"' | append: logo_url | append: '"'
+      endif
+    endif
+    
+    if page.metafields.custom.course_logo_3 != blank
+      assign logo_url = page.metafields.custom.course_logo_3 | image_url: width: 200
+      if has_logos == false
+        assign logo_sources = logo_sources | append: '"' | append: logo_url | append: '"'
+        assign has_logos = true
+      else
+        assign logo_sources = logo_sources | append: ',"' | append: logo_url | append: '"'
+      endif
+    endif
+  
+  # Priority 3: Metaobject
+  elsif metaobject.course_logos != blank
+    assign logo_sources = metaobject_sources
+  
+  # Priority 4: Global settings (fallback)
+  else
+    assign overrideAllowed = true
+    for i in (1..12)
+      assign logo_key = 'club_logo_' | append: i
+      assign logo_setting = settings[logo_key]
+      
+      if logo_setting != blank
+        assign logo_url = logo_setting | image_url: width: 200
+        if has_logos == false
+          assign logo_sources = logo_sources | append: '"' | append: logo_url | append: '"'
+          assign has_logos = true
+        else
+          assign logo_sources = logo_sources | append: ',"' | append: logo_url | append: '"'
+        endif
+      endif
+    endfor
+  endif
+-%}

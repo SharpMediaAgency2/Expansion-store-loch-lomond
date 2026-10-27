@@ -1,0 +1,575 @@
+{{ 'favorite-products.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'favorite-products.js' | asset_url }}" defer="defer"></script>
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+  assign container = section.settings.container
+  assign image_ratio = section.settings.image_ratio
+
+  if image_ratio == 'adapt'
+    assign first_block = section.blocks | first
+    assign first_image = first_block.settings.image
+    if first_image != blank
+      assign image_ratio = first_image.aspect_ratio
+    else
+      assign product = first_block.settings.product
+      if product.featured_media.preview_image
+        assign image_ratio = product.featured_media.preview_image.aspect_ratio
+      else
+        assign image_ratio = 1
+      endif
+    endif
+  endif
+
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+
+  assign total_pages = section.blocks.size
+
+  assign controls_position = section.settings.controls_position
+  assign controls_background = section.settings.controls_background
+  assign pagination_class = 'flickity-pagination-bg--' | append: controls_background
+
+  assign pagination_style = section.settings.pagination_type
+  assign is_page_dots = false
+  if pagination_style == 'dots' and total_pages > 1
+    assign is_page_dots = true
+  endif
+
+  if controls_background == 'none' or controls_background == 'light'
+    if controls_position == 'left' or controls_position == 'right'
+      capture style
+        echo '--spacing-offset: 1.4rem;'
+      endcapture
+    endif
+  endif
+-%}
+{% render 'divider',
+  show_divider: section.settings.show_section_divider,
+  divider_width: section.settings.divider_width
+%}
+<div
+  id="{{ section_id }}"
+  class="f-favorite-products{{ custom_class }} f-section-padding color-{{ section.settings.color_schema }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="{{ container }}">
+    <div class="f-favorite-products__wrapper relative">
+      <favorite-products>
+        {% render 'index-section-header',
+          animation_effect: animation_effect,
+          section_settings: section.settings,
+          alignment: 'center',
+          custom_css_class: 'lg:hidden'
+        %}
+        <div class="f-grid lg:f-grid-2-cols items-center">
+          <motion-element
+            data-motion="{{ animation_effect }}"
+            class="block f-column"
+          >
+            <div
+              id="FavoriteProductsImageSlider-{{ section.id }}"
+              class="f-favorite-products__image-slider h-full"
+              style="--aspect-ratio: {{ image_ratio }}"
+            >
+              {%- for block in section.blocks -%}
+                {%- liquid
+                  assign image = block.settings.image
+                  assign product = block.settings.product
+                  unless image
+                    assign image = product.featured_media.preview_image
+                  endunless
+                  assign alt = image.alt | default: product.title
+                -%}
+                <div class="f-favorite-products__image absolute flex items-center w-full{% if forloop.first %} is-selected{% endif %}">
+                  {%- if image != blank -%}
+                    {%- render 'responsive-image',
+                      image: image,
+                      alt: alt,
+                      no_zoom: true,
+                      aspect_ratio: image_ratio,
+                      section_index: section.index,
+                      index: forloop.index
+                    -%}
+                  {%- else -%}
+                    <div
+                      class="f-image"
+                      style="--aspect-ratio: {{ image_ratio }}"
+                    >
+                      {{
+                        'image'
+                        | placeholder_svg_tag: 'placeholder-svg w-full h-full'
+                      }}
+                    </div>
+                  {%- endif -%}
+                </div>
+              {%- endfor -%}
+            </div>
+          </motion-element>
+          <motion-element
+            data-motion="{{ animation_effect }}"
+            class="block f-column"
+          >
+            <div class="f-favorite-products__content">
+              <div class="lg-down:hidden">
+                <h3 class="mega-subtitle text-upper font-body">
+                  {{- section.settings.heading -}}
+                </h3>
+              </div>
+              <flickity-component
+                id="FavoriteProductsSlider-{{ section.id }}"
+                class="f-favorite-products__product-slider flickity-show-controls flickity-controls-group flickity-controls-group__bottom flickity-controls-group__bottom--{{ controls_position }} flickity-pagination--{{ pagination_style }} {{ pagination_class }} flickity-button-initialized"
+                data-slider-options='{"pageDots": {{ is_page_dots }}, "prevNextButtons": true, "wrapAround": true, "adaptiveHeight": true, "cellSelector": ".f-favorite-products__block"}'
+                data-enable-slider="true"
+                data-slider-columns="1"
+                style="--number-slides: {{ total_pages }};{{ style }}"
+              >
+                {%- for block in section.blocks -%}
+                  {%- liquid
+                    assign product = block.settings.product
+                    assign text = block.settings.text
+                    assign preview_image = product.featured_media.preview_image
+                  -%}
+                  <div
+                    class="f-favorite-products__block w-full"
+                    data-index="{{ forloop.index0 }}"
+                    {{ block.shopify_attributes }}
+                  >
+                    {%- unless text == blank -%}
+                      <div class="f-favorite-products__product-content">
+                        <div class="rte h3 text-normal">{{- text -}}</div>
+                      </div>
+                    {%- endunless -%}
+                    <div class="f-favorite-products__product flex items-center relative">
+                      <div class="f-favorite-products__product-image relative f-image-hover-effect__{{settings.image_hover_effect}}">
+                        <a href="{{ product.url }}" class="full-width-link"
+                          ><span class="visually-hidden">
+                            {{- product.title -}}
+                          </span></a
+                        >
+                        {%- if preview_image -%}
+                          {%- render 'responsive-image',
+                            image: preview_image,
+                            alt: preview_image.alt,
+                            section_index: section.index,
+                            index: forloop.index
+                          -%}
+                        {%- else -%}
+                          {{
+                            'image'
+                            | placeholder_svg_tag: 'placeholder-svg w-full h-full'
+                          }}
+                        {%- endif -%}
+                      </div>
+                      <div>
+                        <h4 class="h6">
+                          {%- if product.title != blank -%}
+                            {{- product.title -}}
+                          {%- else -%}
+                            {{- 'onboarding.product_title' | t -}}
+                          {%- endif -%}
+                        </h4>
+                        {% render 'price', product: product %}
+                      </div>
+                    </div>
+                  </div>
+                {%- endfor -%}
+                {%- if total_pages > 1 and pagination_style == 'counter' -%}
+                  <div class="flickity-page-counter no-js-hidden hidden">
+                    <span class="flickity-counter--current">1</span>
+                    <span aria-hidden="true"> / </span>
+                    <span class="visually-hidden">
+                      {{- 'sections.slideshow.of' | t -}}
+                    </span>
+                    <span class="flickity-counter--total">
+                      {{- total_pages -}}
+                    </span>
+                  </div>
+                {%- endif -%}
+              </flickity-component>
+            </div>
+          </motion-element>
+        </div>
+      </favorite-products>
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "t:sections.featured-reviews.name",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/AEt0ybI)"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.container.label"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.header.name"
+    },
+    {
+      "type": "select",
+      "id": "section_header_padding_bottom",
+      "label": "t:sections.common.spacing.section_header_padding_bottom.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__1.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__2.label"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__3.label"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "section_header_content_spacing",
+      "label": "t:sections.common.content_spacing.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.common.content_spacing.options__sm.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.common.content_spacing.options__md.label"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "info": "t:sections.common.highlight_text.paragraph.content",
+      "label": "t:sections.common.header.heading",
+      "default": "Favorite products"
+    },
+    {
+      "type": "select",
+      "id": "highlight_style",
+      "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+        },
+        {
+          "value": "drawer_line",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+        },
+        {
+          "value": "underline",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight_text_color",
+      "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "default": "h2",
+      "label": "t:sections.common.text_size.heading.label",
+      "options": [
+        {
+          "value": "h3",
+          "label": "t:sections.common.text_size.options__h3.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.text_size.options__h2.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.common.text_size.options__h1.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.common.text_size.options__h0.label"
+        },
+        {
+          "value": "h-xl",
+          "label": "t:sections.common.text_size.options__hd1.label"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "t:sections.common.heading_color.label",
+      "info": "t:sections.common.heading_color.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.slider.header"
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "t:settings_schema.global.settings.image_aspect_ratio_options.label",
+      "default": "adapt",
+      "options": [
+        {
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__8.label",
+          "value": "adapt"
+        },
+        {
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__2.label",
+          "value": "1/1"
+        },
+        {
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__3.label",
+          "value": "3/4"
+        },
+        {
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__5.label",
+          "value": "4/3"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "controls_background",
+      "label": "t:sections.common.slider.pagination_background.label",
+      "options": [
+        {
+          "label": "t:sections.common.slider.pagination_background.options.option_1",
+          "value": "dark"
+        },
+        {
+          "label": "t:sections.common.slider.pagination_background.options.option_2",
+          "value": "light"
+        },
+        {
+          "label": "t:sections.common.slider.pagination_background.options.option_3",
+          "value": "none"
+        }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "select",
+      "id": "controls_position",
+      "label": "t:sections.common.slider.pagination_position_desktop.label",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.common.slider.pagination_position_desktop.options.option_1"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.common.slider.pagination_position_desktop.options.option_2"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.common.slider.pagination_position_desktop.options.option_3"
+        }
+      ],
+      "default": "center"
+    },
+    {
+      "type": "select",
+      "id": "pagination_type",
+      "label": "t:sections.common.slider.pagination_style.label",
+      "options": [
+        {
+          "label": "t:sections.common.slider.pagination_style.options.option_1",
+          "value": "dots"
+        },
+        {
+          "label": "t:sections.common.slider.pagination_style.options.option_2",
+          "value": "counter"
+        }
+      ],
+      "default": "counter"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.divider.section_heading.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_divider",
+      "default": false,
+      "label": "t:sections.common.divider.show_divider.label"
+    },
+    {
+      "type": "select",
+      "id": "divider_width",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.divider.width.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "product",
+      "name": "t:sections.featured-reviews.block.name",
+      "settings": [
+        {
+          "type": "product",
+          "id": "product",
+          "label": "t:sections.featured-reviews.block.settings.product"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.featured-reviews.block.settings.image"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Use this text to share information about the product. Describe features or showcase customers' reviews.</p>",
+          "label": "t:sections.featured-reviews.block.settings.text"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.featured-reviews.presets.name",
+      "blocks": [
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        },
+        {
+          "type": "product"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,38 @@
+{% assign type = block.settings.type | default: 'icon' %}
+<drawer-opener
+  class="inline-flex"
+  data-drawer="#Drawer-Cart"
+  {% unless settings.cart_type == 'drawer' %}
+    data-disabled="true"
+  {% endunless %}
+>
+  <a
+    href="{{ routes.cart_url }}"
+    class="{{ link_class }} btn--icon focus-inset"
+    data-tippy-theme="color-{{ color_schema }}"
+    aria-label="{{ 'layout.cart.title' | t }}"
+    data-tippy-content="{{ 'layout.cart.title' | t }}"
+    data-tippy-placement="bottom"
+    aria-haspopup="dialog"
+    role="button"
+    data-opener
+  >
+    <div class="cart-link cart-link--{{ type }}">
+      {% if type != 'text' %}
+        {% render 'icon-cart', name: settings.cart_icon %}
+      {% endif %}
+      <span class="cart-link__count flex items-center justify-center" data-cart-count-bubble>
+        <span data-cart-count-number class="cart-link--text">
+          {%- if cart.item_count < 100 -%}
+            {{- cart.item_count -}}
+          {%- else -%}
+            99+
+          {%- endif -%}
+        </span>
+        <span class="visually-hidden" data-cart-count-text>
+          {{- 'layout.cart.items_count' | t: count: cart.item_count -}}
+        </span>
+      </span>
+    </div>
+  </a>
+</drawer-opener>

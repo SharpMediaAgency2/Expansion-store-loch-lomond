@@ -1,0 +1,233 @@
+{% comment %}
+  Product Type Pill Filter - Horizontal Scrolling
+  Works on all viewports with horizontal scrolling on mobile
+  Integrates with Dawn's existing AJAX filtering system
+  
+  Instructions:
+  1. Add this code to your collection template or main-collection-product-grid.liquid
+  2. This will show Product Type filter as horizontal scrolling pills
+  3. Multiple selection supported
+{% endcomment %}
+
+<style>
+  .product-type-pills {
+    margin-bottom: 0rem;
+    width: 100%;
+  }
+
+  .product-type-pills-container {
+    display: flex;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scroll-behavior: smooth;
+    gap: 0.8rem;
+    padding: 1rem 0;
+    padding-bottom:0;
+  }
+
+  /* Hide scrollbar but keep functionality */
+  .product-type-pills-container::-webkit-scrollbar {
+    height: 6px;
+  }
+
+  .product-type-pills-container::-webkit-scrollbar-track {
+    background: #f1f1f1;
+  }
+
+  .product-type-pills-container::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+  }
+
+  .product-type-pill {
+    flex: 0 0 auto;
+    white-space: nowrap;
+  }
+
+  .product-type-pill input[type="checkbox"] {
+    display: none;
+  }
+
+  .product-type-pill label {
+    display: inline-block;
+    padding: 0.8rem 1.6rem;
+    background-color: #f1f1f1;
+    color: #000;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 1rem;
+    user-select: none;
+  }
+  .product-type-pills-container {
+  margin-top: 0px !important;
+  padding-top: 0px;
+}
+
+  .product-type-pill label:hover {
+    opacity: 0.8;
+  }
+
+  .product-type-pill input[type="checkbox"]:checked + label {
+    background-color: #333;
+    color: #fff;
+    pointer-events:none;
+  }
+
+  .product-type-pill input[type="checkbox"]:disabled + label {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .loading-overlay__spinner {
+    display: none;
+  }
+
+  .loading-overlay__spinner.active {
+    display: block;
+    text-align: center;
+    padding: 2rem;
+  }
+.shop-by-club-facets + .active-facets-mobile {
+  display: none;
+}
+  @media (max-width: 749px) {
+    .loading-overlay__spinner.active{
+    display:none!important;}
+    .product-type-pills {
+      margin-bottom: 0.5rem;
+    }
+
+    .product-type-pill label {
+      padding: 0.3rem 0.9rem;
+      font-size: 0.95rem;
+    }
+  }
+  /* For Webkit browsers (Chrome, Safari, Edge) */
+.product-type-pills-container::-webkit-scrollbar {
+  display: none;
+}
+
+/* For Firefox */
+.product-type-pills-container {
+  scrollbar-width: none;
+}
+
+/* For IE and Edge (legacy) */
+.product-type-pills-container {
+  -ms-overflow-style: none;
+}
+
+/* All together */
+.product-type-pills-container {
+  overflow: auto; /* or overflow: scroll */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE and Edge */
+}
+
+.product-type-pills-container::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
+}
+@media screen and (min-width:1201px){
+.product-type-pill {
+    flex: 1;
+}
+.product-type-pill label{
+width:100%;
+text-align:center;
+}
+.product-grid__header{
+margin-bottom:0px!important;
+}
+}
+</style>
+
+{%- liquid
+  assign sort_by = collection.sort_by | default: collection.default_sort_by
+  assign product_type_filter = null
+  
+  for filter in collection.filters
+    assign filter_type = filter.type
+    if filter_type == 'list' and filter.label == 'Product type'
+      assign product_type_filter = filter
+      break
+    endif
+  endfor
+-%}
+
+{%- if product_type_filter -%}
+  <div class="product-type-pills">
+    <facet-filters-form class="facets">
+      <form id="ProductTypePillsForm" class="facets__form">
+        
+        {%- if collection.terms -%}
+          <input type="hidden" name="q" value="{{ collection.terms | escape }}">
+          <input name="options[prefix]" type="hidden" value="last">
+        {%- endif -%}
+
+        <div class="product-type-pills-container">
+          {%- for value in product_type_filter.values -%}
+            <div class="product-type-pill">
+              <input
+                type="checkbox"
+                name="{{ value.param_name }}"
+                value="{{ value.value }}"
+                id="Pill-{{ product_type_filter.param_name }}-{{ forloop.index }}"
+                {% if value.active %}checked{% endif %}
+                {% if value.count == 0 and value.active == false %}disabled{% endif %}
+              >
+              <label for="Pill-{{ product_type_filter.param_name }}-{{ forloop.index }}">
+                {{ value.label | escape }}
+              </label>
+            </div>
+          {%- endfor -%}
+        </div>
+
+        <div class="loading-overlay__spinner">
+          <svg aria-hidden="true" focusable="false" class="spinner" viewBox="0 0 66 66" style="width: 40px; height: 40px;">
+            <circle class="path" fill="none" stroke-width="6" cx="33" cy="33" r="30"></circle>
+          </svg>
+        </div>
+      </form>
+    </facet-filters-form>
+  </div>
+{%- endif -%}
+
+<script>
+  // This uses Dawn's built-in FacetFiltersForm custom element
+  // The AJAX functionality is already included in Dawn theme
+  
+  document.addEventListener('DOMContentLoaded', function() {
+    const form = document.querySelector('#ProductTypePillsForm');
+    const spinner = document.querySelector('.loading-overlay__spinner');
+    const checkboxes = form ? form.querySelectorAll('input[type="checkbox"]') : [];
+    
+    // Add change listener to each checkbox to trigger form submission
+    checkboxes.forEach(function(checkbox) {
+      checkbox.addEventListener('change', function() {
+        if (spinner) {
+          spinner.classList.add('active');
+        }
+        // Trigger form change event for Dawn's AJAX
+        const event = new Event('change', { bubbles: true });
+        form.dispatchEvent(event);
+      });
+    });
+    
+    if (form) {
+      form.addEventListener('change', function() {
+        if (spinner) {
+          spinner.classList.add('active');
+        }
+      });
+    }
+    
+    // Remove spinner when content loads
+    if (spinner) {
+      setTimeout(() => {
+        spinner.classList.remove('active');
+      }, 500);
+    }
+  });
+</script>

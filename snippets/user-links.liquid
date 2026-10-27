@@ -1,0 +1,33 @@
+{% liquid
+    assign type = block.settings.type | default: 'icon'
+    assign url = routes.account_login_url
+    assign text = 'layout.customer.log_in' | t
+    if customer
+        assign url = routes.account_url
+        assign text = 'layout.customer.account' | t
+    endif
+%}
+
+{% case type %}
+    {% when 'text' %}
+        {% capture markup %}
+            <a class="{{ link_class }}" href="{{ url }}">
+                <span>{{ text }}</span>
+            </a>
+        {% endcapture %}
+    {% when 'icon_w_text' %}
+        {% capture markup %}
+            <a class="{{ link_class }}" href="{{ url }}">
+                {% render "icon-user" %}
+                <span>{{ text }}</span>
+            </a>
+        {% endcapture %}
+    {% else %}
+        {% capture markup %}
+            <a class="{{ link_class }} btn--icon focus-inset" href="{{ url }}" data-tippy-theme="color-{{ color_schema }}" data-tippy-content="{{ text }}" data-tippy-placement="bottom">
+                <span class="visually-hidden">{{ text }}</span>
+                {% render "icon-user" %}
+            </a>
+        {% endcapture %}
+{% endcase %}
+{{ markup }}

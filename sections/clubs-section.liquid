@@ -1,0 +1,1424 @@
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign excluded_handles = ''
+  for block in section.blocks
+    if block.type == 'exclude_course'
+      assign mo = block.settings.course
+      unless mo == blank
+        if excluded_handles == ''
+          assign excluded_handles = mo
+        else
+          assign excluded_handles = excluded_handles | append: ',' | append: mo
+        endif
+      endunless
+    endif
+  endfor
+
+  assign newly_added_refs = ''
+  for block in section.blocks
+    if block.type == 'newly_added_course'
+      assign mo_ref = block.settings.course_ref
+      unless mo_ref == blank
+        if newly_added_refs == ''
+          assign newly_added_refs = mo_ref
+        else
+          assign newly_added_refs = newly_added_refs | append: '||' | append: mo_ref
+        endif
+      endunless
+    endif
+  endfor
+-%}
+
+<style>
+  #{{ section_id }} * { box-sizing: border-box; }
+
+  #{{ section_id }} {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    font-family: inherit;
+  }
+
+  #{{ section_id }} .cd-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+
+  #{{ section_id }} .cd-search-wrap {
+    flex: 1;
+    position: relative;
+  }
+
+  #{{ section_id }} .cd-search-wrap svg {
+    position: absolute;
+    left: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #9CA3AF;
+    pointer-events: none;
+  }
+
+  #{{ section_id }} .cd-search {
+    width: 100%;
+    height: 44px;
+    padding: 0 16px 0 42px;
+    border: 1px solid #D1D5DC;
+    border-radius: 8px;
+    font-size: 14px;
+    color: #000000;
+    background: #fff;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  #{{ section_id }} .cd-search:focus { border-color: #000000; }
+  #{{ section_id }} .cd-search:focus-visible { box-shadow: none; }
+
+  #{{ section_id }} .cd-filter-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    height: 44px;
+    padding: 0 16px;
+    border: 1px solid #D1D5DC;
+    border-radius: 8px;
+    background: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    color: #000000;
+    cursor: pointer;
+    white-space: nowrap;
+    transition: background 0.15s, border-color 0.15s;
+    flex-shrink: 0;
+  }
+
+  #{{ section_id }} .cd-filter-btn:hover { background: #F9FAFB; }
+  #{{ section_id }} .cd-filter-btn.is-active { background: #000000; color: #fff; border-color: #000000; }
+  #{{ section_id }} .cd-filter-btn.is-active svg { color: #fff; }
+
+  #{{ section_id }} .cd-view-btns {
+    display: flex;
+    border: 1px solid #D1D5DC;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+  }
+
+  #{{ section_id }} .cd-view-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    background: #fff;
+    border: none;
+    cursor: pointer;
+    color: #D1D5DC;
+    transition: background 0.15s, color 0.15s;
+    padding: unset;
+    border-radius: 8px !important;
+  }
+
+  #{{ section_id }} .cd-view-btn[data-view=grid] {
+    border-top-right-radius: 0px !important;
+    border-bottom-right-radius: 0px !important;
+  }
+
+  #{{ section_id }} .cd-view-btn[data-view=list] {
+    border-top-left-radius: 0px !important;
+    border-bottom-left-radius: 0px !important;
+  }
+
+  #{{ section_id }} .cd-view-btn + .cd-view-btn { border-left: 1px solid #D1D5DC; }
+  #{{ section_id }} .cd-view-btn.is-active { background: #000000; color: #fff; }
+
+  #{{ section_id }} .cd-filter-btn img,
+  #{{ section_id }} .cd-view-btn img {
+    display: block;
+    width: 16px !important;
+    height: 16px !important;
+    max-width: 16px !important;
+    min-width: 16px !important;
+    object-fit: contain;
+    flex-shrink: 0;
+    aspect-ratio: 1 !important;
+    transition: filter 0.15s ease;
+  }
+
+  #{{ section_id }} .cd-view-btn.is-active img,
+  #{{ section_id }} .cd-filter-btn.is-active img {
+    filter: brightness(0) invert(1);
+  }
+
+  #{{ section_id }} .cd-count {
+    font-size: 13px;
+    color: #4A5565;
+    margin-bottom: 8px;
+    min-height: 20px;
+  }
+
+  #{{ section_id }} .cd-active-filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 12px;
+    min-height: 0;
+  }
+
+  #{{ section_id }} .cd-active-filters:empty { display: none; }
+
+  #{{ section_id }} .cd-af-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px 4px 12px;
+    border: 1px solid #E5E7EB;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 500;
+    color: #374151;
+    background: #fff;
+    cursor: pointer;
+    transition: border-color 0.15s, background 0.15s;
+    white-space: nowrap;
+    user-select: none;
+  }
+
+  #{{ section_id }} .cd-af-pill:hover { border-color: #9CA3AF; background: #F9FAFB; }
+
+  #{{ section_id }} .cd-af-pill__x {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: #E5E7EB;
+    flex-shrink: 0;
+    transition: background 0.15s;
+  }
+
+  #{{ section_id }} .cd-af-pill:hover .cd-af-pill__x { background: #D1D5DB; }
+
+  #{{ section_id }} .cd-filter-panel {
+    display: none;
+    border-top: 1px solid #E5E7EB;
+    padding: 28px 0;
+    margin-bottom: 24px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 32px;
+  }
+
+  #{{ section_id }} .cd-filter-panel.is-open { display: grid; }
+
+  #{{ section_id }} .cd-filter-group__title {
+    font-size: 14px;
+    font-weight: 700;
+    color: #000000;
+    margin: 0 0 14px;
+  }
+
+  #{{ section_id }} .cd-filter-group__list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  #{{ section_id }} .cd-filter-group__item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #000000;
+    cursor: pointer;
+    user-select: none;
+  }
+
+  #{{ section_id }} .cd-filter-group__item input[type="checkbox"] {
+    width: 16px;
+    height: 16px;
+    border: 1.5px solid #D1D5DB;
+    border-radius: 3px;
+    cursor: pointer;
+    accent-color: #000000;
+    flex-shrink: 0;
+  }
+
+  #{{ section_id }} .cd-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+    border-top: 1px solid #E5E7EB;
+    padding-top: 40px;
+    margin-top: 30px;
+  }
+
+  #{{ section_id }} .cd-grid-card {
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    overflow: hidden;
+    cursor: pointer;
+    transition: box-shadow 0.2s;
+    text-decoration: none;
+    color: inherit;
+    display: flex;
+    flex-direction: column;
+  }
+
+  #{{ section_id }} .cd-grid-card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #CFCFCF; }
+
+  #{{ section_id }} .cd-grid-card.is-featured { grid-column: span 2; }
+
+  #{{ section_id }} .cd-grid-card__img-wrap {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    overflow: hidden;
+    background: #F3F4F6;
+    flex-shrink: 0;
+  }
+#{{ section_id }} .cd-grid-card__img.club_logo {
+  object-fit: contain !important;
+  padding: 40px;
+}
+  #{{ section_id }} .cd-grid-card.is-featured .cd-grid-card__img-wrap {
+    aspect-ratio: 16 / 7;
+  }
+ 
+  /* Non-featured card beside the featured one — stretch image to fill full card height */
+  #{{ section_id }} .cd-grid:has(.is-featured) .cd-grid-card:not(.is-featured):first-of-type .cd-grid-card__img-wrap,
+  #{{ section_id }} .cd-grid-card.is-beside-featured .cd-grid-card__img-wrap {
+    aspect-ratio: 19/17;
+  }
+
+  #{{ section_id }} .cd-grid-card.is-beside-featured {
+    display: flex;
+    flex-direction: column;
+  }
+
+  #{{ section_id }} .cd-grid-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  #{{ section_id }} .cd-grid-card:hover .cd-grid-card__img { transform: scale(1.04); }
+
+  /* Heart button in card body */
+  #{{ section_id }} .cd-grid-card__body .fc-card__heart {
+    position: absolute;
+    top: 12px;
+    right: 12px;
+    width: 32px;
+    height: 32px;
+    background: rgba(255,255,255,0.92);
+    border: none;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 10;
+    padding: 0;
+    transition: background 0.2s, transform 0.15s;
+  }
+  #{{ section_id }} .cd-grid-card__body .fc-card__heart:hover { transform: scale(1.1); background: #fff; }
+  #{{ section_id }} .fc-card__heart svg { width: 20px; height: 20px; }
+  #{{ section_id }} .fc-card__heart .fc-heart-outline { display: block; }
+  #{{ section_id }} .fc-card__heart .fc-heart-filled  { display: none; }
+  #{{ section_id }} .fc-card__heart.is-favorited .fc-heart-outline { display: none; }
+  #{{ section_id }} .fc-card__heart.is-favorited .fc-heart-filled  { display: block; }
+
+  #{{ section_id }} .cd-grid-card__body {
+    padding: 14px 16px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    position:relative;
+    flex: 1;
+  }
+
+  #{{ section_id }} .cd-grid-card__name {
+    font-size: 18px;
+    font-weight: 600;
+    color: #0A0A0A;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  #{{ section_id }} .cd-grid-card__location {
+    display: flex;
+    align-items: flex-start;
+    gap: 4px;
+    font-size: 14px;
+    color: #4A5565;
+    margin: 0 0 6px;
+  }
+p.cd-grid-card__location svg {
+    margin-top: 3px;
+}
+  #{{ section_id }} .cd-grid-card__location svg { flex-shrink: 0; }
+
+  #{{ section_id }} .cd-grid-card__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 4px;
+  }
+
+  #{{ section_id }} .cd-list { display: flex; flex-direction: column; }
+
+  #{{ section_id }} .cd-list-card {
+    display: flex;
+    align-items: flex-start;
+    gap: 16px;
+    padding: 20px 0;
+    border-bottom: 1px solid #E5E7EB;
+    text-decoration: none;
+    color: inherit;
+    cursor: pointer;
+    position: relative;
+  }
+
+  #{{ section_id }} .cd-list-card:first-child { border-top: 1px solid #E5E7EB; }
+
+  /* Default list image: 192x128 */
+  #{{ section_id }} .cd-list-card__img-wrap {
+    width: 192px;
+    height: 128px;
+    border-radius: 8px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: #F3F4F6;
+  }
+
+  /* First (featured) list card: 250x250 square */
+  #{{ section_id }} .cd-list-card.is-featured .cd-list-card__img-wrap {
+    width: 250px;
+    height: 250px;
+  }
+
+  #{{ section_id }} .cd-list-card__img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.4s ease;
+  }
+
+  #{{ section_id }} .cd-list-card:hover .cd-list-card__img { transform: scale(1.04); }
+
+  #{{ section_id }} .cd-list-card__content {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    /* Vertically align content to top of the image */
+    align-self: flex-start;
+  }
+
+  #{{ section_id }} .cd-list-card__name {
+    font-size: 16px;
+    font-weight: 600;
+    color: #000000;
+    margin: 0;
+    line-height: 1.3;
+  }
+
+  #{{ section_id }} .cd-list-card__location {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 13px;
+    color: #6B7280;
+    margin: 0 0 4px;
+  }
+
+  #{{ section_id }} .cd-list-card__desc {
+    font-size: 14px;
+    color: #374151;
+    line-height: 1.6;
+    margin: 0 0 8px;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  #{{ section_id }} .cd-list-card__pills {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+  }
+
+  /* List card heart — same class, adjusted position */
+  #{{ section_id }} .cd-list-card .fc-card__heart {
+    position: absolute;
+    top: 20px;
+    right: 0;
+    border:none;
+    background: transparent;
+    backdrop-filter: none;
+    box-shadow: none;
+  }
+  #{{ section_id }} .cd-list-card .fc-card__heart:hover { background: transparent; }
+
+  #{{ section_id }} .cd-pill {
+    display: inline-flex;
+    align-items: center;
+    padding: 4px 9px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: 400;
+    white-space: nowrap;
+  }
+
+  #{{ section_id }} .cd-pill--rank {
+    background: #222F1D;
+    color: #fff;
+  }
+
+  #{{ section_id }} .cd-pill--cat {
+    background: #F3F4F6;
+    color: #364153;
+    border: 1px solid #E5E7EB;
+  }
+
+  #{{ section_id }} .cd-more-wrap {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 28px;
+  }
+
+  #{{ section_id }} .cd-more-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 14px;
+    font-weight: 500;
+    color: #000000;
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    text-decoration: none;
+  }
+
+  #{{ section_id }} .cd-more-btn:hover { opacity: 0.7; }
+  #{{ section_id }} .cd-more-btn.is-hidden { display: none; }
+
+  #{{ section_id }} .cd-loading {
+    text-align: center;
+    padding: 60px 0;
+    color: #9CA3AF;
+    font-size: 14px;
+  }
+
+  #{{ section_id }} .cd-empty {
+    text-align: center;
+    padding: 60px 0;
+    color: #6B7280;
+    font-size: 15px;
+    display: none;
+  }
+
+  /* ── Newly Added strip ── */
+  #{{ section_id }} .cd-newly {
+    margin-top: 56px;
+    padding-top: 40px;
+    border-top: 1px solid #E5E7EB;
+  }
+
+  #{{ section_id }} .cd-newly__heading {
+    font-size: 22px;
+    font-weight: 600;
+    color: #0A0A0A;
+    margin: 0 0 24px;
+  }
+
+  /* Desktop: 4-col grid */
+  #{{ section_id }} .cd-newly__grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 16px;
+  }
+
+  /* Mobile: horizontal scroll-snap carousel */
+  @media (max-width: 767px) {
+    #{{ section_id }} .cd-newly__grid {
+      display: flex;
+      gap: 12px;
+      overflow-x: auto;
+      scroll-snap-type: x mandatory;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding-bottom: 4px;
+    }
+
+    #{{ section_id }} .cd-newly__grid::-webkit-scrollbar { display: none; }
+
+    #{{ section_id }} .cd-newly__grid .cd-grid-card {
+      flex: 0 0 78vw;
+      max-width: 300px;
+      scroll-snap-align: start;
+    }
+  }
+
+@media (max-width: 767px) {
+    /* Featured card: full width */
+    #{{ section_id }} .cd-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    #{{ section_id }} .cd-grid-card.is-featured {
+      grid-column: span 2;
+    }
+
+    /* All card images 1:1 on mobile */
+    #{{ section_id }} .cd-grid-card__img-wrap,
+    #{{ section_id }} .cd-grid-card.is-featured .cd-grid-card__img-wrap,
+    #{{ section_id }} .cd-grid-card.is-beside-featured .cd-grid-card__img-wrap {
+      aspect-ratio: 1 / 1 !important;
+    }
+.cd-grid-card__img-wrap{
+  aspect-ratio: 1 / 1 !important;
+}
+    #{{ section_id }} .cd-filter-panel { grid-template-columns: 1fr; gap: 24px; }
+
+    #{{ section_id }} .cd-list-card__img-wrap,
+    #{{ section_id }} .cd-list-card.is-featured .cd-list-card__img-wrap {
+      width: 100px !important;
+      height: 100px !important;
+    }
+
+    #{{ section_id }} .cd-list-card__desc { display: none; }
+  }
+  @media screen and (min-width:768px){
+  #{{ section_id }} .cd-grid-card.is-beside-featured .cd-grid-card__img-wrap {
+    aspect-ratio: 19 / 17 !important;
+  } 
+  #{{ section_id }} .cd-grid-card__body .fc-card__heart{
+top:-40px;
+}
+}
+ .cd-filter-group[data-group="special"] {
+  display: none;
+}
+</style>
+
+<div id="{{ section_id }}" class="club-directory{{ custom_class }}">
+  <div class="container">
+
+    <div class="cd-toolbar">
+      <div class="cd-search-wrap">
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><circle cx="6.5" cy="6.5" r="5" stroke="currentColor" stroke-width="1.5"/><path d="M10.5 10.5L14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        <input class="cd-search" type="text" placeholder="{{ section.settings.search_placeholder | default: 'Search by club name or location...' }}" id="cd-search-{{ section_id }}" autocomplete="off">
+      </div>
+
+      <button class="cd-filter-btn" id="cd-filter-toggle-{{ section_id }}">
+        {%- if section.settings.icon_filter != blank -%}
+          <img src="{{ section.settings.icon_filter | image_url: width: 32 }}" alt="" width="16" height="16">
+        {%- else -%}
+          <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M2 4h12M4 8h8M6 12h4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>
+        {%- endif -%}
+        {{ section.settings.filter_label | default: 'Filters' }}
+      </button>
+
+      <div class="cd-view-btns">
+        <button class="cd-view-btn is-active" data-view="grid" aria-label="Grid view">
+          {%- if section.settings.icon_grid != blank -%}
+            <img src="{{ section.settings.icon_grid | image_url: width: 32 }}" alt="Grid view" width="16" height="16">
+          {%- else -%}
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="1" width="6" height="6" rx="1" fill="currentColor"/><rect x="9" y="1" width="6" height="6" rx="1" fill="currentColor"/><rect x="1" y="9" width="6" height="6" rx="1" fill="currentColor"/><rect x="9" y="9" width="6" height="6" rx="1" fill="currentColor"/></svg>
+          {%- endif -%}
+        </button>
+        <button class="cd-view-btn" data-view="list" aria-label="List view">
+          {%- if section.settings.icon_list != blank -%}
+            <img src="{{ section.settings.icon_list | image_url: width: 32 }}" alt="List view" width="16" height="16">
+          {%- else -%}
+            <svg width="16" height="16" viewBox="0 0 16 16" xmlns="http://www.w3.org/2000/svg"><path d="M5 4h9M5 8h9M5 12h9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><circle cx="2" cy="4" r="1" fill="currentColor"/><circle cx="2" cy="8" r="1" fill="currentColor"/><circle cx="2" cy="12" r="1" fill="currentColor"/></svg>
+          {%- endif -%}
+        </button>
+      </div>
+    </div>
+
+    <div class="cd-count" id="cd-count-{{ section_id }}">Loading clubs...</div>
+    <div class="cd-active-filters" id="cd-active-filters-{{ section_id }}"></div>
+
+    <div class="cd-filter-panel" id="cd-filter-panel-{{ section_id }}">
+      <div class="cd-filter-group" data-group="region">
+        <p class="cd-filter-group__title">Country</p>
+        <ul class="cd-filter-group__list" id="cd-region-list-{{ section_id }}"></ul>
+      </div>
+      <div class="cd-filter-group" data-group="category">
+        <p class="cd-filter-group__title">Category</p>
+        <ul class="cd-filter-group__list" id="cd-category-list-{{ section_id }}"></ul>
+      </div>
+      <div class="cd-filter-group" data-group="special">
+        <p class="cd-filter-group__title">Special</p>
+        <ul class="cd-filter-group__list">
+          <li class="cd-filter-group__item">
+            <input type="checkbox" value="top100" data-filter="special" id="top100-{{ section_id }}">
+            <label for="top100-{{ section_id }}">Top 100 Courses</label>
+          </li>
+        </ul>
+      </div>
+    </div>
+
+    <div id="cd-results-{{ section_id }}">
+      <div class="cd-loading">Loading clubs...</div>
+    </div>
+    <div class="cd-empty" id="cd-empty-{{ section_id }}">No clubs found matching your search.</div>
+
+    <div class="cd-more-wrap">
+      <button class="cd-more-btn is-hidden" id="cd-more-btn-{{ section_id }}">
+        View More
+        <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><path d="M3 8h10M9 4l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+    </div>
+
+    {%- if section.settings.show_newly_added -%}
+    <div class="cd-newly" id="cd-newly-{{ section_id }}" style="display:none;">
+      <h2 class="cd-newly__heading">{{ section.settings.newly_added_heading | default: 'Newly Added Courses' }}</h2>
+      <div class="cd-newly__grid" id="cd-newly-grid-{{ section_id }}"></div>
+    </div>
+    {%- endif -%}
+
+  </div>
+</div>
+
+<script>
+(function() {
+  var SID = {{ section_id | json }};
+  var STOREFRONT_TOKEN = {{ section.settings.storefront_token | default: '8611b4189a5da8d9673654e5649d1bf5' | json }};
+  var SHOP_DOMAIN = {{ shop.permanent_domain | json }};
+  var FEATURED_MODE = {{ section.settings.featured_mode | json }};
+  var EXCLUDED_HANDLES = {{ excluded_handles | split: ',' | json }};
+  var PAGE_SIZE = 12;
+
+  var allClubs = [];
+  var filteredClubs = [];
+  var displayedCount = 0;
+  var currentView = 'grid';
+  var activeFilters = { region: [], category: [], special: [] };
+  var searchQuery = '';
+
+  var getFavs = function() {
+    if (window.CookieManager) return window.CookieManager.getFavoriteClubs();
+    return [];
+  };
+  var isFavHandle = function(handle) {
+    if (window.CookieManager) return window.CookieManager.isFavoriteClub(handle);
+    return false;
+  };
+  var toggleFavHandle = function(handle) {
+    if (!window.CookieManager) return;
+    if (window.CookieManager.isFavoriteClub(handle)) {
+      window.CookieManager.removeFavoriteClub(handle);
+    } else {
+      window.CookieManager.addFavoriteClub(handle);
+    }
+  };
+
+  var $ = function(id) { return document.getElementById(id + '-' + SID); };
+  var resultsEl = $('cd-results');
+  var countEl = $('cd-count');
+  var emptyEl = $('cd-empty');
+  var moreBtn = $('cd-more-btn');
+  var filterPanel = $('cd-filter-panel');
+  var filterToggle = $('cd-filter-toggle');
+  var searchInput = $('cd-search');
+  var regionList = $('cd-region-list');
+  var categoryList = $('cd-category-list');
+  var activeFiltersEl = $('cd-active-filters');
+
+  // ── Sanitize a raw URL param value ──
+  // Trims whitespace, strips anything that isn't alphanumeric, space,
+  // hyphen, apostrophe, or period, then trims again to catch any
+  // leading/trailing spaces exposed after stripping.
+  function sanitizeFilterVal(raw) {
+    return raw
+      .trim()
+      .replace(/[^a-zA-Z0-9 '&\-.]/g, '')
+      .trim();
+  }
+
+  // ── URL Parameter Filtering ──
+  function readUrlParams() {
+    var params = new URLSearchParams(window.location.search);
+
+    var parseParam = function(key) {
+      var vals = [];
+      params.getAll(key).forEach(function(v) {
+        v.split(',').forEach(function(c) {
+          var t = sanitizeFilterVal(c);
+          if (t) vals.push(t);
+        });
+      });
+      return vals;
+    };
+
+    return {
+      region:    parseParam('region'),
+      category:  parseParam('category'),
+      special:   parseParam('special'),
+      searchVal: sanitizeFilterVal(params.get('search') || params.get('q') || '')
+    };
+  }
+
+  function applyUrlParams(urlParams) {
+    if (!urlParams) return;
+
+    ['region', 'category', 'special'].forEach(function(group) {
+      urlParams[group].forEach(function(val) {
+        var cb = document.querySelector(
+          '#cd-filter-panel-' + SID + ' input[data-filter="' + group + '"][value="' + val + '"]'
+        );
+        if (cb && !cb.checked) {
+          cb.checked = true;
+          activeFilters[group].push(val);
+        }
+      });
+    });
+
+    if (urlParams.searchVal) {
+      searchInput.value = urlParams.searchVal;
+      searchQuery = urlParams.searchVal;
+    }
+  }
+
+  async function fetchAllClubs() {
+    var allItems = [];
+    var cursor = null;
+    var hasNext = true;
+
+    var query = `
+      query GetCourses($first: Int!, $after: String) {
+        metaobjects(type: "courses", first: $first, after: $after) {
+          pageInfo { hasNextPage endCursor }
+          nodes {
+            id
+            handle
+            fields {
+              key
+              value
+              reference {
+                ... on MediaImage {
+                  image {
+                    url(transform: { maxWidth: 800 })
+                    altText
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    `;
+
+    while (hasNext) {
+      var variables = { first: 50, after: cursor };
+      var resp = await fetch('https://' + SHOP_DOMAIN + '/api/2024-01/graphql.json', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Shopify-Storefront-Access-Token': STOREFRONT_TOKEN
+        },
+        body: JSON.stringify({ query: query, variables: variables })
+      });
+
+      var data = await resp.json();
+      console.log('Club directory API response:', JSON.stringify(data).substring(0, 500));
+      if (data.errors) {
+        console.error('GraphQL errors:', data.errors);
+        throw new Error(data.errors[0].message);
+      }
+      if (!data.data || !data.data.metaobjects) {
+        console.error('Unexpected response shape:', data);
+        throw new Error('Unexpected API response');
+      }
+      var metaobjects = data.data.metaobjects;
+      allItems = allItems.concat(metaobjects.nodes);
+      hasNext = metaobjects.pageInfo.hasNextPage;
+      cursor = metaobjects.pageInfo.endCursor;
+    }
+
+    return allItems.map(function(node) {
+      var fieldMap = {};
+      (node.fields || []).forEach(function(f) { fieldMap[f.key] = f; });
+      var f = function(key) { return fieldMap[key] ? fieldMap[key].value : null; };
+
+      var courseImgField = fieldMap['course_image'];
+      var courseImg = courseImgField && courseImgField.reference && courseImgField.reference.image
+        ? courseImgField.reference.image : null;
+      var logoField = fieldMap['display_logo'];
+      var logoImg = logoField && logoField.reference && logoField.reference.image
+        ? logoField.reference.image : null;
+      var resolvedImg = courseImg || logoImg;
+      var hasLogoOnly = !courseImg && !!logoImg;
+
+      var clubTitle = f('title') || '';
+      var clubName = f('display_title') || clubTitle;
+      return {
+        id: node.id,
+        handle: node.handle,
+        fcHandle: clubTitle.toLowerCase().replace(/[''']/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''),
+        name: clubName,
+        hasLogoOnly: hasLogoOnly,
+        image: resolvedImg ? resolvedImg.url : null,
+        imageAlt: resolvedImg ? (resolvedImg.altText || '') : '',
+        address: f('address') || '',
+        ranking: f('ranking') ? parseInt(f('ranking'), 10) : null,
+        description: f('description') || '',
+        country: f('country') || '',
+        categories: (function() {
+          var raw = f('category');
+          if (!raw) return [];
+          try { return JSON.parse(raw).map(function(c){ return c.trim(); }); } catch(e) { return [raw.trim()]; }
+        })(),
+        link: f('link_header') || ('/pages/clubs/' + node.handle),
+        createdAt: null
+      };
+    });
+  }
+
+  function sortClubs(clubs) {
+    return clubs.slice().sort(function(a, b) {
+      if (a.ranking && b.ranking) return a.ranking - b.ranking;
+      if (a.ranking) return -1;
+      if (b.ranking) return 1;
+      return 0;
+    });
+  }
+
+  // ── Active filter pills ──
+  // Label map for the "special" group (value → human label)
+  var SPECIAL_LABELS = { top100: 'Top 100 Courses' };
+
+  function renderActiveFilters() {
+    var pills = [];
+
+    ['region', 'category', 'special'].forEach(function(group) {
+      activeFilters[group].forEach(function(val) {
+        var label = (group === 'special' && SPECIAL_LABELS[val]) ? SPECIAL_LABELS[val] : val;
+        pills.push(
+          '<button class="cd-af-pill" data-group="' + group + '" data-value="' + escHtml(val) + '" aria-label="Remove filter ' + escHtml(label) + '">'
+          + escHtml(label)
+          + '<span class="cd-af-pill__x" aria-hidden="true">'
+          + '<svg width="8" height="8" viewBox="0 0 8 8" fill="none"><path d="M1 1l6 6M7 1L1 7" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>'
+          + '</span></button>'
+        );
+      });
+    });
+
+    activeFiltersEl.innerHTML = pills.join('');
+
+    // X click — remove that filter, rebuild results, sync URL
+    activeFiltersEl.querySelectorAll('.cd-af-pill__x').forEach(function(x) {
+      x.addEventListener('click', function(e) {
+        e.stopPropagation();
+        var pill  = x.closest('.cd-af-pill');
+        var group = pill.dataset.group;
+        var val   = pill.dataset.value;
+        var cb = document.querySelector(
+          '#cd-filter-panel-' + SID + ' input[data-filter="' + group + '"][value="' + val + '"]'
+        );
+        if (cb) cb.checked = false;
+        activeFilters[group] = activeFilters[group].filter(function(v) { return v !== val; });
+        syncUrl();
+        applyFilters(); // rebuilds filteredClubs from scratch, then renders
+      });
+    });
+  }
+
+  // ── Sync active filters back to URL ──
+  function syncUrl() {
+    var params = new URLSearchParams();
+    ['region', 'category', 'special'].forEach(function(group) {
+      if (activeFilters[group].length > 0) {
+        params.set(group, activeFilters[group].join(','));
+      }
+    });
+    if (searchQuery.trim()) params.set('search', searchQuery.trim());
+    var newUrl = window.location.pathname + (params.toString() ? '?' + params.toString() : '');
+    window.history.replaceState(null, '', newUrl);
+  }
+
+  function applyFilters() {
+    var q = searchQuery.trim().toLowerCase();
+    filteredClubs = allClubs.filter(function(club) {
+      if (q && !club.name.toLowerCase().includes(q) && !club.address.toLowerCase().includes(q)) return false;
+      if (activeFilters.region.length > 0) {
+        var match = activeFilters.region.some(function(r) { return club.country.toLowerCase().includes(r.toLowerCase()); });
+        if (!match) return false;
+      }
+      if (activeFilters.category.length > 0) {
+        var clubCatsLower = (club.categories || []).map(function(c) { return c.toLowerCase(); });
+        var match = activeFilters.category.some(function(c) { return clubCatsLower.includes(c.toLowerCase()); });
+        if (!match) return false;
+      }
+      if (activeFilters.special.includes('top100')) {
+        if (!club.ranking || club.ranking > 100) return false;
+      }
+      return true;
+    });
+    displayedCount = 0;
+    renderActiveFilters();
+    renderResults();
+  }
+
+  function renderResults() {
+    var effectivePageSize = (currentView === 'grid' && FEATURED_MODE !== 'none' && filteredClubs.length > 0) ? 14 : PAGE_SIZE;
+    var toShow = filteredClubs.slice(0, displayedCount + effectivePageSize);
+    displayedCount = toShow.length;
+
+    countEl.textContent = filteredClubs.length + ' club' + (filteredClubs.length !== 1 ? 's' : '') + ' found';
+
+    if (filteredClubs.length === 0) {
+      resultsEl.innerHTML = '';
+      emptyEl.style.display = 'block';
+      moreBtn.classList.add('is-hidden');
+      return;
+    }
+
+    emptyEl.style.display = 'none';
+    resultsEl.innerHTML = currentView === 'grid' ? renderGrid(toShow) : renderList(toShow);
+    moreBtn.classList.toggle('is-hidden', displayedCount >= filteredClubs.length);
+    bindCardEvents();
+    // Mark the card beside the featured card so CSS can target it
+    if (FEATURED_MODE !== 'none' && currentView === 'grid') {
+      var cards = resultsEl.querySelectorAll('.cd-grid-card');
+      if (cards.length > 1) cards[1].classList.add('is-beside-featured');
+    }
+    // Sync initial heart state using CookieManager
+    if (window.CookieManager) {
+      document.querySelectorAll('#' + SID + ' .fc-card__heart').forEach(function(btn) {
+        btn.classList.toggle('is-favorited', window.CookieManager.isFavoriteClub(btn.dataset.handle));
+      });
+    }
+  }
+
+  function isFeatured(index) {
+    return FEATURED_MODE !== 'none' && index === 0;
+  }
+
+  function renderGrid(clubs) {
+    var html = '<div class="cd-grid">';
+    clubs.forEach(function(club, i) {
+      var featured = isFeatured(i);
+      var favActive = isFavHandle(club.handle);
+      html += '<a class="cd-grid-card' + (featured ? ' is-featured' : '') + '" href="' + club.link + '">';
+      html += '<div class="cd-grid-card__img-wrap">';
+      if (club.image) {
+        html += '<img class="cd-grid-card__img' + (club.hasLogoOnly ? ' club_logo' : '') + '" src="' + club.image + '" alt="' + escHtml(club.imageAlt || club.name) + '" loading="lazy">';
+      } else {
+        html += '<div style="width:100%;height:100%;background:#E5E7EB;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:13px;">No image</div>';
+      }
+      html += '</div>';
+      html += '<div class="cd-grid-card__body">';
+      html += '<p class="cd-grid-card__name">' + escHtml(club.name) + '</p>';
+      if (club.address) html += '<p class="cd-grid-card__location">' + pinSvg() + escHtml(club.address) + '</p>';
+      html += '<div class="cd-grid-card__pills">';
+      if (club.ranking) html += '<span class="cd-pill cd-pill--rank">Top ' + club.ranking + '</span>';
+      (club.categories || []).forEach(function(cat) { html += '<span class="cd-pill cd-pill--cat">' + escHtml(cat) + '</span>'; });
+      html += '</div>';
+      html += heartBtn(club.fcHandle);
+      html += '</div></a>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function renderList(clubs) {
+    var html = '<div class="cd-list">';
+    clubs.forEach(function(club, i) {
+      var favActive = isFavHandle(club.handle);
+      var featuredList = (i === 0);
+      html += '<a class="cd-list-card' + (featuredList ? ' is-featured' : '') + '" href="' + club.link + '">';
+      html += '<div class="cd-list-card__img-wrap">';
+      if (club.image) {
+        html += '<img class="cd-list-card__img' + (club.hasLogoOnly ? ' club_logo' : '') + '" src="' + club.image + '" alt="' + escHtml(club.imageAlt || club.name) + '" loading="lazy">';
+      } else {
+        html += '<div style="width:100%;height:100%;background:#E5E7EB;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:12px;">No image</div>';
+      }
+      html += '</div>';
+      html += '<div class="cd-list-card__content">';
+      html += '<p class="cd-list-card__name">' + escHtml(club.name) + '</p>';
+      if (club.address) html += '<p class="cd-list-card__location">' + pinSvg() + escHtml(club.address) + '</p>';
+      if (club.description) html += '<p class="cd-list-card__desc">' + escHtml(club.description) + '</p>';
+      html += '<div class="cd-list-card__pills">';
+      if (club.ranking) html += '<span class="cd-pill cd-pill--rank">Top ' + club.ranking + '</span>';
+      (club.categories || []).forEach(function(cat) { html += '<span class="cd-pill cd-pill--cat">' + escHtml(cat) + '</span>'; });
+      html += '</div></div>';
+      html += heartBtn(club.fcHandle);
+      html += '</a>';
+    });
+    html += '</div>';
+    return html;
+  }
+
+  function handleize(str) {
+    return str.toLowerCase()
+      .replace(/[''']/g, '')
+      .replace(/[^a-z0-9]+/g, '-')
+      .replace(/^-+|-+$/g, '');
+  }
+
+  function heartBtn(handle) {
+    return '<button class="fc-card__heart" data-handle="' + handle + '" aria-label="Add to favorites" type="button" onclick="event.preventDefault();event.stopPropagation();">'
+      + '<svg class="fc-heart-outline" viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M21.0002 8.97903C21.0002 15.2234 12.0006 20.479 12.0006 20.479C12.0006 20.479 3.00024 15.1457 3.00024 8.99169C3.00024 6.47903 5.00024 4.47903 7.50024 4.47903C10.0002 4.47903 12.0002 7.47903 12.0002 7.47903C12.0002 7.47903 14.0002 4.47903 16.5002 4.47903C19.0002 4.47903 21.0002 6.47903 21.0002 8.97903Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      + '<svg class="fc-heart-filled" viewBox="0 0 24 25" fill="#f1e2cb" xmlns="http://www.w3.org/2000/svg"><path fill-rule="evenodd" clip-rule="evenodd" d="M21.0002 8.97903C21.0002 15.2234 12.0006 20.479 12.0006 20.479C12.0006 20.479 3.00024 15.1457 3.00024 8.99169C3.00024 6.47903 5.00024 4.47903 7.50024 4.47903C10.0002 4.47903 12.0002 7.47903 12.0002 7.47903C12.0002 7.47903 14.0002 4.47903 16.5002 4.47903C19.0002 4.47903 21.0002 6.47903 21.0002 8.97903Z" stroke="#c58a30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>'
+      + '</button>';
+  }
+
+  function pinSvg() {
+    return '<svg width="13" height="13" viewBox="0 0 20 20" fill="none"><path d="M16.667 8.333c0 4.167-4.584 8.5-6.167 9.833a1 1 0 01-1 0C7.917 16.833 3.333 12.5 3.333 8.333a6.667 6.667 0 1113.334 0z" stroke="#9CA3AF" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/><circle cx="10" cy="8.333" r="2.5" stroke="#9CA3AF" stroke-width="1.5"/></svg>';
+  }
+
+  function escHtml(str) {
+    return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function buildDynamicFilters(clubs) {
+    var countries = [];
+    clubs.forEach(function(c) { if (c.country && !countries.includes(c.country)) countries.push(c.country); });
+    countries.sort();
+    regionList.innerHTML = countries.map(function(c) {
+      var id = 'region-' + c.replace(/\s+/g,'-').toLowerCase() + '-' + SID;
+      return '<li class="cd-filter-group__item"><input type="checkbox" value="' + escHtml(c) + '" data-filter="region" id="' + id + '"><label for="' + id + '">' + escHtml(c) + '</label></li>';
+      }).join('');
+
+    var cats = [];
+    clubs.forEach(function(c) { (c.categories || []).forEach(function(cat) { if (cat && !cats.includes(cat)) cats.push(cat); }); });
+    cats.sort();
+    categoryList.innerHTML = cats.map(function(c) {
+      var id = 'cat-' + c.replace(/\s+/g,'-').toLowerCase() + '-' + SID;
+      return '<li class="cd-filter-group__item"><input type="checkbox" value="' + escHtml(c) + '" data-filter="category" id="' + id + '"><label for="' + id + '">' + escHtml(c) + '</label></li>';
+    }).join('');
+
+    bindFilterCheckboxes();
+  }
+
+  function bindCardEvents() {
+    document.querySelectorAll('#' + SID + ' .fc-card__heart').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        var handle = this.dataset.handle;
+        if (!window.CookieManager) return;
+        if (window.CookieManager.isFavoriteClub(handle)) {
+          window.CookieManager.removeFavoriteClub(handle);
+        } else {
+          window.CookieManager.addFavoriteClub(handle);
+        }
+        document.querySelectorAll('.fc-card__heart[data-handle="' + handle + '"]').forEach(function(b) {
+          b.classList.toggle('is-favorited', window.CookieManager.isFavoriteClub(handle));
+        });
+      });
+    });
+  }
+
+  function bindFilterCheckboxes() {
+    document.querySelectorAll('#cd-filter-panel-' + SID + ' input[type="checkbox"]').forEach(function(cb) {
+      cb.removeEventListener('change', onFilterChange);
+      cb.addEventListener('change', onFilterChange);
+    });
+  }
+
+  function onFilterChange() {
+    var group = this.dataset.filter;
+    if (!activeFilters[group]) activeFilters[group] = [];
+    if (this.checked) { if (!activeFilters[group].includes(this.value)) activeFilters[group].push(this.value); }
+    else { activeFilters[group] = activeFilters[group].filter(function(v) { return v !== this.value; }, this); }
+    syncUrl();
+    displayedCount = 0;
+    applyFilters();
+  }
+
+  filterToggle.addEventListener('click', function() {
+    var open = filterPanel.classList.toggle('is-open');
+    filterToggle.classList.toggle('is-active', open);
+  });
+
+  var searchTimer;
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimer);
+    searchTimer = setTimeout(function() {
+      searchQuery = searchInput.value;
+      syncUrl();
+      displayedCount = 0;
+      applyFilters();
+    }, 250);
+  });
+
+  document.querySelectorAll('#' + SID + ' .cd-view-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('#' + SID + ' .cd-view-btn').forEach(function(b) { b.classList.remove('is-active'); });
+      this.classList.add('is-active');
+      currentView = this.dataset.view;
+      displayedCount = 0;
+      renderResults();
+    });
+  });
+
+  moreBtn.addEventListener('click', function() { renderResults(); });
+
+  // ── Newly Added ──
+  var newlyEl = document.getElementById('cd-newly-' + SID);
+  var newlyGrid = document.getElementById('cd-newly-grid-' + SID);
+
+  var NEWLY_ADDED_REFS = {{ newly_added_refs | split: '||' | json }};
+
+  function fetchNewlyAdded() {
+    if (!newlyEl || !newlyGrid) return;
+
+    console.log('Newly added refs from Liquid:', NEWLY_ADDED_REFS);
+    console.log('Total clubs loaded:', allClubs.length);
+
+    var newClubs = NEWLY_ADDED_REFS
+      .filter(function(ref) { return ref && ref.trim() !== ''; })
+      .map(function(ref) {
+        var r = ref.trim();
+        return allClubs.find(function(c) {
+          return c.id === r || c.handle === r;
+        });
+      })
+      .filter(Boolean);
+
+    if (newClubs.length === 0) {
+      newlyEl.style.display = 'none';
+      return;
+    }
+
+    newlyGrid.innerHTML = newClubs.map(function(club) {
+      var favActive = isFavHandle(club.handle);
+      var html = '<a class="cd-grid-card" href="' + club.link + '">';
+      html += '<div class="cd-grid-card__img-wrap">';
+      if (club.image) {
+        html += '<img class="cd-grid-card__img' + (club.hasLogoOnly ? ' club_logo' : '') + '" src="' + club.image + '" alt="' + escHtml(club.imageAlt || club.name) + '" loading="lazy">';
+      } else {
+        html += '<div style="width:100%;height:100%;background:#E5E7EB;display:flex;align-items:center;justify-content:center;color:#9CA3AF;font-size:13px;">No image</div>';
+      }
+      html += '</div>';
+      html += '<div class="cd-grid-card__body">';
+      html += '<p class="cd-grid-card__name">' + escHtml(club.name) + '</p>';
+      if (club.address) html += '<p class="cd-grid-card__location">' + pinSvg() + escHtml(club.address) + '</p>';
+      html += '<div class="cd-grid-card__pills">';
+      if (club.ranking) html += '<span class="cd-pill cd-pill--rank">Top ' + club.ranking + '</span>';
+      (club.categories || []).forEach(function(cat) { html += '<span class="cd-pill cd-pill--cat">' + escHtml(cat) + '</span>'; });
+      html += '</div>';
+      html += heartBtn(club.fcHandle);
+      html += '</div></a>';
+      return html;
+    }).join('');
+
+    newlyEl.style.display = 'block';
+
+    newlyGrid.querySelectorAll('.fc-card__heart').forEach(function(btn) {
+      btn.addEventListener('click', function(e) {
+        e.preventDefault(); e.stopPropagation();
+        var handle = this.dataset.handle;
+        if (!window.CookieManager) return;
+        if (window.CookieManager.isFavoriteClub(handle)) {
+          window.CookieManager.removeFavoriteClub(handle);
+        } else {
+          window.CookieManager.addFavoriteClub(handle);
+        }
+        document.querySelectorAll('.fc-card__heart[data-handle="' + handle + '"]').forEach(function(b) {
+          b.classList.toggle('is-favorited', window.CookieManager.isFavoriteClub(handle));
+        });
+      });
+    });
+  }
+
+  fetchAllClubs().then(function(clubs) {
+    clubs = clubs.filter(function(c) { return !EXCLUDED_HANDLES.includes(c.handle); });
+    allClubs = sortClubs(clubs);
+    window.__clubData = allClubs;
+    buildDynamicFilters(allClubs);   // renders checkboxes first
+    bindFilterCheckboxes();
+    var urlParams = readUrlParams();  // read after checkboxes exist in DOM
+    applyUrlParams(urlParams);        // tick boxes + set activeFilters
+    applyFilters();                   // filter with everything applied
+    fetchNewlyAdded();
+  }).catch(function(err) {
+    console.error('Club directory fetch error:', err);
+    resultsEl.innerHTML = '<div class="cd-loading">Failed to load clubs. Check console for details.</div>';
+  });
+
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Club Directory",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "API Configuration"
+    },
+    {
+      "type": "text",
+      "id": "storefront_token",
+      "label": "Storefront API Access Token",
+      "info": "Public Storefront API token with metaobject read access."
+    },
+    {
+      "type": "header",
+      "content": "Featured Club"
+    },
+    {
+      "type": "select",
+      "id": "featured_mode",
+      "label": "Featured First Card",
+      "default": "highest_ranking",
+      "options": [
+        { "value": "highest_ranking", "label": "Highest Ranking" },
+        { "value": "first_result", "label": "Always First Result" },
+        { "value": "none", "label": "None (uniform grid)" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Toolbar Icons"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_filter",
+      "label": "Filter Button Icon",
+      "info": "Optional. Replaces the default filter SVG icon."
+    },
+    {
+      "type": "text",
+      "id": "filter_label",
+      "label": "Filter Button Label",
+      "default": "Filters"
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_grid",
+      "label": "Grid View Icon",
+      "info": "Optional. Replaces the default grid SVG icon."
+    },
+    {
+      "type": "image_picker",
+      "id": "icon_list",
+      "label": "List View Icon",
+      "info": "Optional. Replaces the default list SVG icon."
+    },
+    {
+      "type": "header",
+      "content": "Search"
+    },
+    {
+      "type": "text",
+      "id": "search_placeholder",
+      "label": "Search Placeholder Text",
+      "default": "Search by club name or location..."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "Newly Added Courses"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_newly_added",
+      "label": "Show Newly Added Section",
+      "default": true
+    },
+    {
+      "type": "text",
+      "id": "newly_added_heading",
+      "label": "Section Heading",
+      "default": "Newly Added Courses"
+    },
+    {
+      "type": "paragraph",
+      "content": "Add 'Newly Added Course' blocks below to curate which courses appear in this section."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "exclude_course",
+      "name": "Exclude Course",
+      "settings": [
+        {
+          "type": "text",
+          "id": "course",
+          "label": "Course Handle",
+          "info": "Enter the metaobject handle of the course to exclude (find it in the URL of the metaobject entry in Shopify admin)."
+        }
+      ]
+    },
+    {
+      "type": "newly_added_course",
+      "name": "Newly Added Course",
+      "settings": [
+        {
+          "type": "metaobject",
+          "id": "course_ref",
+          "label": "Course",
+          "metaobject_type": "courses"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Club Directory"
+    }
+  ]
+}
+{% endschema %}

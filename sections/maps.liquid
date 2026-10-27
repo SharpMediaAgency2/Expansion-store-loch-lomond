@@ -1,0 +1,443 @@
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign container = section.settings.container
+  assign banner = section.settings.banner
+
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+-%}
+<style>
+  .f-map {
+    position: relative;
+    --map-height: {{ section.settings.height }}px;
+  }
+  .f-map__info {
+    position: absolute;
+    inset-inline-start: 2rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 35rem;
+  }
+  .f-map__info-inner {
+    background: #fff;
+    padding: 2rem 1.5rem;
+  }
+  .f-map__info h3 {
+    margin-bottom: 1.2rem;
+  }
+  .f-map__info .social-links,
+  .f-map__info .btn {
+    margin-top: 1.6rem;
+  }
+  .f-map--initialized .f-map__banner {
+    display: none;
+  }
+  .f-map-section .container-full .f-map {
+    margin: 0 -15px;
+  }
+  @media (max-width: 767.98px) {
+    .f-map .f-map__info {
+      position: relative;
+      transform: none;
+      width: calc(100% - 3rem);
+      margin: 0 auto;
+      z-index: 1;
+      inset-inline-start: auto;
+      margin-top: calc(var(--map-height) * 30 / -100);
+      box-shadow: rgb(100 100 111 / 20%) 0px 7px 29px 0px;
+    }
+
+    .f-map {
+      margin: 0 -15px;
+    }
+  }
+</style>
+<div id="{{ section_id }}" class="f-map-section{{ custom_class }}">
+  <div class="{{ container }}">
+    <div class="f-map">
+      <g-map
+        class="block h-full relative"
+        data-api-key="{{ section.settings.api_key }}"
+        data-address="{{ section.settings.address }}"
+        data-draggable="{{ section.settings.draggable }}"
+        data-scroll-wheel="{{ section.settings.scroll_wheel }}"
+        data-map-style="{{ section.settings.map_style }}"
+        data-zoom="{{ section.settings.zoom }}"
+        style="height: {{ section.settings.height }}px"
+      >
+        <div class="map h-full"></div>
+        <div class="f-map__banner bg-image">
+          {%- if banner == blank -%}
+            {{
+              'lifestyle-1'
+              | placeholder_svg_tag: 'placeholder-svg absolute inset-full w-full h-full'
+            }}
+          {%- else -%}
+            {% render 'responsive-image',
+              no_zoom: true,
+              image: banner,
+              wrapper_class: 'absolute inset-full w-full h-full',
+              section_index: section.index,
+              index: 1
+            %}
+          {%- endif -%}
+        </div>
+      </g-map>
+      {%- if section.blocks.size > 0 -%}
+        <div class="f-map__info absolute">
+          <motion-element
+            data-motion="{{ animation_effect }}"
+            class="block w-full f-map__info-inner"
+          >
+            {%- for block in section.blocks -%}
+              {%- case block.type -%}
+                {%- when 'heading' -%}
+                  {%- if block.settings.heading != blank -%}
+                    <h3
+                      class="{{ block.settings.heading_size }}"
+                      {{ block.shopify_attributes }}
+                    >
+                      {%- render 'highlight-text',
+                        hl_text: block.settings.heading,
+                        hl_style: block.settings.highlight_style,
+                        enable_hl_text_color: block.settings.enable_highlight_text_color
+                      -%}
+                    </h3>
+                  {%- endif -%}
+                {%- when 'text' -%}
+                  {%- if block.settings.text != blank -%}
+                    <div class="rte" {{ block.shopify_attributes }}>
+                      {{ block.settings.text }}
+                    </div>
+                  {%- endif -%}
+                {%- when 'button' -%}
+                  {%- if block.settings.button_label != blank -%}
+                    <a
+                      class="btn btn--primary btn--small"
+                      {% if block.settings.button_link != blank %}
+                        href="{{ block.settings.button_link }}"
+                      {%- else -%}
+                        disabled
+                      {% endif %}
+                      {{ block.shopify_attributes }}
+                    >
+                      {{- block.settings.button_label -}}
+                    </a>
+                  {%- endif -%}
+                {%- when 'social' -%}
+                  {%- render 'social-links' -%}
+                {%- else -%}
+              {%- endcase -%}
+            {%- endfor -%}
+          </motion-element>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+<script src="{{ 'google-map.js' | asset_url }}" defer="defer"></script>
+{% schema %}
+{
+  "name": "t:sections.map.name",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/PTMflZJ)"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.container.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.map.settings.header.content"
+    },
+    {
+      "type": "text",
+      "id": "address",
+      "label": "t:sections.map.settings.address.label",
+      "default": "Give customers details about the store address.",
+      "info": "t:sections.map.settings.address.info"
+    },
+    {
+      "type": "text",
+      "id": "api_key",
+      "label": "t:sections.map.settings.api_key.label",
+      "info": "t:sections.map.settings.api_key.info"
+    },
+    {
+      "type": "image_picker",
+      "id": "banner",
+      "label": "t:sections.map.settings.banner.label",
+      "info": "t:sections.map.settings.banner.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.map.settings.header_1.content"
+    },
+    {
+      "type": "select",
+      "id": "map_style",
+      "label": "t:sections.map.settings.map_style.label",
+      "options": [
+        {
+          "value": "default",
+          "label": "t:sections.map.settings.map_style.option__1"
+        },
+        {
+          "value": "silver",
+          "label": "t:sections.map.settings.map_style.option__2"
+        },
+        {
+          "value": "retro",
+          "label": "t:sections.map.settings.map_style.option__3"
+        },
+        {
+          "value": "dark",
+          "label": "t:sections.map.settings.map_style.option__4"
+        },
+        {
+          "value": "night",
+          "label": "t:sections.map.settings.map_style.option__5"
+        },
+        {
+          "value": "aubergine",
+          "label": "t:sections.map.settings.map_style.option__6"
+        }
+      ],
+      "default": "default"
+    },
+    {
+      "type": "range",
+      "id": "height",
+      "min": 300,
+      "max": 1000,
+      "step": 10,
+      "unit": "px",
+      "label": "t:sections.map.settings.height",
+      "default": 450
+    },
+    {
+      "type": "range",
+      "id": "zoom",
+      "label": "t:sections.map.settings.zoom",
+      "default": 14,
+      "min": 10,
+      "max": 20,
+      "step": 1
+    },
+    {
+      "type": "checkbox",
+      "id": "draggable",
+      "label": "t:sections.map.settings.draggable",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "scroll_wheel",
+      "label": "t:sections.map.settings.scroll_wheel.label",
+      "default": false,
+      "info": "t:sections.map.settings.scroll_wheel.info"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "t:sections.map.blocks.heading.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "info": "t:sections.common.highlight_text.paragraph.content",
+          "label": "t:sections.map.blocks.heading.text.label",
+          "default": "Your store name"
+        },
+        {
+          "type": "select",
+          "id": "highlight_style",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+            },
+            {
+              "value": "drawer_line",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+            },
+            {
+              "value": "underline",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_highlight_text_color",
+          "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "default": "h4",
+          "label": "t:sections.common.text_size.heading.label",
+          "options": [
+            {
+              "value": "h6",
+              "label": "t:sections.common.text_size.options__h6.label"
+            },
+            {
+              "value": "h5",
+              "label": "t:sections.common.text_size.options__h5.label"
+            },
+            {
+              "value": "h4",
+              "label": "t:sections.common.text_size.options__h4.label"
+            },
+            {
+              "value": "h3",
+              "label": "t:sections.common.text_size.options__h3.label"
+            },
+            {
+              "value": "h2",
+              "label": "t:sections.common.text_size.options__h2.label"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.map.blocks.text.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.map.blocks.text.text.label",
+          "default": "<p>42 Hilltop Street Montague, PE C0A 3K6</p>"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "t:sections.map.blocks.button.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:sections.map.blocks.button.settings.button_label",
+          "default": "Button label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "t:sections.map.blocks.button.settings.button_link"
+        }
+      ]
+    },
+    {
+      "type": "social",
+      "name": "t:sections.map.blocks.social.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.map.blocks.social.paragraph.content"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Map",
+      "blocks": [
+        {
+          "type": "heading"
+        },
+        {
+          "type": "text"
+        },
+        {
+          "type": "button"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

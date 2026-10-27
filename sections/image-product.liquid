@@ -1,0 +1,489 @@
+{% comment %}
+  Section: Image + Product Split (50/50)
+  --------------------------------------
+  Left  → Image with overlay buttons at bottom
+  Right → Single product card (uses theme's `product-card` snippet)
+
+  Mobile → Stacked: image (with buttons) on top, product card below.
+
+  Blocks:
+    - button (multiple) — pill-shaped overlay buttons on the image
+{% endcomment %}
+
+{%- liquid
+  assign sid = section.id
+  assign img = section.settings.image
+  assign product = all_products[section.settings.product]
+-%}
+
+<style>
+  #ips-{{ sid }} {
+    --ips-pad-top:    {{ section.settings.padding_top }}px;
+    --ips-pad-bottom: {{ section.settings.padding_bottom }}px;
+    --ips-gap:        {{ section.settings.gap }}px;
+    --ips-radius:     {{ section.settings.radius }}px;
+    --ips-ratio-desktop: {{ section.settings.image_ratio_desktop | default: '1 / 1' }};
+    --ips-ratio-mobile:  {{ section.settings.image_ratio_mobile  | default: '4 / 5' }};
+  }
+
+  #ips-{{ sid }} {
+    padding-top:    var(--ips-pad-top);
+    padding-bottom: var(--ips-pad-bottom);
+  }
+
+  /* ── Grid: 50 / 50 on desktop, stacked on mobile ── */
+  #ips-{{ sid }} .ips-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--ips-gap);
+    align-items: start;
+  }
+
+  /* ── Image column ── */
+  #ips-{{ sid }} .ips-image-cell {
+    position: relative;
+    overflow: hidden;
+    border-radius: var(--ips-radius);
+    aspect-ratio: var(--ips-ratio-desktop);
+  }
+
+  #ips-{{ sid }} .ips-image-cell img,
+  #ips-{{ sid }} .ips-image-cell svg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: {{ section.settings.image_focus | default: 'center' }};
+    display: block;
+  }
+
+  /* Optional darkening overlay */
+  #ips-{{ sid }} .ips-image-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0, {{ section.settings.overlay_opacity | divided_by: 100.0 }});
+    pointer-events: none;
+  }
+
+  /* ── Button group (bottom-centered on the image) ── */
+  #ips-{{ sid }} .ips-buttons {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: {{ section.settings.buttons_bottom }}px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    padding: 0 16px;
+    flex-wrap: wrap;
+    z-index: 2;
+  }
+
+  #ips-{{ sid }} .ips-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 12px 28px;
+    font-family: 'Rubik', sans-serif;
+    font-size: 13px;
+    font-weight: 600;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 999px;
+    border: 2px solid transparent;
+    transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+    white-space: nowrap;
+    cursor: pointer;
+  }
+  #ips-{{ sid }} .ips-btn:hover { transform: translateY(-1px); }
+
+  /* Solid white pill */
+  #ips-{{ sid }} .ips-btn--solid {
+    background: #ffffff;
+    color: #0A0A0A;
+    border-color: #ffffff;
+  }
+  #ips-{{ sid }} .ips-btn--solid:hover {
+    background: #f3f3f3;
+    border-color: #f3f3f3;
+  }
+
+  /* Outline white pill */
+  #ips-{{ sid }} .ips-btn--outline {
+    background: transparent;
+    color: #ffffff;
+    border-color: #ffffff;
+  }
+  #ips-{{ sid }} .ips-btn--outline:hover {
+    background: rgba(255,255,255,0.18);
+  }
+
+  /* Solid dark pill */
+  #ips-{{ sid }} .ips-btn--dark {
+    background: #0A0A0A;
+    color: #ffffff;
+    border-color: #0A0A0A;
+  }
+  #ips-{{ sid }} .ips-btn--dark:hover {
+    background: #2a2a2a;
+    border-color: #2a2a2a;
+  }
+
+  /* ── Product column ── */
+  #ips-{{ sid }} .ips-product-cell {
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    border-radius: var(--ips-radius);
+  }
+
+  /*
+    Lock the product card's image area to match the chosen desktop ratio
+    so both columns stay the same height side-by-side.
+    Targets common theme structures.
+  */
+  #ips-{{ sid }} .ips-product-cell .product-card__image-wrapper,
+  #ips-{{ sid }} .ips-product-cell .product-card__image,
+  #ips-{{ sid }} .ips-product-cell .card__image,
+  #ips-{{ sid }} .ips-product-cell .product-card .media,
+  #ips-{{ sid }} .ips-product-cell responsive-image,
+  #ips-{{ sid }} .ips-product-cell [class*="product-card"] .media {
+    aspect-ratio: var(--ips-ratio-desktop) !important;
+    --aspect-ratio: unset !important;
+    overflow: hidden;
+  }
+  #ips-{{ sid }} .ips-product-cell .product-card__image-wrapper img,
+  #ips-{{ sid }} .ips-product-cell .product-card__image img,
+  #ips-{{ sid }} .ips-product-cell .card__image img,
+  #ips-{{ sid }} .ips-product-cell .product-card .media img,
+  #ips-{{ sid }} .ips-product-cell responsive-image img,
+  #ips-{{ sid }} .ips-product-cell [class*="product-card"] .media img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+  }
+
+  /* ── Mobile: stack ── */
+  @media (max-width: 767px) {
+    #ips-{{ sid }} .ips-grid {
+      grid-template-columns: 1fr;
+      gap: clamp(16px, 4vw, 24px);
+    }
+
+    #ips-{{ sid }} .ips-image-cell {
+      aspect-ratio: var(--ips-ratio-mobile);
+    }
+
+    /* Product card image follows the mobile ratio too, so vertical rhythm
+       stays consistent when the section stacks. */
+    #ips-{{ sid }} .ips-product-cell .product-card__image-wrapper,
+    #ips-{{ sid }} .ips-product-cell .product-card__image,
+    #ips-{{ sid }} .ips-product-cell .card__image,
+    #ips-{{ sid }} .ips-product-cell .product-card .media,
+    #ips-{{ sid }} .ips-product-cell responsive-image,
+    #ips-{{ sid }} .ips-product-cell [class*="product-card"] .media {
+      aspect-ratio: var(--ips-ratio-mobile) !important;
+    }
+
+    #ips-{{ sid }} .ips-buttons {
+      bottom: {{ section.settings.buttons_bottom_mobile }}px;
+      gap: 10px;
+    }
+
+    #ips-{{ sid }} .ips-btn {
+      padding: 11px 22px;
+      font-size: 12px;
+    }
+  }
+
+  /* ─────────────────────────────────────────────
+     Desktop: keep the product card at its natural size (big image +
+     title + price + swatches stacked underneath) and instead STRETCH
+     the left lifestyle image down to match the product column's full
+     height. Result: both columns are the same height, the product
+     image stays large, and the name/price/swatches sit inside the row.
+     This deliberately does NOT touch the product card's internal image
+     sizing, so it can't fight the theme's card markup.
+     ───────────────────────────────────────────── */
+  @media (min-width: 768px) {
+    /* Both columns stretch to the tallest column (the product card). */
+    #ips-{{ sid }} .ips-grid {
+      align-items: stretch;
+    }
+
+    /* Drop the left image's fixed ratio on desktop so it can grow to fill
+       the row height set by the product column. Its <img> is already
+       absolutely positioned with object-fit: cover, so it simply reveals
+       a little more of the photo rather than distorting. */
+    #ips-{{ sid }} .ips-image-cell {
+      aspect-ratio: auto;
+      height: 100%;
+      min-height: 100%;
+    }
+  }
+</style>
+
+<div id="ips-{{ sid }}" class="ips-section">
+  <div class="container">
+    <div class="ips-grid">
+
+      {%- comment -%} ── Left: image with overlay buttons ── {%- endcomment -%}
+      <div class="ips-image-cell">
+        {%- if img != blank -%}
+          {{
+            img
+            | image_url: width: 1400
+            | image_tag:
+              loading: 'lazy',
+              widths: '480, 720, 960, 1200, 1400',
+              sizes: '(max-width: 767px) 100vw, 50vw',
+              alt: img.alt | default: 'Featured image'
+          }}
+        {%- else -%}
+          {{ 'lifestyle-1' | placeholder_svg_tag }}
+        {%- endif -%}
+
+        {%- if section.settings.overlay_opacity > 0 -%}
+          <div class="ips-image-overlay"></div>
+        {%- endif -%}
+
+        {%- if section.blocks.size > 0 -%}
+          <div class="ips-buttons">
+            {%- for block in section.blocks -%}
+              {%- if block.type == 'button' and block.settings.label != blank -%}
+                <a
+                  href="{{ block.settings.url | default: '#' }}"
+                  class="ips-btn ips-btn--{{ block.settings.style }}"
+                  {{ block.shopify_attributes }}
+                >
+                  {{ block.settings.label }}
+                </a>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} ── Right: product card ── {%- endcomment -%}
+      <div class="ips-product-cell">
+        {%- if product != blank -%}
+          {% render 'product-card',
+            product: product,
+            image_ratio: section.settings.image_ratio_desktop,
+            show_vendor: false,
+            section_index: section.index,
+            enable_swatches: true,
+            index: 1
+          %}
+        {%- else -%}
+          {% render 'product-card-placeholder', index: 1 %}
+        {%- endif -%}
+      </div>
+
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Image + Product Split",
+  "tag": "section",
+  "class": "section-image-product-split",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Left — image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "select",
+      "id": "image_focus",
+      "label": "Image focus",
+      "default": "center",
+      "options": [
+        { "value": "left top",      "label": "Top left" },
+        { "value": "center top",    "label": "Top center" },
+        { "value": "right top",     "label": "Top right" },
+        { "value": "left center",   "label": "Middle left" },
+        { "value": "center",        "label": "Middle center" },
+        { "value": "right center",  "label": "Middle right" },
+        { "value": "left bottom",   "label": "Bottom left" },
+        { "value": "center bottom", "label": "Bottom center" },
+        { "value": "right bottom",  "label": "Bottom right" }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Image overlay darkness",
+      "min": 0,
+      "max": 70,
+      "step": 5,
+      "unit": "%",
+      "default": 0
+    },
+    {
+      "type": "range",
+      "id": "buttons_bottom",
+      "label": "Buttons distance from bottom (desktop)",
+      "min": 16,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "buttons_bottom_mobile",
+      "label": "Buttons distance from bottom (mobile)",
+      "min": 12,
+      "max": 80,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "select",
+      "id": "image_ratio_desktop",
+      "label": "Image aspect ratio (desktop)",
+      "info": "Applies to both the image and the product card image so columns stay the same height.",
+      "default": "1 / 1",
+      "options": [
+        { "value": "1 / 1",  "label": "Square (1:1)" },
+        { "value": "4 / 5",  "label": "Portrait (4:5)" },
+        { "value": "3 / 4",  "label": "Portrait (3:4)" },
+        { "value": "16 / 9", "label": "Landscape (16:9)" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "image_ratio_mobile",
+      "label": "Image aspect ratio (mobile)",
+      "default": "4 / 5",
+      "options": [
+        { "value": "1 / 1",  "label": "Square (1:1)" },
+        { "value": "4 / 5",  "label": "Portrait (4:5)" },
+        { "value": "3 / 4",  "label": "Portrait (3:4)" },
+        { "value": "16 / 9", "label": "Landscape (16:9)" }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "Right — product"
+    },
+    {
+      "type": "product",
+      "id": "product",
+      "label": "Product"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Column gap",
+      "min": 0,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "radius",
+      "label": "Corner radius",
+      "min": 0,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 10
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "button",
+      "name": "Button",
+      "limit": 6,
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "style",
+          "label": "Style",
+          "default": "solid",
+          "options": [
+            { "value": "solid",   "label": "Solid white" },
+            { "value": "outline", "label": "Outline white" },
+            { "value": "dark",    "label": "Solid dark" }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image + Product Split",
+      "blocks": [
+        {
+          "type": "button",
+          "settings": {
+            "label": "Shop Men",
+            "style": "solid"
+          }
+        },
+        {
+          "type": "button",
+          "settings": {
+            "label": "Shop Women",
+            "style": "solid"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

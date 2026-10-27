@@ -1,0 +1,115 @@
+.f-drawer {
+  position: fixed;
+  width: var(--f-drawer-width, 350px);
+  top: 0;
+  right: 0;
+  height: 100%;
+  background-color: var(--color-background, #fff);
+  -webkit-overflow-scrolling: touch;
+  transition: transform 0.55s cubic-bezier(0.28, 0.28, 0.23, 1);
+  transform: translate3d(100%, 0, 0);
+  max-height: 100vh;
+  max-width: 100vw;
+  z-index: 999;
+  min-height: 100vh;
+  min-height: -moz-available;
+  min-height: -webkit-fill-available;
+  min-height: fill-available;
+  display: block;
+}
+.f-drawer--left {
+  right: auto;
+  left: 0;
+  transform: translate3d(-100%, 0, 0);
+}
+[open] .f-drawer {
+  transform: translate3d(0, 0, 0);
+}
+.f-drawer .bg-overlay {
+  transition: 0.3s all;
+}
+.f-drawer[open] {
+  transform: translate3d(0, 0, 0);
+}
+.f-drawer__overlay {
+  position: fixed;
+  background: var(--color-overlay-bg, #000);
+  opacity: 0;
+  width: 100vw;
+  height: 100%;
+  visibility: hidden;
+  right: 100%;
+  transition: visibility 0.45s ease-in-out, opacity 0.45s ease-in-out;
+}
+[open] .f-drawer__overlay {
+  opacity: calc(var(--color-overlay-alpha, 40) * 1%);
+  visibility: visible;
+}
+.f-drawer--left .f-drawer__overlay {
+  right: auto;
+  left: 100%;
+}
+.f-drawer__content {
+  display: flex;
+  flex-flow: column;
+  height: 100%;
+  min-height: 100%;
+  min-height: fill-available;
+  min-height: -webkit-fill-available;
+  transition: all 0.25s cubic-bezier(0.165, 0.84, 0.44, 1) 0s;
+}
+@media (max-width: breakpoint-max("sm")) {
+  .f-drawer__content {
+    padding-bottom: 5rem;
+  }
+}
+.f-drawer__scroller {
+  padding: 2.4rem 3rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  flex-grow: 1;
+}
+.f-drawer__header {
+  position: relative;
+  height: var(--f-drawer-header-height, 60px);
+  display: flex;
+  flex-flow: column;
+  align-items: flex-start;
+  justify-content: center;
+  flex: 0 0 auto;
+  padding: 2.4rem 3rem 1.2rem;
+}
+.f-drawer__header-title {
+  margin: 0;
+  line-height: 28px;
+}
+.f-drawer__header--no-padding {
+  padding: 0;
+}
+.f-drawer__header--border-bottom {
+  border-bottom: 1px solid var(--color-border);
+}
+.f-drawer__footer {
+  padding: 1.6rem 3rem;
+}
+.f-drawer__close {
+  position: absolute !important;
+  right: 1.6rem;
+  top: 1.4rem;
+  z-index: 1;
+  width: 4.4rem;
+  height: 4.4rem !important;
+  padding: 0 !important;
+}
+.f-drawer__close svg {
+  width: 2.2rem;
+  height: 2.2rem;
+}
+
+drawer-opener {
+  display: block;
+  pointer-events: auto;
+}
+drawer-opener > * {
+  box-shadow: none !important;
+}

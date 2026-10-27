@@ -1,0 +1,14 @@
+{%- assign sort_by = results.sort_by | default: results.default_sort_by -%}
+<div class="collection-sortby hidden md:block no-js-hidden">
+    <label for="SortBy" class="visually-hidden">{{ 'products.facets.sort_by_label' | t }}:</label>
+    <select id="SortBy"
+        class="form-control"
+        aria-describedby="a11y-refresh-page-message a11y-selection-message"
+        data-default-sortby="{{ collection.default_sort_by }}"
+        data-sortby-select
+    >
+        {%- for option in results.sort_options -%}
+            <option value="{{ option.value }}" {% if option.value == sort_by %}selected="selected"{% endif %}>{{ option.name }}</option>
+        {%- endfor -%}
+    </select>
+</div>

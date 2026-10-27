@@ -1,0 +1,30 @@
+.volume-pricing {
+  padding: 2rem 2.4rem;
+  background-color: rgba(var(--color-foreground), 0.045);
+}
+
+.volume-pricing:empty {
+  display: none;
+}
+
+.volume-pricing li {
+  padding: 1rem 1.8rem;
+}
+
+.volume-pricing li:nth-child(odd) {
+  background-color: var(--color-background);
+}
+
+.volume-pricing__heading {
+  margin-bottom: 1.2rem;
+  display: block;
+}
+
+.volume-pricing show-more-button {
+  margin-top: 1.2rem;
+  display: block;
+}
+
+.volume-pricing__note {
+  margin-top: 0.5rem;
+}

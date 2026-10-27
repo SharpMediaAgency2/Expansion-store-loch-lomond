@@ -1,0 +1,447 @@
+{{ 'main-collection-banner.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign image_height = section.settings.image_height
+  assign text_alignment = section.settings.text_alignment
+  assign collection_desc = collection.description
+  assign collection_image = collection.image
+  assign show_collection_image = section.settings.show_collection_image
+  assign image_position = section.settings.image_position
+  assign image_overlay_opacity = section.settings.image_overlay_opacity
+  assign show_image = false
+
+  for block in section.blocks
+    assign selected_collection = collections[block.settings.collection]
+    if selected_collection.handle == collection.handle
+      assign custom_image = block.settings.image
+      assign custom_image_mobile = block.settings.image_mobile
+    endif
+  endfor
+
+  if custom_image != blank
+    assign image_banner = custom_image
+  else
+    assign image_banner = collection_image
+  endif
+
+  if custom_image_mobile != blank
+    assign image_banner_mobile = custom_image_mobile
+  else
+    if custom_image != blank
+      assign image_banner_mobile = custom_image
+    else
+      assign image_banner_mobile = collection_image
+    endif
+  endif
+
+  if image_position == 'use_image_as_background'
+    assign image_class = 'collection-banner__bg-image'
+  else
+    assign image_class = 'collection-banner__image'
+  endif
+
+  assign wrapper_class = 'relative flex flex-col collection-banner__image-' | append: image_position
+
+  if show_collection_image
+    if collection_image != blank or custom_image != blank
+      assign show_image = true
+    else
+      assign show_image = false
+    endif
+  endif
+
+  if image_height == 'adapt'
+    if image_banner.aspect_ratio == blank or show_collection_image == false or image_position != 'use_image_as_background'
+      assign wrapper_height = 'auto'
+    else
+      assign min_aspect_ratio = image_banner.aspect_ratio
+      assign wrapper_height = 100 | divided_by: min_aspect_ratio | append: 'vw'
+    endif
+  endif
+
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+
+  assign loading = 'lazy'
+  assign fetchpriority = 'low'
+  if section.index < 2
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  endif
+-%}
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+    {% if image_height == 'adapt' %}
+    --banner-height: {{- wrapper_height -}}
+    {% endif %}
+  }
+  .collection-banner__description {
+    margin-top: 1.2rem;
+  }
+  .collection-banner__image,
+  .collection-banner__bg-image {
+    height: var(--banner-height);
+  }
+  .collection-banner--bg {
+    min-height: var(--banner-height);
+  }
+  .collection-banner--small {
+    --banner-height: 18rem;
+  }
+  .collection-banner--medium {
+    --banner-height: 24rem;
+  }
+  .collection-banner--large {
+    --banner-height: 32rem;
+  }
+  @media (min-width: 768px) {
+    .collection-banner--small {
+      --banner-height: 24.8rem;
+    }
+    .collection-banner--medium {
+      --banner-height: 32rem;
+    }
+    .collection-banner--large {
+      --banner-height: 36rem;
+    }
+  }
+{%- endstyle -%}
+{%- if section.settings.show_breadcrumb -%}
+  <div class="banner-breadcrumbs">
+    {% render 'breadcrumb',
+      justify: section.settings.text_alignment
+    %}
+  </div>
+{%- endif -%}
+<div
+  data-section-type="collection-banner"
+  data-section-id="{{ section.id }}"
+  class="f-section-padding collection-banner collection-banner--{{ image_position }} collection-banner--{{ image_height }}{% unless show_image %} collection-banner--no-bg{% endunless %} {{ collection.handle }}"
+>
+  <div class="container">
+    <div class="collection-banner__wrapper {{ wrapper_class }} text-{{ text_alignment }} color-{{ section.settings.color_schema }}">
+      <div class="collection-banner__inner relative z-1 flex flex-col justify-center">
+        <h1 class="collection-banner__title m-0 {{ section.settings.heading_size }}">
+          <span class="visually-hidden">
+            {{- 'sections.collection_template.title' | t }}:</span
+          >
+          <motion-element
+            data-motion="{{ animation_effect }}"
+            data-motion-delay="{{ motion_delay }}"
+            class="block"
+          >
+            {{ collection.title }}
+          </motion-element>
+          {%- assign motion_delay = motion_delay | plus: 50 -%}
+        </h1>
+        {%- if section.settings.show_desc and collection_desc != blank -%}
+          <motion-element
+            data-motion="{{ animation_effect }}"
+            data-motion-delay="{{ motion_delay }}"
+            class="block collection-banner__description rte mobile-remove-br"
+          >
+            {{ collection_desc }}
+          </motion-element>
+          {%- assign motion_delay = motion_delay | plus: 50 -%}
+        {%- endif -%}
+      </div>
+      {%- if show_image and image_banner -%}
+        {%- liquid
+          assign img_height = image_banner.width | divided_by: image_banner.aspect_ratio
+
+          if image_height == 'adapt'
+            assign image_aspect_ratio = image_banner.aspect_ratio
+            assign image_mobile_aspect_ratio = image_banner_mobile.aspect_ratio
+          endif
+        -%}
+        <div
+          class="overflow-hidden {{ image_class }}"
+          {% if image_height == 'adapt' %}
+            style="--aspect-ratio: {{ image_aspect_ratio }};--aspect-ratio-mobile: {{ image_mobile_aspect_ratio }};"
+          {% endif %}
+        >
+          <motion-element
+            class="block{% if image_height != 'adapt' %} h-full{% endif %}"
+            data-motion="{% if section.settings.enable_bg_zoom_effect %}zoom-out-sm{% else %}none{% endif %}"
+          >
+            <picture class="bg-image">
+              {%- if image_banner_mobile != blank -%}
+                <source
+                  media="(max-width: 767px)"
+                  srcset="{{ image_banner_mobile | image_url: width: '400x' }} 400w, {{ image_banner_mobile | image_url: width: '600x' }} 600w, {{ image_banner_mobile | image_url: width: '800x' }} 800w, {{ image_banner_mobile | image_url: width: '1000x' }} 1000w"
+                >
+              {%- endif -%}
+              <div class="f-image w-full h-full">
+                {{
+                  image_banner
+                  | image_url: width: 1500
+                  | image_tag:
+                    loading: loading,
+                    fetchpriority: fetchpriority,
+                    width: image_banner.width,
+                    height: img_height,
+                    sizes: '100vw',
+                    widths: '375, 550, 750, 1100, 1500, 1780, 2000, 3000, 3840',
+                    alt: image_banner.alt
+                  | escape
+                }}
+              </div>
+            </picture>
+          </motion-element>
+        </div>
+      {%- endif -%}
+      {%- if image_overlay_opacity > 0
+        and image_position == 'use_image_as_background'
+        and show_image
+      -%}
+        <div
+          class="bg-overlay"
+          style="--color-overlay-alpha: {{ image_overlay_opacity }}"
+        ></div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "t:sections.main-collection-banner.name",
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/MqdPHXH)"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.main-collection-banner.settings.tutorial.content"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.main-collection-banner.settings.paragraph.content"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-11"
+    },
+    {
+      "type": "select",
+      "id": "image_height",
+      "label": "t:sections.main-collection-banner.settings.image_height.label",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:sections.main-collection-banner.settings.image_height.option__1"
+        },
+        {
+          "value": "small",
+          "label": "t:sections.main-collection-banner.settings.image_height.option__2"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.main-collection-banner.settings.image_height.option__3"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.main-collection-banner.settings.image_height.option__4"
+        }
+      ],
+      "default": "adapt"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "t:settings_schema.global.settings.content_alignment.desktop.label",
+      "default": "center",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:settings_schema.global.settings.content_alignment.option__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:settings_schema.global.settings.content_alignment.option__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:settings_schema.global.settings.content_alignment.option__3.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "default": "h2",
+      "label": "t:sections.common.text_size.heading.label",
+      "options": [
+        {
+          "value": "h3",
+          "label": "t:sections.common.text_size.options__h3.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.text_size.options__h2.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.common.text_size.options__h1.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.common.text_size.options__h0.label"
+        },
+        {
+          "value": "h-xl",
+          "label": "t:sections.common.text_size.options__hd1.label"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_breadcrumb",
+      "label": "t:sections.breadcrumb.enable_breadcrumb",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_desc",
+      "label": "t:sections.main-collection-banner.settings.show_collection_description.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_collection_image",
+      "label": "t:sections.main-collection-banner.settings.show_collection_image.label",
+      "default": false
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "label": "t:sections.main-collection-banner.settings.image_position.label",
+      "default": "use_image_as_background",
+      "options": [
+        {
+          "value": "top",
+          "label": "t:sections.main-collection-banner.settings.image_position.option__1"
+        },
+        {
+          "value": "left",
+          "label": "t:sections.main-collection-banner.settings.image_position.option__2"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.main-collection-banner.settings.image_position.option__3"
+        },
+        {
+          "value": "bottom",
+          "label": "t:sections.main-collection-banner.settings.image_position.option__4"
+        },
+        {
+          "value": "use_image_as_background",
+          "label": "t:sections.main-collection-banner.settings.image_position.option__5"
+        }
+      ]
+    },
+    {
+      "type": "range",
+      "id": "image_overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 5,
+      "unit": "%",
+      "label": "t:sections.slideshow.settings.image_overlay_opacity.label",
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_bg_zoom_effect",
+      "label": "t:settings_schema.animations.settings.animation_bg.label",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "banner",
+      "name": "t:sections.main-collection-banner.blocks.collection.name",
+      "settings": [
+        {
+          "type": "collection",
+          "id": "collection",
+          "label": "t:sections.main-collection-banner.blocks.collection.settings.collection.label",
+          "info": "t:sections.main-collection-banner.blocks.collection.settings.collection.info"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.main-collection-banner.blocks.collection.settings.image.label"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "t:sections.main-collection-banner.blocks.collection.settings.image_mobile.label"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

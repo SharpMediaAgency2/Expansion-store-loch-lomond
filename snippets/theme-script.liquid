@@ -1,0 +1,245 @@
+{% liquid
+  assign money_format = shop.money_format
+  if settings.currency_code_enabled
+    assign money_format = shop.money_with_currency_format | strip_html
+  endif
+%}
+<script>
+  window.shopUrl = '{{ request.origin }}';
+	window.FoxThemeStrings = {
+		addToCart: {{ 'products.product.add_to_cart' | t | json }},
+		soldOut: {{ 'products.product.sold_out' | t | json }},
+		unavailable: {{ 'products.product.unavailable' | t | json }},
+		inStock: {{ 'products.product.meta.instock' | t | json }},
+		noSku: {{ 'products.product.meta.no_sku' | t | json }},
+		outOfStock: {{ 'products.product.meta.out_of_stock' | t | json }},
+		unitPrice: {{ 'products.product.price.unit_price' | t | json }},
+		requiredField: `{{ 'products.product.required_field' | t }}`,
+		unitPriceSeparator: {{ 'accessibility.unit_price_separator' | t | json }},
+		item_added: {{ 'general.cart.item_added' | t | json }},
+		noShippingRate: {{ 'sections.cart.no_found_shipping_rate' | t | json }},
+		shippingRatesResult: {{ 'sections.cart.shipping_rates_result' | t | json }},
+		subTotal: {{ 'sections.cart.subtotal' | t | json }},
+		newSubTotal: {{ 'sections.cart.new_subtotal' | t | json }},
+		cartError: {{ 'sections.cart.cart_error' | t | json }},
+		quantityError: `{{ 'sections.cart.cart_quantity_error_html' | t: quantity: '[quantity]' }}`,
+		notifications: {
+			discount_applied: {{ 'general.notifications.discount_applied' | t | json }},
+		},
+		willNotShipUntil: {{ 'products.product.will_not_ship_until' | t: date: '[date]' | json }},
+		willBeInStockAfter: {{ 'products.product.will_be_in_stock_after' | t: date: '[date]' | json }},
+		waitingForStock: {{ 'products.product.waiting_for_stock' | t | json }},
+		stockLabel: {{ 'products.product.stock_label' | t: count: '[count]' | json }},
+		inStockLabel: {{ 'products.product.in_stock_label' | t | json }},
+		noSelectDeliveryTime: {{ 'general.cart.no_select_delivery_time_message' | t | json }},
+		invalidDeliveryTime: {{ 'general.cart.delivery_time_invalid' | t | json }}
+	};
+
+  window.quickOrderListStrings = {
+    itemsAdded: {{ 'sections.quick_order_list.items_added.other' | t: quantity: '[quantity]' | json }},
+    itemAdded: {{ 'sections.quick_order_list.items_added.one' | t: quantity: '[quantity]' | json }},
+    itemsRemoved: {{ 'sections.quick_order_list.items_removed.other' | t: quantity: '[quantity]' | json }},
+    itemRemoved: {{ 'sections.quick_order_list.items_removed.one' | t: quantity: '[quantity]' | json }},
+    viewCart: {{ 'sections.quick_order_list.view_cart' | t | json }},
+    each: {{ 'sections.quick_order_list.each' | t: money: '[money]' | json }},
+    min_error: {{ 'sections.quick_order_list.min_error' | t: min: '[min]' | json }},
+    max_error: {{ 'sections.quick_order_list.max_error' | t: max: '[max]' | json }},
+    step_error: {{ 'sections.quick_order_list.step_error' | t: step: '[step]' | json }},
+  };
+
+	window.FoxThemeSettings = {
+		designMode: {{ request.design_mode | json }},
+    isRTL: document.documentElement.getAttribute("dir") === "rtl",
+		isMobile: window.matchMedia('screen and (max-width: 767px)').matches,
+    isTablet: window.matchMedia('screen and (max-width: 1023px)').matches,
+    motionReduced: window.matchMedia('(prefers-reduced-motion: reduce)').matches,
+    animationDuration: {{ settings.animation_duration }},
+		template: "{{ template.name }}",
+		currency_code: {{ shop.currency | json }},
+		money_format: {{ money_format | json }},
+		shop_domain: {{ shop.secure_url | json }},
+		base_url: window.location.origin + Shopify.routes.root,
+		routes: {
+			root: "{{ routes.root_url }}",
+			cart: "{{ routes.cart_url }}",
+			cart_add_url: "{{ routes.cart_add_url }}",
+			cart_change_url: "{{ routes.cart_change_url }}",
+			cart_update_url: "{{ routes.cart_update_url }}",
+			predictive_search_url: '{{ routes.predictive_search_url }}'
+		},
+		color_swatches_trigger: {{ settings.color_swatches_trigger | json }},
+		custom_colors: {{ settings.custom_colors | json }},
+		cart: {
+			cartType: "{{ settings.cart_type }}",
+			openDrawerWhenAdded: {{ settings.show_cart_drawer_when_added | json }},
+		},
+    themeName: 'Zest',
+    themeVersion: '9.0.0'
+	}
+	window.FoxThemeStyles = {
+		product: "{{ 'product.css' | asset_url | prepend: 'https:' }}",
+    volumePricing: "{{ 'volume-pricing.css' | asset_url | prepend: 'https:' }}"
+	}
+	window.FoxThemeScripts = {
+		productModel: "{{ 'product-model.js' | asset_url | prepend: 'https:' }}",
+		productMedia: "{{ 'product-media.js' | asset_url | prepend: 'https:' }}",
+		variantsPicker: "{{ 'variants-picker.js' | asset_url | prepend: 'https:' }}",
+    productInfo: "{{ 'product-info.js' | asset_url | prepend: 'https:' }}",
+    volumePricing: "{{ 'volume-pricing.js' | asset_url | prepend: 'https:' }}"
+	}
+
+	if (Shopify.designMode) {
+		document.documentElement.classList.add('shopify-design-mode')
+	}
+	;(function () {
+		window.FoxThemeSettings = window.FoxThemeSettings || {}
+		const mobileCheck = window.matchMedia('screen and (max-width: 767px)');
+    const tabletCheck = window.matchMedia('screen and (max-width: 1023px)');
+
+		function screenTest(e) {
+			if (e.matches) {
+				FoxThemeSettings.isMobile = true
+				document.dispatchEvent(new CustomEvent('matchMobile'))
+			} else {
+				FoxThemeSettings.isMobile = false
+				document.dispatchEvent(new CustomEvent('unmatchMobile'))
+			}
+		}
+
+    function screenTestTablet(e) {
+			if (e.matches) {
+        FoxThemeSettings.isTablet = true
+				document.dispatchEvent(new CustomEvent('matchTablet'))
+			} else {
+        FoxThemeSettings.isTablet = false
+				document.dispatchEvent(new CustomEvent('unmatchTablet'))
+			}
+		}
+
+		try {
+			// Chrome & Firefox
+			mobileCheck.addEventListener('change', screenTest.bind(this));
+      tabletCheck.addEventListener('change', screenTestTablet.bind(this));
+		} catch (err) {
+			try {
+				// Safari
+				mobileCheck.addListener(screenTest);
+        tabletCheck.addListener(screenTestTablet);
+			} catch (e2) {
+				console.error(e2);
+			}
+		}
+	})();
+
+	function __calcHeight() {
+		const headerEl = document.querySelector('[data-section-type="header"]');
+		const announcementEl = document.querySelector('[data-section-type="announcement-bar"]');
+
+		if (headerEl) {
+      const computedStyle = window.getComputedStyle(headerEl);
+      const displayHeight = headerEl.classList.contains('site-header--transparent') ? 0 : headerEl.offsetHeight;
+      const logoWidth = parseInt(computedStyle.getPropertyValue("--logo-width").trim());
+      const logoWidthMobile = parseInt(computedStyle.getPropertyValue("--logo-mobile-width").trim());
+
+      document.documentElement.style.setProperty("--f-header-height", headerEl.offsetHeight + "px");
+      document.documentElement.style.setProperty("--f-header-space", displayHeight + "px");
+      document.documentElement.style.setProperty("--logo-width", logoWidth + "px");
+      document.documentElement.style.setProperty("--logo-mobile-width", logoWidthMobile + "px");
+		}
+
+		if (announcementEl) {
+			document.documentElement.style.setProperty("--f-announcement-height", announcementEl.offsetHeight + "px")
+		}
+	}
+
+	function __markupPolicyPage() {
+		var container = document.querySelector('.shopify-policy__body')
+		if (container) {
+			container.classList.add('rte')
+		}
+	}
+
+	window.addEventListener('load', function () {
+		__calcHeight()
+		__markupPolicyPage()
+    console.log(
+      '%c' +
+        window.FoxThemeSettings.themeName +
+        ' theme (v' +
+        window.FoxThemeSettings.themeVersion +
+        ') by Foxecom | Learn more https://foxecom.com/products/zest-shopify-theme',
+      'font-size: 14px; color: #FF5C00;'
+    );
+	});
+	window.addEventListener('resize', function () {
+		__calcHeight()
+	});
+
+  var fader = document.querySelector('.f-page-transition')
+  function __fadeInPage() {
+    if (!window.AnimationEvent || !fader) return;
+
+    // Page transition
+    window.addEventListener('beforeunload', () => {
+      fader.classList.add('fade-in');
+    });
+    window.addEventListener('DOMContentLoaded', () => {
+      fader.classList.remove('fade-in')
+      fader.classList.add('fade-out')
+
+      document.dispatchEvent(new CustomEvent('page:loaded'));
+    });
+    window.addEventListener('pageshow', (event) => {
+      // Removes unload class when returning to page via history
+      if (event.persisted && fader) {
+        fader.classList.remove('fade-in')
+        fader.classList.add('fade-out')
+      }
+    });
+  }
+	__fadeInPage()
+
+	function __reInitTooltip(container) {
+    const instances = [];
+		const tooltips = container && container.querySelectorAll("[data-tippy-content]");
+		tooltips && tooltips.forEach(tooltip => {
+			const instance = window.FoxTheme.Tooltip(tooltip, {
+				animation: "shift-away",
+				touch: false,
+				hideOnClick: false,
+				onCreate(instance) {
+					const theme = instance.reference.dataset.tippyTheme || "color-background-1";
+					instance.setProps({
+						theme: theme,
+            hideOnClick: true
+					});
+				}
+			});
+
+      instances.push(instance);
+		});
+
+    return instances;
+	}
+
+	const buttonToTop = document.querySelector('#scroll-to-top-button');
+  function __scollToTop(element, behavior) {
+    window.addEventListener('scroll', () => {
+      const currentPosition = window.pageYOffset;
+      if(currentPosition > 100) {
+        element.classList.add('is-show');
+      } else {
+        element.classList.remove('is-show');
+      }
+    });
+
+    element.addEventListener('click', (e) => {
+      e.preventDefault();
+      window.scrollTo({
+        top: 0,
+        behavior: behavior,
+      });
+    })
+  }
+  buttonToTop && __scollToTop(buttonToTop, "smooth");
+</script>

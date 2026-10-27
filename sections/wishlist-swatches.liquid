@@ -1,0 +1,103 @@
+{%- liquid
+  assign swatch_trigger_list = settings.color_swatches_trigger | downcase | split: ','
+-%}
+<script type="application/json" id="wl-swatch-map">
+{
+{%- assign opt_sep = "" -%}
+{%- for option in product.options_with_values -%}
+  {%- liquid
+    assign is_color = false
+    assign option_name = option.name | downcase
+    for trigger in swatch_trigger_list
+      assign swatch_trigger = trigger | strip
+      if option_name contains swatch_trigger
+        assign is_color = true
+      elsif swatch_trigger == 'color' and option_name contains 'colour'
+        assign is_color = true
+      endif
+      if is_color == true
+        break
+      endif
+    endfor
+  -%}
+  {{ opt_sep }}{{ option.name | json }}: {
+  {%- if is_color -%}
+    {%- assign option_index = forloop.index0 -%}
+    {%- assign seen_values = '' -%}
+    {%- assign val_sep = "" -%}
+    {%- for variant in product.variants -%}
+      {%- assign value = variant.options[option_index] -%}
+      {%- unless seen_values contains value -%}
+        {%- liquid
+          assign seen_values = seen_values | join: ',' | append: ',' | append: value | split: ','
+ 
+          assign swatch = blank
+          if value.swatch != blank
+            assign swatch = value.swatch
+          endif
+          if settings.pcard_swatch_type == 'variant_image' and variant.image
+            assign swatch = variant
+          endif
+          if settings.pcard_swatch_type == 'custom'
+            assign swatch = blank
+          endif
+ 
+          assign swatch_image = blank
+          assign swatch_fallback = value | split: ' ' | last | handle
+          assign swatch_fallback_override = false
+ 
+          if swatch == blank
+            assign file_name = value | handle | append: '.png'
+            assign value_downcase = value | downcase
+            assign swatch_config = settings.custom_colors | replace: ',', '' | newline_to_br | split: '<br />'
+            for swatch_line in swatch_config
+              assign swatch_parts = swatch_line | strip | split: ':'
+              assign swatch_name = swatch_parts.first | downcase | strip
+              if swatch_name == value_downcase
+                assign swatch_value = swatch_parts.last | strip
+                if swatch_value contains '#'
+                  assign swatch_fallback = swatch_value
+                  assign swatch_fallback_override = true
+                else
+                  assign file_name = swatch_value
+                endif
+                break
+              endif
+            endfor
+ 
+            if images[file_name] != blank
+              assign swatch_image = images[file_name] | image_url: width: 72
+              assign swatch_fallback_override = false
+            elsif file_name contains '//cdn.shopify.com/'
+              assign swatch_image = file_name
+            endif
+          else
+            if swatch.image
+              assign swatch_image = swatch.image | image_url: width: 72
+              assign swatch_fallback_override = false
+            elsif swatch.color
+              assign swatch_fallback = swatch.color
+            endif
+          endif
+        -%}
+        {{ val_sep }}{{ value | json }}: {
+          "color": {{ swatch_fallback | json }},
+          "image": {% if swatch_fallback_override == false and swatch_image != blank %}{{ swatch_image | json }}{% else %}""{% endif %}
+        }
+        {%- assign val_sep = "," -%}
+      {%- endunless -%}
+    {%- endfor -%}
+  {%- endif -%}
+  }
+  {%- assign opt_sep = "," -%}
+{%- endfor -%}
+}
+</script>
+ 
+{% schema %}
+{
+  "name": "Wishlist Swatch Map",
+  "settings": []
+}
+{% endschema %}
+ 

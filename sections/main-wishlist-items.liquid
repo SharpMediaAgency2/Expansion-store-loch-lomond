@@ -1,0 +1,362 @@
+{%- liquid
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+  if section.settings.heading != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+  if section.settings.subheading != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+  if section.settings.description != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+
+  assign bg_color = section.settings.container_bg
+-%}
+
+<div
+  id="CollectionSection-Wishlist"
+  class="wishlist-page color-{{ section.settings.color_schema }}"
+  data-section-type="wishlist-page"
+  data-section-id="CollectionSection-Wishlist"
+  aria-labelledby="CollectionSection-Wishlist"
+>
+  <div class="container">
+    <div class="wishlist-page__inner"{% if bg_color != blank %} style="background-color: {{ bg_color }};"{% endif %}>
+
+      <div class="collection-banner__wrapper text-left">
+        <div class="collection-banner__inner relative z-1 flex flex-col">
+          <h1 class="collection-banner__title h3">
+            <motion-element
+              data-motion="{{ animation_effect }}"
+              data-motion-delay="{{ motion_delay }}"
+              class="block"
+            >
+              {{ section.settings.heading }}
+            </motion-element>
+            {%- assign motion_delay = motion_delay | plus: 50 -%}
+          </h1>
+
+          {%- comment -%} Item-count subtitle (auto-updated by wishlist.js) {%- endcomment -%}
+          <motion-element
+            data-motion="{{ animation_effect }}"
+            data-motion-delay="{{ motion_delay }}"
+            class="block wishlist-page__count"
+          >
+            <span class="wishlist-counter" aria-live="polite">0</span>
+            <span class="wishlist-counter-suffix">{{ section.settings.count_suffix_plural | default: 'items saved' }}</span>
+          </motion-element>
+          {%- assign motion_delay = motion_delay | plus: 50 -%}
+
+          {%- if section.settings.subheading != blank -%}
+            <motion-element
+              data-motion="{{ animation_effect }}"
+              data-motion-delay="{{ motion_delay }}"
+              class="block collection-banner__description rte mobile-remove-br"
+            >
+              <h2 class="collection-banner__title h5">
+                {{ section.settings.subheading }}
+              </h2>
+            </motion-element>
+            {%- assign motion_delay = motion_delay | plus: 50 -%}
+          {%- endif -%}
+
+          {%- if section.settings.description != blank -%}
+            <motion-element
+              data-motion="{{ animation_effect }}"
+              data-motion-delay="{{ motion_delay }}"
+              class="block collection-banner__description rte mobile-remove-br"
+            >
+              {{ section.settings.description }}
+            </motion-element>
+            {%- assign motion_delay = motion_delay | plus: 50 -%}
+          {%- endif -%}
+        </div>
+      </div>
+
+      <grid-list
+        data-motion="{{ animation_effect }}"
+        class="wishlist-grid product-grid f-grid f-grid-1-cols md:f-grid-2-cols xl:f-grid-4-cols f-grid--gap-medium f-grid--row-gap-medium"
+        id="wishlist-products"
+      >
+      </grid-list>
+
+    </div>{%- comment -%} /.wishlist-page__inner {%- endcomment -%}
+
+    {%- comment -%} Continue Shopping button — OUTSIDE the colored container {%- endcomment -%}
+    {%- if section.settings.continue_label != blank -%}
+      <div class="wishlist-page__footer" id="wishlist-continue-footer">
+        <a href="{{ section.settings.continue_url | default: '/collections/all' }}"
+           class="wishlist-page__continue-btn">
+          {{ section.settings.continue_label }}
+        </a>
+      </div>
+    {%- endif -%}
+
+  </div>
+</div>
+
+<style type="text/css">
+   #wl-qv-modal product-info .container {
+  max-width: 1100px;
+  padding-left: 0px;
+  padding-right: 150px;
+}
+#wl-qv-modal {
+overflow-x:hidden!important;}
+}
+.f-product-form__buttons.pdp-atc-row .pdp-wishlist-btn {
+  display: none;
+} .pdp-wishlist-btn {
+  display: none!important;
+}
+#wishlist-products{
+margin-top:0px;
+}
+.collection-banner__title.h3{
+margin-bottom:0px;
+}
+@media screen and (max-width:999px){
+#wl-qv-modal product-info .container{
+  padding-right: 0px!important;
+}
+.f-product-single .container {
+  padding-right: 0px !important;
+}
+product-info .container {
+  padding-right: 0px !important;
+}
+}
+.product-card__actions{
+  opacity:1;
+  bottom:1.5rem;
+}
+.btn.btn--white.no-color-schema.product-card__atc.product-card__action-button.no-js-hidden {
+  background: #222F1D;
+  border-radius: 6px;
+}
+.product-card__actions{
+  position: absolute;
+  left: 1.5rem;
+  transform: translateY(15px);
+  transition: .54s cubic-bezier(.4,0,.2,1);
+  display: flex;
+  align-items: center;
+  z-index: 3;
+  justify-content: flex-end;
+  width: calc(100% - 3rem);
+  left: 1.5rem;
+}
+.product-card__atc.product-card__action-button::after, .product-card__atc.product-card__action-button::before {
+  background: transparent !important;
+}
+.product-card__atc-text {
+  color: white;
+}
+
+/* ── New: container + heading + count + continue button ── */
+.wishlist-page__inner {
+  padding: 32px;
+  border-radius: 12px;
+}
+
+.wishlist-page .collection-banner__wrapper.text-left {
+  text-align: left;
+}
+
+.wishlist-page .collection-banner__inner {
+  align-items: flex-start;
+}
+
+.wishlist-page__count {
+  font-size: 15px;
+  color: #4A5565;
+  margin-top: 4px;
+  margin-bottom: 24px;
+}
+
+.wishlist-page__footer {
+  display: flex;
+  justify-content: center;
+  margin-top: 32px;
+}
+
+.wishlist-page__continue-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: 48px;
+  padding: 11.5px 32px;
+  border-radius: 8px;
+  background: #fff;
+  color: #111827;
+  border: 1px solid #D1D5DC;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  letter-spacing: -0.31px;
+  text-decoration: none;
+  transition: opacity 0.2s;
+  cursor: pointer;
+}
+
+.wishlist-page__continue-btn:hover { opacity: 0.8; }
+
+@media (max-width: 767px) {
+  .wishlist-page__inner { padding: 20px; }
+   .block.f-column.f-product-single__info .title,
+  .block.f-column.f-product-single__info .f-product-single__block--vendor {
+    display: none;
+  }
+}
+
+/* Bug 1: Prevent flickering on variant picker rebuild in Quick View */
+#wl-qv-modal variant-picker {
+  transition: none !important;
+}
+
+/* Bug 2: Show Sold Out button instead of hiding it */
+#wl-qv-modal .f-product-form__submit[disabled] {
+  display: flex !important;
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Bug 3: Hide combined listings dropdown in Quick View */
+#wl-qv-modal .variant-picker__field-wrapper--club {
+  display: none !important;
+}
+
+@media screen and (max-width: 999px) {
+  #wl-qv-modal [id^="GalleryViewer-"]:has(.flickity-disabled) {
+    max-width: 100% !important;
+    width: 100% !important;
+  }
+
+   #wl-qv-modal [id^="GalleryViewer-"]:has(.flickity-disabled) .f-product__media {
+    max-width: 90% !important;
+    width: 100% !important;
+    margin-left: 5%;
+  }
+
+  #wl-qv-modal .flickity-disabled [data-media-viewer] {
+    margin: 0;
+  }
+}
+</style>
+
+<script>
+(function () {
+  // Toggle singular/plural suffix + hide footer when wishlist is empty.
+  // Hooks into the existing .wishlist-counter that wishlist.js already updates.
+  var SUFFIX_SINGULAR = {{ section.settings.count_suffix_singular | default: 'item saved' | json }};
+  var SUFFIX_PLURAL   = {{ section.settings.count_suffix_plural   | default: 'items saved' | json }};
+
+  function syncSuffix() {
+    var counter = document.querySelector('.wishlist-counter');
+    var suffix  = document.querySelector('.wishlist-counter-suffix');
+    var footer  = document.getElementById('wishlist-continue-footer');
+    if (!counter) return;
+
+    var n = parseInt(counter.textContent, 10) || 0;
+    if (suffix) suffix.textContent = (n === 1) ? SUFFIX_SINGULAR : SUFFIX_PLURAL;
+    if (footer) footer.style.display = (n > 0) ? 'flex' : 'none';
+  }
+
+  // Observe the counter for changes (wishlist.js writes to .textContent).
+  function init() {
+    var counter = document.querySelector('.wishlist-counter');
+    if (!counter) { setTimeout(init, 200); return; }
+    syncSuffix();
+    new MutationObserver(syncSuffix).observe(counter, { childList: true, characterData: true, subtree: true });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Wishlist page",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "color",
+      "id": "container_bg",
+      "label": "Container background color",
+      "info": "Background color of the wishlist container card. Leave empty for no background."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.header.name"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "info": "t:sections.common.highlight_text.paragraph.content",
+      "label": "t:sections.common.header.heading",
+      "default": "My Wishlist"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:sections.common.header.subheading"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.common.header.description"
+    },
+    {
+      "type": "header",
+      "content": "Item Count Subtitle"
+    },
+    {
+      "type": "text",
+      "id": "count_suffix_singular",
+      "label": "Count suffix (singular)",
+      "default": "item saved"
+    },
+    {
+      "type": "text",
+      "id": "count_suffix_plural",
+      "label": "Count suffix (plural)",
+      "default": "items saved"
+    },
+    {
+      "type": "header",
+      "content": "Continue Shopping Button"
+    },
+    {
+      "type": "text",
+      "id": "continue_label",
+      "label": "Button label",
+      "default": "Continue Shopping",
+      "info": "Leave empty to hide the button."
+    },
+    {
+      "type": "url",
+      "id": "continue_url",
+      "label": "Button link"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,106 @@
+{%- if section_settings.heading != blank
+  or section_settings.subheading != blank
+  or section_settings.description != blank
+-%}
+  {%- liquid
+    if header_alignment == blank
+      assign header_alignment = 'left'
+      assign button_alignment = 'right'
+    endif
+
+    if header_alignment_mobile == blank
+      assign header_alignment_mobile = 'center'
+      if header_alignment_mobile == 'inherit'
+        assign header_alignment_mobile = header_alignment
+      endif
+    endif
+
+    assign header_class = 'section__header--horizontal'
+    assign header_text_alignment = header_alignment
+    assign header_class = header_class | append: ' md:flex md:flex-col md:flex-row md:justify-between md:items-start'
+
+    if spacing == blank
+      assign spacing = section_settings.section_header_padding_bottom | default: 'medium'
+    endif
+
+    if content_spacing == blank
+      assign content_spacing = section_settings.section_header_content_spacing | default: 'medium'
+    endif
+
+    unless custom_css_class == blank
+      assign custom_css_class = custom_css_class | prepend: ' '
+    endunless
+
+    assign animation_effect = animation_effect
+    if animation_effect == null
+      assign animation_effect = settings.animations
+    endif
+    assign motion_delay = motion_delay | default: 0
+  -%}
+  <div class="section__header {{ header_class }} spacing--{{ spacing }} content-spacing--{{ content_spacing }}{{ custom_css_class }} {{ class }} tabs-horizonal-wrap">
+    <div class="section__header--text text-{{ header_alignment_mobile }} md:text-{{ header_text_alignment }} header-half">
+      {%- if section_settings.subheading != blank -%}
+        <motion-element
+          data-motion="{{ animation_effect }}"
+          data-motion-delay="{{ motion_delay }}"
+          class="block section__subheading text-subheading"
+        >
+          {{ section_settings.subheading }}
+        </motion-element>
+        {%- assign motion_delay = motion_delay | plus: 50 -%}
+      {%- endif -%}
+      {%- if section_settings.heading != blank -%}
+        <{{ section_settings.heading_tag | default: 'h2' }}
+          class="section__heading {% if section_settings.heading_size %}{{ section_settings.heading_size }}{% endif %}"
+          {% if section_settings.heading_color != blank
+            and section_settings.heading_color != 'rgba(0,0,0,0)'
+          %}
+            style="color: {{ section_settings.heading_color }}"
+          {% endif %}
+        >
+          <motion-element
+            data-motion="{{ animation_effect }}"
+            data-motion-delay="{{ motion_delay }}"
+            class="block"
+          >
+            {%- render 'highlight-text',
+              hl_text: section_settings.heading,
+              hl_style: section_settings.highlight_style,
+              enable_hl_text_color: section_settings.enable_highlight_text_color
+            -%}
+          </motion-element>
+        </{{ section_settings.heading_tag | default: 'h2' }}>
+        {%- assign motion_delay = motion_delay | plus: 50 -%}
+      {%- endif -%}
+      {%- if section_settings.description != blank -%}
+        <motion-element
+          data-motion="{{ animation_effect }}"
+          data-motion-delay="{{ motion_delay }}"
+          class="block section__description mobile-remove-br"
+        >
+          {{ section_settings.description }}
+        </motion-element>
+        {%- assign motion_delay = motion_delay | plus: 50 -%}
+      {%- endif -%}
+    </div>
+    {%- if button_visible and button_label != blank -%}
+      <motion-element
+        data-motion="{{ animation_effect }}"
+        data-motion-delay="{{ motion_delay }}"
+        class="block section__header--button text-{{ header_alignment_mobile }} md:text-{{ button_alignment }} header-half"
+      >
+        <a
+          class="btn {{ button_style }}"
+          {% if button_link != blank %}
+            href="{{ button_link }}"
+          {% else %}
+            aria-disabled="true"
+            disabled
+          {% endif %}
+        >
+          {{- button_label -}}
+        </a>
+      </motion-element>
+    {%- endif -%}
+  </div>
+{%- endif -%}

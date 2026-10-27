@@ -1,0 +1,298 @@
+
+{% liquid
+    assign section_id = section.settings.custom_id | default: section.id
+    assign custom_class = section.settings.custom_class
+
+    unless custom_class == blank
+        assign custom_class = custom_class | prepend: ' '
+    endunless
+
+    assign container = section.settings.container
+%}
+{{ 'tabs-component.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'tabs-component.js' | asset_url }}" defer="defer"></script>
+<div
+    id="{{ section_id }}"
+    class="f-information-tabs{{ custom_class }} f-section-padding color-{{ section.settings.color_schema }}"
+    data-section-type="products-information-tabs"
+    data-section-id="{{ section.id }}"
+    style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+    <div class="{{ container }}">
+        {% if section.blocks.size > 0 %}
+        <div class="f-product-tabs__wrapper">
+            <tabs-component class="f-tabs f-tabs--collapsible" data-selected="0">
+                <div class="f-tabs__header no-js-hidden hidden md:flex justify-center" role="tablist" aria-label="{{ 'accessibility.product_information_tabs' | t }}">
+                  <div class="f-tabs__header-group">
+                    {% for block in section.blocks %}
+                        <button class="f-tabs__nav focus-inset" role="tab" id="{{- block.id -}}" data-tab-type="{{ block.type }}">{{ block.settings.header }}</button>
+                    {% endfor %}
+                  </div>
+                </div>
+                <div class="f-product-tabs__blocks" data-collapsible-parent>
+                    {% for block in section.blocks %}
+                        <div class="f-tabs__content" id="tab-{{ block.id }}" {% unless forloop.first %} hidden{% endunless %} role="tabpanel" {{ block.shopify_attributes }}>
+                          <collapsible-tab class="collapsible__item no-js-hidden" open="{{ block.settings.default_open }}">
+                            <button class="collapsible__button" data-trigger>
+                              <span>{{- block.settings.header -}}</span>
+                              <span class="no-js-hidden" data-collapsible-icon>
+                                    <svg width="1.5" height="12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                    <svg width="1.5" height="12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                            </button>
+                            <div class="f-tabs__content-inner" data-content>
+                              <div class="rte py-sm">
+                                {% case block.type %}
+                                  {% when 'description' %}
+                                    {{ product.description }}
+                                  {% when 'reviews' %}
+                                    <div id="shopify-product-reviews" data-id="{{ product.id }}">
+                                      {{ product.metafields.spr.reviews }}
+                                    </div>
+                                  {% when 'custom' %}
+                                    {{ block.settings.content }}
+                                    {{ block.settings.content_page.content }}
+                                  {% when 'liquid' %}
+                                    {{ block.settings.custom_liquid }}
+                                  {% else %}
+                                {% endcase %}
+                              </div>
+                            </div>
+                          </collapsible-tab>
+                          <noscript>
+                            <details class="collapsible__item">
+                              <summary class="collapsible__button">
+                                <span>{{- block.settings.header -}}</span>
+                                <span data-collapsible-icon>
+                                  <svg width="2" height="12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                  <svg width="2" height="12" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                                </span>
+                              </summary>
+                              <div class="f-tabs__content-inner" data-content>
+                                <div class="rte py-sm">
+                                  {% case block.type %}
+                                    {% when 'description' %}
+                                      {{ product.description }}
+                                    {% when 'reviews' %}
+                                      <div id="shopify-product-reviews" data-id="{{ product.id }}">
+                                        {{ product.metafields.spr.reviews }}
+                                      </div>
+                                    {% when 'custom' %}
+                                      {{ block.settings.content }}
+                                      {{ block.settings.content_page.content }}
+                                    {% when 'liquid' %}
+                                      {{ block.settings.custom_liquid }}
+                                    {% else %}
+                                  {% endcase %}
+                                </div>
+                              </div>
+                            </details>
+                          </noscript>
+                        </div>
+                    {% endfor %}
+                </div>
+            </tabs-component>
+        </div>
+        {% endif %}
+    </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.product-information-tabs.name",
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.container.label"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    }
+  ],
+  "blocks": [
+    {
+      "type": "description",
+      "name": "t:sections.product-information-tabs.blocks.description.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.product-information-tabs.blocks.description.settings.paragraph"
+        },
+        {
+          "type": "text",
+          "id": "header",
+          "label": "t:sections.product-information-tabs.blocks.common.tab_heading",
+          "default": "Product description"
+        },
+        {
+          "type": "checkbox",
+          "id": "default_open",
+          "label": "t:sections.product-information-tabs.blocks.common.default_open",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "reviews",
+      "name": "t:sections.product-information-tabs.blocks.reviews.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "t:sections.product-information-tabs.blocks.reviews.settings.header.content",
+          "info": "t:sections.product-information-tabs.blocks.reviews.settings.header.info"
+        },
+        {
+          "type": "text",
+          "id": "header",
+          "label": "t:sections.product-information-tabs.blocks.common.tab_heading",
+          "default": "Product reviews"
+        },
+        {
+          "type": "checkbox",
+          "id": "default_open",
+          "label": "t:sections.product-information-tabs.blocks.common.default_open",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "custom",
+      "name": "t:sections.product-information-tabs.blocks.custom_content.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "header",
+          "label": "t:sections.product-information-tabs.blocks.common.tab_heading",
+          "default": "Shipping & Return",
+          "placeholder": "Shipping & Return"
+        },
+        {
+          "type": "richtext",
+          "id": "content",
+          "label": "t:sections.product-information-tabs.blocks.common.tab_content",
+          "default": "<p>Shipping cost is based on weight. Just add products to your cart and use the Shipping Calculator to see the shipping price.</p><p>We want you to be 100% satisfied with your purchase. Items can be returned or exchanged within 30 days of delivery.</p>"
+        },
+        {
+          "type": "page",
+          "id": "content_page",
+          "label": "t:sections.product-information-tabs.blocks.common.content_page"
+        },
+        {
+          "type": "checkbox",
+          "id": "default_open",
+          "label": "t:sections.product-information-tabs.blocks.common.default_open",
+          "default": false
+        }
+      ]
+    },
+    {
+      "type": "liquid",
+      "name": "t:sections.product-information-tabs.blocks.custom_liquid.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "header",
+          "label": "t:sections.product-information-tabs.blocks.common.tab_heading",
+          "default": "Tab heading"
+        },
+        {
+          "type": "liquid",
+          "id": "custom_liquid",
+          "label": "t:sections.product-information-tabs.blocks.custom_liquid.settings.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "default_open",
+          "label": "t:sections.product-information-tabs.blocks.common.default_open",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "templates": [
+    "product"
+  ],
+  "presets": [
+    {
+      "name": "t:sections.product-information-tabs.presets.name",
+      "blocks": [
+        {
+          "type": "description",
+          "settings": {
+            "header": "Description"
+          }
+        },
+        {
+          "type": "custom",
+          "settings": {
+            "header": "Shipping & Return"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,267 @@
+{% liquid
+  assign should_show = true
+
+  unless request.design_mode
+    if settings.cart_type != 'drawer'
+      assign should_show = false
+    endif
+  endunless
+
+  if linklists['gift-wrapping'].links != blank and linklists['gift-wrapping'].links.first.type == 'product_link'
+    assign gift_wrapping = linklists['gift-wrapping'].links.first
+
+    assign gift_wrap_id = gift_wrapping.object.variants.first.id
+    assign gift_wraps_in_cart = 0
+    for item in cart.items
+      if item.id == gift_wrap_id
+        assign gift_wraps_in_cart = item.quantity
+        break
+      endif
+    endfor
+    assign items_in_cart = cart.item_count | minus: gift_wraps_in_cart
+  endif
+%}
+
+{% if should_show %}
+  <script src="{{ 'cart.js' | asset_url }}" defer="defer"></script>
+  <script src="{{ 'cart-drawer.js' | asset_url }}" defer="defer"></script>
+  <link rel="stylesheet" href="{{ 'cart-drawer.css' | asset_url }}" media="print" onload="this.media='all'">
+  {{ 'quantity-popover.css' | asset_url | stylesheet_tag }}
+  <script src="{{ 'quantity-popover.js' | asset_url }}" defer="defer"></script>
+  <noscript>{{ 'cart-drawer.css' | asset_url | stylesheet_tag }}</noscript>
+  <div
+    data-section-type="cart-drawer"
+    data-section-id="cart-drawer"
+    id="cart-drawer"
+  >
+    <drawer-component
+      id="Drawer-Cart"
+      class="f-drawer f-drawer-cart"
+      role="dialog"
+      aria-modal="true"
+      style="--f-drawer-width: 460px;"
+      hidden
+      title="Drawer Cart"
+    >
+      <div class="f-drawer__overlay" data-drawer-overlay></div>
+      <div class="f-drawer__content focus-inset" tabindex="-1">
+        <cart-drawer
+          class="f-cart-drawer h-full{% if cart.items.size == 0 %} is-empty{% endif %}"
+          data-open-when-added="{{ settings.show_cart_drawer_when_added }}"
+        >
+          <div data-drawer-inner="cart" class="f-cart-drawer__inner h-full flex flex-col">
+            <div class="f-drawer__header">
+              <h2 class="f-drawer__header-title h5" id="cart-drawer-title">
+                {{ 'sections.cart.title' | t }}
+                {% if settings.cart_drawer_show_cart_count %}
+                  (<span data-cart-count-bubble
+                    ><span data-cart-count-number data-type="drawer">{{ cart.item_count }}</span
+                    ><span class="visually-hidden" data-cart-count-text>
+                      {{- 'layout.cart.items_count' | t: count: cart.item_count -}}
+                    </span></span
+                  >)
+                {% endif %}
+              </h2>
+              <drawer-closer
+                class="f-drawer__close btn btn--plain"
+                aria-label="{{ 'accessibility.close' | t }}"
+                role="button"
+              >
+                {% comment %} theme-check-disable {% endcomment %}
+                {{ 'icon-close.svg' | inline_asset_content }}
+                {% comment %} theme-check-enable {% endcomment %}
+              </drawer-closer>
+            </div>
+
+            {%- render 'cart-goal', template: 'drawer' -%}
+            <foxkit-cart-goal></foxkit-cart-goal>
+            <foxkit-cart-countdown></foxkit-cart-countdown>
+
+            <div class="f-drawer__scroller scroll-container">
+              <div class="f-cart-drawer__empty flex justify-center text-center flex-col">
+                <p class="f-cart-drawer__empty-text" data-cart-empty-text>{{ 'sections.cart.empty' | t }}</p>
+                {%- if settings.collection_list -%}
+                  {% assign collection_lists = settings.collection_list %}
+                  {% for collection in collection_lists %}
+                    <a href="{{ collection.url }}" class="btn btn--secondary btn-cart-emtpy">{{ collection.title }}</a>
+                  {% endfor %}
+                {%- endif -%}
+              </div>
+              <p class="f-cart-drawer__no-cookies-text">{{ 'sections.cart.cookies_required' | t }}</p>
+              <cart-drawer-items class="f-cart-drawer__items" data-cart-items>
+                {% comment %}
+                  <form
+                    id="CartDrawer"
+                    action="{{ routes.cart_url }}"
+                    method="post"
+                    novalidate
+                    class="f-cart-drawer__form h-full flex flex-col"
+                  >
+                {% endcomment %}
+                {% for item in cart.items %}
+                  {% render 'cart-drawer-item'
+                    with item as item,
+                    gift_wrap_id: gift_wrap_id,
+                    gift_wraps_in_cart: gift_wraps_in_cart,
+                    items_in_cart: items_in_cart
+                  %}
+                {% endfor %}
+                <p id="CartDrawer-LiveRegionText" class="visually-hidden" role="status"></p>
+                <p id="CartDrawer-LineItemStatus" class="visually-hidden" aria-hidden="true" role="status">
+                  {{ 'accessibility.loading' | t }}
+                </p>
+                <div id="CartDrawer-CartErrors" role="alert"></div>
+                {% comment %} </form> {% endcomment %}
+              </cart-drawer-items>
+            </div>
+            <div class="f-drawer__footer">
+              {%- if gift_wrapping != null and gift_wrapping.object.available -%}
+                <div class="f-drawer__gift-wrapping">
+                  <gift-wrapping-component
+                    class="f-gift-wrapping"
+                    data-gift-wrap-id="{{ gift_wrap_id }}"
+                    data-gift-wrapping="{{ cart.attributes.gift-wrapping | escape }}"
+                    cart-items-size="{{ cart.items.size }}"
+                    gift-wraps-in-cart="{{ gift_wraps_in_cart }}"
+                    items-in-cart="{{ items_in_cart }}"
+                  >
+                    <input
+                      id="f-gift-wrapping"
+                      type="checkbox"
+                      name="attributes[gift-wrapping]"
+                      value="yes"
+                      {% if cart.attributes['gift-wrapping'] and gift_wraps_in_cart > 0 %}
+                        checked="checked"
+                      {% endif %}
+                      class="visually-hidden"
+                    >
+                    <label for="f-gift-wrapping" class="f-gift-wrapping--label">
+                      {%- capture gift_price -%}<strong class="f-gift-wrapping--price font-normal">{{ gift_wrapping.object.price | money }}</strong>{%- endcapture -%}
+                      <span class="f-gift-wrapping--text">
+                        {{- 'general.cart.gift_wrapping_html' | t: price: gift_price -}}
+                      </span>
+                      <div class="f-gift-wrapping--loading">
+                        {% comment %} theme-check-disable {% endcomment %}
+                        {{ 'icon-spinner.svg' | inline_asset_content }}
+                        {% comment %} theme-check-enable {% endcomment %}
+                      </div>
+                      <svg
+                        width="18"
+                        height="18"
+                        xmlns="http://www.w3.org/2000/svg"
+                        aria-hidden="true"
+                        focusable="false"
+                        class="f-icon f-icon-checkmark f-gift-wrapping--icon"
+                        fill="none"
+                        viewBox="0 0 20 20"
+                      >
+                        <path d="M18.5 1.5H1.5L1.5 18.5H18.5V1.5ZM1.5 0.5C0.947715 0.5 0.5 0.947715 0.5 1.5V18.5C0.5 19.0523 0.947715 19.5 1.5 19.5H18.5C19.0523 19.5 19.5 19.0523 19.5 18.5V1.5C19.5 0.947715 19.0523 0.5 18.5 0.5H1.5Z" fill-rule="evenodd" fill="currentColor"/>
+                        <path d="M14.9975 6.09084C15.201 6.27746 15.2147 6.59375 15.0281 6.79728L8.91631 13.4627C8.82231 13.5652 8.68987 13.6239 8.55079 13.6247C8.41172 13.6256 8.27857 13.5684 8.18335 13.4671L4.99513 10.0731C4.80606 9.87179 4.81596 9.55536 5.01723 9.3663C5.21849 9.17723 5.53492 9.18713 5.72399 9.3884L8.54335 12.3897L14.291 6.12145C14.4776 5.91791 14.7939 5.90421 14.9975 6.09084Z" fill="currentColor"/>
+                      </svg>
+                    </label>
+                  </gift-wrapping-component>
+                </div>
+              {%- endif -%}
+
+              {% if settings.enable_drawer_cart_note %}
+                {% render 'cart-block-note',
+                  id: 'f-cart-drawer__note',
+                  class: 'f-cart-drawer__note-wrapper',
+                  wrapper__class: 'f-cart-drawer__note',
+                  index: 0
+                %}
+              {% endif %}
+              {% if settings.enable_drawer_shipping_rates %}
+                {% render 'cart-block-shipping',
+                  id: 'f-cart-drawer__shipping-rates',
+                  class: 'f-cart-drawer__shipping-wrapper',
+                  index: 1
+                %}
+              {% endif %}
+              {% liquid
+                assign total_price = cart.total_price | money
+                if settings.currency_code_enabled
+                  assign total_price = cart.total_price | money_with_currency
+                endif
+              %}
+              <div class="f-cart-drawer__block-subtotal" {{ block.shopify_attributes }}>
+                <div class="f-cart-drawer__discounts text-sm text-right" data-discounts>
+                  <div data-foxkit-cart-summary></div>
+                  {%- unless cart.cart_level_discount_applications.size == 0 -%}
+                    <ul class="cart-discounts text-red list-none" role="list">
+                      {%- for discount in cart.cart_level_discount_applications -%}
+                        <li>
+                          {% comment %} theme-check-disable {% endcomment %}
+                          {{ 'icon-discount.svg' | inline_asset_content }}
+                          {% comment %} theme-check-enable {% endcomment %}
+                          {{ discount.title }}
+                          (-{{ discount.total_allocated_amount | money }})
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  {%- endunless -%}
+                </div>
+                <div class="f-cart-drawer__totals flex justify-between items-center">
+                  <h3 class="f-cart-drawer__subtotal h6">{{ 'sections.cart.subtotal' | t }}:</h3>
+                  <p class="f-cart-drawer__subtotal-value" data-cart-price>{{ total_price }}</p>
+                  <p class="visually-hidden" data-price-live-region aria-live="polite" role="status"></p>
+                  <p
+                    class="visually-hidden"
+                    id="shopping-cart-line-item-status"
+                    aria-live="polite"
+                    aria-hidden="true"
+                    role="status"
+                  >
+                    {{ 'accessibility.loading' | t }}
+                  </p>
+                </div>
+
+                {%- capture taxes_shipping_checkout -%}
+                        {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+                            {{ 'sections.cart.taxes_included_and_shipping_policy_html' | t: link: shop.shipping_policy.url }}
+                        {%- elsif cart.taxes_included -%}
+                            {{ 'sections.cart.taxes_included_but_shipping_at_checkout' | t }}
+                        {%- elsif shop.shipping_policy.body != blank -%}
+                            {{ 'sections.cart.taxes_and_shipping_policy_at_checkout_html' | t: link: shop.shipping_policy.url }}
+                        {%- else -%}
+                            {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
+                        {%- endif -%}
+                    {%- endcapture -%}
+
+                <p class="f-cart-drawer__notice text-sm rte">{{ taxes_shipping_checkout }}</p>
+              </div>
+              <div
+                class="f-cart-drawer__buttons"
+                {{ block.shopify_attributes }}
+              >
+                <form
+                  id="CartDrawer"
+                  action="{{ routes.cart_url }}"
+                  method="post"
+                  novalidate
+                  class="f-cart-drawer__form flex {% if settings.cart_drawer_show_view_cart %} flex-row f-cart-drawer__view-cart justify-between{% else %} flex-col{% endif %} items-center"
+                >
+                  {% if settings.cart_drawer_show_view_cart %}
+                    <a class="btn btn--secondary" href="{{ routes.cart_url }}">{{ 'sections.cart.view_cart' | t }}</a>
+                  {% endif %}
+                  <button
+                    type="submit"
+                    class="btn btn--primary w-full"
+                    name="checkout"
+                    data-checkout-button
+                    form="CartDrawer"
+                  >
+                    {{ 'sections.cart.checkout' | t }}
+                  </button>
+                </form>
+              </div>
+            </div>
+          </div>
+        </cart-drawer>
+      </div>
+    </drawer-component>
+  </div>
+  {% if settings.enable_drawer_shipping_rates %}
+    <script src="{{ 'footer-calc-shipping-rates.js' | asset_url }}" defer="defer"></script>
+  {% endif %}
+{% endif %}

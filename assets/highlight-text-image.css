@@ -1,0 +1,17 @@
+.highlight-text-image__image {
+  vertical-align: middle;
+  width: var(--image-width);
+  max-width: 100%;
+  margin: 0.6rem 1.6rem;
+}
+@media (max-width: 767.98px) {
+  .highlight-text-image__image {
+    width: var(--image-width-mobile);
+    margin: 0.6rem 1.2rem;
+  }
+}
+.highlight-text-image img,
+.highlight-text-image svg {
+  display: block;
+  height: auto;
+}

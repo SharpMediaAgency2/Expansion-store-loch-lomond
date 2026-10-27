@@ -1,0 +1,669 @@
+{%- capture size_chart_button -%}
+    <modal-opener class="open-size-chart no-js-hidden" data-modal="#PopupModal-SizeChart-{{ section.id }}">
+        <button class="btn--link text-sm" aria-label="{{ 'products.product.open_size_chart' | t }}">
+            <span>{{ 'products.product.open_size_chart' | t }}</span>
+        </button>
+    </modal-opener>
+{%- endcapture -%}
+<div
+  class="variant-picker"
+  data-variant-picker
+  data-product-id="{{ product.id }}"
+  data-section="{{ section.id }}"
+  data-product-handle="{{ product.handle }}"
+  data-product-url="{{ product.url }}"
+  data-max-options="{{ product.options_with_values.size }}"
+>
+{% assign option_value_updated =  product.options_with_values | reverse %}
+  {%- unless product.has_only_default_variant -%}
+    <variant-picker class="no-js-hidden" id="variant-picker-{{ section.id }}" data-update-url="{{ update_browser_history }}">
+      {%- for option in option_value_updated -%}
+        {% liquid
+          assign option_label = option.name
+          assign option_name_downcase = option.name | downcase
+          assign size_title_downcase = size_title | downcase
+          assign is_size = false
+          if size_title_downcase contains option_name_downcase
+            assign is_size = true
+          endif
+
+          assign swatch_count = option.values | map: 'swatch' | compact | size
+
+          assign type_picker = picker_type
+          if settings.color_swatches_enable
+            if settings.color_swatches_trigger != blank and picker_type == 'button'
+              assign color_swatches_trigger = settings.color_swatches_trigger | downcase | split: ','
+              assign has_color = color_swatches_trigger | where: option_name_downcase | first
+              if has_color != blank
+                assign type_picker = 'color'
+              else
+                assign type_picker = 'button'
+              endif
+            endif
+            
+            if swatch_count > 0
+              if picker_type == 'dropdown'
+                assign type_picker = 'swatch_dropdown'
+              elsif settings.vp_swatch_type == 'shopify'
+                assign type_picker = 'swatch'
+              elsif settings.vp_swatch_type == 'variant_image' or settings.vp_swatch_type == 'custom'
+                assign type_picker = 'color'
+              endif
+            endif
+          endif
+        %}
+        
+        <div class="variant-picker__field-wrapper">
+          {% case type_picker %}
+            {% when 'dropdown', 'swatch_dropdown' %}
+              <div class="variant-picker__field" data-picker-field="select" data-option-name="{{ option.name }}">
+                <div class="variant-picker__input variant-picker__input--dropdown">
+                  <label class="form-label" for="Option-{{ section.id }}-{{ forloop.index0 }}">
+                    <span class="font-semibold">{{ option_label }}:</span>
+                    {% if show_selected_value %}
+                      <span class="selected-value">{{ option.selected_value }}</span>
+                    {% endif %}
+                  </label>
+                  <select
+                    class="form-control"
+                    id="Option-{{ section.id }}-{{ forloop.index0 }}"
+                    class="form-control"
+                    name="options[{{ option.name | escape }}]"
+                    form="{{ product_form_id }}"
+                  >
+                    {%- render 'product-variant-options',
+                      product: product,
+                      option: option,
+                      block: block,
+                      picker_type: type_picker
+                    -%}
+                  </select>
+                </div>
+              </div>
+            {% when 'color', 'swatch' %}
+              <div class="variant-picker__field" data-picker-field="radio" data-option-name="{{ option.name }}">
+                <div class="js variant-picker__input variant-picker__color">
+                  <label class="form__label">
+                    <span class="font-semibold">{{ option_label }}:</span>
+                    {% if show_selected_value %}
+                      <span class="selected-value">{{ option.selected_value }}</span>
+                    {% endif %}
+                  </label>
+                  <div class="variant-picker__option-values">
+                    {%- render 'product-variant-options',
+                      product: product,
+                      option: option,
+                      block: block,
+                      picker_type: type_picker,
+                      color_schema: color_schema
+                    -%}
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              <div class="variant-picker__field" data-picker-field="radio" data-option-name="{{ option.name }}">
+                <div class="js variant-picker__input variant-picker__button">
+                  <label class="form__label">
+                    <span class="font-semibold">{{ option_label }}:</span>
+                    {% if show_selected_value and option.name != "clubs" and option.name != "Clubs" %}
+                      <span class="selected-value">{{ option.selected_value }}</span>
+                    {% endif %}
+                  </label>
+                  {% if option.name contains 'Club' %}
+                    <!-- Custom Select Styles -->
+                    <style>
+                      .custom-select {
+                        position: relative;
+                        width: 100%;
+                      }
+
+                      .custom-select label {
+                        display: block;
+                        margin-bottom: 8px;
+                        font-weight: 600;
+                        font-size: 14px;
+                        color: #333;
+                      }
+
+                      .custom-select label .required {
+                        color: #dc3545;
+                        margin-left: 2px;
+                      }
+
+                      .select-trigger {
+                        width: 100%;
+                        padding: 12px 40px 12px 16px;
+                        border: 1px solid #d1d5db;
+                        border-radius: 6px;
+                        background-color: white;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        justify-content: space-between;
+                        transition: all 0.2s ease;
+                        font-size: 15px;
+                        color: #333;
+                      }
+
+                      .select-trigger:hover {
+                        border-color: #9ca3af;
+                      }
+
+                      .select-trigger.open {
+                        border-color: #5e5e5e;
+                        box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+                      }
+
+                      .select-trigger .placeholder {
+                        color: #6b7280;
+                      }
+
+                      .select-trigger .arrow {
+                        position: absolute;
+                        right: 16px;
+                        pointer-events: none;
+                        transition: transform 0.2s ease;
+                      }
+
+                      .select-trigger.open .arrow {
+                        transform: rotate(180deg);
+                      }
+
+                      .select-trigger .arrow svg {
+                        width: 16px;
+                        height: 16px;
+                        fill: #6b7280;
+                      }
+
+                      .select-dropdown {
+                        position: absolute;
+                        top: calc(100% + 4px);
+                        left: 0;
+                        right: 0;
+                        background: white;
+                        border: 1px solid #d1d5db;
+                        border-radius: 6px;
+                        box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                        max-height: 300px;
+                        overflow-y: auto;
+                        z-index: 1000;
+                        opacity: 0;
+                        visibility: hidden;
+                        transform: translateY(-10px);
+                        transition: all 0.2s ease;
+                      }
+
+                      .select-dropdown.open {
+                        opacity: 1;
+                        visibility: visible;
+                        transform: translateY(0);
+                      }
+
+                      .select-option {
+                        padding: 12px 16px;
+                        cursor: pointer;
+                        display: flex;
+                        align-items: center;
+                        gap: 12px;
+                        transition: background-color 0.15s ease;
+                        font-size: 15px;
+                        color: #333;
+                      }
+
+                      .select-option:hover {
+                        background-color: #eff2ef !important;
+                      }
+                      .select-option:hover .option-text {
+                        transition: all 0.3s;
+                        font-weight:500;
+                      }
+                      .select-option.selected {
+                        background-color: #eff2ef!important;
+                      }
+
+                      .favorite-icon {
+                        width: 20px;
+                        height: 20px;
+                        cursor: pointer;
+                        flex-shrink: 0;
+                        transition: transform 0.2s ease;
+                      }
+
+                      .favorite-icon:hover {
+                        transform: scale(1.1);
+                      }
+
+                      .favorite-icon svg {
+                        width: 100%;
+                        height: 100%;
+                      }
+
+                      .favorite-icon:not(.favorited) svg {
+                        fill: none;
+                        stroke: #9ca3af;
+                        stroke-width: 2;
+                      }
+
+                      .option-text {
+                        flex: 1;
+                      }
+
+                      .favorites-separator {
+                        border-bottom: 1px solid #e5e7eb;
+                        margin: 4px 0;
+                      }
+
+                      /* Scrollbar styling */
+                      .select-dropdown::-webkit-scrollbar {
+                        width: 8px;
+                      }
+
+                      .select-dropdown::-webkit-scrollbar-track {
+                        background: #f1f1f1;
+                        border-radius: 0 6px 6px 0;
+                      }
+
+                      .select-dropdown::-webkit-scrollbar-thumb {
+                        background: #d1d5db;
+                        border-radius: 4px;
+                      }
+
+                      .select-dropdown::-webkit-scrollbar-thumb:hover {
+                        background: #9ca3af;
+                      }
+                    </style>
+
+                    <!-- Original Select (Hidden) -->
+                    <select
+                      id="course-select-{{ section.id }}-{{ forloop.index0 }}"
+                      class="form-control"
+                      name="options[{{ option.name | escape }}]"
+                      {% if field_required %}
+                        required
+                      {% endif %}
+                      form="{{ product_form_id }}"
+                      aria-label="Select a club from the list"
+                      style="display:none"
+                    >
+                      {%- for value in option.values -%}
+                        <option 
+                          {% if value == option.selected_value %}selected{% endif %} 
+                          value="{{ value | escape }}"
+                          data-slug="{{ value | handleize }}"
+                        >
+                          {{ value }}
+                        </option>
+                      {%- endfor -%}
+                    </select>
+
+                    <!-- Custom Select UI -->
+                    <div class="custom-select" id="custom-course-select-{{ section.id }}-{{ forloop.index0 }}">
+                      <div class="select-trigger">
+                        <span class="placeholder">Please select</span>
+                        <span class="arrow">
+                          <svg viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                          </svg>
+                        </span>
+                      </div>
+                      <div class="select-dropdown">
+                        <!-- Options will be dynamically populated -->
+                      </div>
+                    </div>
+
+                    <script>
+                      (function() {
+                        'use strict';
+
+                        class CustomSelect {
+                          constructor(element, originalSelect) {
+                            this.element = element;
+                            this.originalSelect = originalSelect;
+                            this.options = [];
+                            this.selectedValue = null;
+                            this.favorites = [];
+                            this.isOpen = false;
+
+                            this.trigger = element.querySelector('.select-trigger');
+                            this.dropdown = element.querySelector('.select-dropdown');
+
+                            this.init();
+                          }
+
+                          init() {
+                            this.loadOptionsFromSelect();
+                            this.loadFavorites();
+                            this.renderOptions();
+                            this.setInitialValue();
+                            this.renderOptions();
+                            this.bindEvents();
+                          }
+
+                          loadOptionsFromSelect() {
+                            const selectOptions = this.originalSelect.querySelectorAll('option');
+                            selectOptions.forEach(option => {
+                              if (option.value) {
+                                this.options.push({
+                                  value: option.value,
+                                  label: option.textContent.trim(),
+                                  slug: option.dataset.slug || this.slugify(option.value),
+                                  selected: option.selected
+                                });
+                              }
+                            });
+                          }
+
+                          slugify(text) {
+                            return text
+                              .toLowerCase()
+                              .trim()
+                              .replace(/[^\w\s-]/g, '')
+                              .replace(/[\s_-]+/g, '-')
+                              .replace(/^-+|-+$/g, '');
+                          }
+
+                          loadFavorites() {
+                            if (typeof CookieManager !== 'undefined' && typeof CookieManager.getFavoriteClubs === 'function') {
+                              try {
+                                this.favorites = CookieManager.getFavoriteClubs() || [];
+                                this.favorites.sort((a, b) => a.localeCompare(b));
+                              } catch (e) {
+                                console.warn('Error loading favorite clubs:', e);
+                                this.favorites = [];
+                              }
+                            } else {
+                              this.favorites = [];
+                            }
+                          }
+
+                          saveFavorites() {
+                            if (typeof CookieManager !== 'undefined' && typeof CookieManager.setFavoriteClubs === 'function') {
+                              try {
+                                CookieManager.setFavoriteClubs(this.favorites);
+                              } catch (e) {
+                                console.warn('Error saving favorite clubs:', e);
+                              }
+                            }
+                          }
+
+                          getUrlParameter(name) {
+                            const urlParams = new URLSearchParams(window.location.search);
+                            return urlParams.get(name);
+                          }
+
+                          setInitialValue() {
+                            const clubParam = this.getUrlParameter('club');
+                            
+                            if (clubParam) {
+                              const paramOption = this.options.find(opt => 
+                                opt.slug === clubParam || 
+                                opt.value.toLowerCase() === clubParam.toLowerCase() ||
+                                this.slugify(opt.value) === clubParam
+                              );
+                              
+                              if (paramOption) {
+                                this.selectOptionInternal(paramOption.value, true);
+                                return;
+                              }
+                            }
+
+                            let firstOption;
+                            
+                            if (this.favorites.length > 0) {
+                              const firstFavoriteSlug = this.favorites[0];
+                              firstOption = this.options.find(opt => opt.slug === firstFavoriteSlug);
+                            }
+                            
+                            if (!firstOption && this.options.length > 0) {
+                              firstOption = this.options[0];
+                            }
+                            
+                            if (firstOption) {
+                              this.selectOptionInternal(firstOption.value, true);
+                            }
+                          }
+
+                          selectOptionInternal(value, silent = false) {
+                            this.options.forEach(opt => opt.selected = false);
+                            
+                            const originalOptions = this.originalSelect.querySelectorAll('option');
+                            originalOptions.forEach(opt => opt.removeAttribute('selected'));
+                            
+                            const option = this.options.find(opt => opt.value === value);
+                            
+                            if (option) {
+                              option.selected = true;
+                              this.selectedValue = value;
+                              this.originalSelect.value = value;
+                              
+                              const originalOption = Array.from(originalOptions).find(opt => opt.value === value);
+                              if (originalOption) {
+                                originalOption.setAttribute('selected', 'selected');
+                              }
+                              
+                              const triggerText = this.trigger.querySelector('span:first-child');
+                              triggerText.textContent = option.label;
+                              triggerText.classList.remove('placeholder');
+                              
+                              if (!silent) {
+                                setTimeout(() => {
+                                  const changeEvent = new Event('change', { bubbles: true });
+                                  this.originalSelect.dispatchEvent(changeEvent);
+                                }, 0);
+                              }
+                            }
+                          }
+
+                          toggleFavorite(slug, event) {
+                            event.stopPropagation();
+                            
+                            const index = this.favorites.indexOf(slug);
+                            if (index > -1) {
+                              this.favorites.splice(index, 1);
+                            } else {
+                              this.favorites.push(slug);
+                            }
+                            
+                            this.saveFavorites();
+                            this.renderOptions();
+                          }
+
+                          renderOptions() {
+                            const favoriteOptions = this.options.filter(opt => 
+                              this.favorites.includes(opt.slug)
+                            );
+                            
+                            const regularOptions = this.options.filter(opt => 
+                              !this.favorites.includes(opt.slug)
+                            );
+
+                            favoriteOptions.sort((a, b) => {
+                              return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
+                            });
+
+                            regularOptions.sort((a, b) => {
+                              return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
+                            });
+
+                            let html = '';
+
+                            if (favoriteOptions.length > 0) {
+                              favoriteOptions.forEach(option => {
+                                html += this.createOptionHTML(option, true);
+                              });
+                              
+                              if (regularOptions.length > 0) {
+                                html += '<div class="favorites-separator"></div>';
+                              }
+                            }
+
+                            regularOptions.forEach(option => {
+                              html += this.createOptionHTML(option, false);
+                            });
+
+                            this.dropdown.innerHTML = html;
+                          }
+
+                          createOptionHTML(option, isFavorite) {
+                            const isSelected = this.selectedValue === option.value ? 'selected' : '';
+                            return `
+                              <div class="select-option ${isSelected}" data-value="${this.escapeHtml(option.value)}">
+                                <div class="favorite-icon ${isFavorite ? 'favorited' : ''}" data-slug="${option.slug}">
+                                  <svg viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg" class="f-icon-svg f-icon-svg--medium ">
+                                    <path fill-rule="evenodd" clip-rule="evenodd" d="M21.0002 8.97903C21.0002 15.2234 12.0006 20.479 12.0006 20.479C12.0006 20.479 3.00024 15.1457 3.00024 8.99169C3.00024 6.47903 5.00024 4.47903 7.50024 4.47903C10.0002 4.47903 12.0002 7.47903 12.0002 7.47903C12.0002 7.47903 14.0002 4.47903 16.5002 4.47903C19.0002 4.47903 21.0002 6.47903 21.0002 8.97903Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+                                  </svg>
+                                </div>
+                                <span class="option-text">${this.escapeHtml(option.label)}</span>
+                              </div>
+                            `;
+                          }
+
+                          escapeHtml(text) {
+                            const map = {
+                              '&': '&amp;',
+                              '<': '&lt;',
+                              '>': '&gt;',
+                              '"': '&quot;',
+                              "'": '&#039;'
+                            };
+                            return text.replace(/[&<>"']/g, m => map[m]);
+                          }
+
+                          bindEvents() {
+                            this.trigger.addEventListener('click', (e) => {
+                              e.stopPropagation();
+                              this.toggleDropdown();
+                            });
+
+                            this.dropdown.addEventListener('click', (e) => {
+                              const option = e.target.closest('.select-option');
+                              const favoriteIcon = e.target.closest('.favorite-icon');
+
+                              if (favoriteIcon) {
+                                this.toggleFavorite(favoriteIcon.dataset.slug, e);
+                              } else if (option) {
+                                this.selectOption(option.dataset.value);
+                              }
+                            });
+
+                            document.addEventListener('click', (e) => {
+                              if (!this.element.contains(e.target)) {
+                                this.closeDropdown();
+                              }
+                            });
+
+                            this.element.addEventListener('keydown', (e) => {
+                              if (e.key === 'Escape' && this.isOpen) {
+                                this.closeDropdown();
+                              }
+                            });
+                          }
+
+                          toggleDropdown() {
+                            this.isOpen ? this.closeDropdown() : this.openDropdown();
+                          }
+
+                          openDropdown() {
+                            this.isOpen = true;
+                            this.trigger.classList.add('open');
+                            this.dropdown.classList.add('open');
+                          }
+
+                          closeDropdown() {
+                            this.isOpen = false;
+                            this.trigger.classList.remove('open');
+                            this.dropdown.classList.remove('open');
+                          }
+
+                          selectOption(value) {
+                            this.selectOptionInternal(value);
+                            this.renderOptions();
+                            this.closeDropdown();
+                          }
+                        }
+
+                        function initCustomSelect() {
+                          const originalSelect = document.getElementById('course-select-{{ section.id }}-{{ forloop.index0 }}');
+                          const customSelect = document.getElementById('custom-course-select-{{ section.id }}-{{ forloop.index0 }}');
+                          
+                          if (originalSelect && customSelect) {
+                            setTimeout(() => {
+                              new CustomSelect(customSelect, originalSelect);
+                            }, 10);
+                          }
+                        }
+
+                        if (document.readyState === 'loading') {
+                          document.addEventListener('DOMContentLoaded', initCustomSelect);
+                        } else {
+                          initCustomSelect();
+                        }
+                      })();
+                    </script>
+                  {% else %}
+                    <div class="variant-picker__option-values">
+                      {%- render 'product-variant-options',
+                        product: product,
+                        option: option,
+                        block: block,
+                        picker_type: type_picker
+                      -%}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+          {% endcase %}
+          
+          {%- if is_size and show_size_chart -%}
+            {{- size_chart_button -}}
+          {%- endif -%}
+          {% if is_size %}
+            <button
+              class="open-size-chart open-foxkit-sizechart btn btn--with-icon btn--plain foxkit-hidden"
+              aria-label="{{ 'products.product.open_size_chart' | t }}"
+            >
+              <span
+                ><u>{{ 'products.product.open_size_chart' | t }}</u></span
+              >
+            </button>
+          {% endif %}
+        </div>
+      {%- endfor -%}
+      <script type="application/json" data-selected-variant>
+        {{ product.selected_or_first_available_variant | json }}
+      </script>
+    </variant-picker>
+  {%- endunless -%}
+  <noscript class="variant-picker__noscript-wrapper-{{ section.id }}">
+    <div class="form-field variant-picker__input{% if product.has_only_default_variant %} hidden{% endif %}">
+      <label
+        class="form-label"
+        for="Variants-{{ section.id }}"
+      >
+        {{- 'products.product.product_variants' | t -}}
+      </label>
+      <select
+        name="id"
+        id="Variants-{{ section.id }}"
+        class="form-control"
+        form="{{ product_form_id }}"
+      >
+        {%- for variant in product.variants -%}
+          <option
+            {% if variant == product.selected_or_first_available_variant %}
+              selected="selected"
+            {% endif %}
+            {% if variant.available == false %}
+              disabled
+            {% endif %}
+            value="{{ variant.id }}"
+          >
+            {{ variant.title }}
+            {%- if variant.available == false %} - {{ 'products.product.sold_out' | t }}{% endif %}
+            - {{ variant.price | money | strip_html }}
+          </option>
+        {%- endfor -%}
+      </select>
+    </div>
+  </noscript>
+</div>

@@ -1,0 +1,331 @@
+/* ==========================================================================
+   Clubs mega menu
+   Tunables live on .f-clubs-mega__wrap so the whole panel can be themed
+   from one place.
+   ========================================================================== */
+
+.f-clubs-mega__wrap {
+  --clubs-cols: 4;
+  --clubs-row-h: 34px;              /* one grid row = link line-height + row gap */
+  --clubs-col-gap: 12px;
+  --clubs-row-gap: 15.5px;
+  --clubs-rail-width: 200px;
+  --clubs-master-width: 240px;
+  --clubs-gap: 12px;
+  --clubs-tab-active-bg: #222F1D;
+  --clubs-tab-active-fg: #ffffff;
+  --clubs-hover-bg: #f3f4f6;
+  --clubs-divider: #f3f4f6;
+
+  display: flex;
+  align-items: flex-start;
+  gap: var(--clubs-gap);
+  padding: 4rem 1.5rem;
+  width: 100%;
+}
+
+/* The mega dropdown must grow with the expanded grid, not clip it. */
+.f-clubs-mega .f-site-nav__dropdown--mega {
+  height: auto;
+  max-height: none;
+  background:white!important;
+  padding-top:0px;
+  padding-bottom:0px;
+}
+
+/* --------------------------------------------------------------------------
+   Left rail (tabs)
+   -------------------------------------------------------------------------- */
+
+.f-clubs-mega__rail {
+  flex: 0 0 var(--clubs-rail-width);
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  max-width:120px;
+}
+
+.f-clubs-mega__tab {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 10px 16px;
+  border-radius: 12px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 10px;
+  color: var(--color-foreground, #4B5563);
+  text-decoration: none;
+  transition: background-color 0.15s, color 0.15s;
+  max-width:130px;
+  height:32px;
+  text-transform:Capitalize;
+  margin-bottom:10px;
+}
+
+
+.f-clubs-mega__grid a {
+  font-weight: 400 !important;
+}
+
+.f-clubs-mega__detail-list a {
+  font-weight: 400 !important;
+}
+
+.f-clubs-mega__tab.is-active {
+  background: var(--clubs-tab-active-bg);
+  color: var(--clubs-tab-active-fg);
+  font-weight:400;
+}
+
+.f-clubs-mega__tab--link {
+
+}
+
+/* --------------------------------------------------------------------------
+   Panels (right side)
+   -------------------------------------------------------------------------- */
+
+.f-clubs-mega__panels {
+  flex: 1 1 0;
+  padding-left:24px;
+  min-width: 0;
+}
+.f-clubs-mega__viewall-wrap {
+  display: flex;
+  justify-content: center;
+}
+.f-clubs-mega__panel {
+  display: none;
+}
+
+.f-clubs-mega__panel.is-active {
+  display: block;
+}
+
+.f-clubs-mega__panel--master.is-active {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--clubs-gap);
+}
+
+/* --------------------------------------------------------------------------
+   Flat grid panel — grid on the left, matched cards on the right.
+   Self-contained row so it does not depend on the panel's display mode.
+   -------------------------------------------------------------------------- */
+
+.f-clubs-mega__panel--grid.is-active {
+  display: block;
+}
+
+.f-clubs-mega__wrap .f-clubs-mega__grid-row {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--clubs-gap);
+  width: 100%;
+}
+
+.f-clubs-mega__wrap .f-clubs-mega__grid-main {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.f-clubs-mega__wrap .f-clubs-mega__grid-cards {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+}
+
+.f-clubs-mega__wrap .f-clubs-mega__grid-cards .f-clubs-mega__cards {
+  margin-top: 0;
+}
+
+.f-clubs-mega__wrap .f-clubs-mega__grid-cards .f-mega-card {
+  width: 220px;
+}
+
+/* --------------------------------------------------------------------------
+   All Clubs / flat grid — single grid, fixed columns, curtain reveal
+   Columns are locked by --clubs-rows so revealing more rows never re-flows.
+   -------------------------------------------------------------------------- */
+
+.f-clubs-mega__grid {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-columns: repeat(var(--clubs-cols, 4), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--clubs-rows, 1), auto);
+  column-gap: var(--clubs-col-gap);
+  row-gap: var(--clubs-row-gap);
+  margin: 0;
+  padding: 0;
+}
+
+.f-clubs-mega__grid li {
+  min-width: 0;
+}
+
+.f-clubs-mega__bands {
+  overflow: hidden;
+  transition: max-height 0.35s ease;
+}
+
+.f-clubs-mega__bands.is-collapsed {
+  max-height: calc(var(--clubs-collapsed-rows, 4) * var(--clubs-row-h));
+}
+
+.f-clubs-mega__bands:not(.is-collapsed) {
+  max-height: 200rem;
+}
+
+.f-clubs-mega__viewall-wrap {
+  margin-top: 24px;
+}
+.f-clubs-mega__rail{
+  width:120px;
+}
+.f-clubs-mega__viewall {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 400;
+  font-size: 13px;
+  line-height: 16px;
+  text-transform: Capitalize;
+  color: #364153;
+  transition: background-color 0.15s, border-color 0.15s;
+}
+
+.f-clubs-mega__viewall:hover {
+  background: var(--clubs-hover-bg);
+  border-color: #d1d5db;
+}
+
+/* --------------------------------------------------------------------------
+   Master / detail (Countries, Categories with nested children)
+   -------------------------------------------------------------------------- */
+
+.f-clubs-mega__master {
+  flex: 0 0 var(--clubs-master-width);
+}
+
+.f-clubs-mega__master-list {
+  margin: 0;
+  padding: 0;
+}
+
+.f-clubs-mega__master-item {
+  display: flex;
+  align-items: center;
+  justify-content:flex-start;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+  padding: 10px 12px;
+  border-radius: 8px;
+  font-family: 'Rubik', sans-serif;
+  font-weight: 500;
+  font-size: 16px;
+  line-height: 24px;
+  color: #4b5563;
+  text-transform:capitalize;
+  text-decoration: none;
+  transition: background-color 0.15s, color 0.15s;
+}
+
+.f-clubs-mega__master-item:hover {
+  color: var(--color-foreground,#4B5563);
+}
+
+.f-clubs-mega__master-item.is-active {
+  color: #4B5563;
+  font-weight:bold;
+}
+.f-clubs-mega__master-item.is-active span{
+  text-decoration:underline;
+}
+.f-clubs-mega__master-item.is-active .f-clubs-mega__chev{
+  text-decoration:none!important;
+}
+.f-clubs-mega__master-item.is-active span.country-title{
+  text-decoration:underline;
+}
+.f-clubs-mega__chev {
+  flex: 0 0 auto;
+  margin-left: 12px;
+  font-size: 18px;
+  line-height: 1;
+  color: currentColor;
+}
+
+.f-clubs-mega__detail-wrap {
+  flex: 1 1 0;
+  min-width: 0;
+  position: relative;
+}
+
+.f-clubs-mega__detail {
+  display: none;
+}
+
+.f-clubs-mega__detail.is-active {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--clubs-gap);
+}
+
+.f-clubs-mega__detail-main {
+  flex: 1 1 0;
+  min-width: 0;
+}
+
+.f-clubs-mega__detail-list {
+  display: grid;
+  grid-auto-flow: column;
+  grid-template-rows: repeat(var(--clubs-rows, 1), auto);
+  column-gap: var(--clubs-col-gap);
+  row-gap: var(--clubs-row-gap);
+  margin: 0;
+  padding: 0;
+}
+
+.f-clubs-mega__detail-list li {
+  min-width: 0;
+}
+
+/* --------------------------------------------------------------------------
+   Cards (image blocks matched into a country / category / group)
+   Card visuals (.f-mega-card*) are defined with the header; this only lays
+   them out inside the panel.
+   -------------------------------------------------------------------------- */
+
+.f-clubs-mega__cards {
+  flex: 0 0 auto;
+  display: flex;
+  gap: 16px;
+  margin-top: 16px;
+}
+
+.f-clubs-mega__detail .f-clubs-mega__cards {
+  margin-top: 0;
+}
+
+.f-clubs-mega__cards .f-mega-card {
+  width: 220px;
+}
+.f-clubs-mega__panel.is-active:has(.f-clubs-mega__master-list) {
+  flex-direction: row !important;
+  display: flex;
+}

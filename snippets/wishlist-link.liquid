@@ -1,0 +1,22 @@
+{% assign type = block.settings.type | default: 'icon' %}
+<drawer-opener
+  class="inline-flex"
+>
+  <a
+    href="{{ pages.wishlist.url }}"
+    class="{{ link_class }} btn--icon focus-inset"
+    data-tippy-theme="color-{{ color_schema }}"
+    aria-label="{{ 'layout.wishlist.title' | t }}"
+    data-tippy-content="{{ 'layout.wishlist.title' | t }}"
+    data-tippy-placement="bottom"
+    aria-haspopup="dialog"
+    role="button"
+  >
+    {% if type != 'text' %}
+      {% render 'icon-wishlist', name: settings.wishlist_icon %}
+    {% endif %}
+    <span class="cart-link__count flex items-center justify-center">
+      <span class="wishlist-counter cart-link--text"></span>
+    </span>
+  </a>
+</drawer-opener>

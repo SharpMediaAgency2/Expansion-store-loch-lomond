@@ -1,0 +1,26 @@
+{%- liquid
+  assign highlight_text = hl_text
+  assign highlight_style = hl_style
+  assign enable_highlight_text_color = enable_hl_text_color
+
+  assign highlight_text_class = 'highlight-text'
+
+  case highlight_style
+    when 'drawer_line'
+      assign highlight_text_class = highlight_text_class | append: ' highlight-text--drawer-line'
+      assign svg = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 124 8" fill="none"><path pathLength="1" d="M1 7C25.1195 3.3694 83.2869 -2.39418 123 3.59631" stroke="currentColor" stroke-width="2"/></svg>'
+    when 'underline'
+      assign highlight_text_class = highlight_text_class | append: ' highlight-text--underline'
+  endcase
+
+  if enable_highlight_text_color
+    assign highlight_text_class = highlight_text_class | append: ' highlight-text--color'
+  endif
+
+  assign em_open_tag = '<em is="highlight-text" class="' | append: highlight_text_class | append: '">'
+  assign em_close_tag = svg | append: '</em>'
+
+  assign updated_highlight_text = highlight_text | replace: '<em>', em_open_tag
+  assign updated_highlight_text = updated_highlight_text | replace: '</em>', em_close_tag
+-%}
+{{- updated_highlight_text -}}

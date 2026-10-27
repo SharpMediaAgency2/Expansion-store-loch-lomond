@@ -1,0 +1,48 @@
+.collapsible-tabs.collapsible-tabs__has-image > .container-full .collapsible-tabs__conntent-wrap {
+  padding: 6rem 1.6rem;
+}
+.collapsible-tabs__wrapper {
+  border-radius: 12px;
+  overflow: hidden;
+}
+@media (min-width: 768px) {
+  .collapsible-tabs.collapsible-tabs__has-image > .container-full .collapsible-tabs__content-narrow .collapsible-tabs__conntent-wrap {
+    max-width: 55rem;
+  }
+}
+.collapsible-tabs__image-position-right .collapsible-tabs__image-col {
+  order: 9;
+}
+.collapsible-tabs__header {
+  padding-bottom: 4rem;
+}
+@media (max-width: 767.98px) {
+  .collapsible-tabs__header {
+    padding-bottom: 1.7rem;
+  }
+}
+.collapsible-tabs__image-col {
+  width: var(--image-col-width);
+  padding: 0 !important;
+}
+@media (max-width: 767.98px) {
+  .collapsible-tabs__image-col {
+    width: 100%;
+  }
+}
+.collapsible-tabs__content-col {
+  width: calc(100% - var(--image-col-width, 0));
+  padding-left: 4rem !important;
+  padding-right: 4rem !important;
+}
+.collapsible-tabs__content-col .collapsible__button span {
+  text-transform: none !important;
+}
+@media (max-width: 767.98px) {
+  .collapsible-tabs__content-col {
+    width: 100%;
+  }
+}
+.collapsible-tabs .collapsible__item-wrap + .collapsible__item-wrap .collapsible__button {
+  margin-top: 0.714em;
+}

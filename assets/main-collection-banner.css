@@ -1,0 +1,67 @@
+.collection-banner .container-full {
+  width: 100%;
+}
+.collection-banner__inner {
+  padding: 2rem 0 2.5rem;
+}
+@media (min-width: 768px) {
+  .collection-banner--use_image_as_background .container-full {
+    padding: 0;
+  }
+}
+.collection-banner--use_image_as_background.collection-banner--adapt .collection-banner__bg-image {
+  height: auto;
+}
+.collection-banner--use_image_as_background .collection-banner__inner {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.collection-banner--no-bg .collection-banner__inner {
+  position: relative;
+  padding: 0 5rem 0;
+}
+.collection-banner .collection-banner__image {
+  position: relative;
+  width: 100%;
+}
+.collection-banner .collection-banner__image img {
+  position: absolute;
+  inset: 0;
+}
+.collection-banner .f-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+.collection-banner__description {
+  margin-top: 1.5rem;
+}
+@media (min-width: 768px) {
+  .collection-banner__image-left, .collection-banner__image-right {
+    flex-direction: row;
+  }
+  .collection-banner__image-left .collection-banner__inner, .collection-banner__image-right .collection-banner__inner {
+    flex: 1;
+  }
+  .collection-banner__image-left .collection-banner__image, .collection-banner__image-right .collection-banner__image {
+    flex: 0 0 50%;
+  }
+}
+@media (min-width: 768px) {
+  .collection-banner__image-left {
+    flex-direction: row-reverse;
+  }
+}
+.collection-banner__image-top {
+  flex-direction: column-reverse;
+}
+.collection-banner__image-top .collection-banner__inner {
+  padding: 6rem 0 0;
+}
+@media (max-width: 767.98px) {
+  .collection-banner__image-top .collection-banner__inner {
+    padding: 4.8rem 0 0.8rem;
+  }
+}

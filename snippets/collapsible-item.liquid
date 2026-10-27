@@ -1,0 +1,90 @@
+{%- unless title == blank -%}
+  {%- liquid
+    assign animation_effect = animation_effect | default: 'none'
+    assign motion_delay = motion_delay | default: 0
+  -%}
+  <motion-element
+    data-motion="{{ animation_effect }}"
+    data-motion-delay="{{ motion_delay }}"
+    class="collapsible__item-wrap block"
+  >
+    <collapsible-tab
+      class="collapsible__item no-js-hidden"
+      {% if id != blank %}
+        data-block-id="collapsible-tab-{{ id }}"
+      {% endif %}
+      open="{{ open | default: 'false' }}"
+      {{ attrs }}
+    >
+      <button
+        class="collapsible__button text-left {{ trigger_button_text_class | default: '' }}"
+        data-trigger
+      >
+        {%- if icon != blank and icon != 'none' -%}
+          {% render 'icon', name: icon %}
+        {%- endif -%}
+        <span class="collapsible__button-text">{{ title }}</span>
+        <span data-collapsible-icon>
+          <svg
+            width="2"
+            height="12"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <svg
+            width="2"
+            height="12"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+      </button>
+      <div class="collapsible__content" data-content hidden>
+        <div class="collapsible__content-inner rte">
+          {{ content }}
+        </div>
+      </div>
+    </collapsible-tab>
+    <noscript>
+      <details
+        class="collapsible__item"
+        {% if open %}
+          open
+        {% endif %}
+      >
+        <summary class="collapsible__button text-left">
+          <span class="collapsible__button-text {{ trigger_button_text_class | default: '' }}">
+            {{- title -}}
+          </span>
+          <span class="" data-collapsible-icon>
+            <svg
+              width="2"
+              height="12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <svg
+              width="2"
+              height="12"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </span>
+        </summary>
+        <div class="collapsible__content" role="list">
+          <div class="collapsible__content-inner rte">
+            {{ content }}
+          </div>
+        </div>
+      </details>
+    </noscript>
+  </motion-element>
+{%- endunless -%}

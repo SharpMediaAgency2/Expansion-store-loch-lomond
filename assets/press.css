@@ -1,0 +1,110 @@
+.f-press {
+  --narrow-container-width: 112rem;
+  --header-padding-bottom: 3.2rem;
+  --header-padding-bottom-mobile: 2.4rem;
+}
+.f-press__slider:not(.flickity-enabled) {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.f-press__slider .flickity-slider {
+  display: flex;
+  align-items: center;
+}
+.f-press__content:not(.flickity-enabled) .f-press__text:not(:first-child) {
+  display: none;
+}
+.f-press__text {
+  padding: 0 1rem;
+  font-size: var(--font-h5-size);
+  line-height: 1.5;
+}
+@media (min-width: 1024px) {
+  .f-press__text {
+    font-size: var(--font-h4-size);
+    padding: 0 4rem;
+  }
+}
+.f-press__list {
+  margin-top: 4rem;
+}
+.f-press__logo {
+  width: 33.33%;
+  display: inline-flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  padding: 0 1.5rem;
+}
+.f-press__logo.is-nav-selected .f-image, .f-press__logo:hover .f-image {
+  opacity: 1;
+}
+.f-press__logo .f-image {
+  transition: 0.3s all;
+  opacity: 0.3;
+}
+.f-press__logo:hover .f-image {
+  transform: translate3d(0, -5px, 0);
+}
+.f-press__wrapper flickity-component {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.f-press__wrapper flickity-component.flickity-enabled {
+  opacity: 1;
+}
+@media (max-width: 767.98px) {
+  .f-press__wrapper {
+    position: relative;
+  }
+  .f-press__wrapper.show-nav {
+    padding-bottom: 6rem;
+  }
+  .f-press__wrapper .flickity-wrapper {
+    position: static;
+  }
+  .f-press__wrapper .flickity-wrapper .flickity-button {
+    top: calc(100% - 2rem);
+  }
+  .f-press__wrapper .flickity-wrapper .flickity-button.next {
+    right: calc(50% - 4.75rem);
+    opacity: 1;
+  }
+  .f-press__wrapper .flickity-wrapper .flickity-button.previous {
+    left: calc(50% - 4.75rem);
+    opacity: 1;
+  }
+  .f-press__wrapper .flickity-wrapper:hover .flickity-button.next {
+    right: calc(50% - 4.75rem);
+  }
+  .f-press__wrapper .flickity-wrapper:hover .flickity-button.previous {
+    left: calc(50% - 4.75rem);
+  }
+}
+
+@media (min-width: 1024px) {
+  .f-press__content-wrapper {
+    padding: 0 20%;
+  }
+  .f-press .container-narrow .f-press__content-wrapper {
+    padding: 0 13.6%;
+  }
+  .f-press__logo {
+    width: 20%;
+  }
+}
+@media (min-width: 768px) {
+  .f-press__content-wrapper {
+    padding: 0 3rem;
+  }
+}
+@media (max-width: 767.98px) {
+  .f-press__list {
+    margin-top: 3.2rem;
+  }
+  .f-press__logo {
+    padding: 0 1rem;
+  }
+}

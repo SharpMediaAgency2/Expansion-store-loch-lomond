@@ -1,0 +1,167 @@
+{%- liquid
+  assign product_form_id = 'product-form-' | append: section.id
+-%}
+{%- for value in option.values -%}
+  {%- liquid
+    assign swatch_focal_point = null
+    if value.swatch.image and picker_type == 'swatch'
+      assign image_url = value.swatch.image | image_url: width: 50
+      assign swatch_value = 'url(' | append: image_url | append: ')'
+      assign swatch_focal_point = value.swatch.image.presentation.focal_point
+    elsif value.swatch.color and picker_type == 'swatch'
+      assign swatch_value = 'rgb(' | append: value.swatch.color.rgb | append: ')'
+    else
+      assign swatch_value = null
+    endif
+
+    assign option_disabled = true
+    if value.available
+      assign option_disabled = false
+    endif
+  -%}
+
+  {%- capture input_id -%}
+    {{ section.id }}-{{ option.position }}-{{ forloop.index0 -}}
+  {%- endcapture -%}
+
+  {%- capture input_name -%}
+    {{ option.name }}-{{ option.position }}
+  {%- endcapture -%}
+
+  {%- capture input_dataset -%}
+    data-product-url="{{ value.product_url }}"
+    data-option-value-id="{{ value.id }}"
+  {%- endcapture -%}
+
+  {%- if picker_type == 'swatch' -%}
+    {%- render 'swatch-input',
+      id: input_id,
+      name: input_name,
+      block: block,
+      value: value,
+      swatch: value.swatch,
+      product_form_id: product_form_id,
+      checked: value.selected,
+      visually_disabled: option_disabled,
+      help_text: help_text,
+      additional_props: input_dataset,
+      swatch_focal_point: swatch_focal_point,
+      picker_type: picker_type,
+      color_schema: color_schema
+    -%}
+  {%- elsif picker_type == 'color' -%}
+    {%- liquid
+      if settings.vp_swatch_type == 'variant_image' and value.variant.image != blank
+        assign image_url = value.variant.image | image_url: width: image_size
+        assign swatch_value = 'url(' | append: image_url | append: ')'
+      elsif swatch_value == blank
+        assign file_extension = file_extension | default: 'png'
+        assign file_name = value | handle | append: '.' | append: file_extension
+        assign swatch_fallback = value | split: ' ' | last | handle
+        assign swatch_fallback_override = false
+
+        assign value_downcase = value | downcase
+        assign swatch_config = settings.custom_colors | replace: ',', '' | newline_to_br | split: '<br />'
+
+        for swatch in swatch_config
+          assign swatch_parts = swatch | strip | split: ':'
+          assign swatch_name = swatch_parts.first | downcase | strip
+
+          if swatch_name == value_downcase
+            assign swatch_val = swatch_parts.last | strip
+            if swatch_val contains '#'
+              assign swatch_fallback = swatch_val
+              assign swatch_fallback_override = true
+            else
+              assign file_name = swatch_val
+            endif
+            break
+          endif
+        endfor
+
+        assign swatch_image = blank
+        if images[file_name] != blank
+          assign swatch_image = images[file_name] | image_url: width: image_size
+        elsif file_name contains '//cdn.shopify.com/'
+          assign swatch_image = file_name
+        endif
+
+        assign swatch_value = swatch_fallback | append: ';'
+        if swatch_fallback_override == false and swatch_image != blank
+          assign swatch_value = swatch_value | append: 'background-image: url(' | append: swatch_image | append: ');'
+        endif
+      endif
+    -%}
+    <div
+      class="variant-picker__option{% if option_disabled %} variant-picker__option--soldout{% endif %}"
+      data-tippy-theme="color-{{ color_schema }}"
+      data-tippy-content="{{ value }}"
+      data-tippy-placement="top"
+    >
+      <input
+        type="{{ type | default: 'radio' }}"
+        id="{{ input_id }}"
+        name="{{ input_name }}"
+        value="{{ value | escape }}"
+        form="{{ product_form_id }}"
+        {% if option_disabled %}
+          class="disabled"
+        {% endif %}
+        {% if value.selected %}
+          checked
+        {% endif %}
+        {{ input_dataset }}
+      >
+      <label
+        class="variant-picker__option-button variant-picker__option-button--{{ picker_type }}"
+        for="{{ input_id }}"
+        style="--swatch-background: {{ swatch_value }};{% if swatch_focal_point %} --swatch-focal-point: {{ swatch_focal_point }};{% endif %}"
+      >
+        {{- value -}}
+      </label>
+    </div>
+  {%- elsif picker_type == 'button' -%}
+    <div class="variant-picker__option{% if option_disabled %} variant-picker__option--soldout{% endif %}">
+      <input
+        type="radio"
+        id="{{ input_id }}"
+        name="{{ input_name | escape }}"
+        value="{{ value | escape }}"
+        form="{{ product_form_id }}"
+        {% if value.selected %}
+          checked
+        {% endif %}
+        {% if option_disabled %}
+          class="disabled"
+        {% endif %}
+        {{ input_dataset }}
+      >
+      <label
+        class="variant-picker__option-button variant-picker__option-button--{{ picker_type | default: 'button' }}"
+        for="{{ input_id }}"
+      >
+        {{ value }}
+      </label>
+    </div>
+  {%- elsif picker_type == 'dropdown' or picker_type == 'swatch_dropdown' -%}
+    <option
+      id="{{ input_id }}"
+      value="{{ value | escape }}"
+      class="variant-picker__option"
+      data-value="{{- value | escape -}}"
+      data-option-position="{{ option.position }}"
+      {% if value.selected %}
+        selected="selected"
+      {% endif %}
+      {% if swatch_value and picker_type == 'swatch_dropdown' %}
+        data-option-swatch-value="{{ swatch_value }}"
+        {% if swatch_focal_point %}
+          data-option-swatch-focal-point="{{ swatch_focal_point }}"
+        {% endif %}
+      {% endif %}
+      {{ input_dataset }}
+    >
+      {{- value -}}
+    </option>
+  {%- endif -%}
+{%- endfor -%}

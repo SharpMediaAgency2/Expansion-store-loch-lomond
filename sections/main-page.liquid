@@ -1,0 +1,16 @@
+<div class="f-section {{ section.settings.container }}">
+  <h1 class="f__page-title text-center h2">
+    {{ page.title | escape }}
+  </h1>
+  <div class="container">
+    <div class="rte">
+      {{ page.content }}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "t:sections.main-page.name"
+}
+{% endschema %}

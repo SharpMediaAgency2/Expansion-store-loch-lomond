@@ -1,0 +1,771 @@
+{{ 'testimonial.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign container = section.settings.container
+  assign design = section.settings.design
+  assign enable_slider = false
+  assign cell_align = 'left'
+  assign group_cells = 1
+  assign columns = 3
+  assign show_quotes_icon = section.settings.show_quotes_icon
+  assign stars_color = section.settings.stars_color
+
+  assign autoplay = false
+  if section.settings.autoplay
+    assign autoplay_timeout = section.settings.autoplay_timeout | default: 5
+    assign autoplay = autoplay_timeout | times: 1000
+  endif
+  
+  if section.blocks.size > columns
+    assign enable_slider = section.settings.enable_slider
+    assign show_nav = section.settings.show_nav
+    assign show_dots = section.settings.show_dots
+  endif
+
+  if design == 'standard'
+    assign columns = section.settings.columns
+    assign group_cells = columns
+  endif
+  if design == 'fancy'
+    assign cell_align = 'center'
+  endif
+  if design == 'focused'
+    assign columns = 4
+  endif
+
+  # Card.
+  if design == 'unbalanced'
+    assign show_dots = false
+    assign show_page = section.settings.show_dots
+    assign flickity_classes = 'flickity-controls-group flickity-controls-group__top flickity-static flickity-pagination-bg--none' | prepend: ' '
+    unless show_nav
+      assign flickity_classes = flickity_classes | append: ' flickity-no-nav'
+    endunless
+    unless show_page
+      assign flickity_classes = flickity_classes | append: ' flickity-no-page'
+    endunless
+    if settings.section_header_alignment == 'left' or settings.section_header_alignment == 'center'
+      assign flickity_classes = flickity_classes | append: ' flickity-controls-group__top--right'
+    else
+      assign flickity_classes = flickity_classes | append: ' flickity-controls-group__top--left'
+    endif
+  endif
+
+  if design == 'zigzag'
+    assign columns = 4
+    assign group_cells = 1
+    assign cell_align = 'center'
+  endif
+
+  capture styles
+    if section.blocks.size > 9
+      echo '--pagination-width: 4rem;'
+    else
+      echo '--pagination-width: 2.5rem;'
+    endif
+  endcapture
+
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+
+  assign header_alignment = blank
+  assign header_alignment_mobile = blank
+  if enable_slider
+    if show_page or show_nav
+      assign header_alignment = 'left'
+
+      if settings.section_header_alignment_mobile == 'inherit'
+        # Revert mobile alignment.
+        assign header_alignment_mobile = settings.section_header_alignment
+      endif
+    endif
+  endif
+-%}
+{% render 'divider',
+  show_divider: section.settings.show_section_divider,
+  divider_width: section.settings.divider_width
+%}
+<div
+  id="{{ section_id }}"
+  class="f-testimonials f-testimonials--{{ design }}{{ custom_class }} f-section__{{ container }} f-section-padding color-{{ section.settings.color_schema }} overflow-hidden"
+  data-section-type="testimonials"
+  data-section-id="{{ section.id }}"
+  data-enable-slider="{{ enable_slider }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px; "
+>
+  <div class="{{ container }}">
+    {% if design == 'unbalanced' %}<div class="relative">{% endif %}
+    {% render 'index-section-header',
+      animation_effect: animation_effect,
+      section_settings: section.settings,
+      header_alignment: header_alignment,
+      header_alignment_mobile: header_alignment_mobile
+    %}
+    <grid-list
+      data-motion="{{ animation_effect }}"
+      class="block f-testimonials__wrapper"
+    >
+      <flickity-component
+        class="f-grid sm:f-grid-2-cols md:f-grid-3-cols lg:f-grid-{{ columns }}-cols f-grid--gap-{{ section.settings.column_gap }} flickity-disable {% if enable_slider %}md:flickity-enable {% endif %}flickity-button-initialized f-swiper f-swiper--no-scrollbar{{ flickity_classes }}"
+        data-slider-options='{"autoPlay": {{ autoplay }}, "pageDots": {{ show_dots }}, "prevNextButtons": {{ show_nav }}, "groupCells": {{ group_cells }}, "cellAlign": "{{ cell_align }}", "cellSelector": ".f-column", "wrapAround": true, "percentPosition": true, "contain": true}'
+        data-slider-columns="{{ columns }}"
+        data-enable-slider="{{ enable_slider }}"
+        {% if show_page and section.blocks.size > 1 %}
+          style="{{ styles }}"
+        {% endif %}
+      >
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign text = block.settings.text
+            assign author = block.settings.author
+            assign bio = block.settings.bio
+            assign image = block.settings.image
+          -%}
+          <div
+            class="f-column"
+            {{ block.shopify_attributes }}
+            {% if block.settings.icon != 'none' %}
+              style="--color-star: {{ stars_color }}"
+            {% endif %}
+          >
+            <div class="grid-list__column f-testimonial f-testimonial--{{ design }}{% if design == 'unbalanced' %} color-{{ section.settings.card_color_schema }}{% endif %}">
+              {% case design %}
+                {% when 'unbalanced' %}
+                  <div class="f-testimonial__inner flex flex-col">
+                    <div class="f-testimonial__content flex flex-1">
+                      <div class="flex-1">
+                        {%- if block.settings.icon != 'none'
+                          and block.settings.icon == 'quote'
+                        -%}
+                          <div class="f-testimonial__icon f-testimonial__icon--{{ block.settings.icon }}">
+                            {% render 'icon-testimonials',
+                              icon_name: block.settings.icon
+                            %}
+                          </div>
+                        {%- endif -%}
+                        {%- if author != blank -%}
+                          <p class="f-testimonial__author">{{ author }}</p>
+                        {%- endif -%}
+                        {%- if block.settings.icon != 'none'
+                          and block.settings.icon != 'quote'
+                        -%}
+                          <div class="f-testimonial__icon f-testimonial__icon--{{ block.settings.icon }}">
+                            {% render 'icon-testimonials',
+                              icon_name: block.settings.icon
+                            %}
+                          </div>
+                        {%- endif -%}
+                        {%- if bio != blank -%}
+                          <p class="f-testimonial__bio font-medium">
+                            {{ bio }}
+                          </p>
+                        {%- endif -%}
+                        {%- if text != blank -%}
+                          <div class="f-testimonial__text">{{ text }}</div>
+                        {%- endif -%}
+                      </div>
+                      {%- if image != blank -%}
+                        <div class="f-testimonial__image">
+                          {% render 'responsive-image', image: image %}
+                        </div>
+                      {%- endif -%}
+                    </div>
+                    {%- if block.settings.product != blank -%}
+                      <div class="f-testimonial__footer">
+                        {%- assign product = all_products[block.settings.product] -%}
+                        <a
+                          class="f-testimonial__product flex items-center"
+                          href="{{ product.url }}"
+                          target="_blank"
+                          style="--image-width: 40px;"
+                        >
+                          {% render 'responsive-image',
+                            image: product.featured_image
+                          %}
+                          <p class="f-testimonial__product-title m-0 h6">
+                            {{ product.title }}
+                          </p>
+                        </a>
+                      </div>
+                    {%- endif -%}
+                  </div>
+                {%- when 'zigzag' -%}
+                  <div class="f-testimonial__inner">
+                    {%- if image != blank -%}
+                      <div class="f-testimonial__image">
+                        {% render 'responsive-image',
+                          image: image,
+                          wrapper_class: 'w-full'
+                        %}
+                      </div>
+                    {%- endif -%}
+                    {%- if block.settings.icon != 'none' -%}
+                      <div class="f-testimonial__icon f-testimonial__icon--{{ block.settings.icon }}">
+                        {% render 'icon-testimonials',
+                          icon_name: block.settings.icon
+                        %}
+                      </div>
+                    {%- endif -%}
+                    {%- if text != blank -%}
+                      <div class="f-testimonial__text">{{ text }}</div>
+                    {%- endif -%}
+                    <div class="f-testimonial__inner-bottom">
+                      {%- if author != blank -%}
+                        <p class="f-testimonial__author">{{ author }}</p>
+                      {%- endif -%}
+                      {%- if bio != blank -%}
+                        <p class="f-testimonial__bio">{{ bio }}</p>
+                      {%- endif -%}
+                    </div>
+                  </div>
+                {%- else -%}
+                  <div class="f-testimonial__inner flex flex-col{% if show_quotes_icon %} show-quotes-icon{% endif %}">
+                    {%- if block.settings.icon != 'none' -%}
+                      <div class="f-testimonial__icon f-testimonial__icon--{{ block.settings.icon }}">
+                        {% render 'icon-testimonials',
+                          icon_name: block.settings.icon
+                        %}
+                      </div>
+                    {%- endif -%}
+                    {%- if text != blank -%}
+                      <div class="f-testimonial__text">{{ text }}</div>
+                    {%- endif -%}
+                    <div class="f-testimonial__inner-bottom{% if image != blank %} f-testimonial__inner-bottom-has-image{% endif %}">
+                      {%- if image != blank -%}
+                        <div class="f-testimonial__inner-bottom-left">
+                          {% render 'responsive-image', image: image %}
+                        </div>
+                      {%- endif -%}
+                      <div class="f-testimonial__inner-bottom-right">
+                        {%- if author != blank -%}
+                          <p class="f-testimonial__author">{{ author }}</p>
+                        {%- endif -%}
+                        {%- if bio != blank -%}
+                          <p class="f-testimonial__bio font-medium">
+                            {{ bio }}
+                          </p>
+                        {%- endif -%}
+                      </div>
+                    </div>
+                  </div>
+              {%- endcase -%}
+            </div>
+          </div>
+        {%- endfor -%}
+        {%- if enable_slider and show_page -%}
+          <div class="flickity-page-counter no-js-hidden hidden md:hidden">
+            <span class="flickity-counter--current">1</span>
+            <span aria-hidden="true"> / </span>
+            <span class="visually-hidden">
+              {{- 'sections.slideshow.of' | t -}}
+            </span>
+            <span class="flickity-counter--total">
+              {{- section.blocks.size -}}
+            </span>
+          </div>
+        {%- endif -%}
+      </flickity-component>
+    </grid-list>
+    {%- if design == 'unbalanced' -%}</div>{%- endif -%}
+  </div>
+</div>
+{% schema %}
+{
+  "name": "t:sections.testimonial.name",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/01KziZk)"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.container.label"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.header.name"
+    },
+    {
+      "type": "select",
+      "id": "section_header_padding_bottom",
+      "label": "t:sections.common.spacing.section_header_padding_bottom.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__1.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__2.label"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__3.label"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "section_header_content_spacing",
+      "label": "t:sections.common.content_spacing.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.common.content_spacing.options__sm.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.common.content_spacing.options__md.label"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "info": "t:sections.common.highlight_text.paragraph.content",
+      "label": "t:sections.common.header.heading",
+      "default": "Testimonials"
+    },
+    {
+      "type": "select",
+      "id": "highlight_style",
+      "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+        },
+        {
+          "value": "drawer_line",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+        },
+        {
+          "value": "underline",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight_text_color",
+      "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "default": "h2",
+      "label": "t:sections.common.text_size.heading.label",
+      "options": [
+        {
+          "value": "h3",
+          "label": "t:sections.common.text_size.options__h3.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.text_size.options__h2.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.common.text_size.options__h1.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.common.text_size.options__h0.label"
+        },
+        {
+          "value": "h-xl",
+          "label": "t:sections.common.text_size.options__hd1.label"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "t:sections.common.heading_color.label",
+      "info": "t:sections.common.heading_color.info"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.common.header.description"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.testimonial.settings.header.content"
+    },
+    {
+      "type": "select",
+      "id": "design",
+      "label": "t:sections.testimonial.settings.design.label",
+      "default": "fancy",
+      "options": [
+        {
+          "value": "standard",
+          "label": "t:sections.testimonial.settings.design.option__1"
+        },
+        {
+          "value": "fancy",
+          "label": "t:sections.testimonial.settings.design.option__2"
+        },
+        {
+          "value": "focused",
+          "label": "t:sections.testimonial.settings.design.option__3"
+        },
+        {
+          "value": "unbalanced",
+          "label": "t:sections.testimonial.settings.design.option__4"
+        },
+        {
+          "value": "zigzag",
+          "label": "t:sections.testimonial.settings.design.option__5"
+        }
+      ]
+    },
+    {
+      "type": "color_scheme",
+      "id": "card_color_schema",
+      "label": "t:sections.testimonial.settings.card_color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "paragraph",
+      "content": "t:sections.testimonial.settings.card_color_schema.info"
+    },
+    {
+      "type": "color",
+      "id": "stars_color",
+      "label": "t:sections.main-product.blocks.rating.settings.star_color",
+      "default": "#444444"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.grid.name",
+      "info": "t:sections.testimonial.settings.grid_info"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "t:sections.common.grid.columns",
+      "min": 2,
+      "max": 8,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "select",
+      "id": "column_gap",
+      "label": "t:sections.common.grid.gap",
+      "options": [
+        {
+          "label": "t:sections.common.grid.gap_options.option_04",
+          "value": "none"
+        },
+        {
+          "label": "t:sections.common.grid.gap_options.option_07",
+          "value": "double-extra-small"
+        },
+        {
+          "label": "t:sections.common.grid.gap_options.option_05",
+          "value": "extra-small"
+        },
+        {
+          "label": "t:sections.common.grid.gap_options.option_03",
+          "value": "small"
+        },
+        {
+          "label": "t:sections.common.grid.gap_options.option_02",
+          "value": "medium"
+        },
+        {
+          "label": "t:sections.common.grid.gap_options.option_01",
+          "value": "large"
+        },
+        {
+          "label": "t:sections.common.grid.gap_options.option_06",
+          "value": "extra-large"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.slider.header"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_slider",
+      "label": "t:sections.common.slider.enable_slider",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "show_dots",
+      "label": "t:sections.common.slider.show_dots",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "show_nav",
+      "label": "t:sections.common.slider.show_nav",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "label": "t:sections.common.slider.autoplay",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "autoplay_timeout",
+      "label": "t:sections.common.slider.autoplay_timeout",
+      "max": 10,
+      "min": 2,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.divider.section_heading.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_divider",
+      "default": false,
+      "label": "t:sections.common.divider.show_divider.label"
+    },
+    {
+      "type": "select",
+      "id": "divider_width",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.divider.width.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "testimonial",
+      "name": "t:sections.testimonial.block.name",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "default": "<p>Add customer reviews and testimonials to showcase your store’s happy customers.</p>",
+          "label": "t:sections.testimonial.block.settings.text"
+        },
+        {
+          "type": "text",
+          "id": "author",
+          "default": "Author's name",
+          "label": "t:sections.testimonial.block.settings.author"
+        },
+        {
+          "type": "text",
+          "id": "bio",
+          "label": "t:sections.testimonial.block.settings.bio"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.testimonial.block.settings.image"
+        },
+        {
+          "type": "product",
+          "id": "product",
+          "label": "t:sections.testimonial.block.settings.product.label",
+          "info": "t:sections.testimonial.block.settings.product.info"
+        },
+        {
+          "type": "select",
+          "id": "icon",
+          "label": "t:sections.common.icon.label",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.common.icon.options__1.label"
+            },
+            {
+              "value": "quote",
+              "label": "t:sections.common.icon.options__45.label"
+            },
+            {
+              "value": "1-star",
+              "label": "t:sections.common.icon.options__46.label"
+            },
+            {
+              "value": "2-stars",
+              "label": "t:sections.common.icon.options__47.label"
+            },
+            {
+              "value": "3-stars",
+              "label": "t:sections.common.icon.options__48.label"
+            },
+            {
+              "value": "4-stars",
+              "label": "t:sections.common.icon.options__49.label"
+            },
+            {
+              "value": "5-stars",
+              "label": "t:sections.common.icon.options__50.label"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.testimonial.name",
+      "blocks": [
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        },
+        {
+          "type": "testimonial"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

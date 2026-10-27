@@ -1,0 +1,520 @@
+{%- capture size_chart_button -%}
+    <modal-opener class="open-size-chart no-js-hidden" data-modal="#PopupModal-SizeChart-{{ section.id }}">
+        <button class="btn--link text-sm" aria-label="{{ 'products.product.open_size_chart' | t }}">
+            <span>{{ 'products.product.open_size_chart' | t }}</span>
+        </button>
+    </modal-opener>
+{%- endcapture -%}
+<div
+  class="variant-picker"
+  data-variant-picker
+  data-product-id="{{ product.id }}"
+  data-section="{{ section.id }}"
+  data-product-handle="{{ product.handle }}"
+  data-product-url="{{ product.url }}"
+  data-max-options="{{ product.options_with_values.size }}"
+>
+{% assign option_value_updated =  product.options_with_values | reverse %}
+  {%- unless product.has_only_default_variant -%}
+    <variant-picker class="no-js-hidden" id="variant-picker-{{ section.id }}" data-update-url="{{ update_browser_history }}">
+      {%- for option in option_value_updated -%}
+        {% liquid
+          assign option_label = option.name
+          assign option_name_downcase = option.name | downcase
+          assign size_title_downcase = size_title | downcase
+          assign is_size = false
+          if size_title_downcase contains option_name_downcase
+            assign is_size = true
+          endif
+
+          assign swatch_count = option.values | map: 'swatch' | compact | size
+
+          assign type_picker = picker_type
+          
+          # Force dropdown for Club option
+          assign is_club_option = false
+          if option_name_downcase contains 'club'
+            assign is_club_option = true
+            assign type_picker = 'dropdown'
+          endif
+          
+          if settings.color_swatches_enable and is_club_option == false
+            if settings.color_swatches_trigger != blank and picker_type == 'button'
+              assign color_swatches_trigger = settings.color_swatches_trigger | downcase | split: ','
+              assign has_color = color_swatches_trigger | where: option_name_downcase | first
+              if has_color != blank
+                assign type_picker = 'color'
+              else
+                assign type_picker = 'button'
+              endif
+            endif
+            
+            if swatch_count > 0
+              if picker_type == 'dropdown'
+                assign type_picker = 'swatch_dropdown'
+              elsif settings.vp_swatch_type == 'shopify'
+                assign type_picker = 'swatch'
+              elsif settings.vp_swatch_type == 'variant_image' or settings.vp_swatch_type == 'custom'
+                assign type_picker = 'color'
+              endif
+            endif
+          endif
+        %}
+        
+        <div class="variant-picker__field-wrapper">
+          {% case type_picker %}
+            {% when 'dropdown', 'swatch_dropdown' %}
+              <div class="variant-picker__field" data-picker-field="select" data-option-name="{{ option.name }}">
+                <div class="variant-picker__input variant-picker__input--dropdown">
+                  <label class="form-label" for="Option-{{ section.id }}-{{ forloop.index0 }}">
+                    <span class="font-semibold">{{ option_label }}:</span>
+                    {% if show_selected_value %}
+                      <span class="selected-value">{{ option.selected_value }}</span>
+                    {% endif %}
+                  </label>
+                  <select
+                    class="form-control variant-select-original"
+                    id="Option-{{ section.id }}-{{ forloop.index0 }}"
+                    name="options[{{ option.name | escape }}]"
+                    form="{{ product_form_id }}"
+                    data-option-name="{{ option.name }}"
+                  >
+                    {%- render 'product-variant-options',
+                      product: product,
+                      option: option,
+                      block: block,
+                      picker_type: type_picker
+                    -%}
+                  </select>
+                </div>
+              </div>
+
+              <style>
+              .custom-select-variant {
+                position: relative;
+                width: 100%;
+              }
+
+              .custom-select-variant .select-trigger {
+                width: 100%;
+                padding: 12px 40px 12px 16px;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                background-color: white;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                transition: all 0.2s ease;
+                font-size: 15px;
+                color: #333;
+                position: relative;
+              }
+
+              .custom-select-variant .select-trigger:hover {
+                outline: 1px solid #5e5e5e;
+                border-color: #5e5e5e;
+              }
+
+              .custom-select-variant .select-trigger.open {
+                border-color: #5e5e5e;
+                box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+              }
+
+              .custom-select-variant .select-trigger .placeholder {
+                color: #6b7280;
+              }
+
+              .custom-select-variant .select-trigger > span:first-child {
+                flex: 1;
+                white-space: nowrap;
+                overflow: hidden;
+                text-overflow: ellipsis;
+              }
+
+              .custom-select-variant .select-trigger .arrow {
+                position: absolute;
+                right: 16px;
+                top: 50%;
+                transform: translateY(-50%);
+                pointer-events: none;
+                transition: transform 0.2s ease;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+              }
+
+              .custom-select-variant .select-trigger.open .arrow {
+                transform: translateY(-50%) rotate(180deg);
+              }
+
+              .custom-select-variant .select-trigger .arrow svg {
+                width: 16px;
+                height: 16px;
+                fill: #6b7280;
+                display: block;
+              }
+
+              .custom-select-variant .select-dropdown {
+                position: absolute;
+                top: calc(100% + 4px);
+                left: 0;
+                right: 0;
+                background: white;
+                border: 1px solid #d1d5db;
+                border-radius: 6px;
+                box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                max-height: 300px;
+                overflow-y: auto;
+                z-index: 1000;
+                opacity: 0;
+                visibility: hidden;
+                transform: translateY(-10px);
+                transition: all 0.2s ease;
+              }
+
+              .custom-select-variant .select-dropdown.open {
+                opacity: 1;
+                visibility: visible;
+                transform: translateY(0);
+              }
+
+              .custom-select-variant .select-option {
+                padding: 12px 16px;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                gap: 12px;
+                transition: background-color 0.15s ease;
+                font-size: 15px;
+                color: #333;
+              }
+
+              .custom-select-variant .select-option:hover {
+                background-color: #eff2ef !important;
+              }
+
+              .custom-select-variant .select-option:hover .option-text {
+                transition: all 0.3s;
+                font-weight: 500;
+              }
+
+              .custom-select-variant .select-option.selected {
+                background-color: #eff2ef !important;
+              }
+
+              .custom-select-variant .select-option.selected .option-text {
+                font-weight: 500;
+              }
+
+              .custom-select-variant .option-text {
+                flex: 1;
+              }
+
+              .custom-select-variant .select-dropdown::-webkit-scrollbar {
+                width: 8px;
+              }
+
+              .custom-select-variant .select-dropdown::-webkit-scrollbar-track {
+                background: #f1f1f1;
+                border-radius: 0 6px 6px 0;
+              }
+
+              .custom-select-variant .select-dropdown::-webkit-scrollbar-thumb {
+                background: #d1d5db;
+                border-radius: 4px;
+              }
+
+              .custom-select-variant .select-dropdown::-webkit-scrollbar-thumb:hover {
+                background: #9ca3af;
+              }
+              .variant-picker__field-wrapper+.variant-picker__field-wrapper{
+              margin-top:1rem;}
+              .variant-select-original {
+                display: none !important;
+              }
+              .variant-picker__input label{
+              margin-bottom:8px;
+              }
+              </style>
+
+              <script>
+              (function() {
+                'use strict';
+
+                class CustomSelectVariant {
+                  constructor(container, originalSelect) {
+                    this.container = container;
+                    this.originalSelect = originalSelect;
+                    this.options = [];
+                    this.selectedValue = null;
+                    this.isOpen = false;
+
+                    this.init();
+                  }
+
+                  init() {
+                    this.loadOptionsFromSelect();
+                    this.createCustomUI();
+                    this.setInitialValue();
+                    this.bindEvents();
+                  }
+
+                  loadOptionsFromSelect() {
+                    const selectOptions = this.originalSelect.querySelectorAll('option');
+                    selectOptions.forEach(option => {
+                      if (option.value) {
+                        this.options.push({
+                          value: option.value,
+                          label: option.textContent.trim(),
+                          selected: option.hasAttribute('selected') || option.selected
+                        });
+                      }
+                    });
+                  }
+
+                  createCustomUI() {
+                    const customSelect = document.createElement('div');
+                    customSelect.className = 'custom-select-variant';
+
+                    const trigger = document.createElement('div');
+                    trigger.className = 'select-trigger';
+                    
+                    const triggerSpan = document.createElement('span');
+                    triggerSpan.textContent = 'Select an option';
+                    
+                    const arrow = document.createElement('span');
+                    arrow.className = 'arrow';
+                    arrow.innerHTML = '<svg viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path></svg>';
+                    
+                    trigger.appendChild(triggerSpan);
+                    trigger.appendChild(arrow);
+
+                    const dropdown = document.createElement('div');
+                    dropdown.className = 'select-dropdown';
+
+                    customSelect.appendChild(trigger);
+                    customSelect.appendChild(dropdown);
+
+                    this.originalSelect.insertAdjacentElement('afterend', customSelect);
+
+                    this.trigger = trigger;
+                    this.triggerSpan = triggerSpan;
+                    this.dropdown = dropdown;
+                    this.customSelectElement = customSelect;
+                  }
+
+                  setInitialValue() {
+                    // Check if disable_default_variant is true
+                    const disableDefault = {{ disable_default_variant | default: false }};
+                    
+                    if (disableDefault) {
+                      // Don't select anything, just show placeholder
+                      this.triggerSpan.textContent = 'Select an option';
+                      this.renderOptions();
+                      return;
+                    }
+                    
+                    const selectedOption = this.options.find(opt => opt.selected);
+                    if (selectedOption) {
+                      this.selectOptionInternal(selectedOption.value);
+                    } else if (this.options.length > 0) {
+                      this.selectOptionInternal(this.options[0].value);
+                    }
+                  }
+
+                  selectOptionInternal(value) {
+                    this.options.forEach(opt => opt.selected = false);
+                    
+                    const option = this.options.find(opt => opt.value === value);
+                    
+                    if (option) {
+                      option.selected = true;
+                      this.selectedValue = value;
+                      this.originalSelect.value = value;
+                      
+                      this.triggerSpan.textContent = option.label;
+                      
+                      const selectedValueSpan = this.container.querySelector('.selected-value');
+                      if (selectedValueSpan) {
+                        selectedValueSpan.textContent = option.label;
+                      }
+                      
+                      this.originalSelect.dispatchEvent(new Event('change', { bubbles: true }));
+                    }
+                    
+                    this.renderOptions();
+                  }
+
+                  renderOptions() {
+                    let html = '';
+                    this.options.forEach(option => {
+                      const isSelected = this.selectedValue === option.value ? 'selected' : '';
+                      html += `<div class="select-option ${isSelected}" data-value="${this.escapeHtml(option.value)}"><span class="option-text">${this.escapeHtml(option.label)}</span></div>`;
+                    });
+                    this.dropdown.innerHTML = html;
+                  }
+
+                  escapeHtml(text) {
+                    const map = {'&': '&amp;','<': '&lt;','>': '&gt;','"': '&quot;',"'": '&#039;'};
+                    return text.replace(/[&<>"']/g, m => map[m]);
+                  }
+
+                  bindEvents() {
+                    this.trigger.addEventListener('click', (e) => {
+                      e.stopPropagation();
+                      this.toggleDropdown();
+                    });
+
+                    this.dropdown.addEventListener('click', (e) => {
+                      const option = e.target.closest('.select-option');
+                      if (option) {
+                        this.selectOption(option.dataset.value);
+                      }
+                    });
+
+                    document.addEventListener('click', (e) => {
+                      if (!this.customSelectElement.contains(e.target) && this.isOpen) {
+                        this.closeDropdown();
+                      }
+                    });
+                  }
+
+                  toggleDropdown() {
+                    this.isOpen ? this.closeDropdown() : this.openDropdown();
+                  }
+
+                  openDropdown() {
+                    this.isOpen = true;
+                    this.trigger.classList.add('open');
+                    this.dropdown.classList.add('open');
+                  }
+
+                  closeDropdown() {
+                    this.isOpen = false;
+                    this.trigger.classList.remove('open');
+                    this.dropdown.classList.remove('open');
+                  }
+
+                  selectOption(value) {
+                    this.selectOptionInternal(value);
+                    this.closeDropdown();
+                  }
+                }
+
+                function initCustomSelectVariants() {
+                  const variantSelects = document.querySelectorAll('.variant-select-original:not([data-custom-initialized])');
+                  
+                  variantSelects.forEach((select) => {
+                    const container = select.closest('.variant-picker__input');
+                    if (container) {
+                      select.setAttribute('data-custom-initialized', 'true');
+                      new CustomSelectVariant(container, select);
+                    }
+                  });
+                }
+
+                if (document.readyState === 'loading') {
+                  document.addEventListener('DOMContentLoaded', initCustomSelectVariants);
+                } else {
+                  initCustomSelectVariants();
+                }
+              })();
+              </script>
+            {% when 'color', 'swatch' %}
+              <div class="variant-picker__field" data-picker-field="radio" data-option-name="{{ option.name }}">
+                <div class="js variant-picker__input variant-picker__color">
+                  <label class="form__label">
+                    <span class="font-semibold">{{ option_label }}:</span>
+                    {% if show_selected_value %}
+                      <span class="selected-value">{{ option.selected_value }}</span>
+                    {% endif %}
+                  </label>
+                  <div class="variant-picker__option-values">
+                    {%- render 'product-variant-options',
+                      product: product,
+                      option: option,
+                      block: block,
+                      picker_type: type_picker,
+                      color_schema: color_schema
+                    -%}
+                  </div>
+                </div>
+              </div>
+            {% else %}
+              
+             <div class="variant-picker__field" data-picker-field="radio" data-option-name="{{ option.name }}">
+  <div class="js variant-picker__input variant-picker__button">
+    <label class="form__label">
+      <span class="font-semibold">{{ option_label }}:</span>
+      {% if show_selected_value %}
+        <span class="selected-value">{{ option.selected_value }}</span>
+      {% endif %}
+    </label>
+    <div class="variant-picker__option-values">
+      {%- render 'product-variant-options',
+        product: product,
+        option: option,
+        block: block,
+        picker_type: type_picker
+      -%}
+    </div>
+  </div>
+</div>
+          {% endcase %}
+          
+          {%- if is_size and show_size_chart -%}
+            {{- size_chart_button -}}
+          {%- endif -%}
+          {% if is_size %}
+            <button
+              class="open-size-chart open-foxkit-sizechart btn btn--with-icon btn--plain foxkit-hidden"
+              aria-label="{{ 'products.product.open_size_chart' | t }}"
+            >
+              <span
+                ><u>{{ 'products.product.open_size_chart' | t }}</u></span
+              >
+            </button>
+          {% endif %}
+        </div>
+      {%- endfor -%}
+      <script type="application/json" data-selected-variant>
+        {{ product.selected_or_first_available_variant | json }}
+      </script>
+    </variant-picker>
+  {%- endunless -%}
+  <noscript class="variant-picker__noscript-wrapper-{{ section.id }}">
+    <div class="form-field variant-picker__input{% if product.has_only_default_variant %} hidden{% endif %}">
+      <label
+        class="form-label"
+        for="Variants-{{ section.id }}"
+      >
+        {{- 'products.product.product_variants' | t -}}
+      </label>
+      <select
+        name="id"
+        id="Variants-{{ section.id }}"
+        class="form-control"
+        form="{{ product_form_id }}"
+      >
+        {%- for variant in product.variants -%}
+          <option
+            {% if variant == product.selected_or_first_available_variant %}
+              selected="selected"
+            {% endif %}
+            {% if variant.available == false %}
+              disabled
+            {% endif %}
+            value="{{ variant.id }}"
+          >
+            {{ variant.title }}
+            {%- if variant.available == false %} - {{ 'products.product.sold_out' | t }}{% endif %}
+            - {{ variant.price | money | strip_html }}
+          </option>
+        {%- endfor -%}
+      </select>
+    </div>
+  </noscript>
+
+ 
+</div>

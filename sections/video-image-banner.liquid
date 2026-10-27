@@ -1,0 +1,732 @@
+{% comment %}
+  Section: Hero Video Banner
+  - Supports video (mp4/webm) or image fallback
+  - Block-based: heading, subheading, button blocks
+  - Mute/unmute toggle (only shown when video is present)
+  - Fully customizable via Theme Editor
+{% endcomment %}
+
+<section
+  id="hero-banner-{{ section.id }}"
+  class="hero-banner"
+  style="--hero-min-height: {{ section.settings.min_height }}px; --hero-overlay: {{ section.settings.overlay_opacity | divided_by: 100.0 }};"
+>
+
+  {%- comment -%} Media Layer {%- endcomment -%}
+  <div class="hero-banner__media">
+    {%- if section.settings.video != blank -%}
+      <video
+        id="hero-video-{{ section.id }}"
+        class="hero-banner__video"
+        autoplay
+        loop
+        muted
+        playsinline
+        preload="metadata"
+        {%- if section.settings.video_poster != blank -%}
+          poster="{{ section.settings.video_poster | image_url: width: 1800 }}"
+        {%- elsif section.settings.image != blank -%}
+          poster="{{ section.settings.image | image_url: width: 1800 }}"
+        {%- endif -%}
+      >
+        <source src="{{ section.settings.video }}" type="video/mp4">
+      </video>
+
+    {%- elsif section.settings.image != blank -%}
+      {{
+        section.settings.image
+        | image_url: width: 1800
+        | image_tag:
+          class: 'hero-banner__image',
+          loading: 'eager',
+          fetchpriority: 'high',
+          sizes: '100vw',
+          widths: '375, 750, 1100, 1500, 1800'
+      }}
+    {%- else -%}
+      {{ 'lifestyle-1' | placeholder_svg_tag: 'hero-banner__placeholder' }}
+    {%- endif -%}
+
+    <div class="hero-banner__overlay"></div>
+  </div>
+
+  {%- comment -%} Content Layer {%- endcomment -%}
+  <div class="hero-banner__content hero-banner__content--{{ section.settings.content_position }}">
+    <div class="hero-banner__inner">
+
+      {%- for block in section.blocks -%}
+
+        {%- case block.type -%}
+
+          {%- when 'eyebrow' -%}
+            <p
+              class="hero-banner__eyebrow"
+              {{ block.shopify_attributes }}
+              style="
+                color: {{ block.settings.text_color }};
+                font-size: {{ block.settings.font_size }}px;
+                letter-spacing: {{ block.settings.letter_spacing }}em;
+              "
+            >
+              {{ block.settings.text }}
+            </p>
+
+          {%- when 'heading' -%}
+            <{{ block.settings.heading_tag }}
+              class="hero-banner__heading"
+              {{ block.shopify_attributes }}
+              style="
+                color: {{ block.settings.text_color }};
+                font-size: clamp({{ block.settings.font_size_mobile }}px, 5vw, {{ block.settings.font_size }}px);
+                font-weight: {{ block.settings.font_weight }};
+              "
+            >
+              {{ block.settings.heading }}
+            </{{ block.settings.heading_tag }}>
+
+          {%- when 'subheading' -%}
+            <p
+              class="hero-banner__subheading"
+              {{ block.shopify_attributes }}
+              style="
+                color: {{ block.settings.text_color }};
+                font-size: clamp({{ block.settings.font_size_mobile }}px, 2vw, {{ block.settings.font_size }}px);
+                max-width: {{ block.settings.max_width }}px;
+              "
+            >
+              {{ block.settings.text }}
+            </p>
+
+          {%- when 'buttons' -%}
+            <div class="hero-banner__buttons" {{ block.shopify_attributes }}>
+              {%- if block.settings.button_1_label != blank -%}
+                <a
+                  href="{{ block.settings.button_1_url }}"
+                  class="hero-btn hero-btn--{{ block.settings.button_1_style }}"
+                >
+                  {{ block.settings.button_1_label }}
+                </a>
+              {%- endif -%}
+              {%- if block.settings.button_2_label != blank -%}
+                <a
+                  href="{{ block.settings.button_2_url }}"
+                  class="hero-btn hero-btn--{{ block.settings.button_2_style }}"
+                >
+                  {{ block.settings.button_2_label }}
+                </a>
+              {%- endif -%}
+            </div>
+
+          {%- when 'spacer' -%}
+            <div
+              class="hero-banner__spacer"
+              {{ block.shopify_attributes }}
+              style="height: {{ block.settings.height }}px;"
+            ></div>
+
+        {%- endcase -%}
+
+      {%- endfor -%}
+    </div>
+  </div>
+
+  {%- comment -%} Mute Toggle — only rendered when video is set {%- endcomment -%}
+  {%- if section.settings.video != blank -%}
+    <button
+      id="hero-mute-btn-{{ section.id }}"
+      class="hero-banner__mute-btn"
+      aria-label="Toggle mute"
+      data-video-id="hero-video-{{ section.id }}"
+    >
+      <span class="hero-mute-icon hero-mute-icon--muted">
+        {%- comment -%} Muted Icon {%- endcomment -%}
+        <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <g opacity="0.6">
+        <path d="M32 18C33.0087 19.3447 33.6622 20.9219 33.9 22.586M38.728 11.272C41.286 13.8285 43.0146 17.0963 43.6884 20.6495C44.3623 24.2026 43.9503 27.8764 42.506 31.192M4 4L44 44M14 14L12.826 15.174C12.5648 15.4368 12.2541 15.6451 11.9118 15.7868C11.5695 15.9286 11.2025 16.0011 10.832 16H6C5.46957 16 4.96086 16.2107 4.58579 16.5858C4.21071 16.9609 4 17.4696 4 18V30C4 30.5304 4.21071 31.0391 4.58579 31.4142C4.96086 31.7893 5.46957 32 6 32H10.832C11.2025 31.9989 11.5695 32.0714 11.9118 32.2132C12.2541 32.3549 12.5648 32.5632 12.826 32.826L19.592 39.594C19.7892 39.7916 20.0406 39.9262 20.3144 39.9808C20.5882 40.0353 20.872 40.0074 21.1299 39.9005C21.3877 39.7936 21.6081 39.6126 21.763 39.3804C21.9179 39.1481 22.0004 38.8752 22 38.596V22M19.656 8.344C19.8478 8.1515 20.0924 8.02027 20.3588 7.96696C20.6253 7.91365 20.9015 7.94066 21.1526 8.04456C21.4037 8.14846 21.6183 8.32457 21.7691 8.55057C21.92 8.77657 22.0003 9.04228 22 9.314V10.686" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+        </svg>
+
+      </span>
+      <span class="hero-mute-icon hero-mute-icon--unmuted" hidden>
+        {%- comment -%} Unmuted Icon {%- endcomment -%}
+       <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <circle cx="100" cy="100" r="68" fill="white" fill-opacity="0.12" stroke="white" stroke-opacity="0.25" stroke-width="1.5"/>
+        <g opacity="0.6" transform="translate(78, 82)">
+          <path d="M6 9.5H2C1.45 9.5 1 9.95 1 10.5V17.5C1 18.05 1.45 18.5 2 18.5H6L12 24V4L6 9.5Z" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M19 8C20.5 9.5 21.4 11.65 21.4 14C21.4 16.35 20.5 18.5 19 20" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M22 5C24.3 7.3 25.7 10.5 25.7 14C25.7 17.5 24.3 20.7 22 23" stroke="white" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round"/>
+        </g>
+      </svg>
+
+      </span>
+    </button>
+  {%- endif -%}
+
+</section>
+
+{%- comment -%} ============================================================
+  STYLES
+============================================================ {%- endcomment -%}
+<style>
+  #hero-banner-{{ section.id }} {
+    --hero-text-shadow: 0 2px 20px rgba(0,0,0,0.35);
+  }
+
+  .hero-banner {
+    position: relative;
+    width: 100%;
+    min-height: var(--hero-min-height, 560px);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+
+  /* ── Media ── */
+  .hero-banner__media {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+  }
+
+  .hero-banner__video,
+  .hero-banner__image,
+  .hero-banner__placeholder {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    display: block;
+  }
+
+  .hero-banner__placeholder {
+    background: #1a1a1a;
+  }
+
+  .hero-banner__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0,0,0, var(--hero-overlay, 0.35));
+    pointer-events: none;
+  }
+
+  /* ── Content ── */
+  .hero-banner__content {
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    padding: clamp(40px, 8vw, 80px) clamp(24px, 6vw, 80px);
+  }
+
+  .hero-banner__content--top-left    { align-self: flex-start; text-align: left; }
+  .hero-banner__content--top-center  { align-self: flex-start; text-align: center; }
+  .hero-banner__content--center-left { align-self: center;     text-align: left; }
+  .hero-banner__content--center      { align-self: center;     text-align: center; }
+  .hero-banner__content--bottom-left { align-self: flex-end;   text-align: left; }
+
+  .hero-banner__inner {
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-width: 700px;
+  }
+
+  .hero-banner__content--center .hero-banner__inner,
+  .hero-banner__content--top-center .hero-banner__inner {
+    margin: 0 auto;
+    align-items: center;
+  }
+
+  /* ── Eyebrow ── */
+  .hero-banner__eyebrow {
+    margin: 0 0 14px;
+    text-transform: uppercase;
+    font-weight: 600;
+  }
+
+  /* ── Heading ── */
+  .hero-banner__heading {
+    margin: 0;
+    line-height: 1.05;
+    text-shadow: var(--hero-text-shadow);
+  }
+
+  /* ── Subheading ── */
+  .hero-banner__subheading {
+    margin: 16px 0 0;
+    line-height: 1.55;
+    text-shadow: var(--hero-text-shadow);
+  }
+
+  /* ── Buttons ── */
+  .hero-banner__buttons {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 28px;
+  }
+
+  .hero-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 28px;
+    font-size: 14px;
+    font-weight: 500;
+    letter-spacing: 0.04em;
+    text-decoration: none;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s, border-color 0.2s, transform 0.15s;
+    border: 2px solid transparent;
+    white-space: nowrap;
+  }
+
+  .hero-btn:hover { transform: translateY(-1px); }
+
+  /* Solid */
+  .hero-btn--solid {
+    background: #fff;
+    color: #111;
+    border-color: #fff;
+    border-radius:8px;
+  }
+  .hero-btn--solid:hover { background: #f0f0f0; border-color: #f0f0f0; }
+
+  /* Outline */
+  .hero-btn--outline {
+    background: transparent;
+    color: #fff;
+    border-color: #fff;
+    border-radius:8px;
+  }
+  .hero-btn--outline:hover { background: rgba(255,255,255,0.15);color:#fff }
+
+  /* Solid Dark */
+  .hero-btn--solid-dark {
+    background: #111;
+    color: #fff;
+    border-color: #111;
+  }
+  .hero-btn--solid-dark:hover { background: #333; border-color: #333; }
+
+  /* ── Mute Button ── */
+  .hero-banner__mute-btn {
+    position: absolute;
+    bottom: 15%;
+    right: 15%;
+    z-index: 2;
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: none;
+    color: #fff;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: background 0.2s, transform 0.15s;
+  }
+
+  .hero-banner__mute-btn:hover {
+
+  }
+
+  /* ── Responsive ── */
+  @media screen and (max-width: 768px) {
+  .hero-banner {
+    min-height: {{ section.settings.min_height_mobile }}px;
+    align-items: flex-end;
+  }
+
+  .hero-banner__content {
+    padding: 62px 20px 00px;
+    text-align: {{ section.settings.content_position_mobile }};
+  }
+
+  .hero-banner__inner {
+    {%- if section.settings.content_position_mobile == 'center' -%}
+      margin: 0 auto;
+      align-items: center;
+    {%- elsif section.settings.content_position_mobile == 'right' -%}
+      margin: 0 0 0 auto;
+      align-items: flex-end;
+    {%- else -%}
+      margin: 0;
+      align-items: flex-start;
+    {%- endif -%}
+  }
+
+  .hero-banner__mute-btn {
+    bottom: 16px;
+    right: 16px;
+  }
+  .hero-banner__mute-btn {
+  display: none;
+}
+}
+</style>
+
+{%- comment -%} ============================================================
+  JAVASCRIPT
+============================================================ {%- endcomment -%}
+<script>
+  (function () {
+    var btn = document.getElementById('hero-mute-btn-{{ section.id }}');
+    if (!btn) return;
+
+    var videoId = btn.getAttribute('data-video-id');
+    var video   = document.getElementById(videoId);
+    if (!video) return;
+
+    var iconMuted   = btn.querySelector('.hero-mute-icon--muted');
+    var iconUnmuted = btn.querySelector('.hero-mute-icon--unmuted');
+
+    function syncIcons() {
+      if (video.muted) {
+        iconMuted.removeAttribute('hidden');
+        iconUnmuted.setAttribute('hidden', '');
+        btn.setAttribute('aria-label', 'Unmute video');
+      } else {
+        iconMuted.setAttribute('hidden', '');
+        iconUnmuted.removeAttribute('hidden');
+        btn.setAttribute('aria-label', 'Mute video');
+      }
+    }
+
+    btn.addEventListener('click', function () {
+      video.muted = !video.muted;
+      // If was paused due to autoplay policy, resume
+      if (!video.muted && video.paused) video.play();
+      syncIcons();
+    });
+
+    syncIcons(); // init state
+  })();
+</script>
+
+{%- comment -%} ============================================================
+  SCHEMA
+============================================================ {%- endcomment -%}
+{% schema %}
+{
+  "name": "Hero Video Banner",
+  "tag": "section",
+  "class": "hero-video-banner-section",
+  "limit": 1,
+  "settings": [
+    {
+      "type": "header",
+      "content": "Media"
+    },
+    {
+      "type": "text",
+      "id": "video",
+      "label": "Video URL (MP4/WebM)",
+      "info": "Upload your video via Admin → Content → Files, then paste the CDN URL here. Autoplay is muted by default."
+    },
+    {
+      "type": "image_picker",
+      "id": "video_poster",
+      "label": "Video poster / first frame",
+      "info": "Shown while video loads. Falls back to Image below if blank."
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Fallback image",
+      "info": "Used when no video is set, or as video poster fallback."
+    },
+    {
+      "type": "range",
+      "id": "overlay_opacity",
+      "label": "Overlay darkness",
+      "min": 0,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 35
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "select",
+      "id": "content_position",
+      "label": "Content position",
+      "options": [
+        { "value": "top-left",    "label": "Top left" },
+        { "value": "top-center",  "label": "Top center" },
+        { "value": "center-left", "label": "Middle left" },
+        { "value": "center",      "label": "Middle center" },
+        { "value": "bottom-left", "label": "Bottom left" }
+      ],
+      "default": "center-left"
+    },
+    {
+      "type": "range",
+      "id": "min_height",
+      "label": "Min height (desktop)",
+      "min": 300,
+      "max": 900,
+      "step": 20,
+      "unit": "px",
+      "default": 560
+    },
+    {
+      "type": "range",
+      "id": "min_height_mobile",
+      "label": "Min height (mobile)",
+      "min": 200,
+      "max": 700,
+      "step": 20,
+      "unit": "px",
+      "default": 420
+    },
+    {
+      "type": "select",
+      "id": "content_position_mobile",
+      "label": "Content position (mobile)",
+      "options": [
+        { "value": "left",   "label": "Left" },
+        { "value": "center", "label": "Center" },
+        { "value": "right",  "label": "Right" }
+      ],
+      "default": "center"
+    },
+  ],
+  "blocks": [
+    {
+      "type": "eyebrow",
+      "name": "Eyebrow text",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "text",
+          "label": "Text",
+          "default": "New Collection"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "range",
+          "id": "font_size",
+          "label": "Font size",
+          "min": 10,
+          "max": 20,
+          "step": 1,
+          "unit": "px",
+          "default": 13
+        }
+      ]
+    },
+    {
+      "type": "heading",
+      "name": "Heading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Where Golf\n& Style Meet"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "HTML tag",
+          "options": [
+            { "value": "h1", "label": "H1" },
+            { "value": "h2", "label": "H2" },
+            { "value": "h3", "label": "H3" }
+          ],
+          "default": "h1"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Color",
+          "default": "#ffffff"
+        },
+        {
+          "type": "range",
+          "id": "font_size",
+          "label": "Font size (desktop)",
+          "min": 28,
+          "max": 100,
+          "step": 2,
+          "unit": "px",
+          "default": 60
+        },
+        {
+          "type": "range",
+          "id": "font_size_mobile",
+          "label": "Font size (mobile)",
+          "min": 24,
+          "max": 60,
+          "step": 2,
+          "unit": "px",
+          "default": 36
+        },
+        {
+          "type": "select",
+          "id": "font_weight",
+          "label": "Font weight",
+          "options": [
+            { "value": "300", "label": "Light (300)" },
+            { "value": "400", "label": "Regular (400)" },
+            { "value": "500", "label": "Medium (500)" },
+            { "value": "600", "label": "Semibold (600)" },
+            { "value": "700", "label": "Bold (700)" }
+          ],
+          "default": "400"
+        }
+      ]
+    },
+    {
+      "type": "subheading",
+      "name": "Subheading",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Text",
+          "default": "Premium golf apparel curated exclusively for the world's most prestigious clubs"
+        },
+        {
+          "type": "color",
+          "id": "text_color",
+          "label": "Color",
+          "default": "#ffffffcc"
+        },
+        {
+          "type": "range",
+          "id": "font_size",
+          "label": "Font size (desktop)",
+          "min": 12,
+          "max": 28,
+          "step": 1,
+          "unit": "px",
+          "default": 16
+        },
+        {
+          "type": "range",
+          "id": "font_size_mobile",
+          "label": "Font size (mobile)",
+          "min": 12,
+          "max": 22,
+          "step": 1,
+          "unit": "px",
+          "default": 14
+        },
+        {
+          "type": "range",
+          "id": "max_width",
+          "label": "Max width",
+          "min": 200,
+          "max": 800,
+          "step": 20,
+          "unit": "px",
+          "default": 460
+        }
+      ]
+    },
+    {
+      "type": "buttons",
+      "name": "Buttons",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "header",
+          "content": "Button 1"
+        },
+        {
+          "type": "text",
+          "id": "button_1_label",
+          "label": "Label",
+          "default": "Explore Clubs"
+        },
+        {
+          "type": "url",
+          "id": "button_1_url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_1_style",
+          "label": "Style",
+          "options": [
+            { "value": "solid",      "label": "Solid white" },
+            { "value": "outline",    "label": "Outline white" },
+            { "value": "solid-dark", "label": "Solid dark" }
+          ],
+          "default": "solid"
+        },
+        {
+          "type": "header",
+          "content": "Button 2"
+        },
+        {
+          "type": "text",
+          "id": "button_2_label",
+          "label": "Label",
+          "default": "Our Story"
+        },
+        {
+          "type": "url",
+          "id": "button_2_url",
+          "label": "Link"
+        },
+        {
+          "type": "select",
+          "id": "button_2_style",
+          "label": "Style",
+          "options": [
+            { "value": "solid",      "label": "Solid white" },
+            { "value": "outline",    "label": "Outline white" },
+            { "value": "solid-dark", "label": "Solid dark" }
+          ],
+          "default": "outline"
+        }
+      ]
+    },
+    {
+      "type": "spacer",
+      "name": "Spacer",
+      "settings": [
+        {
+          "type": "range",
+          "id": "height",
+          "label": "Height",
+          "min": 4,
+          "max": 80,
+          "step": 4,
+          "unit": "px",
+          "default": 20
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Hero Video Banner",
+      "blocks": [
+        { "type": "eyebrow" },
+        { "type": "heading" },
+        { "type": "subheading" },
+        { "type": "buttons" }
+      ]
+    }
+  ]
+}
+{% endschema %}

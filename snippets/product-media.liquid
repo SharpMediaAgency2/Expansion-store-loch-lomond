@@ -1,0 +1,335 @@
+{%- liquid
+  assign media_layout = section.settings.media_layout | default: 'carousel'
+  assign mobile_thumbnails = section.settings.mobile_thumbnails | default: 'hide'
+  assign enable_video_looping = section.settings.enable_video_looping
+
+  assign wrapper_class = ''
+  if media_layout == 'grid-2-cols' or media_layout == 'grid-mix'
+    assign wrapper_class = ' f-grid f-grid-2-cols'
+  endif
+
+  assign enable_variant_group_img = false
+  if product.metafields['foxecom-bs-kit']['variant-images'].value.enable and product.has_only_default_variant == false
+    assign enable_variant_group_img = true
+  endif
+
+  if product.media.size < 2 and media_layout == 'carousel'
+    assign wrapper_class = ' flickity-disabled'
+  endif
+
+  assign thumb_class = ''
+  if media_layout != 'carousel'
+    assign thumb_class = ' md:flickity-disable'
+  endif
+  assign aspect_ratio = product.featured_image.aspect_ratio | default: 1
+  unless media_layout == 'carousel'
+    assign wrapper_class = wrapper_class | append: ' md:flickity-disable'
+    assign thumb_class = thumb_class | append: ' md:hidden'
+  endunless
+
+  assign flickity_classes = ''
+  if mobile_thumbnails == 'hide'
+    assign flickity_classes = 'flickity-controls-group-mb flickity-controls-group-mb__bottom flickity-static' | prepend: ' '
+  endif
+
+  assign has_only_one_image = false
+  if product.media.size < 2
+    assign has_only_one_image = true
+  endif
+
+  if product.media.size < 3
+    assign flickity_classes = flickity_classes | append: ' flickity-controls-group-mb__inner'
+  endif
+
+  capture styles
+    if product.media.size > 9
+      echo '--pagination-width: 4rem;'
+    else
+      echo '--pagination-width: 2.5rem;'
+    endif
+    echo '--row-gap-mobile: .5rem;--column-gap-mobile: .5rem;'
+  endcapture
+
+  assign enable_slider = false
+  if media_layout == 'carousel'
+    assign enable_slider = true
+  endif
+
+  assign first_media_image = product.media | where: 'media_type', 'image' | first
+-%}
+{%- if product.media.size > 0 -%}
+  <media-gallery
+    class="block{% if enable_sticky_info %} sticky-element{% endif %}"
+    id="MediaGallery-{{ section.id }}"
+    role="region"
+    aria-label="{{ 'products.product.media.gallery_viewer' | t }}"
+    data-video-loop="{{ enable_video_looping | default: false }}"
+    data-enable-zoom="{{ enable_image_zoom | default: false }}"
+    style="--row-gap: 5px;--column-gap: 5px"
+    data-media-loading
+    data-enable-variant-group-images="{{ enable_variant_group_img }}"
+    data-only-image="{{ has_only_one_image }}"
+    data-product-id="{{ product.id }}"
+    data-section-id="{{ section.id }}"
+    data-show-featured-media="{{ show_featured_media }}"
+    data-product-handle="{{ product.handle }}"
+  >
+    <div
+      id="GalleryStatus-{{ section.id }}"
+      class="visually-hidden"
+      role="status"
+    ></div>
+    <a
+      class="skip-to-content-link btn btn--primary visually-hidden"
+      href="#ProductInfo-{{ section.id }}"
+    >
+      {{ 'accessibility.skip_to_product_info' | t }}
+    </a>
+    <div
+      id="GalleryViewer-{{ section.id }}"
+      class="f-product__media-viewer{% if has_only_one_image %} f-product__media-only--image{% endif %} f-product__media-viewer--{{ media_layout }} f-product__media-viewer--thumbs-{{ mobile_thumbnails }}"
+      style="--media-aspect-ratio: {{ aspect_ratio }}"
+    >
+      {% assign labels = product.metafields.custom.labels_on_product.value %}
+
+
+      {%- if product.media.size > 0 -%}
+        <div data-media-viewer>
+          {% if labels != blank %}
+            <div class="product-labels">
+              {% for label in labels %}
+                {% assign label_class = label | downcase | replace: ' ', '-' %}
+                <span class="product-label product-label--{{ label_class }}">{{ label }}</span>
+              {% endfor %}
+            </div>
+          {% endif %}
+          <flickity-component
+            data-slider-options='{"pageDots": false, "prevNextButtons": true, "adaptiveHeight": true, "cellAlign": "left", "setGallerySize": false, "wrapAround": false, "cellSelector": ".f-product__media"}'
+            data-enable-slider="{{ enable_slider }}"
+            data-slider-columns="1"
+            id="Media-Gallery-{{ section.id }}"
+            class="f-product__media-list {% if has_only_one_image %} f-product__media-only--image{% endif %} flickity-button-initialized flickity-nav-inner h-full overflow-hidden f-product__media-list--{{ media_layout }}{{ wrapper_class }}{{ flickity_classes }}"
+            data-media-layout="{{ media_layout }}"
+            role="list"
+            {% if product.media.size > 1 %}
+              style="{{ styles }}"
+            {% endif %}
+          >
+            {%- capture all_featured_image_ids_string -%}
+                {% for variant in product.variants %}
+                  {% if variant.featured_media %}
+                    {{ variant.featured_media.id }}-size:{{ variant.metafields.custom.logo_size }}-{{ variant.metafields.custom.logo_position }}{% unless forloop.last %}|{% endunless %}
+                  {% endif %}
+                {% endfor %}
+              {%- endcapture -%}
+        
+            {%- for media in product.media -%}
+
+              
+              {%- assign tempArray = all_featured_image_ids_string | split: "|" -%}
+              {%- assign target_id = media.id   | append: ""  -%}
+              {% assign test = tempArray | find: target_id %}
+              {% assign x_var = test | split: "x:"  %}
+              {% assign x_position = x_var | split: "," %}
+              {%- assign x_pos_value = x_position[1] | replace: '"', ''  -%}
+              {%- assign x_pos_value = x_pos_value | split: ';' | first  -%}
+              {% assign y_var = test | split: "y:"  %}
+              {%- assign y_pos_value = y_var[1]  -%}
+            
+            {% assign full_value = test %}
+            {% assign size_part = full_value | split: '-size:' | last %}
+            {% assign logo_size = size_part | split: '-x:' | first %}
+            
+              {% render 'product-thumbnail',
+                media: media,
+                product: product,
+                course_logo_size: product.metafields.custom.logo_size,
+                course_logo_pos: product.metafields.custom.logo_position,
+                index: forloop.index0,
+                loop: enable_video_looping,
+                modal_id: section.id,
+                xr_button: true,
+                media_size: section.settings.media_size,
+                first_media_image: first_media_image,
+                 x_position: x_pos_value,
+                 y_position: y_pos_value,
+                 logo_size: logo_size
+              %}
+            {%- endfor -%}
+
+            {% if mobile_thumbnails == 'hide' and product.media.size > 1 %}
+              <div class="flickity-page-counter no-js-hidden hidden md:hidden">
+                <span class="flickity-counter--current">1</span>
+                <span aria-hidden="true"> / </span>
+                <span class="visually-hidden">
+                  {{- 'sections.slideshow.of' | t -}}
+                </span>
+                <span class="flickity-counter--total">
+                  {{- product.media.size -}}
+                </span>
+              </div>
+            {% endif %}
+          </flickity-component>
+        </div>
+      {%- else -%}
+        <div class="f-image" style="--aspect-ratio: 1">
+          {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+        </div>
+      {%- endif -%}
+      {%- if product.media.size > 1
+        and media_layout == 'carousel'
+        or mobile_thumbnails == 'show'
+      -%}
+        {%- liquid
+          assign transition = ''
+          assign thumb_loop = true
+
+          if product.media.size < 6
+            assign thumb_loop = false
+            assign transition = ' md:disable-transition'
+          endif
+          if product.media.size < 5
+            assign transition = ' disable-transition'
+          endif
+        -%}
+        <div class="f-product__media-thumbnails-wrapper{% if mobile_thumbnails == 'hide' %} hidden md:block{% endif %}">
+          <flickity-component
+            id="GalleryThumbnails-{{ section.id }}"
+            class="f-flex f-grid--gap-none no-js-hidden f-product__media-thumbnails flickity-button-initialized{{ thumb_class }}{{ transition }}"
+            data-slider-columns="5"
+            data-enable-slider="{{ enable_slider }}"
+            data-disable-pointer-move="false"
+            data-slider-options='{"pageDots": false, "asNavFor": "#Media-Gallery-{{ section.id }}", "prevNextButtons": false, "setGallerySize": false, "freeScroll": true, "wrapAround": {{ thumb_loop }}}'
+            style="--column-gap: 6px;--aspect-ratio: 5;"
+          >
+            {%- for media in product.media -%}
+              <div
+                id="GalleryThumbnailItem-{{ section.id }}-{{ forloop.index }}"
+                data-media-id="{{ media.id }}"
+                data-media-type="{{ media.media_type }}"
+                data-thumbnail-type="{{ media.media_type }}"
+                class="f-column f-product__media-thumbnails-item"
+                data-thumbnail-index="{{ forloop.index0 }}"
+              >
+                <div class="f-product__media-thumbnails-item-wrap block w-full">
+                  {%- if media.media_type == 'model' -%}
+                    <span class="f-product__media-badge" aria-hidden="true">
+                      {% comment %} theme-check-disable {% endcomment %}
+                      {{ 'icon-3d-model.svg' | inline_asset_content }}
+                      {% comment %} theme-check-enable {% endcomment %}
+                    </span>
+                  {%- elsif media.media_type == 'video'
+                    or media.media_type == 'external_video'
+                  -%}
+                    <span class="f-product__media-badge" aria-hidden="true">
+                      {% comment %} theme-check-disable {% endcomment %}
+                      {{ 'icon-play.svg' | inline_asset_content }}
+                      {% comment %} theme-check-enable {% endcomment %}
+                    </span>
+                  {%- endif -%}
+                  <responsive-image
+                    data-image-id="{{ image.id }}"
+                    class="f-image"
+                    data-image-loading
+                    style="--aspect-ratio: 1"
+                  >
+                    <img
+                      srcset="
+                        {% if media.preview_image.width >= 54 %}{{ media.preview_image | image_url: width: 54 }} 54w,{% endif %}
+                        {% if media.preview_image.width >= 74 %}{{ media.preview_image | image_url: width: 74 }} 74w,{% endif %}
+                        {% if media.preview_image.width >= 104 %}{{ media.preview_image | image_url: width: 104 }} 104w,{% endif %}
+                        {% if media.preview_image.width >= 162 %}{{ media.preview_image | image_url: width: 162 }} 162w,{% endif %}
+                        {% if media.preview_image.width >= 208 %}{{ media.preview_image | image_url: width: 208 }} 208w,{% endif %}
+                        {% if media.preview_image.width >= 324 %}{{ media.preview_image | image_url: width: 324 }} 324w,{% endif %}
+                        {% if media.preview_image.width >= 416 %}{{ media.preview_image | image_url: width: 416 }} 416w,{% endif %},
+                        {{ media.preview_image | image_url }} {{ media.preview_image.width }}w
+                      "
+                      src="{{ media.preview_image | image_url: width: 100 }}"
+                      sizes="(min-width: {{ settings.container_width }}px) calc(({{ settings.container_width | minus: 100 | times: 0.45 | round }} - 4rem) / 4), (min-width: 990px) calc(({{ 0.45 | times: 100 }}vw - 4rem) / 4), (min-width: 750px) calc((100vw - 15rem) / 8), calc((100vw - 14rem) / 3)"
+                      alt="{{ media.alt | escape }}"
+                      height="100"
+                      width="100"
+                      loading="lazy"
+                    >
+                  </responsive-image>
+                </div>
+              </div>
+            {%- endfor -%}
+          </flickity-component>
+        </div>
+      {%- endif -%}
+      {%- if first_3d_model -%}
+        <button
+          class="btn btn--with-icon btn--secondary product__xr-button critical-hidden w-full"
+          type="button"
+          aria-label="{{ 'products.product.xr_button_label' | t }}"
+          data-shopify-xr
+          data-shopify-model3d-id="{{ first_3d_model.id }}"
+          data-shopify-title="{{ product.title | escape }}"
+          data-shopify-xr-hidden
+          data-first-xr-button
+        >
+          {% comment %} theme-check-disable {% endcomment %}
+          {{ 'icon-3d-model.svg' | inline_asset_content }}
+          {% comment %} theme-check-enable {% endcomment %}
+          <span>{{ 'products.product.xr_button' | t }}</span>
+        </button>
+      {%- endif -%}
+    </div>
+    <script type="application/json">
+      {{ product.variants | json }}
+    </script>
+    <script type="application/json" data-selected-variant>
+      {{ product.selected_or_first_available_variant | json }}
+    </script>
+  </media-gallery>
+{%- else -%}
+  {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+{%- endif -%}
+
+<style>
+@media screen and (max-width: 999px) {
+  #GalleryViewer-{{ section.id }}{
+overflow: visible;
+width: 100% !important;
+  }
+#GalleryViewer-{{ section.id }} .f-product__media-list {
+overflow: visible !important;
+  }
+#GalleryViewer-{{ section.id }} .f-product__media {
+width: calc(100% - 103px) !important;
+margin-right: 16px !important;
+  }
+.flickity-slider{
+margin-left:26px;}
+.f-product__media-viewer--carousel{margin:0px!important;}
+.f-product__media-wrapper {
+padding: 0px !important;
+}
+.f-product__media svg {
+    border-radius: 16px !important;
+    overflow: hidden;
+}
+  #GalleryViewer-{{ section.id }}:has(.flickity-disabled) {
+    max-width: 100% !important;
+    width:100%!important;
+   
+  }
+  [id^="GalleryViewer-"]:has(.flickity-disabled){
+    width:100%!important;
+  }
+#GalleryViewer-{{ section.id }}:has(.flickity-disabled) .f-product__media-viewer [data-media-viewer]{
+margin:0!important;
+}
+
+ #GalleryViewer-{{ section.id }}:has(.flickity-disabled) .f-product__media {
+    max-width: 90% !important;
+    width: 100% !important;
+    margin-left: 5%;
+  }
+
+  #GalleryViewer-{{ section.id }}   .flickity-disabled [data-media-viewer] {
+    margin: 0;
+  }
+}
+</style>

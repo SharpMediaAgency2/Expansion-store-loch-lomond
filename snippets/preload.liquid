@@ -1,0 +1,16 @@
+<link rel="preload" href="{{ 'theme.css' | asset_url }}" as="style">
+<link rel="preload" href="{{ 'flickity-component.css' | asset_url }}" as="style">
+<link rel="preload" href="{{ 'header.css' | asset_url }}" as="style">
+<link rel="preload" href="{{ 'site-nav.css' | asset_url }}" as="style">
+<link rel="preload" href="{{ 'components.css' | asset_url }}" as="style">
+
+{%- if template.name == 'product' -%}
+    <link rel="preload" as="style" href="{{ 'product.css' | asset_url }}">
+    <link rel="preload" as="script" href="{{ 'product-media.js' | asset_url }}">
+{%- endif -%}
+{%- if template.name == 'collection' -%}
+    <link rel="preload" as="style" href="{{ 'collection.css' | asset_url }}">
+{%- endif -%}
+{%- if template.name == 'blog' or template.name == 'article' -%}
+    <link rel="preload" as="style" href="{{ 'blog.css' | asset_url }}">
+{%- endif -%}

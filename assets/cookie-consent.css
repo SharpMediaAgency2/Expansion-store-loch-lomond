@@ -1,0 +1,46 @@
+.f-cookie-banner {
+  display: none;
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  width: 100%;
+  z-index: 100;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.0901960784);
+  transition: cubic-bezier(0.4, 0, 0.2, 1) 0.3s all;
+  transform: translate3d(0, 100%, 0);
+}
+.f-cookie-banner.show {
+  transform: translateZ(0);
+}
+.f-cookie-banner__inner {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  padding: 1.5rem 0;
+}
+.f-cookie-banner__icon {
+  display: inline-block;
+  margin-right: 1.5rem;
+}
+.f-cookie-banner__icon svg {
+  vertical-align: middle;
+}
+@media (max-width: 1023.98px) {
+  .f-cookie-banner__icon {
+    display: none;
+  }
+}
+.f-cookie-banner__actions {
+  margin: 0 0 0 auto;
+}
+.f-cookie-banner__actions .cookie-action--decline {
+  margin-right: 1.5rem;
+}
+@media (max-width: 1023.98px) {
+  .f-cookie-banner__actions {
+    margin-top: 1.5rem;
+  }
+}
+.f-cookie-banner__message a {
+  text-decoration: underline;
+}

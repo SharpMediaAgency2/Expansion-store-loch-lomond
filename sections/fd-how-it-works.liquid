@@ -1,0 +1,440 @@
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --section-pt: {{ section.settings.padding_top }}px;
+    --section-pb: {{ section.settings.padding_bottom }}px;
+  }
+
+  .fd-hiw-{{ section.id }} {
+    padding-top: var(--section-pt);
+    padding-bottom: var(--section-pb);
+  }
+
+  /* ── Page container ── */
+  .fd-hiw-{{ section.id }} .fd-hiw__container {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 0 clamp(20px, 5vw, 60px);
+  }
+
+  /* ── Two-column layout ── */
+  .fd-hiw-{{ section.id }} .fd-hiw__body {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+  }
+
+  /* ── Header — full width inside flex ── */
+  .fd-hiw-{{ section.id }} .fd-hiw__header {
+    flex: 0 0 100%;
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .fd-hiw-{{ section.id }} .fd-hiw__heading {
+    font-family: 'Noto Sans Oriya', 'Noto Serif', serif;
+    font-weight: 700;
+    font-size: 36px;
+    line-height: 48px;
+    letter-spacing: 0.35px;
+    color: #2A2A2A;
+    margin: 0 0 12px;
+  }
+
+  .fd-hiw-{{ section.id }} .fd-hiw__subheading {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 400;
+    font-size: 18px;
+    line-height: 28px;
+    letter-spacing: -0.44px;
+    color: #4A5565;
+    margin: 0;
+  }
+
+  /* Left: 45% */
+  .fd-hiw-{{ section.id }} .fd-hiw__left {
+    flex: 0 0 45%;
+    max-width: 45%;
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+  }
+
+  /* Right: 55% */
+  .fd-hiw-{{ section.id }} .fd-hiw__right {
+    flex: 0 0 calc(55% - 40px);
+    max-width: calc(55% - 40px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .fd-hiw-{{ section.id }} .fd-hiw__right img {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .fd-hiw-{{ section.id }} .fd-hiw__right .fd-hiw__image-placeholder {
+    width: 100%;
+    aspect-ratio: 4 / 3;
+    background: #d4d4d4;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* ── Card ── */
+  .fd-hiw-{{ section.id }} .fd-hiw__card {
+    position: relative;
+    background: #EFF2EE;
+    border-radius: 16px;
+    padding: 24px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    box-shadow:
+      0px 4px 6px -4px rgba(0,0,0,0.10),
+      0px 10px 15px -3px rgba(0,0,0,0.10);
+  }
+
+  /* ── Step number badge ── */
+  .fd-hiw-{{ section.id }} .fd-hiw__badge {
+    position: absolute;
+    top: -14px;
+    right: 16px;
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    background: #ffffff;
+    box-shadow:
+      0px 4px 6px -4px rgba(0,0,0,0.10),
+      0px 10px 15px -3px rgba(0,0,0,0.10);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700;
+    font-size: 18px;
+    line-height: 28px;
+    letter-spacing: -0.44px;
+    color: #2A2A2A;
+  }
+
+  /* ── Card icon ── */
+  .fd-hiw-{{ section.id }} .fd-hiw__icon {
+    width: 64px;
+    height: 64px;
+    object-fit: contain;
+    display: block;
+    flex-shrink: 0;
+  }
+
+  .fd-hiw-{{ section.id }} .fd-hiw__icon-placeholder {
+    width: 64px;
+    height: 64px;
+    background: #d4d4d4;
+    border-radius: 8px;
+    flex-shrink: 0;
+  }
+
+  /* ── Card text ── */
+  .fd-hiw-{{ section.id }} .fd-hiw__card-heading {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 700;
+    font-size: 20px;
+    line-height: 28px;
+    letter-spacing: -0.45px;
+    color: #2A2A2A;
+    margin: 0;
+  }
+
+  .fd-hiw-{{ section.id }} .fd-hiw__card-text {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 400;
+    font-size: 16px;
+    line-height: 26px;
+    letter-spacing: -0.31px;
+    color: #4A5565;
+    margin: 0;
+  }
+
+  /* ── CTA button ── */
+  .fd-hiw-{{ section.id }} .fd-hiw__cta-wrap {
+    display: flex;
+    justify-content: center;
+    margin-top: 48px;
+  }
+
+  .fd-hiw-{{ section.id }} .fd-hiw__btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 46px;
+    padding: 8px 32px;
+    border-radius: 12px;
+    background: #222F1D;
+    color: #ffffff;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 500;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -0.15px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+    transition: opacity 0.2s;
+    white-space: nowrap;
+  }
+
+  .fd-hiw-{{ section.id }} .fd-hiw__btn:hover {
+    opacity: 0.85;
+  }
+
+  /* ── Mobile ── */
+  @media screen and (max-width: 749px) {
+    .fd-hiw-{{ section.id }} .fd-hiw__body {
+      gap: 24px;
+    }
+ .fd-hiw-{{ section.id }} .fd-hiw__subheading {
+  
+  font-size: 16px!important;
+  
+}
+    /* Image first */
+    .fd-hiw-{{ section.id }} .fd-hiw__right {
+      order: 1;
+      flex: 0 0 100%;
+      max-width: 100%;
+    }
+
+    /* Header second */
+    .fd-hiw-{{ section.id }} .fd-hiw__header {
+      order: 2;
+      margin-bottom: 0;
+    }
+
+    /* Cards last */
+    .fd-hiw-{{ section.id }} .fd-hiw__left {
+      order: 3;
+      flex: 0 0 100%;
+      max-width: 100%;
+      gap: 24px;
+    }
+
+    .fd-hiw-{{ section.id }} .fd-hiw__btn {
+      width: 100%;
+    }
+  }
+{%- endstyle -%}
+
+<div class="fd-hiw-{{ section.id }}">
+  <div class="fd-hiw__container">
+
+    <div class="fd-hiw__body">
+
+      {%- comment -%} Header — inside flex body so it can be reordered on mobile {%- endcomment -%}
+      {%- if section.settings.heading != blank or section.settings.subheading != blank -%}
+        <div class="fd-hiw__header">
+          {%- if section.settings.heading != blank -%}
+            <h2 class="fd-hiw__heading">{{ section.settings.heading }}</h2>
+          {%- endif -%}
+          {%- if section.settings.subheading != blank -%}
+            <p class="fd-hiw__subheading">{{ section.settings.subheading }}</p>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%} Left — cards {%- endcomment -%}
+      <div class="fd-hiw__left">
+        {%- for block in section.blocks -%}
+          {%- if forloop.index < 10 -%}
+            {%- assign step_num = forloop.index | prepend: '0' -%}
+          {%- else -%}
+            {%- assign step_num = forloop.index -%}
+          {%- endif -%}
+
+          <div class="fd-hiw__card" {{ block.shopify_attributes }}>
+
+            <span class="fd-hiw__badge" aria-hidden="true">{{ step_num }}</span>
+
+            {%- if block.settings.icon != blank -%}
+              <img
+                src="{{ block.settings.icon | image_url: width: 128 }}"
+                alt="{{ block.settings.heading | escape }}"
+                class="fd-hiw__icon"
+                width="64"
+                height="64"
+                loading="lazy"
+              >
+            {%- else -%}
+              <div class="fd-hiw__icon-placeholder"></div>
+            {%- endif -%}
+
+            {%- if block.settings.heading != blank -%}
+              <h3 class="fd-hiw__card-heading">{{ block.settings.heading }}</h3>
+            {%- endif -%}
+
+            {%- if block.settings.text != blank -%}
+              <p class="fd-hiw__card-text">{{ block.settings.text }}</p>
+            {%- endif -%}
+
+          </div>
+        {%- endfor -%}
+      </div>
+
+      {%- comment -%} Right — image {%- endcomment -%}
+      <div class="fd-hiw__right">
+        {%- if section.settings.image != blank -%}
+          {{
+            section.settings.image
+            | image_url: width: 1000
+            | image_tag:
+              loading: 'lazy',
+              widths: '400, 600, 800, 1000',
+              sizes: '(max-width: 749px) 100vw, 55vw',
+              alt: section.settings.heading | escape
+          }}
+        {%- else -%}
+          <div class="fd-hiw__image-placeholder">
+            {{ 'lifestyle-2' | placeholder_svg_tag: 'placeholder-svg' }}
+          </div>
+        {%- endif -%}
+      </div>
+
+    </div>
+
+    {%- comment -%} CTA {%- endcomment -%}
+    {%- if section.settings.button_label != blank -%}
+      <div class="fd-hiw__cta-wrap">
+        <a
+          href="{{ section.settings.button_url | default: '#' }}"
+          class="fd-hiw__btn"
+          {% if section.settings.button_new_tab %}target="_blank" rel="noopener noreferrer"{% endif %}
+        >
+          {{ section.settings.button_label }}
+        </a>
+      </div>
+    {%- endif -%}
+
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "F&D How It Works",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 9,
+  "settings": [
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "How It Works"
+    },
+    {
+      "type": "textarea",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Get custom embroidered golf apparel from your favorite courses in three simple steps"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Right side image"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button label",
+      "default": "Shop Now"
+    },
+    {
+      "type": "url",
+      "id": "button_url",
+      "label": "Button URL"
+    },
+    {
+      "type": "checkbox",
+      "id": "button_new_tab",
+      "label": "Open in new tab",
+      "default": false
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 64
+    }
+  ],
+  "blocks": [
+    {
+      "type": "step",
+      "name": "Step",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "Icon (64×64)"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "Choose Your Golf Club"
+        },
+        {
+          "type": "textarea",
+          "id": "text",
+          "label": "Description",
+          "default": "From Portmarnock to Royal Birkdale—browse legendary courses."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "F&D How It Works",
+      "blocks": [
+        {
+          "type": "step",
+          "settings": {
+            "heading": "Choose Your Golf Club",
+            "text": "From Portmarnock to Royal Birkdale—browse 25+ legendary courses across Ireland, Scotland, and beyond."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "heading": "Select Premium Apparel",
+            "text": "Pick from Johnnie-O polos, Straight Down quarter-zips, jackets, headwear & accessories."
+          }
+        },
+        {
+          "type": "step",
+          "settings": {
+            "heading": "Receive Custom Embroidered Gear",
+            "text": "Each piece arrives with your club's logo expertly embroidered—ready to relive the round."
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

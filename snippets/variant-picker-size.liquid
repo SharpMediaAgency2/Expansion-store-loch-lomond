@@ -1,0 +1,156 @@
+{%- liquid
+  assign product_form_id = 'product-form-' | append: section.id
+  assign target_option = null
+  assign option_name_setting = block.settings.option_name | downcase | strip
+
+  for option in product.options_with_values
+    assign option_name_check = option.name | downcase | strip
+    if option_name_check == option_name_setting
+      assign target_option = option
+      break
+    endif
+  endfor
+-%}
+{% assign vendor_handle = product.vendor | strip | handleize %}
+{% assign size_guide = metaobjects['size_guide'][vendor_handle] %}
+
+            
+             {% if size_guide %}
+            <modal-dialog id="PopupModal-size" class="f-modal hidden" style="--modal-width:800px">
+                <div class="f-modal__content" role="dialog" aria-modal="true" tabindex="-1">
+                  <div class="scroll-container">
+                    <button
+                      id="ModalClose-size"
+                      type="button"
+                      class="f-modal__close"
+                      aria-label="{{ 'accessibility.close' | t }}"
+                    >
+                      {{ 'icon-close.svg' | inline_asset_content }}
+                    </button>
+                    <div class="f-modal__inner">
+                      <div class="rte py-md px-sm">
+                       {{ size_guide.html | raw }}
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </modal-dialog>
+              {% endif %}
+{%- if target_option != null and product.has_only_default_variant == false -%}
+  <div class="variant-picker__field-wrapper">
+    <div class="variant-picker__field" data-picker-field="radio" data-option-name="{{ target_option.name }}">
+      <div class="js variant-picker__input variant-picker__button">
+        <label class="form__label">
+          <span class="font-semibold">{{ target_option.name }}: {% if size_guide %}
+              <modal-opener class="open-size-chart no-js-hidden" data-modal="#PopupModal-size">
+                <button class="btn--link text-sm" aria-label="{{ 'products.product.open_size_chart' | t }}">
+                  <span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <g clip-path="url(#clip0_293_933)">
+                        <path d="M14.2 10.2C14.3492 10.3486 14.4675 10.5253 14.5483 10.7197C14.629 10.9142 14.6706 11.1227 14.6706 11.3333C14.6706 11.5439 14.629 11.7524 14.5483 11.9469C14.4675 12.1414 14.3492 12.318 14.2 12.4667L12.4667 14.2C12.318 14.3492 12.1414 14.4675 11.9469 14.5483C11.7524 14.629 11.5439 14.6706 11.3333 14.6706C11.1227 14.6706 10.9142 14.629 10.7197 14.5483C10.5253 14.4675 10.3486 14.3492 10.2 14.2L1.79999 5.79999C1.50036 5.49891 1.33215 5.09142 1.33215 4.66666C1.33215 4.24189 1.50036 3.83441 1.79999 3.53332L3.53332 1.79999C3.83441 1.50036 4.24189 1.33215 4.66666 1.33215C5.09142 1.33215 5.49891 1.50036 5.79999 1.79999L14.2 10.2Z" stroke="#4A5565" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9.66669 8.33333L11 7" stroke="#4A5565" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7.66669 6.33333L9.00002 5" stroke="#4A5565" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5.66669 4.33333L7.00002 3" stroke="#4A5565" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M11.6667 10.3333L13 9" stroke="#4A5565" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_293_933">
+                          <rect width="16" height="16" fill="white"/>
+                        </clipPath>
+                      </defs>
+                    </svg>
+                    Size Guide
+                  </span>
+                </button>
+              </modal-opener>
+            {% endif %}</span>
+          {%- if block.settings.show_selected_value -%}
+            <span class="selected-value">{{ target_option.selected_value }}</span>
+          {%- endif -%}
+        </label>
+        <div class="variant-picker__option-values">
+          {%- for value in target_option.values -%}
+            {%- liquid
+              assign option_disabled = true
+              if value.available
+                assign option_disabled = false
+              endif
+            -%}
+
+            {%- capture input_id -%}{{ section.id }}-{{ block.id }}-{{ target_option.position }}-{{ forloop.index0 }}{%- endcapture -%}
+            {%- capture input_name -%}{{ target_option.name }}-{{ target_option.position }}{%- endcapture -%}
+
+            <div class="variant-picker__option{% if option_disabled %} variant-picker__option--soldout{% endif %}">
+              <input
+                type="radio"
+                id="{{ input_id }}"
+                name="{{ input_name | escape }}"
+                value="{{ value | escape }}"
+                form="{{ product_form_id }}"
+                {% if value.selected %}checked{% endif %}
+                {% if option_disabled %}class="disabled"{% endif %}
+                data-product-url="{{ value.product_url }}"
+                data-option-value-id="{{ value.id }}"
+              >
+              <label
+                class="variant-picker__option-button variant-picker__option-button--button"
+                for="{{ input_id }}"
+              >
+                {{- value -}}
+              </label>
+            </div>
+          {%- endfor -%}
+        </div>
+      </div>
+    </div>
+
+    {%- if block.settings.show_size_chart -%}
+      {%- liquid
+        assign size_chart = product.metafields.foxtheme.size_chart
+        if size_chart == blank and block.settings.size_chart_from_page != blank
+          assign size_chart = pages[block.settings.size_chart_from_page].content
+        endif
+      -%}
+      {%- if size_chart != blank -%}
+        <modal-opener class="open-size-chart no-js-hidden" data-modal="#PopupModal-SizeChart-{{ section.id }}-{{ block.id }}">
+          <button class="btn--link text-sm" aria-label="{{ 'products.product.open_size_chart' | t }}">
+            <span>{{ 'products.product.open_size_chart' | t }}</span>
+          </button>
+        </modal-opener>
+        <modal-dialog id="PopupModal-SizeChart-{{ section.id }}-{{ block.id }}" class="f-modal hidden" style="--modal-width:800px">
+          <div class="f-modal__content" role="dialog" aria-modal="true" tabindex="-1">
+            <div class="scroll-container">
+              <button
+                type="button"
+                class="f-modal__close"
+                aria-label="{{ 'accessibility.close' | t }}"
+              >
+                {{ 'icon-close.svg' | inline_asset_content }}
+              </button>
+              <div class="f-modal__inner">
+                <div class="rte py-md px-sm">{{ size_chart }}</div>
+              </div>
+            </div>
+          </div>
+        </modal-dialog>
+      {%- endif -%}
+    {%- endif -%}
+  </div>
+{%- endif -%}
+              <modal-dialog id="PopupModal-{{ modal_id }}" class="f-modal hidden" style="--modal-width:800px">
+                <div class="f-modal__content" role="dialog" aria-modal="true" tabindex="-1">
+                  <div class="scroll-container">
+                    <button
+                      id="ModalClose-{{ modal_id }}"
+                      type="button"
+                      class="f-modal__close"
+                      aria-label="{{ 'accessibility.close' | t }}"
+                    >
+                      {{ 'icon-close.svg' | inline_asset_content }}
+                    </button>
+                    <div class="f-modal__inner">
+                      <div class="rte py-md px-sm">Test Content</div>
+                    </div>
+                  </div>
+                </div>
+              </modal-dialog>

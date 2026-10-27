@@ -1,0 +1,15 @@
+{% assign title = 'sections.cart.note_title' | t %}
+{% capture content %}
+    <div class="{{ class }} flex flex-col" data-index="{{ index }}" data-block="{{ block.type }}" {{ block.shopify_attributes }}>
+        <div class="f-cart-drawer__note w-full">
+            <label for="Note" class="form-label">{{ 'sections.cart.note' | t }}</label>
+            <textarea name="note" id="Note" class="form-control form-control--textarea w-full" data-cart-note-input>{{ cart.note }}</textarea>
+            <div class="text-center no-js-hidden">
+                <button class="btn btn--underline btn-cancel" aria-label=">{{ 'accessibility.close' | t }}">{{ 'accessibility.close' | t }}</button>
+            </div>
+        </div>
+    </div>
+{% endcapture %}
+<cart-note class="block">
+    {% render 'collapsible-item', title: title, content: content, id: id %}
+</cart-note>

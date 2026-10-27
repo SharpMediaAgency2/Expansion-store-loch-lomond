@@ -1,0 +1,900 @@
+{{ 'hero.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign image = section.settings.image
+  assign image_mobile = section.settings.image_mobile
+  assign image_overlay_opacity = section.settings.image_overlay_opacity
+  assign height_desktop = section.settings.height_desktop
+  assign height_mobile = section.settings.height_mobile
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign text_color = section.settings.text_color
+  assign show_text_below = section.settings.show_text_below
+  assign text_alignment = section.settings.text_alignment
+  assign text_alignment_mobile = section.settings.text_alignment_mobile
+
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+
+  assign loading = 'lazy'
+  assign fetchpriority = 'low'
+  if section.index < 2
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  endif
+-%}
+
+<style>
+  #{{ section_id }} .club-hero__favorite-btn {
+    position: absolute;
+    bottom: 20px;
+    right: 20px;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: rgba(255, 255, 255, 0.85);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+    transition: background 0.2s ease, transform 0.2s ease;
+    backdrop-filter: blur(4px);
+  }
+  #{{ section_id }} .club-hero__favorite-btn:hover {
+    background: rgba(255, 255, 255, 1);
+    transform: scale(1.1);
+  }
+  #{{ section_id }} .club-hero__favorite-btn svg {
+    width: 20px;
+    height: 20px;
+    transition: fill 0.2s ease, stroke 0.2s ease;
+  }
+  #{{ section_id }} .club-hero__favorite-btn.is-favorited svg {
+    fill: #ef4444;
+    stroke: #ef4444;
+  }
+
+ /* SM: hero image styling: start */ 
+  #{{ section_id }} .club-hero__logo-image {
+    display: block;
+    margin-bottom: 12px;
+    width: {{ block.settings.logo_width_desktop }}px;
+    max-width: 100%;
+  }
+  @media (max-width: 767px) {
+    #{{ section_id }} .club-hero__logo-image {
+      width: {{ block.settings.logo_width_mobile }}px;
+    }
+  }
+  #{{ section_id }} .club-hero__logo-image img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+  }
+ /* SM: hero image styling: end */ 
+
+  #{{ section_id }} .club-hero__ranked-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(6px);
+    border-radius: 20px;
+    padding: 5px 12px;
+    color: #fff;
+    font-size: 13px;
+    font-weight: 600;
+    margin-bottom: 8px;
+    width: fit-content;
+  }
+  #{{ section_id }} .club-hero__location-block {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 14px;
+    margin-top: 4px;
+    width: fit-content;
+  }
+  #{{ section_id }} .club-hero__location-block svg {
+    flex-shrink: 0;
+  }
+  #{{ section_id }}.f-hero {
+    min-height: {{ height_desktop }}vh;
+  }
+  #{{ section_id }} .f-hero__wrapper,
+  #{{ section_id }} .f-hero__wrapper--short {
+    min-height: {{ height_desktop }}vh;
+    height: {{ height_desktop }}vh;
+    display: flex;
+    flex-direction: column;
+  }
+  #{{ section_id }} .f-hero__content-wrapper {
+    flex: 1;
+    width: 100%;
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-start;
+  }
+  #{{ section_id }} .f-hero__wrapper{
+    padding-bottom:48px;
+  }
+  #{{ section_id }} h2.f-hero_heading.h2 {
+    margin-top: 0px;
+}
+#{{ section_id }} motion-element.block.club-hero__location-block-outer {
+    margin-top: 1em;
+}
+  @media (max-width: 767px) {
+    #{{ section_id }}.f-hero {
+      min-height: {{ height_mobile }}vh;
+    }
+    #{{ section_id }} .f-hero__wrapper,
+    #{{ section_id }} .f-hero__wrapper--short {
+      min-height: {{ height_mobile }}vh;
+      height: {{ height_mobile }}vh;
+    }
+  }
+</style>
+
+<div
+  class="f-hero f-hero--mobile block relative overflow-hidden {{ custom_class }}"
+  id="{{ section_id }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="club-hero-banner"
+>
+  {%- if image != blank -%}
+    <motion-element
+      data-motion="{% if section.settings.enable_bg_zoom_effect %}zoom-out-sm{% else %}none{% endif %}"
+      class="block absolute w-full h-full"
+    >
+      <picture class="bg-image">
+        {%- if image_mobile != blank -%}
+          <source
+            media="(max-width: 767px)"
+            srcset="{{ image_mobile | image_url: width: 1200 }}"
+          >
+        {%- endif -%}
+        {{
+          image
+          | image_url: width: 3000
+          | image_tag:
+            loading: loading,
+            fetchpriority: fetchpriority,
+            widths: '375, 550, 750, 1100, 1500, 1780, 2000, 3000, 3840',
+            sizes: '100vw',
+            alt: image.alt
+        }}
+      </picture>
+      {%- if image_overlay_opacity > 0 -%}
+        <div
+          class="bg-overlay"
+          style="--color-overlay-alpha: {{ image_overlay_opacity }}"
+        ></div>
+      {%- endif -%}
+    </motion-element>
+  {%- endif -%}
+
+  {%- if section.settings.enable_favorite_button -%}
+    <a href="#"
+      class="club-hero__favorite-btn"
+      aria-label="Add to favorites"
+      onclick="this.classList.toggle('is-favorited'); this.setAttribute('aria-label', this.classList.contains('is-favorited') ? 'Remove from favorites' : 'Add to favorites');"
+    >
+     <svg width="22" height="20" viewBox="0 0 22 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+<path d="M17.8335 11.8333C19.3235 10.3733 20.8335 8.62334 20.8335 6.33334C20.8335 4.87465 20.254 3.47571 19.2226 2.44426C18.1911 1.41281 16.7922 0.833344 15.3335 0.833344C13.5735 0.833344 12.3335 1.33334 10.8335 2.83334C9.3335 1.33334 8.0935 0.833344 6.3335 0.833344C4.87481 0.833344 3.47586 1.41281 2.44441 2.44426C1.41296 3.47571 0.833496 4.87465 0.833496 6.33334C0.833496 8.63334 2.3335 10.3833 3.8335 11.8333L10.8335 18.8333L17.8335 11.8333Z" stroke="#364153" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>
+</a>
+  {%- endif -%}
+
+  <div class="container">
+    <div
+      class="block {% if section.settings.short_hero %}f-hero__wrapper--short{% else %}f-hero__wrapper{% endif %} relative overflow-hidden{% if show_text_below %} f-hero__wrapper--mobile-stack{% endif %}"
+    >
+      {%- if section.blocks.size > 0 -%}
+        <div class="f-hero__content-wrapper flex md:content-overlay--{{ section.settings.content_position }}{% unless section.settings.show_text_below %} md-down:content-overlay--{{ section.settings.content_position_mobile }}{% endunless %}">
+          <div
+            class="f-hero__content f-text-blocks text-{{ text_alignment_mobile }} md:text-{{ text_alignment }}"
+            style="--text-color: {{ text_color }};"
+          >
+            {%- for block in section.blocks -%}
+              {% case block.type %}
+                {%- when 'title' -%}
+                  {%- if block.settings.title != blank -%}
+                    {%- liquid
+                      assign inline_css = ''
+
+                      if block.settings.heading_color != blank and block.settings.heading_color != 'rgba(0,0,0,0)'
+                        assign inline_css = inline_css | append: 'color:' | append: block.settings.heading_color | append: ';'
+                      endif
+                    -%}
+                    <{{ block.settings.heading_tag }}
+                      class="f-hero_heading {{ block.settings.heading_size }}"
+                      {% if inline_css != blank %}
+                        style="{{ inline_css }}"
+                      {% endif %}
+                      {{ block.shopify_attributes }}
+                    >
+                      <motion-element
+                        data-motion="{{ animation_effect }}"
+                        data-motion-delay="{{ motion_delay }}"
+                        class="block"
+                      >
+                        {%- render 'highlight-text',
+                          hl_text: block.settings.title,
+                          hl_style: block.settings.highlight_style,
+                          enable_hl_text_color: block.settings.enable_highlight_text_color
+                        -%}
+                      </motion-element>
+                    </{{ block.settings.heading_tag }}>
+                    {%- assign motion_delay = motion_delay | plus: 50 -%}
+                  {%- endif -%}
+                {%- when 'subtitle' -%}
+                  {%- if block.settings.subtitle != blank -%}
+                    <motion-element
+                      data-motion="{{ animation_effect }}"
+                      data-motion-delay="{{ motion_delay }}"
+                      class="block f-hero_subheading text-subheading"
+                      {{ block.shopify_attributes }}
+                    >
+                      {{ block.settings.subtitle | escape }}
+                    </motion-element>
+                    {%- assign motion_delay = motion_delay | plus: 50 -%}
+                  {%- endif -%}
+                {%- when 'text' -%}
+                  {%- if block.settings.text != blank -%}
+                    <motion-element
+                      data-motion="{{ animation_effect }}"
+                      data-motion-delay="{{ motion_delay }}"
+                      class="block f-hero_text rte mobile-remove-br"
+                      {{ block.shopify_attributes }}
+                    >
+                      {{ block.settings.text }}
+                    </motion-element>
+                    {%- assign motion_delay = motion_delay | plus: 50 -%}
+                  {%- endif -%}
+                {%- when 'button' -%}
+                  {%- if block.settings.button_label != blank -%}
+                    <motion-element
+                      data-motion="{{ animation_effect }}"
+                      data-motion-delay="{{ motion_delay }}"
+                      class="block f-text-blocks__btn"
+                    >
+                      <a
+                        class="btn {{ block.settings.button_style }} {{ block.settings.button_size }}"
+                        {% if block.settings.button_link != blank %}
+                          href="{{ block.settings.button_link }}"
+                        {% else %}
+                          role="link"
+                          aria-disabled="true"
+                        {% endif %}
+                        {{ block.shopify_attributes }}
+                      >
+                        {{ block.settings.button_label | escape }}
+                      </a>
+                    </motion-element>
+                    {%- assign motion_delay = motion_delay | plus: 50 -%}
+                  {%- endif -%}
+
+              <!-- SM: logo image: start -->
+                {%- when 'logo_image' -%}
+                  {%- if block.settings.logo_image != blank -%}
+                    <style>
+                      #{{ section_id }} .club-hero__logo-image--{{ block.id }} {
+                        width: {{ block.settings.logo_width_desktop }}px;
+                        max-width: 100%;
+                        height: auto;
+                        display: block;
+                      }
+                      #{{ section_id }} .club-hero__logo-image-wrapper {
+                        display: block;
+                        padding: 0 !important;
+                        margin-top: 0 !important;
+                        margin-bottom: 0 !important;
+                        line-height: 0;
+                        font-size: 0;
+                      }
+                      @media (max-width: 767px) {
+                        #{{ section_id }} .club-hero__logo-image--{{ block.id }} {
+                          width: {{ block.settings.logo_width_mobile }}px;
+                        }
+                      }
+                    </style>
+                    <motion-element
+                      data-motion="{{ animation_effect }}"
+                      data-motion-delay="{{ motion_delay }}"
+                      class="block club-hero__logo-image-wrapper"
+                      style="width: fit-content;"
+                      {{ block.shopify_attributes }}
+                    >
+                      <img
+                        src="{{ block.settings.logo_image | image_url: width: 600 }}"
+                        alt="{{ block.settings.logo_image.alt | escape }}"
+                        loading="lazy"
+                        class="club-hero__logo-image--{{ block.id }}"
+                      >
+                    </motion-element>
+                    {%- assign motion_delay = motion_delay | plus: 50 -%}
+                  {%- endif -%}
+                  <!-- SM: logo image: end -->
+
+                {%- when 'ranked_badge' -%}
+                  {%- if block.settings.ranked_text != blank -%}
+                    <motion-element
+                      data-motion="{{ animation_effect }}"
+                      data-motion-delay="{{ motion_delay }}"
+                      class="block"
+                      {{ block.shopify_attributes }}
+                    >
+                      <div class="club-hero__ranked-badge">
+                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M7.0177 0.863252C7.04692 0.804226 7.09205 0.754541 7.14801 0.719802C7.20396 0.685064 7.26851 0.666656 7.33437 0.666656C7.40023 0.666656 7.46478 0.685064 7.52074 0.719802C7.57669 0.754541 7.62182 0.804226 7.65104 0.863252L9.19104 3.98259C9.29249 4.1879 9.44225 4.36552 9.62745 4.50022C9.81266 4.63492 10.0278 4.72266 10.2544 4.75592L13.6984 5.25992C13.7636 5.26937 13.8249 5.2969 13.8754 5.33939C13.9258 5.38187 13.9633 5.43762 13.9837 5.50032C14.0041 5.56303 14.0066 5.63019 13.9908 5.69421C13.975 5.75823 13.9416 5.81655 13.8944 5.86259L11.4037 8.28792C11.2394 8.44799 11.1166 8.64557 11.0456 8.86367C10.9746 9.08177 10.9577 9.31385 10.9964 9.53992L11.5844 12.9666C11.5959 13.0318 11.5888 13.099 11.564 13.1604C11.5392 13.2218 11.4977 13.275 11.4441 13.3139C11.3905 13.3528 11.327 13.3759 11.2609 13.3805C11.1949 13.3851 11.1288 13.371 11.0704 13.3399L7.9917 11.7213C7.78885 11.6147 7.56316 11.5591 7.33404 11.5591C7.10492 11.5591 6.87923 11.6147 6.67637 11.7213L3.59837 13.3399C3.53992 13.3709 3.47397 13.3848 3.408 13.3801C3.34204 13.3754 3.27872 13.3523 3.22523 13.3134C3.17175 13.2745 3.13026 13.2214 3.10547 13.1601C3.08069 13.0988 3.07361 13.0317 3.08504 12.9666L3.67237 9.54059C3.71117 9.31441 3.69436 9.08218 3.6234 8.86395C3.55243 8.64572 3.42944 8.44802 3.26504 8.28792L0.77437 5.86325C0.726766 5.81727 0.693033 5.75885 0.677012 5.69464C0.660991 5.63042 0.663328 5.563 0.683756 5.50005C0.704184 5.4371 0.741882 5.38115 0.792555 5.33857C0.843228 5.296 0.904839 5.26852 0.97037 5.25925L4.4137 4.75592C4.64054 4.72292 4.85596 4.63529 5.04143 4.50058C5.22689 4.36586 5.37684 4.1881 5.47837 3.98259L7.0177 0.863252Z" fill="#FDC700" stroke="#FDC700" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {{ block.settings.ranked_text | escape }}
+                      </div>
+                    </motion-element>
+                    {%- assign motion_delay = motion_delay | plus: 50 -%}
+                  {%- endif -%}
+                {%- when 'location' -%}
+                  {%- if block.settings.location_text != blank -%}
+                    <motion-element
+                      data-motion="{{ animation_effect }}"
+                      data-motion-delay="{{ motion_delay }}"
+                      class="block club-hero__location-block-outer"
+                      {{ block.shopify_attributes }}
+                    >
+                      <div class="club-hero__location-block">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M16.6668 8.33335C16.6668 12.4942 12.051 16.8275 10.501 18.1659C10.3566 18.2744 10.1808 18.3331 10.0002 18.3331C9.8195 18.3331 9.64373 18.2744 9.49933 18.1659C7.94933 16.8275 3.3335 12.4942 3.3335 8.33335C3.3335 6.56524 4.03588 4.86955 5.28612 3.61931C6.53636 2.36907 8.23205 1.66669 10.0002 1.66669C11.7683 1.66669 13.464 2.36907 14.7142 3.61931C15.9645 4.86955 16.6668 6.56524 16.6668 8.33335Z" stroke="#E5E7EB" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M10 10.8333C11.3807 10.8333 12.5 9.71402 12.5 8.33331C12.5 6.9526 11.3807 5.83331 10 5.83331C8.61929 5.83331 7.5 6.9526 7.5 8.33331C7.5 9.71402 8.61929 10.8333 10 10.8333Z" stroke="#E5E7EB" stroke-width="1.66667" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        {{ block.settings.location_text | escape }}
+                      </div>
+                    </motion-element>
+                    {%- assign motion_delay = motion_delay | plus: 50 -%}
+                  {%- endif -%}
+              {%- endcase -%}
+            {%- endfor -%}
+          </div>
+        </div>
+      {%- endif -%}
+    </div>
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Club Hero Banner",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.hero.settings.image_settings.image"
+    },
+    {
+      "type": "range",
+      "id": "image_overlay_opacity",
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "%",
+      "label": "t:sections.hero.settings.image_settings.image_overlay",
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "height_desktop",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "label": "Desktop Height",
+      "default": 60
+    },
+    {
+      "type": "header",
+      "content": "Club Options"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_favorite_button",
+      "label": "Enable Favorite Button",
+      "info": "Shows a heart icon button in the bottom-right corner of the banner.",
+      "default": true
+    },
+    {
+      "type": "select",
+      "id": "content_position",
+      "label": "t:settings_schema.global.settings.content_position.label",
+      "default": "left-bottom",
+      "options": [
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__1.label",
+          "value": "left-top"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__2.label",
+          "value": "center-top"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__3.label",
+          "value": "right-top"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__4.label",
+          "value": "left-middle"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__5.label",
+          "value": "center"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__6.label",
+          "value": "right-middle"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__7.label",
+          "value": "left-bottom"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__8.label",
+          "value": "center-bottom"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__9.label",
+          "value": "right-bottom"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "label": "t:settings_schema.global.settings.content_alignment.desktop.label",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:settings_schema.global.settings.content_alignment.option__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:settings_schema.global.settings.content_alignment.option__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:settings_schema.global.settings.content_alignment.option__3.label"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "t:settings_schema.global.settings.text_color_options.label",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.mobile.header"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Mobile Image",
+      "info": "Optional. If set, this image will be shown on screens 767px and below instead of the desktop image."
+    },
+    {
+      "type": "range",
+      "id": "height_mobile",
+      "min": 20,
+      "max": 100,
+      "step": 5,
+      "unit": "vh",
+      "label": "Mobile Height",
+      "default": 50
+    },
+    {
+      "type": "select",
+      "id": "content_position_mobile",
+      "label": "t:settings_schema.global.settings.content_position.label",
+      "default": "left-bottom",
+      "options": [
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__1.label",
+          "value": "left-top"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__2.label",
+          "value": "center-top"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__3.label",
+          "value": "right-top"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__4.label",
+          "value": "left-middle"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__5.label",
+          "value": "center"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__6.label",
+          "value": "right-middle"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__7.label",
+          "value": "left-bottom"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__8.label",
+          "value": "center-bottom"
+        },
+        {
+          "label": "t:settings_schema.global.settings.content_position.option__9.label",
+          "value": "right-bottom"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "short_hero",
+      "default": false,
+      "label": "t:sections.hero.settings.short_hero.label"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_text_below",
+      "default": true,
+      "label": "t:sections.hero.settings.show_text_below.label"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment_mobile",
+      "label": "t:settings_schema.global.settings.content_alignment.mobile.label",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:settings_schema.global.settings.content_alignment.option__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:settings_schema.global.settings.content_alignment.option__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:settings_schema.global.settings.content_alignment.option__3.label"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_bg_zoom_effect",
+      "label": "t:settings_schema.animations.settings.animation_bg.label",
+      "default": true
+    }
+  ],
+  "blocks": [
+    {
+      "type": "logo_image",
+      "name": "Logo / Image",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "logo_image",
+          "label": "Image",
+          "info": "Displays above the ranked badge. Recommended: PNG with transparent background."
+        },
+        {
+          "type": "range",
+          "id": "logo_width_desktop",
+          "label": "Image Width – Desktop",
+          "min": 40,
+          "max": 160,
+          "step": 10,
+          "unit": "px",
+          "default": 80
+        },
+        {
+          "type": "range",
+          "id": "logo_width_mobile",
+          "label": "Image Width – Mobile",
+          "min": 30,
+          "max": 80,
+          "step": 5,
+          "unit": "px",
+          "default": 50
+        }
+      ]
+    },
+    {
+      "type": "ranked_badge",
+      "name": "Ranked Badge",
+      "settings": [
+        {
+          "type": "text",
+          "id": "ranked_text",
+          "label": "Badge Text",
+          "default": "Ranked #1 in the World",
+          "info": "Text displayed next to the star icon in the badge."
+        }
+      ]
+    },
+    {
+      "type": "title",
+      "name": "t:sections.hero.blocks.heading.name",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "title",
+          "info": "t:sections.common.highlight_text.paragraph.content",
+          "label": "t:sections.hero.blocks.heading.settings.heading.label",
+          "default": "Club Name"
+        },
+        {
+          "type": "select",
+          "id": "highlight_style",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+            },
+            {
+              "value": "drawer_line",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+            },
+            {
+              "value": "underline",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_highlight_text_color",
+          "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "default": "h2",
+          "label": "t:sections.common.title_tag.heading.label",
+          "options": [
+            {
+              "value": "h1",
+              "label": "t:sections.common.title_tag.options__h1.label"
+            },
+            {
+              "value": "h2",
+              "label": "t:sections.common.title_tag.options__h2.label"
+            },
+            {
+              "value": "h3",
+              "label": "t:sections.common.title_tag.options__h3.label"
+            },
+            {
+              "value": "h4",
+              "label": "t:sections.common.title_tag.options__h4.label"
+            },
+            {
+              "value": "h5",
+              "label": "t:sections.common.title_tag.options__h5.label"
+            },
+            {
+              "value": "h6",
+              "label": "t:sections.common.title_tag.options__h6.label"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "default": "h2",
+          "label": "t:sections.common.text_size.heading.label",
+          "options": [
+            {
+              "value": "h3",
+              "label": "t:sections.common.text_size.options__h3.label"
+            },
+            {
+              "value": "h2",
+              "label": "t:sections.common.text_size.options__h2.label"
+            },
+            {
+              "value": "h1",
+              "label": "t:sections.common.text_size.options__h1.label"
+            },
+            {
+              "value": "h0",
+              "label": "t:sections.common.text_size.options__h0.label"
+            },
+            {
+              "value": "h-xl",
+              "label": "t:sections.common.text_size.options__hd1.label"
+            }
+          ]
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "t:sections.common.heading_color.label",
+          "info": "t:sections.common.heading_color.info"
+        }
+      ]
+    },
+    {
+      "type": "location",
+      "name": "Location",
+      "settings": [
+        {
+          "type": "text",
+          "id": "location_text",
+          "label": "Location Text",
+          "default": "City, Country",
+          "info": "Displays a pin icon followed by the location text."
+        }
+      ]
+    },
+    {
+      "type": "subtitle",
+      "name": "t:sections.hero.blocks.subheading.name",
+      "settings": [
+        {
+          "type": "text",
+          "id": "subtitle",
+          "label": "t:sections.hero.blocks.subheading.settings.heading.label",
+          "default": "Subheading text"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.hero.blocks.text.name",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.hero.blocks.text.settings.text.label",
+          "default": "<p>Use overlay text to give your customers insight into your brand.</p>"
+        }
+      ]
+    },
+    {
+      "type": "button",
+      "name": "t:sections.image-with-text.blocks.button.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:sections.common.button.button_label.label",
+          "default": "Button label",
+          "info": "t:sections.common.button.button_label.info"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "t:sections.image-with-text.blocks.button.settings.button_link.label"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "t:sections.common.button.button_style.label",
+          "options": [
+            {
+              "value": "btn--primary",
+              "label": "t:sections.common.button.button_style.options.option__1"
+            },
+            {
+              "value": "btn--secondary",
+              "label": "t:sections.common.button.button_style.options.option__2"
+            }
+          ],
+          "default": "btn--primary"
+        },
+        {
+          "type": "select",
+          "id": "button_size",
+          "label": "t:sections.common.button.button_size.label",
+          "options": [
+            {
+              "value": "",
+              "label": "t:sections.common.button.button_size.options.option__1"
+            },
+            {
+              "value": "btn--small",
+              "label": "t:sections.common.button.button_size.options.option__2"
+            },
+            {
+              "value": "btn--medium",
+              "label": "t:sections.common.button.button_size.options.option__3"
+            }
+          ],
+          "default": ""
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Club Hero Banner",
+      "blocks": [
+        {
+          "type": "ranked_badge"
+        },
+        {
+          "type": "title"
+        },
+        {
+          "type": "location"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

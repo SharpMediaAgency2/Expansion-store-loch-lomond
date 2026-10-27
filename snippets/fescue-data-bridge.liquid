@@ -1,0 +1,137 @@
+{%- comment -%}
+  fescue-data-bridge.liquid
+{%- endcomment -%}
+
+<script>
+(function() {
+
+  /* ── Animation speed ───────────────────────────────────────
+     Reads from theme settings. Consumed by LogoEngine.init(). */
+  window.fcAnimationMs = {{ settings.logo_animation_time | default: 4.5 | times: 1000 }};
+
+  /* ── P4: Theme default logos ───────────────────────────────
+     Static fallback from theme customizer.
+     Used when nothing else in the priority chain matches. */
+  window.fcDefaultLogos = [];
+  {%- for i in (1..12) -%}
+    {%- assign logo_id = 'club_logo_' | append: i -%}
+    {%- assign logo_val = settings[logo_id] -%}
+    {%- if logo_val != blank -%}
+      window.fcDefaultLogos.push({{ logo_val | image_url: width: 200 | json }});
+    {%- endif -%}
+  {%- endfor -%}
+
+  /* ── Global course data ────────────────────────────────────
+     Populated on EVERY page from all course metaobjects.
+     Ensures getLogoByHandle() (P3 favorites) works on collections, the
+     homepage, and any page without a featured-clubs / header-courses
+     section. Section blocks merge into this same array without duplicating. */
+  window.coursesData = window.coursesData || [];
+  {%- for course in shop.metaobjects.courses.values -%}
+    {%- assign course_logo = course.display_logo.value -%}
+    {%- if course_logo != blank -%}
+      (function(){
+        var h = {{ course.title.value | handleize | json }};
+        if (!window.coursesData.some(function(c){ return c.handle === h; })) {
+          window.coursesData.push({
+            handle: h,
+            title: {{ course.display_title.value | json }},
+            logo: {{ course_logo | image_url: width: 200 | json }}
+          });
+        }
+      })();
+    {%- endif -%}
+  {%- endfor -%}
+
+  /* ── P1: Club page logos + handle ──────────────────────────
+     Populated ONLY on club pages / course metaobject pages.
+     LogoEngine.resolve() writes fcPageLogos to the customLogoSources cookie
+     (P2 persistence) and CLEARS any active utm override.
+     fcPageHandle drives customLogoClub (P2) and product-link ?club= tagging.
+     Both stay empty / null on every page that isn't a club page. */
+  window.fcPageLogos = [];
+  window.fcPageHandle = null;
+
+  {%- comment -%}
+    PAGE TEMPLATE — gated on the custom.club_page metafield.
+    Uses the 3 separate logo metafields (course_logo_1/2/3).
+  {%- endcomment -%}
+  {%- if template.name == 'page' and page.metafields.custom.club_page == true -%}
+    {%- if page.metafields.custom.course_logo_1 != blank -%}
+      window.fcPageLogos.push({{ page.metafields.custom.course_logo_1 | image_url: width: 200 | json }});
+    {%- endif -%}
+    {%- if page.metafields.custom.course_logo_2 != blank -%}
+      window.fcPageLogos.push({{ page.metafields.custom.course_logo_2 | image_url: width: 200 | json }});
+    {%- endif -%}
+    {%- if page.metafields.custom.course_logo_3 != blank -%}
+      window.fcPageLogos.push({{ page.metafields.custom.course_logo_3 | image_url: width: 200 | json }});
+    {%- endif -%}
+    {%- assign fc_club_handle = page.metafields.custom.selected_course.value.title | handle -%}
+    {%- if fc_club_handle != blank -%}
+      window.fcPageHandle = {{ fc_club_handle | json }};
+      {%- comment -%} Legacy cookie — kept for any third-party script reading it {%- endcomment -%}
+      window.CookieManager && window.CookieManager.set('club_handle', {{ fc_club_handle | json }}, 7);
+    {%- endif -%}
+  {%- endif -%}
+
+  {%- comment -%}
+    METAOBJECT TEMPLATE — 'courses'.
+    Uses the course_logos list metafield, capped at 3.
+    Falls back to display_logo when course_logos is empty.
+  {%- endcomment -%}
+  {%- if template.name == 'courses' -%}
+    {%- if metaobject.course_logos.value != blank -%}
+      {%- for logo in metaobject.course_logos.value limit: 3 -%}
+        window.fcPageLogos.push({{ logo | image_url: width: 200 | json }});
+      {%- endfor -%}
+    {%- elsif metaobject.display_logo.value != blank -%}
+      window.fcPageLogos.push({{ metaobject.display_logo.value | image_url: width: 200 | json }});
+    {%- endif -%}
+    {%- assign fc_club_handle = metaobject.title | handle -%}
+    {%- if fc_club_handle != blank -%}
+      window.fcPageHandle = {{ fc_club_handle | json }};
+      {%- comment -%} Legacy cookie {%- endcomment -%}
+      window.CookieManager && window.CookieManager.set('club_handle', {{ fc_club_handle | json }}, 7);
+    {%- endif -%}
+  {%- endif -%}
+
+  window.fcCollectionClub = null;
+  window.fcCollectionLogos = [];
+
+  {%- if template.name == 'collection' -%}
+    {%- assign fc_coll_handle = collection.metafields.custom.selected_course.value.title | handle -%}
+    {%- if fc_coll_handle != blank -%}
+      window.fcCollectionClub = {{ fc_coll_handle | json }};
+    {%- endif -%}
+    {%- if collection.metafields.custom.course_logo_1 != blank -%}
+      window.fcCollectionLogos.push({{ collection.metafields.custom.course_logo_1 | image_url: width: 200 | json }});
+    {%- endif -%}
+    {%- if collection.metafields.custom.course_logo_2 != blank -%}
+      window.fcCollectionLogos.push({{ collection.metafields.custom.course_logo_2 | image_url: width: 200 | json }});
+    {%- endif -%}
+    {%- if collection.metafields.custom.course_logo_3 != blank -%}
+      window.fcCollectionLogos.push({{ collection.metafields.custom.course_logo_3 | image_url: width: 200 | json }});
+    {%- endif -%}
+  {%- endif -%}
+
+  /* ── Boot LogoEngine ───────────────────────────────────────
+     Runs the priority chain and starts the animation.
+     Gated on the theme setting so it can be toggled in the customizer.
+     init() self-guards against a double boot by clearing any existing
+     interval first.
+
+     NOTE the block comment above and the plain =below. A `//` comment
+
+     and throws a SyntaxError that kills this whole script. See the header. */
+  {% if settings.enable_logo_animation %}
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', function() {
+      window.LogoEngine && window.LogoEngine.init();
+    });
+  } else {
+    window.LogoEngine && window.LogoEngine.init();
+  }
+  {% endif %}
+
+})();
+</script>

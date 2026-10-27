@@ -1,0 +1,126 @@
+.f-embed__form {
+  width: 100% !important;
+}
+
+.f-embedcode__form .container {
+  padding-left: 0 !important;
+  padding-right: 0 !important;
+}
+
+.f-embed__form form  {
+  background-color: var(--bg-color) !important;
+}
+
+.f-embed__form * {
+  letter-spacing: normal !important;
+}
+
+.f-embed__form input[type="text"] {
+  padding: 12px 24px !important;
+  border-radius: 12px !important;
+  border: 1px solid #D1D1D1 !important;
+}
+
+.f-embed__form input[type="text"]:hover,
+.go1587926228.go1587926228.go1587926228:hover {
+  border-color: #D1D1D1 !important;
+}
+
+.f-embed__form input[type="text"]:focus-visible,
+.go1587926228.go1587926228.go1587926228:focus-visible {
+  outline-color: #D1D1D1 !important;
+}
+
+.f-embed__form button {
+  padding: 12px 20px !important;
+  height: auto !important;
+  background-color: #FFFFFF !important;
+  color: #262626 !important;
+  border-color: #C58A30 !important;
+}
+
+.f-embed__form button:hover {
+  background-color: #C58A30 !important;
+  color: #262626 !important;
+  border-color: #C58A30 !important;
+}
+
+.f-embed__form input::placeholder {
+  letter-spacing: normal !important;
+  height: auto !important;
+}
+
+.f-embed__form-container {
+  display: flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+}
+
+.f-embed__form-image-wrap {
+  background-color: #EFEFEF;
+  margin: auto;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.f-embed__form-image,
+.f-embed__form-box {
+  width: 100%;
+}
+
+.f-embed__form-image {
+  padding: 48px 0 0;
+}
+
+.f-embed__form-image .f-image  {
+  max-width: 350px;
+}
+
+.f-embed__form-box {
+  width: 100%;
+  padding: 0 0 48px;
+}
+
+.f-embed__form-box .f-newsletter__form--boxed {
+  border-radius: 0;
+  padding: 2rem 1rem !important;
+}
+
+.custom-klaviyo-form-wrapper {
+  margin-top: 14px;
+}
+
+@media (min-width: 801px) {
+  .f-embedcode__form .container {
+    padding-left: 1.5rem !important;
+    padding-right: 1.5rem !important;
+  }
+  .f-embed__form {
+    width: 100% !important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .f-embed__form-image {
+    width: 33.333%;
+  }
+  .f-embed__form-box {
+    width: 66.666%;
+  }
+  .f-embed__form-image,
+  .f-embed__form-box {
+    padding: 48px 0;
+  }
+  .f-embed__form-image .f-image  {
+    max-width: 600px;
+  }
+  .f-embed__form-box .f-newsletter__form--boxed {
+    padding: 3.6rem 4rem !important;
+  }
+  .f-embed__form button {
+    padding: 12px 40px !important;
+  }
+}
+

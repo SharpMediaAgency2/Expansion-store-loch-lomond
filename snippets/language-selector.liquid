@@ -1,0 +1,95 @@
+<link
+  rel="preload"
+  href="{{ 'localization-form.css' | asset_url }}"
+  as="style"
+  onload="this.onload=null;this.rel='stylesheet';"
+>
+<script src="{{ 'localization-form.js' | asset_url }}" defer="defer"></script>
+{% liquid
+  unless form_id
+    assign randomNumber = 'now' | date: '%N' | modulo: 10 | plus: 25
+    assign form_id = 'language-' | append: randomNumber
+    assign noscript_form_id = 'language-' | append: randomNumber | append: '_NoScript'
+  endunless
+%}
+{% if localization.available_languages.size > 1 %}
+  <div class="language-switcher {{ class }}">
+    <noscript>
+      {%- form 'localization', class: 'selectors-form', id: noscript_form_id, data-disclosure-form: '' -%}
+        <h2 class="visually-hidden">
+          {{- 'localization.language_label' | t -}}
+        </h2>
+        <div class="form-group">
+          <select
+            class="localization-selector form-control{% if plain == true %} form-control--plain{% endif %}"
+            name="locale_code"
+            aria-labelledby="CountryLabelNoScript-{{ form_id }}"
+          >
+            {% for language in localization.available_languages %}
+              <option
+                value="{{ language.iso_code }}"
+                {% if language.iso_code == localization.language.iso_code %}
+                  selected
+                {% endif %}
+              >
+                {{ language.endonym_name | capitalize }}
+              </option>
+            {%- endfor -%}
+          </select>
+          <button class="btn btn--with-icon btn--square" aria-label="{{ 'localization.update_language' | t }}">
+            {% comment %} theme-check-disable {% endcomment %}
+            {{ 'icon-arrow-right-large.svg' | inline_asset_content }}
+            {% comment %} theme-check-enable {% endcomment %}
+            <span class="visually-hidden">{{ 'localization.update_language' | t }}</span>
+          </button>
+        </div>
+      {% endform %}
+    </noscript>
+    <localization-form
+      class="f-disclosure no-js-hidden f-disclosure--{{ position | default: 'down' }}{% if plain == true %} f-disclosure--plain{% endif %}"
+      data-disclosure-locale
+    >
+      {%- form 'localization', class: 'selectors-form', id: form_id, data-disclosure-form: '' -%}
+        <h2 class="visually-hidden">
+          {{- 'localization.language_label' | t -}}
+        </h2>
+        <button
+          type="button"
+          class="f-disclosure__toggle{% if plain == true %} btn--plain{% endif %} text-normal"
+          aria-expanded="false"
+          aria-controls="lang-list"
+          aria-describedby="lang-heading"
+          data-disclosure-toggle
+        >
+          {{ localization.language.endonym_name | capitalize }}
+          {% comment %} theme-check-disable {% endcomment %}
+          {{ 'icon-arrow-down.svg' | inline_asset_content }}
+          {% comment %} theme-check-enable {% endcomment %}
+        </button>
+        <ul class="f-disclosure-list scroll-container text-left hidden">
+          {% for language in localization.available_languages %}
+            <li
+              class="f-disclosure-list__item{% if language.iso_code == localization.language.iso_code %} f-disclosure-list__item--current{% endif %}"
+              tabindex="-1"
+            >
+              <a
+                class="f-disclosure-list__option"
+                href="#"
+                hreflang="{{ language.iso_code }}"
+                lang="{{ language.iso_code }}"
+                {% if language.iso_code == localization.language.iso_code %}
+                  aria-current="true"
+                {% endif %}
+                data-value="{{ language.iso_code }}"
+                data-disclosure-option
+              >
+                {{ language.endonym_name | capitalize }}
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+        <input type="hidden" name="locale_code" value="{{ localization.language.iso_code }}" data-disclosure-input>
+      {% endform %}
+    </localization-form>
+  </div>
+{% endif %}

@@ -1,0 +1,133 @@
+{{ 'banner-logo-metaobject.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign image = metaobject.hero_background_image
+  assign image_overlay_opacity = 30
+
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = 'fade-in'
+  endif
+
+  assign loading = 'lazy'
+  assign fetchpriority = 'low'
+  if section.index < 2
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  endif
+-%}
+
+{% if metaobject.hero_title.value != blank and image != blank %}
+  <banner-logo
+    class="banner-logo block relative overflow-hidden color-inverse"
+  >
+    {%- if image != blank and metaobject.hero_title.value != blank -%}
+      <motion-element
+        data-motion="{% if section.settings.enable_bg_zoom_effect %}zoom-out-sm{% else %}none{% endif %}"
+        class="block absolute w-full h-full"
+      >
+        <picture class="bg-image">
+          {{
+            image
+            | image_url: width: 3000
+            | image_tag:
+              loading: loading,
+              fetchpriority: fetchpriority,
+              widths: '375, 550, 750, 1100, 1500, 1780, 2000, 3000, 3840',
+              sizes: '100vw',
+              alt: metaobject.hero_title.value
+          }}
+        </picture>
+        {%- if image_overlay_opacity > 0 -%}
+          <div
+            class="bg-overlay"
+            style="--color-overlay-alpha: {{ image_overlay_opacity }}"
+          ></div>
+        {%- endif -%}
+      </motion-element>
+    {%- endif -%}
+
+    <div class="banner-logo__content-wrapper absolute inset-full flex flex md:content-overlay--center-bottom md-down:content-overlay--center-bottom">
+      <div class="w-full">
+        {%- if metaobject.hero_logo != blank and metaobject.title.value != blank -%}
+          <div class="banner-logo__logo-wrapper flex items-center justify-center">
+            <motion-element
+              data-motion="{{ animation_effect }}"
+              hold
+              class="banner-logo__logo-inner flex items-center justify-center invisible"
+            >
+              {{
+                metaobject.hero_logo
+                | image_url: width: 1500
+                | image_tag:
+                  loading: loading,
+                  fetchpriority: fetchpriority,
+                  class: 'banner-logo__logo',
+                  widths: '375, 550, 750, 1100, 1500, 1780, 2000, 3000, 3840',
+                  sizes: '100vw',
+                  alt: metaobject.title.value
+                | escape
+              }}
+            </motion-element>
+          </div>
+          {%- assign motion_delay = motion_delay | plus: 50 -%}
+        {%- endif -%}
+
+        <div class="f-text-blocks text-center">
+          {% if metaobject.hero_title.value != blank %}
+            <h1
+              class="text-current h2"
+            >
+              <motion-element
+                class="block"
+                data-motion="{{ animation_effect }}"
+                data-motion-delay="{{ motion_delay }}"
+              >
+                {%- render 'highlight-text',
+                  hl_text: metaobject.hero_title.value,
+                -%}
+              </motion-element>
+            </h1>
+            {%- assign motion_delay = motion_delay | plus: 50 -%}
+          {% endif  %}
+
+          {% if metaobject.hero_description_text.value != blank %}
+            <motion-element
+              data-motion="{{ animation_effect }}"
+              data-motion-delay="{{ motion_delay }}"
+              class="block text-current rte"
+            >
+              <div class="banner-logo__description--container">
+                <div class="banner-logo__description rte">
+                  {{ metaobject.hero_description_text | metafield_tag	 }}
+                </div>
+              </div>
+            </motion-element>
+            {%- assign motion_delay = motion_delay | plus: 50 -%}
+          {% endif  %}
+
+          {%- if metaobject.hero_button_placeholder.value != blank and metaobject.hero_button_url.value != blank -%}
+            <motion-element
+              data-motion="{{ animation_effect }}"
+              data-motion-delay="{{ motion_delay }}"
+              class="block f-text-blocks__btn"
+            >
+              <a
+                class="btn btn--secondary"
+                {% if metaobject.hero_button_url.value != blank %}
+                  href="{{ metaobject.hero_button_url.value }}"
+                {% else %}
+                  aria-disabled="true"
+                {% endif %}
+              >
+                {{ metaobject.hero_button_placeholder.value | escape }}
+              </a>
+            </motion-element>
+            {%- assign motion_delay = motion_delay | plus: 50 -%}
+          {%- endif -%}
+        </div>
+      </div>
+    </div>
+  </banner-logo>
+  <script src="{{ 'banner-logo.js' | asset_url }}" defer="defer"></script>
+{% endif %}

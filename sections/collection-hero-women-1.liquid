@@ -1,0 +1,345 @@
+{% comment %}
+  Section: Championship Layers
+  ----------------------------
+  A two-column hero pattern: dark text panel + image that floats over
+  the right portion of the panel, bleeding above and below.
+
+{% endcomment %}
+
+{%- liquid
+  assign sid = section.id
+
+  assign heading       = section.settings.heading
+  assign subtext       = section.settings.subtext
+  assign image         = section.settings.image
+  assign bg_color      = section.settings.bg_color
+  assign panel_height  = section.settings.panel_height
+  assign image_bleed   = section.settings.image_bleed
+  assign image_width   = section.settings.image_width
+  assign text_color    = section.settings.text_color
+  assign subtext_color = section.settings.subtext_color
+  assign radius        = section.settings.image_radius
+  assign padding_top    = section.settings.padding_top
+  assign padding_bottom = section.settings.padding_bottom
+-%}
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@400;500;600;700&family=Rubik:wght@300;400;500&display=swap" rel="stylesheet">
+
+<style>
+  #cl-{{ sid }} {
+    /* Design tokens — single source of truth */
+    --cl-bg:            {{ bg_color }};
+    --cl-text:          {{ text_color }};
+    --cl-subtext:       {{ subtext_color }};
+    --cl-panel-h:       {{ panel_height }}px;
+    --cl-bleed:         {{ image_bleed }}px;
+    --cl-image-width:   {{ image_width }}%;
+    --cl-text-width:    calc(100% - var(--cl-image-width));
+    --cl-radius:        {{ radius }}px;
+    --cl-pad-x-desktop: clamp(32px, 5vw, 72px);
+    --cl-pad-x-mobile:  24px;
+    --cl-pad-y:         clamp(40px, 6vw, 72px);
+
+    font-family: 'Rubik', sans-serif;
+    padding-top:    {{ padding_top }}px;
+    padding-bottom: {{ padding_bottom }}px;
+  }
+
+  /* ── Stage: grid container holding text + image as siblings ── */
+  #cl-{{ sid }} .cl-stage {
+    position: relative;
+    display: grid;
+    grid-template-columns: var(--cl-text-width) var(--cl-image-width);
+    grid-template-rows: var(--cl-panel-h);
+    align-items: center;
+    /* Bleed budget — the section gets vertical breathing room equal to
+       the image bleed so the image never escapes the section bounds */
+    margin-top:    var(--cl-bleed);
+    margin-bottom: var(--cl-bleed);
+  }
+
+  /* ── Dark background: painted via ::before, only behind the text column ── */
+  #cl-{{ sid }} .cl-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* Background spans full grid width (visually under both columns).
+       The image item sits on top of it on the right side. */
+    background: var(--cl-bg);
+    z-index: 0;
+  }
+
+  /* ── Text column ── */
+  #cl-{{ sid }} .cl-text {
+    position: relative;
+    z-index: 1;
+    grid-column: 1 / 2;
+    padding-inline: var(--cl-pad-x-desktop);
+    padding-block: var(--cl-pad-y);
+    color: var(--cl-text);
+  }
+
+  #cl-{{ sid }} .cl-heading {
+    font-family: 'Noto Serif', serif;
+    font-weight: 400;
+    font-size: clamp(48px, 4.6vw + 0.5rem, 60px);
+    line-height: 1.18;
+    letter-spacing: -0.01em;
+    color: var(--cl-text);
+    margin: 0 0 1rem 0;
+  }
+
+  #cl-{{ sid }} .cl-subtext {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 400;
+    font-size: clamp(20px, 1.4vw + 0.8125rem, 1.0625rem);
+    line-height: 1.3;
+    color: var(--cl-subtext);
+    margin: 0;
+    max-width: 52ch;
+  }
+
+  /* ── Image column: bleeds vertically beyond the panel ── */
+  #cl-{{ sid }} .cl-image {
+    position: relative;
+    z-index: 2;
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+    align-self: stretch;
+    
+    margin-block: calc(var(--cl-bleed) * -1);
+    overflow: hidden;
+    border-radius: var(--cl-radius);
+    
+    margin-inline-end: 0;
+    padding-right: 30px;
+  }
+#cl-{{ sid }} .cl-image img {
+  border-top-right-radius: 10px;
+  border-top-left-radius: 10px;
+}
+  #cl-{{ sid }} .cl-image img,
+  #cl-{{ sid }} .cl-image svg {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* ── Tablet — keep two-column but tighten ── */
+  @media (max-width: 1024px) {
+    #cl-{{ sid }} {
+      --cl-pad-x-desktop: 32px;
+    }
+  }
+
+  /* ── Mobile — stack: text, then image ── */
+  @media (max-width: 749px) {
+    #cl-{{ sid }} .cl-stage {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+      margin-block: 0;
+    }
+
+    #cl-{{ sid }} .cl-text {
+      grid-column: 1 / 2;
+      grid-row: 1 / 2;
+      padding-inline: var(--cl-pad-x-mobile);
+      padding-block: clamp(36px, 8vw, 56px);
+    }
+
+    #cl-{{ sid }} .cl-image {
+      grid-column: 1 / 2;
+      grid-row: 2 / 3;
+      align-self: auto;
+      margin-block: 0;
+      margin-inline: var(--cl-pad-x-mobile);
+      margin-bottom: 24px;
+      height: clamp(280px, 70vw, 420px);
+      border-radius: 12px;
+      margin-bottom: -24px;
+    width: 95%;
+    }
+    #cl-{{ sid }}{
+      padding-bottom:52px;
+    }
+    #cl-{{ sid }} .cl-image img{
+      border-bottom-right-radius:10px;
+    }
+
+    /* Mobile subtext should be slightly wider since we have full width */
+    #cl-{{ sid }} .cl-subtext {
+      max-width: 100%;
+    }
+  }
+  
+</style>
+
+<section id="cl-{{ sid }}" class="cl-section">
+  <div class="container">
+    <div class="cl-stage">
+
+      <div class="cl-text">
+        {%- if heading != blank -%}
+          <h2 class="cl-heading">{{ heading }}</h2>
+        {%- endif -%}
+        {%- if subtext != blank -%}
+          <p class="cl-subtext">{{ subtext }}</p>
+        {%- endif -%}
+      </div>
+
+      <div class="cl-image">
+        {%- if image != blank -%}
+          {{
+            image
+            | image_url: width: 1400
+            | image_tag:
+              loading: 'lazy',
+              widths: '480, 720, 960, 1200, 1400',
+              sizes: '(max-width: 749px) calc(100vw - 48px), var(--cl-image-width)',
+              alt: image.alt | default: heading
+          }}
+        {%- else -%}
+          <img
+            src="{{ 'womens-image.png' | asset_url }}"
+            alt="{{ heading | escape }}"
+            loading="lazy"
+            width="1400"
+            height="900">
+        {%- endif -%}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "New Arrivals Women",
+  "tag": "section",
+  "class": "section-championship-layers",
+  "settings": [
+    {
+      "type": "header",
+      "content": "Content"
+    },
+    {
+      "type": "text",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Discover the Championship Layers"
+    },
+    {
+      "type": "textarea",
+      "id": "subtext",
+      "label": "Subtext",
+      "default": "Thoughtfully curated selections that blend performance, style, and exclusivity. Each collection tells a unique story on and off the course."
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image"
+    },
+    {
+      "type": "header",
+      "content": "Colours"
+    },
+    {
+      "type": "color",
+      "id": "bg_color",
+      "label": "Panel background",
+      "default": "#0E1628"
+    },
+    {
+      "type": "color",
+      "id": "text_color",
+      "label": "Heading colour",
+      "default": "#FFFFFF"
+    },
+    {
+      "type": "color",
+      "id": "subtext_color",
+      "label": "Subtext colour",
+      "default": "#CCD1DA"
+    },
+    {
+      "type": "header",
+      "content": "Layout"
+    },
+    {
+      "type": "range",
+      "id": "panel_height",
+      "label": "Panel height",
+      "unit": "px",
+      "min": 320,
+      "max": 720,
+      "step": 10,
+      "default": 480
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "label": "Image column width",
+      "unit": "%",
+      "min": 30,
+      "max": 65,
+      "step": 1,
+      "default": 50,
+      "info": "Percentage of container width the image takes up (desktop only)."
+    },
+    {
+      "type": "range",
+      "id": "image_bleed",
+      "label": "Image bleed (top & bottom)",
+      "unit": "px",
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "default": 32,
+      "info": "How far the image extends above and below the panel."
+    },
+    {
+      "type": "range",
+      "id": "image_radius",
+      "label": "Image corner radius",
+      "unit": "px",
+      "min": 0,
+      "max": 24,
+      "step": 1,
+      "default": 0
+    },
+    {
+      "type": "header",
+      "content": "Section spacing"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Top padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Bottom padding",
+      "unit": "px",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "default": 40
+    }
+  ],
+  "presets": [
+    {
+      "name": "New Arrivals Women"
+    }
+  ]
+}
+{% endschema %}

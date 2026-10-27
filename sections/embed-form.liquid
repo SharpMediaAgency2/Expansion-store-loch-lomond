@@ -1,0 +1,352 @@
+{{ 'newsletter.css' | asset_url | stylesheet_tag }}
+{{ 'embed_form.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign heading = section.settings.heading
+  assign subheading = section.settings.subheading
+  assign description = section.settings.description
+  assign form_position = section.settings.form_position
+  assign text_alignment = section.settings.text_alignment
+  assign image = section.settings.image
+
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+-%}
+<div
+  id="{{ section_id }}"
+  class="f-newsletter f-embedcode__form relative z-0 overflow-hidden{% unless image != blank %} f-section-padding{% endunless %}{% if image == blank %} color-{{ section.settings.color_schema }}{% endif %}{{ custom_class }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="{%- if image != blank -%}container{%- else -%}container-narrow{%- endif -%}">
+    <div class="{%- if image != blank -%}f-embed__form-container{% else %}block{% endif %}">
+      {%- if image != blank -%}
+        <motion-element
+          data-motion="none"
+          class="f-embed__form-image"
+        >
+          <div class="f-embed__form-image-wrap">
+            {%- render 'responsive-image',
+              image: image,
+              section_index: section.index,
+              index: 1
+            -%}
+          </div>
+        </motion-element>
+      {%- endif -%}
+
+      <div class="{%- if image != blank -%}f-embed__form-box {% endif %}f-newsletter__wrapper relative flex justify-{{ form_position }}{% if image != blank %} f-newsletter__wrapper--has-bg{% endif %}">
+        <div class="f-newsletter__form f-embed__form text-{{ text_alignment }}{% if image != blank %} f-newsletter__form--boxed color-{{ section.settings.color_schema }}{% endif %}">
+          <div>
+            {%- unless heading == blank -%}
+              <h2 class="{{ section.settings.heading_size }}">
+                <motion-element
+                  data-motion="{{ animation_effect }}"
+                  data-motion-delay="{{ motion_delay }}"
+                  class="block"
+                >
+                  {%- render 'highlight-text',
+                    hl_text: heading
+                  -%}
+                </motion-element>
+              </h2>
+              {%- assign motion_delay = motion_delay | plus: 50 -%}
+            {%- endunless -%}
+
+            {%- unless subheading == blank -%}
+              <motion-element
+                data-motion="{{ animation_effect }}"
+                data-motion-delay="{{ motion_delay }}"
+                class="block mega-description rte"
+              >
+                {{ subheading }}
+              </motion-element>
+              {%- assign motion_delay = motion_delay | plus: 50 -%}
+            {%- endunless -%}
+
+            <motion-element
+              data-motion="{{ animation_effect }}"
+              data-motion-delay="{{ motion_delay }}"
+              class="block"
+            >
+              {% if section.settings.klaviyo_embed_code != blank %}
+                <div class="custom-klaviyo-form-wrapper">
+                  {{ section.settings.klaviyo_embed_code }}
+                </div>
+              {% endif %}
+              {%- assign motion_delay = motion_delay | plus: 50 -%}
+            </motion-element>
+            {%- if description != blank -%}
+              <motion-element
+                data-motion="{{ animation_effect }}"
+                data-motion-delay="{{ motion_delay }}"
+                class="block f-newsletter__description text-sm"
+              >
+                {{- description -}}
+              </motion-element>
+              {%- assign motion_delay = motion_delay | plus: 50 -%}
+            {%- endif -%}
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>
+<style type="text/css">
+  .mega-description p{
+  color:white!important;
+     font-size: clamp(14px, 0.9vw, 16px);
+}
+@media screen and (min-width:1201px){
+.f-newsletter motion-element.block:not(.mega-description) {
+    min-width: 500px;
+}
+.f-newsletter__form > div{
+  width:100%!important;
+      justify-content: center!important;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 30px;
+}
+}
+@media screen and (max-width:1200px){
+.f-newsletter__form.f-embed__form.text-center div {
+  display: flex;
+  flex-direction: column;
+  gap:0px!important;
+}
+.f-newsletter__form > div{
+padding-left:24px;
+padding-right:24px;}
+.custom-klaviyo-form-wrapper input[type="email"] {
+  width: 100% !important;
+}
+ #template--25831062569284__embed_form_H6WWA6 > div > div > div > div > div > motion-element:nth-child(2) > div > div > div > form > div > div > div:nth-child(1) > div{
+width:100%!important;
+}
+#template--25831062569284__embed_form_H6WWA6 > div > div > div > div > div > motion-element:nth-child(2){
+  width:100%!important;
+}
+.f-newsletter, .f-newsletter .container-narrow {
+    padding: 5px 0em !important;
+}
+.f-embed__form > div:nth-child(1) > motion-element:nth-child(2){
+  width:100%!important
+}
+form.needsclick > div:nth-child(1) > div:nth-child(1) > div:nth-child(1) > div:nth-child(1){
+  width:100%!important;
+}
+}
+</style>
+
+{% schema %}
+{
+  "name": "t:sections.embed_code.name",
+  "class": "newsletter-section",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "paragraph",
+      "content": "t:sections.embed_code.settings.paragraph.content"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.embed_code.settings.header.content"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "info": "t:sections.common.highlight_text.paragraph.content",
+      "label": "t:sections.common.header.heading",
+      "default": "Subscribe to our newsletter"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "default": "h2",
+      "label": "t:sections.common.text_size.heading.label",
+      "options": [
+        {
+          "value": "h3",
+          "label": "t:sections.common.text_size.options__h3.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.text_size.options__h2.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.common.text_size.options__h1.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.common.text_size.options__h0.label"
+        },
+        {
+          "value": "h-xl",
+          "label": "t:sections.common.text_size.options__hd1.label"
+        }
+      ]
+    },
+    {
+      "type": "richtext",
+      "id": "subheading",
+      "default": "<p>Encourage customers to subscribe to your newsletter to boost loyalty.</p>",
+      "label": "t:sections.common.header.subheading"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.common.header.description"
+    },
+    {
+      "type": "textarea",
+      "id": "klaviyo_embed_code",
+      "label": "Klaviyo embed form code",
+      "info": "Paste the embed code from Klaviyo here. HTML/JS will be rendered as-is.",
+    },
+    {
+      "type": "select",
+      "id": "form_position",
+      "options": [
+        {
+          "value": "start",
+          "label": "t:sections.embed_code.settings.form_position.option__1"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.embed_code.settings.form_position.option__2"
+        },
+        {
+          "value": "end",
+          "label": "t:sections.embed_code.settings.form_position.option__3"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.embed_code.settings.form_position.label"
+    },
+    {
+      "type": "select",
+      "id": "text_alignment",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.common.text_align.options__1.label"
+        },
+        {
+          "value": "center",
+          "label": "t:sections.common.text_align.options__2.label"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.common.text_align.options__3.label"
+        }
+      ],
+      "default": "center",
+      "label": "t:sections.common.text_align.label"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "t:sections.embed_code.settings.background.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.embed_code.presets.name"
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,87 @@
+{% liquid
+    assign should_show = settings.show_cookie_banner
+    if settings.cb_design_mode and request.design_mode
+        assign should_show = true
+    endif
+%}
+
+{% if should_show %}
+{{ 'cookie-consent.css' | asset_url | stylesheet_tag }}
+<div id="f-cookie-banner" class="f-cookie-banner color-{{ settings.cookie_color_schema }}" {% if settings.cb_design_mode and request.design_mode %}style="display: flex;transform: translateZ(0);"{% endif %}>
+    <div class="container-fluid">
+        <div class="f-cookie-banner__inner">
+            <span class="f-cookie-banner__icon">
+                <svg width="34" height="34" viewBox="0 0 552 552" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M510.62 131.354L503.198 119.302L490.286 125.067C484.104 127.823 477.489 129.224 470.62 129.224C443.901 129.224 422.156 107.478 422.156 80.7598C422.156 73.89 423.557 67.2757 426.312 61.1037L432.077 48.1819L420.025 40.76C376.719 14.0933 326.817 0 275.692 0C202.047 0 132.812 28.6827 80.7453 80.7453C28.6827 132.819 0 202.048 0 275.692C0 349.336 28.6827 418.572 80.7453 470.639C132.819 522.701 202.048 551.384 275.692 551.384C349.336 551.384 418.559 522.701 470.639 470.639C522.701 418.565 551.384 349.336 551.384 275.692C551.384 224.572 537.291 174.671 510.613 131.359L510.62 131.354Z" fill="#B8B8B8"/>
+                    <path d="M356.46 275.687C311.924 275.687 275.694 311.917 275.694 356.453C275.694 400.989 311.924 437.218 356.46 437.218C400.996 437.218 437.225 400.989 437.225 356.453C437.225 311.917 400.996 275.687 356.46 275.687Z" fill="white"/>
+                    <path d="M340.313 129.047C340.313 93.4113 311.318 64.4326 275.698 64.4326C240.062 64.4326 211.084 93.4166 211.084 129.047C211.084 164.683 240.068 193.662 275.698 193.662C311.318 193.662 340.313 164.683 340.313 129.047Z" fill="white"/>
+                    <path d="M131.393 301.887C104.674 301.887 82.929 323.633 82.929 350.351C82.929 377.07 104.674 398.815 131.393 398.815C158.112 398.815 179.857 377.07 179.857 350.351C179.857 323.633 158.122 301.887 131.393 301.887Z" fill="white"/>
+                    <path d="M194.393 437.194H226.696V469.497H194.393V437.194Z" fill="white"/>
+                    <path d="M150.446 209.194H182.758V241.497H150.446V209.194Z" fill="white"/>
+                </svg>
+            </span>
+            {%- if settings.cookie_message != blank -%}
+            <div class="f-cookie-banner__message">{{ settings.cookie_message }}</div>
+            {%- endif -%}
+            <p class="f-cookie-banner__actions">
+                <button class="cookie-action--decline btn btn--plain" onclick="handleDecline()">{{ 'general.cookies.decline_button' | t }}</button>
+                <button class="cookie-action--accept btn btn--primary" onclick="handleAccept()">{{ 'general.cookies.accept_button' | t }}</button>
+            </p>
+        </div>
+    </div>
+</div>
+<script>
+    function getBannerEl() {
+        return document.getElementById('f-cookie-banner');
+      }
+
+      function hideBanner(res) {
+        getBannerEl().classList.remove('show')
+        setTimeout(() => {
+            getBannerEl().style.display = 'none';
+        }, 500)
+      }
+
+      function showBanner() {
+       getBannerEl().style.display = 'block';
+       setTimeout(() => {
+            getBannerEl().classList.add('show')
+       }, 500)
+      }
+
+      function handleAccept(e) {
+        window.Shopify.customerPrivacy.setTrackingConsent(true, hideBanner);
+
+        document.addEventListener('trackingConsentAccepted',function() {
+          console.log('trackingConsentAccepted event fired');
+        });
+      }
+
+      function handleDecline() {
+        window.Shopify.customerPrivacy.setTrackingConsent(false, hideBanner);
+      }
+
+      function initCookieBanner() {
+        const userCanBeTracked = window.Shopify.customerPrivacy.userCanBeTracked();
+        const userTrackingConsent = window.Shopify.customerPrivacy.getTrackingConsent();
+
+        if(!userCanBeTracked && userTrackingConsent === 'no_interaction') {
+          showBanner();
+        }
+      }
+
+      window.Shopify.loadFeatures([
+        {
+          name: 'consent-tracking-api',
+          version: '0.1',
+        }
+      ],
+      function(error) {
+        if (error) {
+          throw error;
+        }
+
+        initCookieBanner();
+      });
+</script>
+{% endif %}

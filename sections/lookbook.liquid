@@ -1,0 +1,1026 @@
+{{ 'component-lookbook-card.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'lookbook-icon.js' | asset_url }}" defer="defer"></script>
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign columns = section.settings.columns
+  assign container = section.settings.container
+  assign image_aspect_ratio = section.settings.image_aspect_ratio
+  assign container = section.settings.container
+
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+-%}
+{% render 'divider',
+  show_divider: section.settings.show_section_divider,
+  divider_width: section.settings.divider_width
+%}
+<div
+  id="{{ section_id }}"
+  class="f-lookbook relative z-1 f-section-padding color-{{ section.settings.color_schema }}{{ custom_class }}"
+  data-section-type="lookbook"
+  data-section-id="{{ section.id }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px; --grid-cols: {{ columns }}"
+>
+  <div class="{{ container }}">
+    {% render 'index-section-header',
+      animation_effect: animation_effect,
+      section_settings: section.settings
+    %}
+    {%- if section.blocks.size > 0 -%}
+      <grid-list
+        data-motion="{{ animation_effect }}"
+        class="f-grid md:f-grid-{{ columns }}-cols f-grid--gap-{{ section.settings.column_gap }}"
+      >
+        {%- for block in section.blocks -%}
+          <div class="f-column{% if block.type == 'lookbook-slider' %} f-column--expanded{% endif %}">
+            {% render 'lookbook-card',
+              color_schema: section.settings.color_schema,
+              block: block,
+              image_aspect_ratio: image_aspect_ratio,
+              index: forloop.index
+            %}
+          </div>
+        {%- endfor -%}
+      </grid-list>
+    {%- endif -%}
+  </div>
+</div>
+{% schema %}
+{
+  "name": "Lookbook",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/1fVyqI)"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.container.label"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.header.name"
+    },
+    {
+      "type": "select",
+      "id": "section_header_padding_bottom",
+      "label": "t:sections.common.spacing.section_header_padding_bottom.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__1.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__2.label"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__3.label"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "section_header_content_spacing",
+      "label": "t:sections.common.content_spacing.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.common.content_spacing.options__sm.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.common.content_spacing.options__md.label"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "t:sections.common.header.heading",
+      "info": "t:sections.common.highlight_text.paragraph.content",
+      "default": "Lookbook"
+    },
+    {
+      "type": "select",
+      "id": "highlight_style",
+      "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+        },
+        {
+          "value": "drawer_line",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+        },
+        {
+          "value": "underline",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight_text_color",
+      "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "default": "h2",
+      "label": "t:sections.common.text_size.heading.label",
+      "options": [
+        {
+          "value": "h3",
+          "label": "t:sections.common.text_size.options__h3.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.text_size.options__h2.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.common.text_size.options__h1.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.common.text_size.options__h0.label"
+        },
+        {
+          "value": "h-xl",
+          "label": "t:sections.common.text_size.options__hd1.label"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "t:sections.common.heading_color.label",
+      "info": "t:sections.common.heading_color.info"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:sections.common.header.subheading"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.common.header.description"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.lookbook.settings.image_settings.content"
+    },
+    {
+      "type": "select",
+      "id": "image_aspect_ratio",
+      "label": "t:settings_schema.global.settings.image_aspect_ratio_options.label",
+      "default": "3/4",
+      "options": [
+        {
+          "value": "adapt",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__1.label"
+        },
+        {
+          "value": "1/1",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__2.label"
+        },
+        {
+          "value": "3/4",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__3.label"
+        },
+        {
+          "value": "4/3",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__5.label"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.grid.name"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "t:sections.common.grid.columns",
+      "min": 1,
+      "max": 4,
+      "step": 1,
+      "default": 2
+    },
+    {
+      "type": "select",
+      "id": "column_gap",
+      "label": "t:sections.common.grid.gap",
+      "options": [
+        {
+          "label": "t:sections.common.grid.gap_options.option_04",
+          "value": "none"
+        },
+        {
+          "label": "t:sections.common.grid.gap_options.option_07",
+          "value": "double-extra-small"
+        },
+        {
+          "label": "t:sections.common.grid.gap_options.option_05",
+          "value": "extra-small"
+        },
+        {
+          "label": "t:sections.common.grid.gap_options.option_03",
+          "value": "small"
+        },
+        {
+          "label": "t:sections.common.grid.gap_options.option_02",
+          "value": "medium"
+        },
+        {
+          "label": "t:sections.common.grid.gap_options.option_01",
+          "value": "large"
+        },
+        {
+          "label": "t:sections.common.grid.gap_options.option_06",
+          "value": "extra-large"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.divider.section_heading.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_divider",
+      "default": false,
+      "label": "t:sections.common.divider.show_divider.label"
+    },
+    {
+      "type": "select",
+      "id": "divider_width",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.divider.width.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ],
+  "max_blocks": 4,
+  "blocks": [
+    {
+      "type": "lookbook",
+      "name": "t:sections.lookbook.blocks.lookbook_item.name",
+      "settings": [
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_item.settings.header_image.content"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.header_image.label"
+        },
+        {
+          "type": "select",
+          "id": "annotation_color",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.annotation_color.label",
+          "default": "light",
+          "options": [
+            {
+              "value": "light",
+              "label": "t:sections.lookbook.blocks.lookbook_item.settings.annotation_color.option__1"
+            },
+            {
+              "value": "dark",
+              "label": "t:sections.lookbook.blocks.lookbook_item.settings.annotation_color.option__2"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_item.settings.header_product_1.label"
+        },
+        {
+          "type": "range",
+          "id": "top_1",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_top.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 9
+        },
+        {
+          "type": "range",
+          "id": "left_1",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_left.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 63
+        },
+        {
+          "type": "product",
+          "id": "product_1",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.select_product.label"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_item.settings.header_product_2.label"
+        },
+        {
+          "type": "range",
+          "id": "top_2",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_top.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 26
+        },
+        {
+          "type": "range",
+          "id": "left_2",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_left.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 50
+        },
+        {
+          "type": "product",
+          "id": "product_2",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.select_product.label"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_item.settings.header_product_3.label"
+        },
+        {
+          "type": "range",
+          "id": "top_3",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_top.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 61
+        },
+        {
+          "type": "range",
+          "id": "left_3",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_left.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 48
+        },
+        {
+          "type": "product",
+          "id": "product_3",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.select_product.label"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_item.settings.header_product_4.label"
+        },
+        {
+          "type": "range",
+          "id": "top_4",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_top.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "left_4",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_left.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 0
+        },
+        {
+          "type": "product",
+          "id": "product_4",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.select_product.label"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_item.settings.header_product_5.label"
+        },
+        {
+          "type": "range",
+          "id": "top_5",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_top.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 20
+        },
+        {
+          "type": "range",
+          "id": "left_5",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_left.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 0
+        },
+        {
+          "type": "product",
+          "id": "product_5",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.select_product.label"
+        }
+      ]
+    },
+    {
+      "type": "lookbook-slider",
+      "name": "t:sections.lookbook.blocks.lookbook_slider.name",
+      "settings": [
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_slider.settings.block_header.label"
+        },
+        {
+          "type": "select",
+          "id": "section_header_padding_bottom",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.label",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:sections.common.spacing.section_header_padding_bottom.option__1.label"
+            },
+            {
+              "value": "medium",
+              "label": "t:sections.common.spacing.section_header_padding_bottom.option__2.label"
+            },
+            {
+              "value": "large",
+              "label": "t:sections.common.spacing.section_header_padding_bottom.option__3.label"
+            }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "select",
+          "id": "section_header_content_spacing",
+          "label": "t:sections.common.content_spacing.label",
+          "options": [
+            {
+              "value": "small",
+              "label": "t:sections.common.content_spacing.options__sm.label"
+            },
+            {
+              "value": "medium",
+              "label": "t:sections.common.content_spacing.options__md.label"
+            }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "info": "t:sections.common.highlight_text.paragraph.content",
+          "label": "t:sections.common.header.heading",
+          "default": "Shop the look"
+        },
+        {
+          "type": "select",
+          "id": "highlight_style",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+            },
+            {
+              "value": "drawer_line",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+            },
+            {
+              "value": "underline",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_highlight_text_color",
+          "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "default": "h2",
+          "label": "t:sections.common.text_size.heading.label",
+          "options": [
+            {
+              "value": "h3",
+              "label": "t:sections.common.text_size.options__h3.label"
+            },
+            {
+              "value": "h2",
+              "label": "t:sections.common.text_size.options__h2.label"
+            },
+            {
+              "value": "h1",
+              "label": "t:sections.common.text_size.options__h1.label"
+            },
+            {
+              "value": "h0",
+              "label": "t:sections.common.text_size.options__h0.label"
+            },
+            {
+              "value": "h-xl",
+              "label": "t:sections.common.text_size.options__hd1.label"
+            }
+          ]
+        },
+        {
+          "type": "text",
+          "id": "subheading",
+          "label": "t:sections.common.header.subheading"
+        },
+        {
+          "type": "richtext",
+          "id": "description",
+          "label": "t:sections.common.header.description"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_item.settings.header_image.content"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.header_image.label"
+        },
+        {
+          "type": "select",
+          "id": "image_position",
+          "label": "t:sections.lookbook.blocks.lookbook_slider.settings.image_position.label",
+          "options": [
+            {
+              "value": "left",
+              "label": "t:sections.lookbook.blocks.lookbook_slider.settings.image_position.option__1"
+            },
+            {
+              "value": "right",
+              "label": "t:sections.lookbook.blocks.lookbook_slider.settings.image_position.option__2"
+            }
+          ],
+          "default": "right"
+        },
+        {
+          "type": "select",
+          "id": "annotation_color",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.annotation_color.label",
+          "default": "light",
+          "options": [
+            {
+              "value": "light",
+              "label": "t:sections.lookbook.blocks.lookbook_item.settings.annotation_color.option__1"
+            },
+            {
+              "value": "dark",
+              "label": "t:sections.lookbook.blocks.lookbook_item.settings.annotation_color.option__2"
+            }
+          ]
+        },
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_slider.settings.product_card.content"
+        },
+        {
+          "type": "select",
+          "id": "product_image_ratio",
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.label",
+          "default": "adapt",
+          "options": [
+            {
+              "value": "adapt",
+              "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__1.label"
+            },
+            {
+              "value": "1/1",
+              "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__2.label"
+            },
+            {
+              "value": "3/4",
+              "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__3.label"
+            },
+            {
+              "value": "4/3",
+              "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__5.label"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "product_card_width",
+          "label": "t:sections.lookbook.blocks.lookbook_slider.settings.product_card_width.label",
+          "min": 200,
+          "max": 500,
+          "step": 10,
+          "unit": "px",
+          "default": 280
+        },
+        {
+          "type": "header",
+          "content": "t:sections.common.slider.header"
+        },
+        {
+          "type": "select",
+          "id": "product_per_slide",
+          "label": "t:sections.lookbook.blocks.lookbook_slider.settings.product_per_slide",
+          "default": "2",
+          "options": [
+            {
+              "value": "1",
+              "label": "1"
+            },
+            {
+              "value": "2",
+              "label": "2"
+            }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "column_gap",
+          "label": "t:sections.common.grid.gap",
+          "options": [
+            {
+              "label": "t:sections.common.grid.gap_options.option_04",
+              "value": "none"
+            },
+            {
+              "label": "t:sections.common.grid.gap_options.option_07",
+              "value": "double-extra-small"
+            },
+            {
+              "label": "t:sections.common.grid.gap_options.option_05",
+              "value": "extra-small"
+            },
+            {
+              "label": "t:sections.common.grid.gap_options.option_03",
+              "value": "small"
+            },
+            {
+              "label": "t:sections.common.grid.gap_options.option_02",
+              "value": "medium"
+            }
+          ],
+          "default": "medium"
+        },
+        {
+          "type": "select",
+          "id": "controls_background",
+          "label": "t:sections.common.slider.pagination_background.label",
+          "options": [
+            {
+              "label": "t:sections.common.slider.pagination_background.options.option_1",
+              "value": "dark"
+            },
+            {
+              "label": "t:sections.common.slider.pagination_background.options.option_2",
+              "value": "light"
+            },
+            {
+              "label": "t:sections.common.slider.pagination_background.options.option_3",
+              "value": "none"
+            }
+          ],
+          "default": "none"
+        },
+        {
+          "type": "select",
+          "id": "controls_position",
+          "label": "t:sections.common.slider.pagination_position_desktop.label",
+          "options": [
+            {
+              "value": "left",
+              "label": "t:sections.common.slider.pagination_position_desktop.options.option_1"
+            },
+            {
+              "value": "center",
+              "label": "t:sections.common.slider.pagination_position_desktop.options.option_2"
+            },
+            {
+              "value": "right",
+              "label": "t:sections.common.slider.pagination_position_desktop.options.option_3"
+            }
+          ],
+          "default": "center"
+        },
+        {
+          "type": "select",
+          "id": "pagination_type",
+          "label": "t:sections.common.slider.pagination_style.label",
+          "options": [
+            {
+              "label": "t:sections.common.slider.pagination_style.options.option_1",
+              "value": "dots"
+            },
+            {
+              "label": "t:sections.common.slider.pagination_style.options.option_2",
+              "value": "counter"
+            }
+          ],
+          "default": "counter"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_item.settings.header_product_1.label"
+        },
+        {
+          "type": "range",
+          "id": "top_1",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_top.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 9
+        },
+        {
+          "type": "range",
+          "id": "left_1",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_left.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 63
+        },
+        {
+          "type": "product",
+          "id": "product_1",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.select_product.label"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_item.settings.header_product_2.label"
+        },
+        {
+          "type": "range",
+          "id": "top_2",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_top.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 26
+        },
+        {
+          "type": "range",
+          "id": "left_2",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_left.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 50
+        },
+        {
+          "type": "product",
+          "id": "product_2",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.select_product.label"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_item.settings.header_product_3.label"
+        },
+        {
+          "type": "range",
+          "id": "top_3",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_top.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 61
+        },
+        {
+          "type": "range",
+          "id": "left_3",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_left.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 48
+        },
+        {
+          "type": "product",
+          "id": "product_3",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.select_product.label"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_item.settings.header_product_4.label"
+        },
+        {
+          "type": "range",
+          "id": "top_4",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_top.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 0
+        },
+        {
+          "type": "range",
+          "id": "left_4",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_left.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 0
+        },
+        {
+          "type": "product",
+          "id": "product_4",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.select_product.label"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.lookbook.blocks.lookbook_item.settings.header_product_5.label"
+        },
+        {
+          "type": "range",
+          "id": "top_5",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_top.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 20
+        },
+        {
+          "type": "range",
+          "id": "left_5",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.offset_left.label",
+          "min": 0,
+          "max": 100,
+          "unit": "%",
+          "step": 1,
+          "default": 0
+        },
+        {
+          "type": "product",
+          "id": "product_5",
+          "label": "t:sections.lookbook.blocks.lookbook_item.settings.select_product.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.lookbook.presets.name",
+      "blocks": [
+        {
+          "type": "lookbook"
+        },
+        {
+          "type": "lookbook"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

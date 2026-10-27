@@ -1,0 +1,107 @@
+{%- liquid
+  assign collection = collections[collection.collection_in_tab]
+
+  assign title = collection.metafields.custom.collection_title.value | default: collection.title
+  assign content = content
+
+  assign animation_effect = animation_effect | default: 'none'
+  assign motion_delay = motion_delay | default: 0
+-%}
+
+{% if content or title  %}
+  <motion-element
+    data-motion="{{ animation_effect }}"
+    data-motion-delay="{{ motion_delay }}"
+    class="block-collection-tab block"
+  >
+    {% capture button_content %}
+      {%- liquid 
+        assign ordinal_number = index | append: '.'
+        if index < 10
+          assign ordinal_number = ordinal_number | prepend: '0'
+        endif
+      -%}
+      <span class="collapsible__button-icon font-body text-medium">{{ ordinal_number }}</span>
+      <span class="collapsible__button-text h4">{{ title }}</span>
+    {%- endcapture -%}
+    <collapsible-tab
+      class="collapsible__item collection-tab no-js-hidden"
+      {% if collection.id != blank %}
+        data-block-id="{{ collection.id }}"
+      {% endif %}
+      open="{{ open | default: 'false' }}"
+      data-can-close-all="false"
+      {{ attrs }}
+    >
+      <div class="collapsible__button-wrap">
+        <button class="collapsible__button text-left" data-trigger>
+          {{ button_content }}
+        </button>
+        {%- if collection != blank -%}
+          <a
+            href="{{ collection.url }}"
+            class="collection-tab__link btn btn--icon"
+          >
+            <svg
+              class="f-rlt-reverse-x"
+              aria-hidden="true"
+              focusable="false"
+              role="presentation"
+              width="16"
+              height="16"
+              viewBox="0 0 16 16"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path d="M2.5 8H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M9 3.5L13.5 8L9 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </a>
+        {%- endif -%}
+      </div>
+      <div class="collapsible__content" data-content hidden>
+        <div class="collapsible__content-inner rte">
+          {{ content | metafield_tag }}
+        </div>
+      </div>
+    </collapsible-tab>
+    <noscript>
+      <details
+        class="collapsible__item"
+        {% if open %}
+          open
+        {% endif %}
+      >
+        <summary class="collapsible__button text-left">
+          {{ button_content }}
+          {% if collection != blank %}
+            <a
+              href="{{ collection.url }}"
+              class="collection-tab__link btn btn--icon"
+            >
+              <svg
+                class="f-rlt-reverse-x"
+                aria-hidden="true"
+                focusable="false"
+                role="presentation"
+                width="16"
+                height="16"
+                viewBox="0 0 16 16"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path d="M2.5 8H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M9 3.5L13.5 8L9 12.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+            </a>
+          {% endif %}
+        </summary>
+        <div class="collapsible__content" role="list">
+          <div class="collapsible__content-inner rte">
+            {{ content | metafield_tag }}
+          </div>
+        </div>
+      </details>
+    </noscript>
+  </motion-element>
+{% endif %}

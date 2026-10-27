@@ -1,0 +1,93 @@
+{% assign show_search = section.settings.show_search %}
+{% if show_search %}
+  <div class="header-search-form {{ search_form_class }}">
+    {% comment %} <drawer-opener
+      class="site-header__search site-header__link no-js-hidden"
+      data-drawer="#Drawer-Search"
+    >
+      <button
+        class="btn btn--plain btn--icon focus-inset site-header__search-toggle site-header__link"
+        data-tippy-theme="color-{{ color_schema }}"
+        data-tippy-content="{{ 'general.search.search' | t }}"
+        data-tippy-placement="bottom"
+        aria-label="{{ 'general.search.search' | t }}"
+        aria-haspopup="dialog"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+          role="presentation"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="f-icon-svg f-icon-svg--medium f-icon-search"
+        >
+          <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+    </drawer-opener> {% endcomment %}
+    <noscript>
+      <details>
+        <summary aria-label="{{ 'general.search.search' | t }}" aria-haspopup="dialog">
+          <span class="site-header__search site-header__element" data-drawer="#Drawer-Search">
+            <span class="btn btn--plain btn--icon focus-inset site-header__search-toggle site-header__link">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+                focusable="false"
+                role="presentation"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                class="f-icon-svg f-icon-svg--medium f-icon-search"
+              >
+                <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+              </svg>
+            </span>
+          </span>
+          {% render 'icon-close', class: 'hidden' %}
+        </summary>
+        <div class="f-search-no-js">
+          <form action="{{ routes.search_url }}" method="get" role="search" class="f-search-no-js__form">
+            <div class="f-search-no-js__field w-full">
+              <label class="visually-hidden" for="f-search-no-js-input">{{ 'general.search.search' | t }}</label>
+              <input
+                class="form-control focus-inset f-search-no-js__input"
+                id="f-search-no-js-input"
+                type="text"
+                name="q"
+                value=""
+                placeholder="{{ 'general.search.placeholder' | t }}"
+              >
+              <input type="hidden" name="options[prefix]" value="last">
+              <button type="submit" class="btn btn--plain" aria-label="{{ 'general.search.search' | t }}">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  aria-hidden="true"
+                  focusable="false"
+                  role="presentation"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  stroke-width="2"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  class="f-icon-svg f-icon-svg--medium f-icon-search"
+                >
+                  <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+              </button>
+            </div>
+          </form>
+        </div>
+      </details>
+    </noscript>
+  </div>
+{% endif %}

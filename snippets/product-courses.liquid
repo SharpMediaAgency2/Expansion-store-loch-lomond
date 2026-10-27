@@ -1,0 +1,2568 @@
+{%- capture contentForQuerystring -%}{{ content_for_header }}{%- endcapture -%}
+{%- assign pageUrl = content_for_header
+  | split: '"pageurl":"'
+  | last
+  | split: '"'
+  | first
+  | split: '.myshopify.com'
+  | last
+  | replace: '\/', '/'
+  | replace: '%20', ' '
+  | replace: '\u0026', '&'
+-%}
+
+{%- assign clubParam = pageUrl | split: 'club=' | last | split: '&' | first -%}
+
+{%- if clubParam contains '.com' or clubParam contains '/' -%}
+  {%- assign clubParam = '' -%}
+{%- endif -%}
+
+{% assign courses = shop.metaobjects.courses.values %}
+{% assign courses = courses | sort: 'title' %}
+
+{% if courses %}
+  <div class="variant-clubs">
+    <div class="course-box">
+      <label class="form__label" for="course-select" style="margin-bottom: 16px; display: block;"> </label>
+
+      <!-- Custom Select Styles -->
+      <style>
+          .custom-select {
+            position: relative;
+            width: 100%;
+          }
+        .select-trigger:hover {
+         outline:1px solid  #5e5e5e;
+         border-color:#5e5e5e;
+        }
+          .custom-select label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #333;
+          }
+
+          .custom-select label .required {
+            color: #dc3545;
+            margin-left: 2px;
+          }
+
+          .select-trigger {
+            width: 100%;
+            padding: 12px 40px 12px 16px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            background-color: white;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            transition: all 0.2s ease;
+            font-size: 15px;
+            color: #333;
+          }
+
+          .select-trigger:hover {
+            border-color: #9ca3af;
+          }
+
+          .select-trigger.open {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+          }
+
+          .select-trigger .placeholder {
+            color: #6b7280;
+          }
+
+          .select-trigger .arrow {
+            position: absolute;
+            right: 16px;
+            pointer-events: none;
+            transition: transform 0.2s ease;
+          }
+
+          .select-trigger.open .arrow {
+            transform: rotate(180deg);
+          }
+
+          .select-trigger .arrow svg {
+            width: 16px;
+            height: 16px;
+            fill: #6b7280;
+          }
+
+          .select-dropdown {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            background: white;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-height: 300px;
+            overflow-y: auto;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transform: translateY(-10px);
+            transition: all 0.2s ease;
+          }
+
+          .select-dropdown.open {
+            opacity: 1;
+            visibility: visible;
+            transform: translateY(0);
+          }
+
+          .select-option {
+            padding: 12px 16px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            transition: background-color 0.15s ease;
+            font-size: 15px;
+            color: #333;
+          }
+
+          .select-option:hover {
+            background-color: #f3f4f6;
+          }
+
+          .select-option.selected {
+            background-color: #eff2ef;
+          }
+
+          .favorite-icon {
+            width: 20px;
+            height: 20px;
+            cursor: pointer;
+            flex-shrink: 0;
+            transition: transform 0.2s ease;
+          }
+
+          .favorite-icon:hover {
+            transform: scale(1.1);
+          }
+
+          .favorite-icon svg {
+            width: 100%;
+            height: 100%;
+          }
+
+          .favorite-icon.favorited svg {
+
+          }
+
+          .favorite-icon:not(.favorited) svg {
+            fill: none;
+            stroke: #9ca3af;
+            stroke-width: 2;
+          }
+
+          .option-text {
+            flex: 1;
+          }
+
+          .favorites-separator {
+            border-bottom: 1px solid #e5e7eb;
+            margin: 4px 0;
+          }
+
+          /* Scrollbar styling */
+          .select-dropdown::-webkit-scrollbar {
+            width: 8px;
+          }
+
+          .select-dropdown::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 0 6px 6px 0;
+          }
+
+          .select-dropdown::-webkit-scrollbar-thumb {
+            background: #d1d5db;
+            border-radius: 4px;
+          }
+
+          .select-dropdown::-webkit-scrollbar-thumb:hover {
+            background: #9ca3af;
+          }
+          .favorite-icon {
+          display: none;
+        }
+        .favorite-icon.favorited {
+          display: block;
+        }
+        .select-option.selected .option-text {
+          font-weight: 500;
+        }
+      </style>
+
+      <!-- Original Select (Hidden) -->
+      <select
+        id="course-select"
+        class="form-control"
+        name="properties[Club]"
+        {% if field_required %}
+          required
+        {% endif %}
+        form="{{ product_form_id }}"
+        aria-label="Select a club from the list"
+        style="display:none"
+      >
+        {% assign courses_array = courses | parse_json %}
+        {% assign sorted_courses = courses_array | sort: 'title' %}
+
+        {% for course in sorted_courses %}
+          {% assign label = course.title | strip %}
+          {% unless label == 'Fescue & Dunes' %}
+            <option
+              {% if label == current_variant.option1
+                or label == current_variant.option2
+                or label == current_variant.option3
+              %}
+                selected
+              {% endif %}
+              value="{{ label }}"
+              data-slug="{{ label | handleize }}"
+            >
+              {{ label }}
+            </option>
+          {% endunless %}
+        {% endfor %}
+
+        {%- comment -%} Always append "Fescue & Dunes" last {%- endcomment -%}
+        {% assign special_label = 'Fescue & Dunes' %}
+        {% for course in courses_array %}
+          {% if course.title == special_label %}
+            <option
+              {% if special_label == current_variant.option1
+                or special_label == current_variant.option2
+                or special_label == current_variant.option3
+              %}
+                selected
+              {% endif %}
+              value="{{ special_label }}"
+              data-slug="{{ special_label | handleize }}"
+            >
+              {{ special_label }}
+            </option>
+            {% break %}
+          {% endif %}
+        {% endfor %}
+      </select>
+
+      <!-- Custom Select Styles -->
+      <style>
+        .field-error {
+          color: #d02e2e;
+          font-size: 0.9rem;
+          margin-top: 4px;
+        }
+        .error-border {
+          border: 2px solid #d02e2e !important;
+        }
+        .btn-add-to-cart.disabled {
+          pointer-events: none;
+          opacity: 0.6;
+        }
+        .custom-select {
+          position: relative;
+          width: 100%;
+        }
+
+        .custom-select label {
+          display: block;
+          margin-bottom: 8px;
+          font-weight: 600;
+          font-size: 14px;
+          color: #333;
+        }
+
+        .custom-select label .required {
+          color: #dc3545;
+          margin-left: 2px;
+        }
+
+        .select-trigger {
+          width: 100%;
+          padding: 12px 40px 12px 16px;
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
+          background-color: white;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          transition: all 0.2s ease;
+          font-size: 15px;
+          color: #333;
+        }
+
+        .select-trigger:hover {
+          border-color: #9ca3af;
+        }
+
+        .select-trigger.open {
+          border-color: #5e5e5e;
+          box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .select-trigger .placeholder {
+          color: #6b7280;
+        }
+
+        .select-trigger .arrow {
+          position: absolute;
+          right: 16px;
+          pointer-events: none;
+          transition: transform 0.2s ease;
+        }
+
+        .select-trigger.open .arrow {
+          transform: rotate(180deg);
+        }
+
+        .select-trigger .arrow svg {
+          width: 16px;
+          height: 16px;
+          fill: #6b7280;
+        }
+
+        .select-dropdown {
+          position: absolute;
+          top: calc(100% + 4px);
+          left: 0;
+          right: 0;
+          background: white;
+          border: 1px solid #d1d5db;
+          border-radius: 6px;
+          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+          max-height: 300px;
+          overflow-y: auto;
+          z-index: 1000;
+          opacity: 0;
+          visibility: hidden;
+          transform: translateY(-10px);
+          transition: all 0.2s ease;
+        }
+
+        .select-dropdown.open {
+          opacity: 1;
+          visibility: visible;
+          transform: translateY(0);
+        }
+
+        .select-option {
+          padding: 12px 16px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          transition: background-color 0.15s ease;
+          font-size: 15px;
+          color: #333;
+        }
+
+        .select-option:hover {
+          background-color: #eff2ef !important;
+        }
+        .select-option:hover .option-text {
+          transition: all 0.3s;
+          font-weight:500;
+        }
+        .select-option.selected {
+          background-color: #eff2ef!important;
+        }
+
+        .favorite-icon {
+          width: 20px;
+          height: 20px;
+          cursor: pointer;
+          flex-shrink: 0;
+          transition: transform 0.2s ease;
+        }
+
+        .favorite-icon:hover {
+          transform: scale(1.1);
+        }
+
+        .favorite-icon svg {
+          width: 100%;
+          height: 100%;
+        }
+
+        .favorite-icon.favorited svg {
+
+        }
+
+        .favorite-icon:not(.favorited) svg {
+          fill: none;
+          stroke: #9ca3af;
+          stroke-width: 2;
+        }
+
+        .option-text {
+          flex: 1;
+        }
+
+        .favorites-separator {
+          border-bottom: 1px solid #e5e7eb;
+          margin: 4px 0;
+        }
+
+        /* Scrollbar styling */
+        .select-dropdown::-webkit-scrollbar {
+          width: 8px;
+        }
+
+        .select-dropdown::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 0 6px 6px 0;
+        }
+
+        .select-dropdown::-webkit-scrollbar-thumb {
+          background: #d1d5db;
+          border-radius: 4px;
+        }
+
+        .select-dropdown::-webkit-scrollbar-thumb:hover {
+          background: #9ca3af;
+        }
+
+        /* ============================================================
+           Logo Swatches: horizontal scroll on mobile, 6-per-row grid on desktop
+           ============================================================ */
+
+        /* Wrappers: never clip scroll, stay within parent content area */
+        .course-logos {
+          position: relative;
+          width: 100%;
+          box-sizing: border-box;
+        }
+
+        .logo-box,
+        .variant-picker__input.variant-picker__color.logo-box {
+          
+          padding-bottom: 8px;
+        }
+
+        .variant-picker__option-values.select-logos {
+          overflow: visible;
+        }
+
+        /* Shared base: swatch button styles (both breakpoints) */
+        .select-logos .variant-picker__option {
+          position: relative;
+          overflow: visible;
+        }
+
+        .variant-picker__option-button--course {
+          display: block !important;
+          width: clamp(72px, 8vw, 80px) !important;
+          height:  clamp(72px, 8vw, 80px) !important;
+          min-width: 72px !important;
+          background-image: var(--swatch-background) !important;
+          background-repeat: no-repeat !important;
+          background-position: center !important;
+          background-size: 85% !important;
+          background-color: #F3F4F6 !important;
+          border: 2px solid #D1D5DC !important;
+          border-radius: 10px !important;
+          cursor: pointer;
+          text-indent: -9999px;
+          overflow: hidden;
+          box-sizing: border-box;
+        }
+
+        .variant-picker__option-button--course:hover {
+          border-color: #5e5e5e !important;
+        }
+
+        input[type="radio"]:checked + .variant-picker__option-button--course {
+          border-color: #1a1a1a !important;
+          border-width: 2px !important;
+        }
+
+        /* Logo zoom trigger */
+        .logo-zoom-btn {
+          position: absolute;
+          right: -8px;
+          bottom: -8px;
+          z-index: 3;
+          width: 36px;
+          height: 36px;
+          padding: 0;
+          margin: 0;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          border-radius: 50%;
+          border: none;
+          background: #fff;
+          color: #1a1a1a;
+          cursor: pointer;
+          line-height: 0;
+        }
+
+        .logo-zoom-btn:hover {
+          background: #f3f4f6;
+        }
+
+        .logo-zoom-btn:focus-visible {
+          outline: 2px solid #1a1a1a;
+          outline-offset: 2px;
+        }
+
+        .logo-zoom-btn svg {
+          width: 22px;
+          height: 22px;
+          display: block;
+          pointer-events: none;
+        }
+
+        #logo-zoom-overlay {
+          position: fixed;
+          inset: 0;
+          background: rgba(0, 0, 0, 0.6);
+          backdrop-filter: blur(2px);
+          -webkit-backdrop-filter: blur(2px);
+          z-index: 998;
+          display: none;
+        }
+
+        #logo-zoom-modal {
+          position: fixed;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          z-index: 999;
+          background: #fff;
+          border-radius: 12px;
+          box-shadow: 0 24px 64px rgba(0, 0, 0, 0.22);
+          width: min(92vw, 520px);
+          max-height: 90vh;
+          overflow: auto;
+          -webkit-overflow-scrolling: touch;
+          display: none;
+          outline: none;
+        }
+
+        #logo-zoom-modal[open],
+        #logo-zoom-overlay[open] {
+          display: block;
+        }
+
+        #logo-zoom-modal .logo-zoom-modal__close {
+          position: sticky;
+          top: 12px;
+          float: right;
+          margin: 12px 12px 0 0;
+          padding: 0;
+          width: 36px;
+          height: 36px;
+          border: none;
+          background: #f3f4f6;
+          border-radius: 50%;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 10;
+          flex-shrink: 0;
+          color: #1a1a1a;
+        }
+
+        #logo-zoom-modal .logo-zoom-modal__close svg {
+          width: 18px;
+          height: 18px;
+          display: block;
+        }
+
+        #logo-zoom-modal .logo-zoom-modal__body {
+          clear: both;
+          padding: 8px 24px 32px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+
+        #logo-zoom-modal .logo-zoom-modal__img {
+          display: block;
+          max-width: 100%;
+          width: auto;
+          height: auto;
+          max-height: min(70vh, 420px);
+          object-fit: contain;
+        }
+
+        @media screen and (max-width: 749px) {
+          #logo-zoom-modal {
+            width: min(94vw, 420px);
+          }
+
+          #logo-zoom-modal .logo-zoom-modal__body {
+            padding: 4px 16px 24px;
+          }
+        }
+
+        /* ── Mobile only (< 750px): horizontal row; scroll only for 4+ logos ── */
+        @media screen and (max-width: 749px) {
+          .variant-picker__field.course-logos {
+            width: 100% !important;
+            max-width: 100vw !important;
+            overflow: visible !important;
+            box-sizing: border-box !important;
+          }
+
+          .variant-picker__input.variant-picker__color.logo-box {
+            width: 100% !important;
+            max-width: 100% !important;
+            overflow: visible !important;
+            box-sizing: border-box !important;
+            min-width:unset!important;
+          }
+
+          /* Default: no scroll (2–3 logos). Width hugs content. */
+          .select-logos {
+            display: flex !important;
+            flex-wrap: nowrap !important;
+            align-items: flex-start !important;
+            justify-content: flex-start !important;
+            gap: 10px;
+            width: max-content !important;
+            max-width: 100% !important;
+            box-sizing: border-box !important;
+            overflow-x: hidden !important;
+            overflow-y: visible !important;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+            padding: 4px 8px 14px 2px;
+          }
+
+          .select-logos::-webkit-scrollbar {
+            display: none;
+          }
+
+          .select-logos .variant-picker__option {
+            flex: 0 0 clamp(72px, 18vw, 80px) !important;
+            width: clamp(72px, 18vw, 80px) !important;
+            height: clamp(72px, 18vw, 80px) !important;
+            min-width: clamp(72px, 18vw, 80px) !important;
+            min-height: clamp(72px, 18vw, 80px) !important;
+          }
+
+          /* 4+ logos: allow horizontal scroll */
+          .select-logos.select-logos--scrollable {
+            width: 100% !important;
+            max-width: min(100%, 280px) !important;
+            overflow-x: auto !important;
+          }
+
+          /* Overlay host on product media (bottom-right) */
+          .f-product__media-wrapper,
+          .f-product__media-viewer,
+          .f-product__media-viewer [data-media-viewer] {
+            position: relative;
+          }
+
+          /* Keep media zoom top-left so it doesn't collide with logo overlay */
+          .f-product__media-zoom {
+            top: 1rem !important;
+            left: 1rem !important;
+            right: auto !important;
+            bottom: auto !important;
+          }
+
+          .logo-swatch-overlay {
+            --logo-card-size: clamp(64px, 17vw, 96px);
+            --logo-gap: 12px;
+            position: absolute;
+            right: 0;
+            bottom: 20px;
+            transform: translateY(50%);
+            z-index: 8;
+            display: flex;
+            align-items: flex-end;
+            justify-content: flex-end;
+            max-width: calc(100vw - 96px);
+            padding: 10px 8px 4px 10px;
+            background: var(--color-background, #fff);
+            border-radius: 25px 0 0 0; /* large top-left only; other corners square */
+            pointer-events: auto;
+            overflow: visible;
+          }
+
+          .logo-swatch-overlay input[type="radio"] {
+            clip: rect(0, 0, 0, 0);
+            overflow: hidden;
+            position: absolute;
+            height: 1px;
+            width: 1px;
+          }
+
+          .logo-swatch-overlay .select-logos {
+            margin: 0;
+            gap: var(--logo-gap);
+            padding: 0 24px 14px 0;
+            overflow: visible !important;
+          }
+
+          .logo-swatch-overlay .select-logos.select-logos--scrollable {
+            width: calc(3.25 * var(--logo-card-size) + 3 * var(--logo-gap) + 32px) !important;
+            max-width: calc(3.25 * var(--logo-card-size) + 3 * var(--logo-gap) + 32px) !important;
+            overflow-x: auto !important;
+            overflow-y: visible !important;
+            padding-right: 0;
+          }
+
+          .logo-swatch-overlay .select-logos .variant-picker__option {
+            flex: 0 0 var(--logo-card-size) !important;
+            width: var(--logo-card-size) !important;
+            height: var(--logo-card-size) !important;
+            min-width: var(--logo-card-size) !important;
+            min-height: var(--logo-card-size) !important;
+          }
+
+          .logo-swatch-overlay .variant-picker__option-button--course {
+            width: 100% !important;
+            height: 100% !important;
+            min-width: 0 !important;
+            background-color: #fff !important;
+            background-size: 96% !important;
+            border: 1px solid #D1D5DC !important;
+          }
+
+          .logo-swatch-overlay input[type="radio"]:checked + .variant-picker__option-button--course {
+            border: 2.5px solid #1a1a1a !important;
+          }
+
+          /* Unselected logos appear faded */
+          .logo-swatch-overlay input[type="radio"]:not(:checked) + .variant-picker__option-button--course {
+            opacity: 0.55;
+          }
+
+          /* Larger zoom hit target on mobile */
+          .logo-swatch-overlay .logo-zoom-btn {
+            width: 40px;
+            height: 40px;
+            right: -10px;
+            bottom: -10px;
+          }
+
+          .logo-swatch-overlay .logo-zoom-btn svg {
+            width: 24px;
+            height: 24px;
+          }
+
+          .logo-box--swatches-moved {
+            display: flex !important;
+            align-items: flex-end;
+            min-height: calc(clamp(64px, 17vw, 96px) / 2 - 14px);
+            margin: 0 !important;
+            padding-bottom: 0;
+          }
+
+          .logo-box--swatches-moved .form__label {
+            margin: 0 !important;
+            transform: translateY(-30px);
+          }
+
+          .variant-clubs .club-selects-row {
+            margin-top: -18px !important;
+          }
+        }
+
+        @media screen and (min-width: 750px) {
+          .logo-swatch-overlay {
+            display: none !important;
+          }
+        }
+
+        /* ── Desktop (≥ 750px): wrapping grid, max 6 per row ── */
+        @media screen and (min-width: 750px) {
+          .select-logos {
+            display: grid !important;
+            grid-template-columns: repeat(6, 80px);
+            grid-auto-rows: 80px;
+            justify-content: start;
+            align-items: start;
+            gap: 10px;
+            overflow-x: visible !important;
+            overflow-y: visible !important;
+            padding: 4px 8px 10px 2px;
+            width: 100%;
+          }
+
+          .select-logos .variant-picker__option {
+            width: clamp(72px,8vw,80px) !important;
+            height: clamp(72px,8vw,80px) !important;
+            flex: unset !important;
+          }
+        }
+      </style>
+
+      <!-- Original Select (Hidden) -->
+      <select
+        id="course-select"
+        class="form-control"
+        name="properties[Club]"
+        {% if field_required %}
+          required
+        {% endif %}
+        form="{{ product_form_id }}"
+        aria-label="Select a club from the list"
+        style="display:none"
+      >
+        {% assign course_titles = courses | map: 'title' | map: 'value' | sort %}
+
+        {% for title in course_titles %}
+          {% assign label = title | strip %}
+          {% unless label == 'Fescue & Dunes' %}
+            <option
+              {% if label == current_variant.option1
+                or label == current_variant.option2
+                or label == current_variant.option3
+              %}
+                selected
+              {% endif %}
+              value="{{ label }}"
+              data-slug="{{ label | handleize }}"
+            >
+              {{ label }}
+            </option>
+          {% endunless %}
+        {% endfor %}
+
+        {%- comment -%} Always append "Fescue & Dunes" last {%- endcomment -%}
+        {% assign special_label = 'Fescue & Dunes' %}
+        <option
+          {% if special_label == current_variant.option1
+            or special_label == current_variant.option2
+            or special_label == current_variant.option3
+          %}
+            selected
+          {% endif %}
+          value="{{ special_label }}"
+          data-slug="{{ special_label | handleize }}"
+        >
+          {{ special_label }}
+        </option>
+      </select>
+
+      <!-- Logo Swatches (full width, above the 2-col row) -->
+      {% for course in courses %}
+        {% assign course_title = course.title.value | strip %}
+        {% assign course_handle = course_title | handle %}
+        {% if course.course_logos %}
+          <div
+            class="variant-picker__field course-logos"
+            style="display:none"
+            data-picker-field="radio"
+            data-option-name="Selected Logo"
+            data-course="{{ course_handle }}"
+            aria-hidden="true"
+          >
+            <div class="variant-picker__input variant-picker__color logo-box" style="margin-top: 1.5rem;">
+              <label class="form__label">
+                <span class="font-semibold">Select a Logo:</span>
+              </label>
+              <div
+                class="variant-picker__option-values select-logos{% if course.course_logos.value.size >= 4 %} select-logos--scrollable{% endif %}"
+                data-logo-count="{{ course.course_logos.value.size }}"
+              >
+                {% for logo in course.course_logos.value %}
+                  {% assign logo_url = logo | image_url: width: 100 %}
+                  {% assign logo_zoom_url = logo | image_url: width: 1000 %}
+                  {% assign file_name = logo_url | split: '/' | last | split: '?' | first %}
+                  {% assign name_text = file_name | split: '.' | first | replace: '-', ' ' | replace: '_', ' ' %}
+                  {% assign alt_text = logo.alt | split: '.' | first | replace: '-', ' ' | replace: '_', ' ' %}
+                  {% assign input_id = 'logo-' | append: forloop.index | append: '-' | append: course_handle %}
+                  <div class="variant-picker__option">
+                    {% if clubParam.size > 2 %}
+                      <input
+                        type="radio"
+                        id="{{ input_id }}"
+                        name="properties[Logo]"
+                        value="{{ name_text | escape }}"
+                        form="{{ product_form_id }}"
+                        autocomplete="off"
+                        data-course-logo="{{ logo_url }}"
+                        data-logo-zoom="{{ logo_zoom_url }}"
+                        data-logo-alt="{{ alt_text | escape }}"
+                        {% if course_handle contains clubParam %}
+                          class="selected-logo"
+                        {% endif %}
+                      >
+                    {% endif %}
+                    {% if clubParam == '' or clubParam == null or course_handle == null %}
+                      <input
+                        type="radio"
+                        id="{{ input_id }}"
+                        name="properties[Logo]"
+                        value="{{ name_text | escape }}"
+                        form="{{ product_form_id }}"
+                        autocomplete="off"
+                        data-course-logo="{{ logo_url }}"
+                        data-logo-zoom="{{ logo_zoom_url }}"
+                        data-logo-alt="{{ alt_text | escape }}"
+                      >
+                    {% endif %}
+                    <label
+                      class="variant-picker__option-button variant-picker__option-button--color variant-picker__option-button--course"
+                      for="{{ input_id }}"
+                      style="--swatch-background: url({{ logo_url }}); background-color:#F3F4F6; border: 2px solid #D1D5DC;background-size: 85%;  border-radius:10px;"
+                      data-alt="{{ alt_text | escape }}"
+                    >
+                      {{ alt_text }}
+                    </label>
+                    <button
+                      type="button"
+                      class="logo-zoom-btn"
+                      data-logo-zoom-src="{{ logo_zoom_url }}"
+                      data-logo-zoom-alt="{{ alt_text | escape }}"
+                      aria-label="Zoom logo: {{ alt_text | escape }}"
+                    >
+                      {% render 'icon-zoom-plus', size: 'small' %}
+                    </button>
+                  </div>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+
+      <!-- 2-Column Row: Club Select + Logo Placement -->
+      <div class="club-selects-row">
+        <!-- Col 1: Club Select -->
+        <div class="club-selects-row__col" id="club-select-col">
+          <div class="custom-select" id="custom-course-select">
+            <label>
+              Select a Club:
+              {% if field_required %}
+                <span class="required">(required)</span>
+              {% endif %}
+            </label>
+            <div class="select-trigger">
+              <span class="placeholder">Please select</span>
+              <span class="arrow">
+                <svg viewBox="0 0 20 20" fill="currentColor">
+                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                </svg>
+              </span>
+            </div>
+            <div class="select-dropdown">
+              <!-- Options will be dynamically populated -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Col 2: Logo Placement (custom-embroidered-select injected here by JS) -->
+        <div class="club-selects-row__col" id="placement-select-col">
+          <!-- #custom-embroidered-select gets injected here -->
+        </div>
+      </div>
+
+      <style>
+        .club-selects-row {
+          display: flex;
+          gap: 16px;
+          align-items: flex-start;
+          margin-top: 1.5rem;
+        }
+
+        .club-selects-row__col {
+          flex: 1;
+          min-width: 0;
+        }
+
+        /* Remove top margin from children since row handles spacing */
+        .club-selects-row__col .custom-select,
+        .club-selects-row__col .custom-embroidered-select {
+          margin-top: 0 !important;
+        }
+        #club-select-col{display:none;}
+      </style>
+
+      <script>
+        (function () {
+          'use strict';
+
+          class CustomSelect {
+            constructor(element, originalSelect) {
+              this.element = element;
+              this.originalSelect = originalSelect;
+              this.options = [];
+              this.selectedValue = null;
+              this.favorites = [];
+              this.isOpen = false;
+
+              this.trigger = element.querySelector('.select-trigger');
+              this.dropdown = element.querySelector('.select-dropdown');
+
+              this.init();
+            }
+
+            init() {
+              this.loadOptionsFromSelect();
+              this.loadFavorites();
+              this.renderOptions();
+              this.setInitialValue();
+              this.renderOptions(); // Re-render after setting initial value to show selected state
+              this.bindEvents();
+
+              // Dispatch custom event when initialized
+              window.dispatchEvent(new Event('customSelectInitialized'));
+            }
+
+            loadOptionsFromSelect() {
+              const selectOptions = this.originalSelect.querySelectorAll('option');
+              selectOptions.forEach((option) => {
+                if (option.value) {
+                  // Skip empty placeholder option
+                  this.options.push({
+                    value: option.value,
+                    label: option.textContent.trim(),
+                    slug: option.dataset.slug || this.slugify(option.value),
+                    selected: option.selected,
+                  });
+                }
+              });
+            }
+
+            slugify(text) {
+              return text
+                .toLowerCase()
+                .trim()
+                .replace(/[^\w\s-]/g, '')
+                .replace(/[\s_-]+/g, '-')
+                .replace(/^-+|-+$/g, '');
+            }
+
+            loadFavorites() {
+              // Use CookieManager if available, otherwise fallback to empty array
+              if (typeof CookieManager !== 'undefined' && typeof CookieManager.getFavoriteClubs === 'function') {
+                try {
+                  this.favorites = CookieManager.getFavoriteClubs() || [];
+                  // Sort favorites alphabetically A-Z
+                  this.favorites.sort((a, b) => a.localeCompare(b));
+                } catch (e) {
+                  console.warn('Error loading favorite clubs:', e);
+                  this.favorites = [];
+                }
+              } else {
+                this.favorites = [];
+              }
+            }
+
+            saveFavorites() {
+              // Use CookieManager if available
+              if (typeof CookieManager !== 'undefined' && typeof CookieManager.setFavoriteClubs === 'function') {
+                try {
+                  CookieManager.setFavoriteClubs(this.favorites);
+                } catch (e) {
+                  console.warn('Error saving favorite clubs:', e);
+                }
+              }
+            }
+
+            getUrlParameter(name) {
+              const urlParams = new URLSearchParams(window.location.search);
+              return urlParams.get(name);
+            }
+
+            setInitialValue() {
+              // Priority 1: Check if there's a 'club' parameter in the URL
+              //const clubParam = this.getUrlParameter('club');
+              // accept the internal `club` param OR the campaign `utm_campaign_club`
+              const clubParam = this.getUrlParameter('club') || this.getUrlParameter('utm_campaign_club');
+              if (clubParam) {
+                // If club parameter exists, try to find and select that option
+                const paramOption = this.options.find(
+                  (opt) =>
+                    opt.slug === clubParam ||
+                    opt.value.toLowerCase() === clubParam.toLowerCase() ||
+                    this.slugify(opt.value) === clubParam
+                );
+
+                if (paramOption) {
+                  this.selectOptionInternal(paramOption.value);
+                  return;
+                }
+              }
+
+              // Priority 2: Check for club_handle in cookie
+              let clubHandleCookie = '';
+              if (typeof getCookie === 'function') {
+                clubHandleCookie = getCookie('club_handle');
+              } else {
+                // Direct cookie reading as fallback
+                const name = 'club_handle=';
+                const decodedCookie = decodeURIComponent(document.cookie);
+                const ca = decodedCookie.split(';');
+                for (let i = 0; i < ca.length; i++) {
+                  let c = ca[i];
+                  while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                  }
+                  if (c.indexOf(name) == 0) {
+                    clubHandleCookie = c.substring(name.length, c.length);
+                    break;
+                  }
+                }
+              }
+
+              if (clubHandleCookie && clubHandleCookie !== '') {
+                // Try to find option matching the cookie handle
+                const cookieOption = this.options.find(
+                  (opt) => opt.slug === clubHandleCookie || this.slugify(opt.value) === clubHandleCookie
+                );
+
+                if (cookieOption) {
+                  this.selectOptionInternal(cookieOption.value);
+                  return;
+                }
+                // If invalid cookie, just ignore and fall through to default
+              }
+
+              // Priority 3: Default - select the first item (favorite if available, otherwise first in list)
+              let firstOption;
+
+              if (this.favorites.length > 0) {
+                const firstFavoriteSlug = this.favorites[0];
+                firstOption = this.options.find((opt) => opt.slug === firstFavoriteSlug);
+              }
+
+              // If no favorite found or no favorites, use first option from the list
+              if (!firstOption && this.options.length > 0) {
+                firstOption = this.options[0];
+              }
+
+              if (firstOption) {
+                this.selectOptionInternal(firstOption.value);
+              }
+            }
+
+            selectOptionInternal(value) {
+              // Clear all selected flags in options array
+              this.options.forEach((opt) => (opt.selected = false));
+
+              // Clear selected attribute from all original select options
+              const originalOptions = this.originalSelect.querySelectorAll('option');
+              originalOptions.forEach((opt) => opt.removeAttribute('selected'));
+
+              // Find and mark the new selected option
+              const option = this.options.find((opt) => opt.value === value);
+
+              if (option) {
+                option.selected = true;
+                this.selectedValue = value;
+                this.originalSelect.value = value;
+
+                // Add selected attribute to the corresponding option in original select
+                const originalOption = Array.from(originalOptions).find((opt) => opt.value === value);
+                if (originalOption) {
+                  originalOption.setAttribute('selected', 'selected');
+                }
+
+                const triggerText = this.trigger.querySelector('span:first-child');
+                triggerText.textContent = option.label;
+                triggerText.classList.remove('placeholder');
+
+                // Trigger change event on original select with a slight delay to ensure DOM is updated
+                setTimeout(() => {
+                  const changeEvent = new Event('change', { bubbles: true });
+                  this.originalSelect.dispatchEvent(changeEvent);
+                }, 0);
+              }
+            }
+
+            toggleFavorite(slug, event) {
+              event.stopPropagation();
+
+              const index = this.favorites.indexOf(slug);
+              if (index > -1) {
+                this.favorites.splice(index, 1);
+              } else {
+                this.favorites.push(slug);
+              }
+
+              this.saveFavorites();
+              this.renderOptions();
+            }
+
+            renderOptions() {
+              // Separate favorite and regular options
+              const favoriteOptions = this.options.filter((opt) => this.favorites.includes(opt.slug));
+
+              const regularOptions = this.options.filter((opt) => !this.favorites.includes(opt.slug));
+
+              // Sort favorite options alphabetically by label (A-Z)
+              favoriteOptions.sort((a, b) => {
+                return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
+              });
+
+              // Sort regular options alphabetically by label (A-Z)
+              regularOptions.sort((a, b) => {
+                return a.label.localeCompare(b.label, undefined, { sensitivity: 'base' });
+              });
+
+              let html = '';
+
+              // Render favorite options
+              if (favoriteOptions.length > 0) {
+                favoriteOptions.forEach((option) => {
+                  html += this.createOptionHTML(option, true);
+                });
+
+                if (regularOptions.length > 0) {
+                  html += '<div class="favorites-separator"></div>';
+                }
+              }
+
+              // Render regular options (sorted A-Z)
+              regularOptions.forEach((option) => {
+                html += this.createOptionHTML(option, false);
+              });
+
+              this.dropdown.innerHTML = html;
+            }
+
+            createOptionHTML(option, isFavorite) {
+              const isSelected = this.selectedValue === option.value ? 'selected' : '';
+              return `
+          <div class="select-option ${isSelected}" data-value="${this.escapeHtml(option.value)}">
+            <div class="favorite-icon ${isFavorite ? 'favorited' : ''}" data-slug="${option.slug}">
+              <svg viewBox="0 0 24 25" fill="none" xmlns="http://www.w3.org/2000/svg" class="f-icon-svg f-icon-svg--medium ">
+                <path fill-rule="evenodd" clip-rule="evenodd" d="M21.0002 8.97903C21.0002 15.2234 12.0006 20.479 12.0006 20.479C12.0006 20.479 3.00024 15.1457 3.00024 8.99169C3.00024 6.47903 5.00024 4.47903 7.50024 4.47903C10.0002 4.47903 12.0002 7.47903 12.0002 7.47903C12.0002 7.47903 14.0002 4.47903 16.5002 4.47903C19.0002 4.47903 21.0002 6.47903 21.0002 8.97903Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"></path>
+              </svg>
+            </div>
+            <span class="option-text">${this.escapeHtml(option.label)}</span>
+          </div>
+        `;
+            }
+
+            escapeHtml(text) {
+              const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;',
+              };
+              return text.replace(/[&<>"']/g, (m) => map[m]);
+            }
+
+            bindEvents() {
+              // Toggle dropdown
+              this.trigger.addEventListener('click', (e) => {
+                e.stopPropagation();
+                this.toggleDropdown();
+              });
+
+              // Handle option selection and favoriting
+              this.dropdown.addEventListener('click', (e) => {
+                const option = e.target.closest('.select-option');
+                const favoriteIcon = e.target.closest('.favorite-icon');
+
+                if (favoriteIcon) {
+                  this.toggleFavorite(favoriteIcon.dataset.slug, e);
+                } else if (option) {
+                  this.selectOption(option.dataset.value);
+                }
+              });
+
+              // Close dropdown when clicking outside
+              document.addEventListener('click', (e) => {
+                if (!this.element.contains(e.target)) {
+                  this.closeDropdown();
+                }
+              });
+
+              // Keyboard navigation
+              this.element.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape' && this.isOpen) {
+                  this.closeDropdown();
+                }
+              });
+            }
+
+            toggleDropdown() {
+              this.isOpen ? this.closeDropdown() : this.openDropdown();
+            }
+
+            openDropdown() {
+              this.isOpen = true;
+              this.trigger.classList.add('open');
+              this.dropdown.classList.add('open');
+            }
+
+            closeDropdown() {
+              this.isOpen = false;
+              this.trigger.classList.remove('open');
+              this.dropdown.classList.remove('open');
+            }
+
+            selectOption(value) {
+              this.selectOptionInternal(value);
+              this.renderOptions();
+              this.closeDropdown();
+            }
+          }
+
+          // Initialize when DOM is ready
+          function initCustomSelect() {
+            const originalSelect = document.getElementById('course-select');
+            const customSelect = document.getElementById('custom-course-select');
+
+            if (originalSelect && customSelect) {
+              // Small delay to ensure other DOMContentLoaded listeners have run first
+              setTimeout(() => {
+                new CustomSelect(customSelect, originalSelect);
+              }, 10);
+            }
+          }
+
+          // Check if DOM is already loaded
+          if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initCustomSelect);
+          } else {
+            initCustomSelect();
+          }
+        })();
+      </script>
+    </div>
+
+    {% render 'product-select-embroider' %}
+    {% render 'logo-decoration-type' %}
+
+    <!-- Build logo position mapping from metaobjects -->
+    <script>
+      window.logoPositionMapping = {
+        {% for course in courses %}
+          {% assign course_handle = course.title.value | strip | handleize %}
+          '{{ course_handle }}': [
+            {% if course.logo_position.value %}
+              {% for position in course.logo_position.value %}
+                '{{ position | escape }}'{% unless forloop.last %},{% endunless %}
+              {% endfor %}
+            {% endif %}
+          ]{% unless forloop.last %},{% endunless %}
+        {% endfor %}
+      };
+
+      console.log('Logo Position Mapping:', window.logoPositionMapping);
+    </script>
+
+    <div id="logo-zoom-overlay" hidden></div>
+    <div
+      id="logo-zoom-modal"
+      role="dialog"
+      aria-modal="true"
+      aria-label="Club logo preview"
+      tabindex="-1"
+      hidden
+    >
+      <button type="button" class="logo-zoom-modal__close" aria-label="Close">
+        {% render 'icon-close', size: 'medium' %}
+      </button>
+      <div class="logo-zoom-modal__body">
+        <img class="logo-zoom-modal__img" src="" alt="">
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        'use strict';
+
+        var overlay = document.getElementById('logo-zoom-overlay');
+        var modal = document.getElementById('logo-zoom-modal');
+        if (!overlay || !modal) return;
+
+        // Keep modal at document root so fixed positioning is never clipped
+        if (overlay.parentElement !== document.body) document.body.appendChild(overlay);
+        if (modal.parentElement !== document.body) document.body.appendChild(modal);
+
+        var img = modal.querySelector('.logo-zoom-modal__img');
+        var closeBtn = modal.querySelector('.logo-zoom-modal__close');
+        var lastFocus = null;
+
+        function openLogoZoom(src, alt) {
+          if (!src) return;
+          lastFocus = document.activeElement;
+          img.src = src;
+          img.alt = alt || 'Club logo';
+          overlay.hidden = false;
+          modal.hidden = false;
+          overlay.setAttribute('open', '');
+          modal.setAttribute('open', '');
+          document.body.style.overflow = 'hidden';
+          modal.focus();
+        }
+
+        function closeLogoZoom() {
+          overlay.removeAttribute('open');
+          modal.removeAttribute('open');
+          overlay.hidden = true;
+          modal.hidden = true;
+          img.removeAttribute('src');
+          img.alt = '';
+          document.body.style.overflow = '';
+          if (lastFocus && typeof lastFocus.focus === 'function') lastFocus.focus();
+        }
+
+        document.addEventListener('click', function (e) {
+          var btn = e.target.closest('.logo-zoom-btn');
+          if (!btn) return;
+          e.preventDefault();
+          e.stopPropagation();
+          openLogoZoom(btn.getAttribute('data-logo-zoom-src'), btn.getAttribute('data-logo-zoom-alt'));
+        });
+
+        closeBtn?.addEventListener('click', closeLogoZoom);
+        overlay.addEventListener('click', closeLogoZoom);
+
+        document.addEventListener('keydown', function (e) {
+          if (e.key === 'Escape' && modal.hasAttribute('open')) closeLogoZoom();
+        });
+      })();
+    </script>
+
+    <script>
+      (function () {
+        'use strict';
+
+        var MQ = window.matchMedia('(max-width: 749px)');
+        var overlayHost = null;
+        var movedEl = null;
+        var homeParent = null;
+        var homeNext = null;
+
+        function ensureHost() {
+          if (overlayHost && document.body.contains(overlayHost)) return overlayHost;
+          var media =
+            document.querySelector('product-info .f-product__media-viewer [data-media-viewer]') ||
+            document.querySelector('product-info .f-product__media-viewer') ||
+            document.querySelector('.f-product__media-viewer [data-media-viewer]') ||
+            document.querySelector('.f-product__media-wrapper');
+          if (!media) return null;
+          var cs = window.getComputedStyle(media);
+          if (cs.position === 'static') media.style.position = 'relative';
+          overlayHost = document.createElement('div');
+          overlayHost.id = 'logo-swatch-overlay';
+          overlayHost.className = 'logo-swatch-overlay';
+          overlayHost.setAttribute('aria-label', 'Select a logo');
+          media.appendChild(overlayHost);
+          return overlayHost;
+        }
+
+        function destroyHost() {
+          if (overlayHost && overlayHost.parentNode) overlayHost.parentNode.removeChild(overlayHost);
+          overlayHost = null;
+        }
+
+        function getVisibleSelectLogos() {
+          var visibleField = document.querySelector('.course-logos[aria-hidden="false"]');
+          if (visibleField) {
+            var logos = visibleField.querySelector('.select-logos');
+            if (logos) return logos;
+          }
+
+          var fields = document.querySelectorAll('.course-logos');
+          for (var i = 0; i < fields.length; i++) {
+            var field = fields[i];
+            if (field.style.display === 'none') continue;
+            if (window.getComputedStyle(field).display === 'none') continue;
+            var el = field.querySelector('.select-logos');
+            if (el) return el;
+          }
+          return null;
+        }
+
+        function updateScrollClass(el) {
+          if (!el) return;
+          var count = el.querySelectorAll(':scope > .variant-picker__option').length;
+          if (!count) count = el.querySelectorAll('.variant-picker__option').length;
+          el.setAttribute('data-logo-count', String(count));
+          el.classList.toggle('select-logos--scrollable', count >= 4);
+        }
+
+        function restoreHome() {
+          if (!movedEl || !homeParent) return;
+          if (homeNext && homeNext.parentNode === homeParent) {
+            homeParent.insertBefore(movedEl, homeNext);
+          } else {
+            homeParent.appendChild(movedEl);
+          }
+          homeParent.classList.remove('logo-box--swatches-moved');
+          movedEl = null;
+          homeParent = null;
+          homeNext = null;
+        }
+
+        function moveToOverlay() {
+          var host = ensureHost();
+          var logos = getVisibleSelectLogos();
+          if (!host || !logos) return;
+
+          // Already correctly placed
+          if (movedEl === logos && logos.parentElement === host) {
+            updateScrollClass(logos);
+            return;
+          }
+
+          restoreHome();
+
+          homeParent = logos.parentElement;
+          homeNext = logos.nextSibling;
+          movedEl = logos;
+          host.appendChild(logos);
+          if (homeParent) homeParent.classList.add('logo-box--swatches-moved');
+          updateScrollClass(logos);
+        }
+
+        function sync() {
+          if (MQ.matches) {
+            moveToOverlay();
+          } else {
+            restoreHome();
+            destroyHost();
+          }
+        }
+
+        // Re-sync after club/logo visibility changes
+        document.addEventListener('change', function (e) {
+          if (!e.target) return;
+          if (e.target.id === 'course-select' || e.target.name === 'properties[Logo]') {
+            setTimeout(sync, 30);
+          }
+        });
+
+        var observer = new MutationObserver(function () {
+          if (!MQ.matches) return;
+          setTimeout(sync, 30);
+        });
+
+        function observeLogos() {
+          document.querySelectorAll('.course-logos').forEach(function (el) {
+            observer.observe(el, { attributes: true, attributeFilter: ['style', 'aria-hidden', 'class'] });
+          });
+        }
+
+        if (MQ.addEventListener) MQ.addEventListener('change', sync);
+        else if (MQ.addListener) MQ.addListener(sync);
+
+        function init() {
+          observeLogos();
+          sync();
+          // Club select / logo visibility often settles after other PDP scripts
+          setTimeout(sync, 200);
+          setTimeout(sync, 800);
+        }
+
+        if (document.readyState === 'loading') {
+          document.addEventListener('DOMContentLoaded', init);
+        } else {
+          init();
+        }
+      })();
+    </script>
+    </div>
+{% endif %}
+
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const addToCartBtn = document.querySelector('.btn-add-to-cart');
+    const altAddToCartBtn = document.querySelector('.f-product-form__submit');
+    const clubSelect = document.getElementById('course-select');
+    const productForm = document.querySelector('form[action^="/cart"]');
+
+    // Error container
+    let globalError = document.createElement('div');
+    globalError.classList.add('field-error');
+    globalError.style.marginTop = '8px';
+    globalError.style.display = 'none';
+    addToCartBtn?.insertAdjacentElement('afterend', globalError);
+
+    function toHandle(str) {
+      console.log('Converting to handle:', str);
+      return (str ?? '')
+        .toString()
+        .normalize('NFKD') // normalize unicode (e.g., ' → ')
+        .replace(/\u00A0/g, ' ') // NBSP → space
+        .toLowerCase()
+        .replace(/['']s\b/gi, 's') // George's / George's → georges
+        .replace(/[''"""'´`]/g, '') // remove remaining quotes/apostrophes
+        .replace(/[^a-z0-9]+/g, '-') // non-alphanumerics → dash
+        .replace(/^-+|-+$/g, ''); // trim leading/trailing dashes
+    }
+
+    function clearErrors() {
+      globalError.style.display = 'none';
+      globalError.textContent = '';
+      clubSelect.classList.remove('error-border');
+      document.querySelectorAll('.course-logos').forEach((el) => {
+        el.classList.remove('error-border');
+      });
+    }
+
+    function isValidSelection() {
+      let clubValid = clubSelect.value && clubSelect.value.trim() !== '';
+      return clubValid;
+    }
+
+    function toggleButtonState() {
+      if (isValidSelection()) {
+        addToCartBtn.classList.remove('disabled');
+        addToCartBtn.removeAttribute('disabled'); // ensure clickable
+      } else {
+        addToCartBtn.classList.add('disabled');
+        addToCartBtn.setAttribute('disabled', 'disabled');
+      }
+    }
+
+    function validateSelection(e) {
+      clearErrors();
+      if (!isValidSelection()) {
+        e.preventDefault();
+        let errors = [];
+        if (!clubSelect.value || clubSelect.value.trim() === '') {
+          errors.push('Please select a club');
+          clubSelect.classList.add('error-border');
+        }
+        globalError.textContent = errors.join(' and ');
+        globalError.style.display = 'block';
+        toggleButtonState();
+        return false;
+      }
+      toggleButtonState(); // make sure enabled before submit
+      return true;
+    }
+
+    // Listen to changes
+    clubSelect?.addEventListener('change', toggleButtonState);
+
+    // Initial state
+    toggleButtonState();
+
+    // Validate on submit
+    productForm?.addEventListener('submit', validateSelection);
+    addToCartBtn?.addEventListener('click', validateSelection);
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const courseSelect = document.getElementById('course-select');
+    const courseInput = document.getElementById('selected-course-input');
+    const logoInput = document.getElementById('selected-logo-input');
+    const logoUrlInput = document.getElementById('logo-url-input');
+    const productForm = document.querySelector('form[action^="/cart"]');
+    const logoContainers = document.querySelectorAll('.course-logos');
+
+    function toHandle(str) {
+      console.log('Converting to handle:', str);
+      return (str ?? '')
+        .toString()
+        .normalize('NFKD') // normalize unicode (e.g., ' → ')
+        .replace(/\u00A0/g, ' ') // NBSP → space
+        .toLowerCase()
+        .replace(/['']s\b/gi, 's') // George's / George's → georges
+        .replace(/[''"""'´`]/g, '') // remove remaining quotes/apostrophes
+        .replace(/[^a-z0-9]+/g, '-') // non-alphanumerics → dash
+        .replace(/^-+|-+$/g, ''); // trim leading/trailing dashes
+    }
+
+    function updateSelectedValue(container) {
+      const radios = container.querySelectorAll('input[type="radio"]');
+      const labelSpan = container.querySelector('.selected-value');
+      let selectedInput = container.querySelector('input[type="radio"]:checked');
+
+      // If none are selected, select the first one
+      if (!selectedInput && radios.length > 0) {
+        radios[0].checked = true;
+        selectedInput = radios[0];
+      }
+
+      // Update selected value label
+      if (labelSpan && selectedInput) {
+        labelSpan.textContent = selectedInput.value;
+      }
+
+      // Update hidden logo inputs
+      if (selectedInput && logoInput && logoUrlInput) {
+        logoInput.value = selectedInput.value;
+
+        const label = selectedInput.closest('.variant-picker__option')?.querySelector('label');
+        const bgStyle = label?.style?.getPropertyValue('--swatch-background');
+        const match = bgStyle?.match(/url\(["']?(.*?)["']?\)/);
+
+        if (match && match[1]) {
+          logoUrlInput.value = match[1];
+        }
+      }
+    }
+
+    function updateLogos() {
+      const selectedCourse = courseSelect?.value || '';
+      const selectedHandle = toHandle(selectedCourse);
+
+      if (courseInput) {
+        courseInput.value = selectedCourse;
+      }
+
+      logoContainers.forEach((container) => {
+        const isMatch = container.dataset.course === selectedHandle;
+        container.style.display = isMatch ? 'block' : 'none';
+        container.setAttribute('aria-hidden', isMatch ? 'false' : 'true');
+        if (isMatch) {
+          container.classList.add('selected-logo');
+        }
+
+        if (isMatch) {
+          updateSelectedValue(container);
+        }
+      });
+    }
+
+    // NEW: Function to select logo with "selected-logo" class on page load
+
+    // NEW: Function to select logo with "selected-logo" class on page load
+ function selectInitialLogo() {
+  const radios = getLogoRadios(getVisibleContainer());
+  if (!radios.length) return;
+  const radio = radios.find(r => r.checked) || radios[0];
+  radio.checked = true;
+  syncLogo(radio);
+  radio.dispatchEvent(new Event('change', { bubbles: true })); // paints the logo on the shirt
+  console.log('Auto-selected logo:', radio.value);
+}
+
+    setTimeout(function () {
+      updateLogos();
+      selectInitialLogo();
+    }, 500);
+
+    // Update logos on course change
+    courseSelect?.addEventListener('change', updateLogos);
+
+    // Update selected logo when radio changes
+    /*document.querySelectorAll('input[name="properties[Logo]"]').forEach((radio) => {
+      radio.addEventListener('change', () => {
+        const container = radio.closest('.course-logos');
+        updateSelectedValue(container);
+      });
+    });
+    */
+    function getVisibleContainer() {
+  return document.querySelector('.course-logos[aria-hidden="false"]');
+}
+
+function getLogoRadios(container) {
+  let radios = container ? container.querySelectorAll('input[name="properties[Logo]"]') : [];
+  if (!radios.length) {
+    const overlay = document.getElementById('logo-swatch-overlay');
+    if (overlay) radios = overlay.querySelectorAll('input[name="properties[Logo]"]');
+  }
+  return [...radios];
+}
+
+function syncLogo(radio) {
+  if (!radio || !logoInput || !logoUrlInput) return;
+  logoInput.value = radio.value;
+  const label = radio.closest('.variant-picker__option')?.querySelector('label');
+  const m = label?.style.getPropertyValue('--swatch-background').match(/url\(["']?(.*?)["']?\)/);
+  if (m && m[1]) logoUrlInput.value = m[1];
+  const span = getVisibleContainer()?.querySelector('.selected-value');
+  if (span) span.textContent = radio.value;
+}
+
+function updateSelectedValue(container) {
+  const radios = getLogoRadios(container || getVisibleContainer());
+  if (!radios.length) return;
+  const selected = radios.find(r => r.checked) || radios[0];
+  selected.checked = true;
+  syncLogo(selected);
+}
+
+// One listener on the page instead of one per option, so it still works after the options are moved
+document.addEventListener('change', (e) => {
+  if (e.target.matches('input[name="properties[Logo]"]')) syncLogo(e.target);
+});
+
+
+    // Final safety update on form submit
+    productForm?.addEventListener('submit', () => {
+      updateLogos();
+    });
+  });
+
+  // Define the function to be triggered on radio button change or click
+  function handleLogoChange(event) {
+    const selectedValue = event.target.value;
+    // Get the value of the 'data-course-logo' attribute from the radio button
+    const courseLogoData = event.target.dataset.courseLogo;
+
+    // Get all SVG <image> elements with the ID 'course-logo'.
+    const svgImageElements = document.querySelectorAll('image[id="course-logo"]');
+
+    if (svgImageElements.length > 0) {
+      svgImageElements.forEach((svgImageElement) => {
+        try {
+          // For modern SVG (SVG2), set the href attribute directly.
+          // For backward compatibility (older SVG versions/browsers), also set xlink:href using setAttributeNS.
+          svgImageElement.setAttribute('href', courseLogoData);
+          svgImageElement.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', courseLogoData);
+
+          console.log('Updated href of SVG <image> (ID: course-logo) to:', courseLogoData);
+        } catch (error) {
+          console.error('Error updating SVG <image> href for one element:', error);
+        }
+      });
+    } else {
+      console.warn("No SVG <image> elements with id='course-logo' found in the DOM.");
+    }
+  }
+
+  // Get all radio buttons with the specific name
+  const logoRadioButtons = document.querySelectorAll('input[name="properties[Logo]"]');
+
+  // Loop through each radio button and attach both 'change' and 'click' event listeners
+  logoRadioButtons.forEach((radio) => {
+    radio.addEventListener('change', handleLogoChange);
+    radio.addEventListener('click', handleLogoChange);
+  });
+</script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const referrer = document.referrer;
+    const select = document.getElementById('course-select');
+
+    if (!referrer || !select) return;
+
+    console.log('Referrer:', referrer);
+
+    const match = referrer.match(/\/pages\/clubs\/([^\/?#]+)/i);
+    if (!match || !match[1]) return;
+
+    const slug = match[1];
+    const normalize = (str) =>
+      str
+        .toString()
+        .normalize('NFKD') // normalize unicode (e.g., ' → ')
+        .replace(/\u00A0/g, ' ') // NBSP → space
+        .toLowerCase()
+        .replace(/['']s\b/gi, 's') // George's / George's → georges
+        .replace(/[''"""'´`]/g, '') // remove remaining quotes/apostrophes
+        .replace(/[^a-z0-9]+/g, '-') // non-alphanumerics → dash
+        .replace(/^-+|-+$/g, ''); // trim leading/trailing dashes
+
+    const target = normalize(decodeURIComponent(slug));
+
+    for (let option of select.options) {
+      const valueNormalized = normalize(option.value);
+      const textNormalized = normalize(option.textContent || '');
+
+      console.log('Comparing:', target, 'with', valueNormalized, 'and', textNormalized);
+
+      if (valueNormalized.includes(target) || textNormalized.includes(target)) {
+        option.selected = true;
+        select.dispatchEvent(new Event('change'));
+        console.log('Auto-selected:', option.value);
+        break;
+      }
+    }
+  });
+
+  // Dynamic logo position dropdown updater
+  (function () {
+    'use strict';
+
+    function toHandle(str) {
+      return (str ?? '')
+        .toString()
+        .normalize('NFKD')
+        .replace(/\u00A0/g, ' ')
+        .toLowerCase()
+        .replace(/['']s\b/gi, 's')
+        .replace(/[''"""'´`]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
+    function decodeHtmlEntities(str) {
+      const textarea = document.createElement('textarea');
+      textarea.innerHTML = str;
+      return textarea.value;
+    }
+
+    function updateLogoPositions() {
+      const courseSelect = document.getElementById('course-select');
+      const embroideredSelect = document.getElementById('select-embroidered');
+
+      if (!courseSelect || !embroideredSelect || !window.logoPositionMapping) {
+        console.warn('Required elements not found for logo position update');
+        return;
+      }
+
+      // Get selected club handle
+      const selectedOption = courseSelect.options[courseSelect.selectedIndex];
+      if (!selectedOption || !selectedOption.value) {
+        console.log('No club selected yet');
+        return;
+      }
+
+      const selectedHandle = toHandle(selectedOption.value);
+      console.log('Selected club handle:', selectedHandle);
+
+      // Get positions for this club and decode HTML entities
+      const positions = (window.logoPositionMapping[selectedHandle] || []).map((pos) => decodeHtmlEntities(pos));
+      console.log('Available positions for', selectedHandle, ':', positions);
+
+      // Store current selection to try to maintain it
+      const currentValue = embroideredSelect.value;
+
+      // Clear and rebuild options
+      embroideredSelect.innerHTML = '';
+
+      if (positions.length === 0) {
+        // Fallback: add default options if none defined
+        const defaultOptions = ['Left Chest', 'Right Chest'];
+        defaultOptions.forEach((position) => {
+          const option = document.createElement('option');
+          option.value = position;
+          option.textContent = position;
+          embroideredSelect.appendChild(option);
+        });
+        console.log('No positions defined, using defaults');
+      } else {
+        // Add positions from mapping (already decoded)
+        positions.forEach((position) => {
+          const option = document.createElement('option');
+          option.value = position;
+          option.textContent = position;
+          embroideredSelect.appendChild(option);
+        });
+      }
+
+      // Try to restore previous selection, otherwise select first
+      if (currentValue && Array.from(embroideredSelect.options).some((opt) => opt.value === currentValue)) {
+        embroideredSelect.value = currentValue;
+      } else if (embroideredSelect.options.length > 0) {
+        embroideredSelect.selectedIndex = 0;
+      }
+
+      // Trigger change event to update any dependent elements (like disclaimer)
+      embroideredSelect.dispatchEvent(new Event('change', { bubbles: true }));
+    }
+
+    function init() {
+      const courseSelect = document.getElementById('course-select');
+      if (!courseSelect) {
+        console.warn('Course select not found, retrying...');
+        return;
+      }
+
+      // Update on club selection change
+      courseSelect.addEventListener('change', updateLogoPositions);
+
+      // Trigger immediately on init
+      updateLogoPositions();
+    }
+
+    // Multiple initialization attempts to ensure it runs
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      // If DOM already loaded, init immediately
+      init();
+    }
+
+    // Also try after a delay as fallback
+    setTimeout(init, 150);
+
+    // Listen for custom select initialization
+    window.addEventListener('customSelectInitialized', function () {
+      console.log('Custom select initialized, updating logo positions');
+      setTimeout(updateLogoPositions, 100);
+    });
+  })();
+
+  // Filter logos by embroidered selection (FIXED - Correct visibility logic)
+  (function () {
+    'use strict';
+
+    function filterLogosByEmbroideredSelection() {
+      const embroideredSelect = document.getElementById('select-embroidered');
+      if (!embroideredSelect) {
+        console.log('Embroidered select not found');
+        return;
+      }
+
+      const selectedPosition = embroideredSelect.value;
+      console.log('Selected position:', selectedPosition);
+
+      const isSleeveChestSelected =
+        selectedPosition.toLowerCase().includes('sleeve') && selectedPosition.toLowerCase().includes('chest');
+      console.log('Is sleeve+chest selected?', isSleeveChestSelected);
+
+      // Find visible container using aria-hidden
+      const visibleLogoContainer = document.querySelector('.course-logos[aria-hidden="false"]');
+
+      if (!visibleLogoContainer) {
+        console.log('No visible logo container found (aria-hidden="false")');
+        return;
+      }
+
+      console.log('Visible logo container:', visibleLogoContainer.dataset.course);
+
+      const logoOptions = visibleLogoContainer.querySelectorAll('.variant-picker__option');
+      console.log('Total logo options found:', logoOptions.length);
+
+      logoOptions.forEach((option, index) => {
+        const button = option.querySelector('.variant-picker__option-button--course');
+        const input = option.querySelector('input[type="radio"]');
+
+        if (!button && !input) {
+          console.log(`Option ${index}: No button or input found`);
+          return;
+        }
+
+        let altText = button?.getAttribute('data-alt') || input?.getAttribute('data-logo-alt') || '';
+        altText = altText.toLowerCase().trim();
+
+        console.log(`Option ${index} alt text:`, altText);
+
+        const hasSleeveAndChest = altText.includes('sleeve') && altText.includes('chest');
+        console.log(`Option ${index} has sleeve+chest?`, hasSleeveAndChest);
+
+        if (isSleeveChestSelected) {
+          // When "Left Chest & Sleeve" is selected:
+          // ONLY show logos that have "sleeve" AND "chest" in alt text
+          // HIDE all other logos
+          if (hasSleeveAndChest) {
+            option.style.display = '';
+            console.log(`Option ${index}: SHOWING (matches sleeve+chest selection)`);
+          } else {
+            option.style.display = 'none';
+            console.log(`Option ${index}: HIDING (doesn't match sleeve+chest selection)`);
+          }
+        } else {
+          // When other options selected (Left Chest, Right Chest, etc):
+          // SHOW all logos (including sleeve+chest logos)
+          option.style.display = '';
+          console.log(`Option ${index}: SHOWING (non-sleeve+chest selection, show all)`);
+        }
+      });
+    }
+
+    function init() {
+      const embroideredSelect = document.getElementById('select-embroidered');
+      const courseSelect = document.getElementById('course-select');
+
+      if (!embroideredSelect) {
+        console.warn('Embroidered select not found in init');
+        return;
+      }
+
+      console.log('Initializing logo filter');
+
+      embroideredSelect.addEventListener('change', function () {
+        console.log('Embroidered select changed');
+        setTimeout(filterLogosByEmbroideredSelection, 50);
+      });
+
+      if (courseSelect) {
+        courseSelect.addEventListener('change', () => {
+          console.log('Course select changed');
+          setTimeout(filterLogosByEmbroideredSelection, 100);
+        });
+      }
+
+      // Initial filter
+      setTimeout(filterLogosByEmbroideredSelection, 300);
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      setTimeout(init, 200);
+    }
+  })();
+
+  // Update disclaimer based on embroidered selection
+  (function () {
+    'use strict';
+
+    function updateDisclaimer() {
+      const select = document.getElementById('select-embroidered');
+      const disclaimer = document.querySelector('.logo-disclaimer');
+
+      if (disclaimer && select) {
+        const selectedValue = select.value.toLowerCase();
+        const isSleeveChest = selectedValue.includes('sleeve') && selectedValue.includes('chest');
+
+        disclaimer.textContent = isSleeveChest
+          ? 'Preview shows left chest only - club name will display on left sleeve'
+          : 'Preview shows left chest only';
+      }
+    }
+
+    function init() {
+      const embroideredSelect = document.getElementById('select-embroidered');
+
+      if (embroideredSelect) {
+        embroideredSelect.addEventListener('change', updateDisclaimer);
+        updateDisclaimer();
+      }
+    }
+
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', init);
+    } else {
+      setTimeout(init, 100);
+    }
+  })();
+</script>
+<script>
+  // Custom styled dropdown for Logo Placement (no favorites, style only)
+  (function () {
+    'use strict';
+
+    class CustomEmbroideredSelect {
+      constructor(element, originalSelect) {
+        this.element = element;
+        this.originalSelect = originalSelect;
+        this.isOpen = false;
+        this.observer = null;
+
+        this.init();
+      }
+
+      init() {
+        this.createCustomUI();
+        this.bindEvents();
+        this.updateTriggerText();
+        this.observeOptionChanges();
+      }
+
+      createCustomUI() {
+        // Check if custom UI already exists
+        if (document.getElementById('custom-embroidered-select')) {
+          console.log('Custom embroidered select already exists');
+          return;
+        }
+
+        // Create wrapper
+        const wrapper = document.createElement('div');
+        wrapper.className = 'custom-select custom-embroidered-select';
+        wrapper.id = 'custom-embroidered-select';
+
+        // Hide original label (we render our own clean one)
+        const originalLabel = this.originalSelect.previousElementSibling;
+        if (originalLabel && originalLabel.tagName === 'LABEL') {
+          originalLabel.style.display = 'none';
+        }
+
+        wrapper.innerHTML = `
+          <label>Logo Placement</label>
+          <div class="select-trigger">
+            <span class="placeholder">Please select</span>
+            <span class="arrow">
+              <svg viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+              </svg>
+            </span>
+          </div>
+          <div class="select-dropdown">
+            <!-- Options will be populated here -->
+          </div>
+          <p class="logo-disclaimer" style="margin-top: 6px; font-size: 0.85rem; color: #6b7280;">Preview shows left chest only</p>
+        `;
+
+        // ── KEY CHANGE: inject into #placement-select-col instead of next to original select ──
+        const targetCol = document.getElementById('placement-select-col');
+        if (targetCol) {
+          targetCol.appendChild(wrapper);
+        } else {
+          // Fallback: insert before original select (original behaviour)
+          this.originalSelect.parentNode.insertBefore(wrapper, this.originalSelect);
+        }
+
+        // Hide original select completely
+        this.originalSelect.style.display = 'none';
+        this.originalSelect.style.visibility = 'hidden';
+        this.originalSelect.style.position = 'absolute';
+        this.originalSelect.style.opacity = '0';
+        this.originalSelect.style.pointerEvents = 'none';
+
+        // Store references
+        this.element = wrapper;
+        this.trigger = wrapper.querySelector('.select-trigger');
+        this.dropdown = wrapper.querySelector('.select-dropdown');
+
+        this.renderOptions();
+      }
+
+      observeOptionChanges() {
+        // Use MutationObserver to watch for option changes in original select
+        this.observer = new MutationObserver((mutations) => {
+          mutations.forEach((mutation) => {
+            if (mutation.type === 'childList' || mutation.type === 'attributes') {
+              console.log('Options changed, re-rendering');
+              this.renderOptions();
+              this.updateTriggerText();
+            }
+          });
+        });
+
+        // Start observing
+        this.observer.observe(this.originalSelect, {
+          childList: true,
+          subtree: true,
+          attributes: true,
+          attributeFilter: ['selected'],
+        });
+      }
+
+      renderOptions() {
+        const options = Array.from(this.originalSelect.options);
+        let html = '';
+
+        console.log('Rendering options, total:', options.length);
+
+        options.forEach((option) => {
+          if (option.value) {
+            // Skip empty options
+            const isSelected = option.selected ? 'selected' : '';
+            html += `
+              <div class="select-option ${isSelected}" data-value="${this.escapeHtml(option.value)}">
+                <span class="option-text">${this.escapeHtml(option.textContent.trim())}</span>
+              </div>
+            `;
+          }
+        });
+
+        if (this.dropdown) {
+          this.dropdown.innerHTML = html;
+        }
+      }
+
+      escapeHtml(text) {
+        const map = {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#039;',
+        };
+        return text.replace(/[&<>"']/g, (m) => map[m]);
+      }
+
+      updateTriggerText() {
+        if (!this.trigger) return;
+
+        const selectedOption = this.originalSelect.options[this.originalSelect.selectedIndex];
+        const triggerText = this.trigger.querySelector('span:first-child');
+
+        if (selectedOption && selectedOption.value) {
+          triggerText.textContent = selectedOption.textContent.trim();
+          triggerText.classList.remove('placeholder');
+        } else {
+          triggerText.textContent = 'Please select';
+          triggerText.classList.add('placeholder');
+        }
+      }
+
+      bindEvents() {
+        // Toggle dropdown
+        this.trigger.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggleDropdown();
+        });
+
+        // Handle option selection
+        this.dropdown.addEventListener('click', (e) => {
+          const option = e.target.closest('.select-option');
+          if (option) {
+            this.selectOption(option.dataset.value);
+          }
+        });
+
+        // Close dropdown when clicking outside
+        document.addEventListener('click', (e) => {
+          if (this.element && !this.element.contains(e.target)) {
+            this.closeDropdown();
+          }
+        });
+
+        // Keyboard navigation
+        if (this.element) {
+          this.element.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape' && this.isOpen) {
+              this.closeDropdown();
+            }
+          });
+        }
+
+        // Listen for programmatic changes to original select
+        this.originalSelect.addEventListener('change', () => {
+          console.log('Original select changed');
+          this.updateTriggerText();
+          this.updateSelectedState();
+        });
+      }
+
+      updateSelectedState() {
+        if (!this.dropdown) return;
+
+        const selectedValue = this.originalSelect.value;
+        const options = this.dropdown.querySelectorAll('.select-option');
+
+        options.forEach((option) => {
+          if (option.dataset.value === selectedValue) {
+            option.classList.add('selected');
+          } else {
+            option.classList.remove('selected');
+          }
+        });
+      }
+
+      toggleDropdown() {
+        this.isOpen ? this.closeDropdown() : this.openDropdown();
+      }
+
+      openDropdown() {
+        this.isOpen = true;
+        this.trigger.classList.add('open');
+        this.dropdown.classList.add('open');
+      }
+
+      closeDropdown() {
+        this.isOpen = false;
+        this.trigger.classList.remove('open');
+        this.dropdown.classList.remove('open');
+      }
+
+      selectOption(value) {
+        // Update original select
+        this.originalSelect.value = value;
+
+        // Trigger change event
+        const changeEvent = new Event('change', { bubbles: true });
+        this.originalSelect.dispatchEvent(changeEvent);
+
+        // Update UI
+        this.updateTriggerText();
+        this.updateSelectedState();
+        this.closeDropdown();
+      }
+
+      destroy() {
+        if (this.observer) {
+          this.observer.disconnect();
+        }
+      }
+    }
+
+    let customSelectInstance = null;
+
+    // Initialize when DOM is ready
+    function initCustomEmbroideredSelect() {
+      const originalSelect = document.getElementById('select-embroidered');
+
+      if (!originalSelect) {
+        console.log('Original select-embroidered not found');
+        return;
+      }
+
+      // Check if already initialized
+      if (customSelectInstance) {
+        console.log('Custom select already initialized');
+        return;
+      }
+
+      if (document.getElementById('custom-embroidered-select')) {
+        console.log('Custom embroidered select UI already exists');
+        return;
+      }
+
+      console.log('Initializing custom embroidered select');
+      customSelectInstance = new CustomEmbroideredSelect(null, originalSelect);
+    }
+
+    // Check if DOM is already loaded
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', () => {
+        setTimeout(initCustomEmbroideredSelect, 300);
+      });
+    } else {
+      setTimeout(initCustomEmbroideredSelect, 300);
+    }
+
+    // Also listen for when options are dynamically updated
+    window.addEventListener('customSelectInitialized', function () {
+      console.log('Custom select initialized event received');
+      setTimeout(initCustomEmbroideredSelect, 400);
+    });
+  })();
+</script>
+
+<style>
+  /* Custom Embroidered Select Styles (matches club select) */
+  .custom-embroidered-select {
+    position: relative;
+    width: 100%;
+    margin-top: 0 !important;
+  }
+
+  .custom-embroidered-select label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    font-size: 14px;
+    color: #333;
+  }
+
+  .custom-embroidered-select .select-trigger {
+    width: 100%;
+    padding: 12px 40px 12px 16px;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    background-color: white;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    transition: all 0.2s ease;
+    font-size: 15px;
+    color: #333;
+  }
+
+  .custom-embroidered-select .select-trigger:hover {
+    outline: 1px solid #5e5e5e;
+    border-color: #5e5e5e;
+  }
+
+  .custom-embroidered-select .select-trigger.open {
+    border-color: #5e5e5e;
+    box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+  }
+
+  .custom-embroidered-select .select-trigger .placeholder {
+    color: #6b7280;
+  }
+
+  .custom-embroidered-select .select-trigger .arrow {
+    position: absolute;
+    right: 16px;
+    pointer-events: none;
+    transition: transform 0.2s ease;
+  }
+
+  .custom-embroidered-select .select-trigger.open .arrow {
+    transform: rotate(180deg);
+  }
+
+  .custom-embroidered-select .select-trigger .arrow svg {
+    width: 16px;
+    height: 16px;
+    fill: #6b7280;
+  }
+
+  .custom-embroidered-select .select-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    right: 0;
+    background: white;
+    border: 1px solid #d1d5db;
+    border-radius: 6px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+    max-height: 300px;
+    overflow-y: auto;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all 0.2s ease;
+  }
+
+  .custom-embroidered-select .select-dropdown.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+  }
+
+  .custom-embroidered-select .select-option {
+    padding: 12px 16px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    transition: background-color 0.15s ease;
+    font-size: 15px;
+    color: #333;
+  }
+
+  .custom-embroidered-select .select-option:hover {
+    background-color: #eff2ef !important;
+  }
+
+  .custom-embroidered-select .select-option:hover .option-text {
+    transition: all 0.3s;
+    font-weight: 500;
+  }
+
+  .custom-embroidered-select .select-option.selected {
+    background-color: #eff2ef !important;
+  }
+
+  .custom-embroidered-select .select-option.selected .option-text {
+    font-weight: 500;
+  }
+
+  .custom-embroidered-select .option-text {
+    flex: 1;
+  }
+
+  /* Scrollbar styling */
+  .custom-embroidered-select .select-dropdown::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-embroidered-select .select-dropdown::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 0 6px 6px 0;
+  }
+
+  .custom-embroidered-select .select-dropdown::-webkit-scrollbar-thumb {
+    background: #d1d5db;
+  }
+
+  .custom-embroidered-select .select-dropdown::-webkit-scrollbar-thumb:hover {
+    background: #9ca3af;
+  }
+
+  /* Hide original select-embroidered completely */
+  #select-embroidered {
+    display: none !important;
+    visibility: hidden !important;
+    position: absolute !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+  .variant-clubs label[for="course-select"] {
+    display: block !important;
+  }
+  #custom-embroidered-select label { display: block !important }
+  #select-embroidered-radio-group {
+    display: none !important;
+  }
+</style>

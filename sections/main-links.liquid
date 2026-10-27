@@ -1,0 +1,348 @@
+{% comment %}
+  Section: Three Column Image Cards
+  Blocks: Up to 3 cards, each with image, heading, subtext, button label, button URL
+{% endcomment %}
+
+{%- style -%}
+  #shopify-section-{{ section.id }} {
+    --section-pt: {{ section.settings.padding_top }}px;
+    --section-pb: {{ section.settings.padding_bottom }}px;
+  }
+
+  .three-cards-{{ section.id }} {
+    padding-top: var(--section-pt);
+    padding-bottom: var(--section-pb);
+  }
+
+  .three-cards-{{ section.id }} .three-cards__grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 16px;
+    padding: 0 clamp(16px, 4vw, 60px);
+    max-width: 1400px;
+    margin: 0 auto;
+  }
+
+  .three-cards-{{ section.id }} .three-cards__card {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    display: block;
+    text-decoration: none;
+    cursor: pointer;
+  }
+
+  .three-cards-{{ section.id }} .three-cards__image-wrap {
+    position: relative;
+    width: 100%;
+    padding-bottom: 133.33%; /* 3:4 aspect ratio */
+  }
+
+  .three-cards-{{ section.id }} .three-cards__image-wrap img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center top;
+    display: block;
+  }
+
+  .three-cards-{{ section.id }} .three-cards__image-placeholder {
+    position: absolute;
+    inset: 0;
+    background: #c8c8c8;
+  }
+
+  /* Gradient overlay */
+  .three-cards-{{ section.id }} .three-cards__overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.15) 0%,
+      rgba(0,0,0,0.45) 100%
+    );
+    pointer-events: none;
+  }
+
+  /* Text content — vertically + horizontally centered */
+  .three-cards-{{ section.id }} .three-cards__content {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 24px;
+    gap: 0;
+  }
+
+  /* Inner wrapper — default has no background */
+  .three-cards-{{ section.id }} .three-cards__content-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    gap: 6px;
+  }
+
+  /* Secondary style: frosted container */
+  .three-cards-{{ section.id }} .three-cards__card--secondary .three-cards__content-inner {
+    background: #FFFFFF4D;
+    border-radius: 10px;
+    padding: 38px 24px;
+    width: calc(100% - 48px);
+  }
+
+  .three-cards-{{ section.id }} .three-cards__heading {
+    font-family: 'Noto Serif', serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 30px;
+    line-height: 36px;
+    letter-spacing: 0px;
+    color: #ffffff;
+    margin: 0;
+  }
+
+  .three-cards-{{ section.id }} .three-cards__subtext {
+    font-family: 'Rubik', sans-serif;
+    font-weight: 400;
+    font-style: normal;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -0.15px;
+    color: #ffffff;
+    margin: 0;
+  }
+
+  /* Button */
+  .three-cards-{{ section.id }} .three-cards__btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    font-family: 'Rubik', sans-serif;
+    font-weight: 400;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: -0.15px;
+    color: #ffffff;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(255,255,255,0.75);
+    padding-bottom: 1px;
+    margin-top: 6px;
+    transition: border-color 0.2s, opacity 0.2s;
+    pointer-events: auto;
+  }
+
+  .three-cards-{{ section.id }} .three-cards__btn:hover {
+    border-color: #ffffff;
+    opacity: 0.85;
+  }
+
+  .three-cards-{{ section.id }} .three-cards__btn svg {
+    flex-shrink: 0;
+    transition: transform 0.2s;
+  }
+
+  .three-cards-{{ section.id }} .three-cards__card:hover .three-cards__btn svg {
+    transform: translateX(3px);
+  }
+
+  /* Mobile: single column */
+  @media screen and (max-width: 767px) {
+    .three-cards-{{ section.id }} .three-cards__grid {
+      grid-template-columns: 1fr;
+      gap: 14px;
+      padding: 0 16px;
+    }
+
+    .three-cards-{{ section.id }} .three-cards__heading {
+      font-size: 26px;
+      line-height: 32px;
+    }
+     .three-cards-{{ section.id }} .three-cards__image-wrap {
+        padding-bottom: 101%; /* 1:1 aspect ratio */
+      }
+
+  }
+
+  /* Tablet */
+  @media screen and (min-width: 768px) and (max-width: 989px) {
+    .three-cards-{{ section.id }} .three-cards__grid {
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+  }
+{%- endstyle -%}
+
+<div class="three-cards-{{ section.id }} color-{{ section.settings.color_scheme }}">
+  <div class="three-cards__grid">
+    {%- for block in section.blocks -%}
+      {%- assign btn_label = block.settings.button_label | default: 'Shop Now' -%}
+      {%- assign btn_url   = block.settings.button_url   | default: '#' -%}
+      <a
+      
+        href="{{ btn_url }}"
+        class="three-cards__card{% if block.settings.secondary_style %} three-cards__card--secondary{% endif %}"
+        {{ block.shopify_attributes }}
+        aria-label="{{ block.settings.heading | escape }}"
+      >
+        <div class="three-cards__image-wrap">
+          {%- if block.settings.image != blank -%}
+            {{
+              block.settings.image
+              | image_url: width: 900
+              | image_tag:
+                loading: 'lazy',
+                widths: '400, 600, 900',
+                sizes: '(max-width: 749px) 100vw, 33vw',
+                alt: block.settings.heading | escape
+            }}
+          {%- else -%}
+            <div class="three-cards__image-placeholder">
+              {{ 'collection-1' | placeholder_svg_tag: 'placeholder-svg' }}
+            </div>
+          {%- endif -%}
+
+          <div class="three-cards__overlay"></div>
+
+          <div class="three-cards__content">
+            <div class="three-cards__content-inner">
+              {%- if block.settings.heading != blank -%}
+                <h3 class="three-cards__heading">{{ block.settings.heading }}</h3>
+              {%- endif -%}
+
+              {%- if block.settings.subtext != blank -%}
+                <p class="three-cards__subtext">{{ block.settings.subtext }}</p>
+              {%- endif -%}
+
+              {%- if btn_label != blank -%}
+                <span class="three-cards__btn">
+                  {{ btn_label }}
+                  <svg xmlns="http://www.w3.org/2000/svg" width="6" height="10" viewBox="0 0 6 10" fill="none">
+                    <path d="M0.666748 8.66669L4.66675 4.66669L0.666748 0.666687" stroke="white" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              {%- endif -%}
+            </div>
+          </div>
+        </div>
+      </a>
+    {%- endfor -%}
+  </div>
+</div>
+
+{% schema %}
+{
+  "name": "Image Cards (3-Col)",
+  "tag": "section",
+  "class": "section",
+  "max_blocks": 3,
+  "settings": [
+    {
+      "type": "color_scheme",
+      "id": "color_scheme",
+      "label": "Color scheme",
+      "default": "scheme-1"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "Padding top",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "Padding bottom",
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px",
+      "default": 48
+    }
+  ],
+  "blocks": [
+    {
+      "type": "card",
+      "name": "Card",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Image"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "Heading",
+          "default": "New Arrivals"
+        },
+        {
+          "type": "text",
+          "id": "subtext",
+          "label": "Subtext",
+          "default": "Fresh styles for the season"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "Button label",
+          "default": "Shop Now"
+        },
+        {
+          "type": "url",
+          "id": "button_url",
+          "label": "Button URL"
+        },
+        {
+          "type": "checkbox",
+          "id": "secondary_style",
+          "label": "Secondary style",
+          "info": "Adds a frosted background container behind the text",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Image Cards (3-Col)",
+      "blocks": [
+        {
+          "type": "card",
+          "settings": {
+            "heading": "New Arrivals",
+            "subtext": "Fresh styles for the season",
+            "button_label": "Shop Now"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "heading": "Best Sellers",
+            "subtext": "Fan favorites & must-haves",
+            "button_label": "Shop Now"
+          }
+        },
+        {
+          "type": "card",
+          "settings": {
+            "heading": "F&D Favorites",
+            "subtext": "Curated selections",
+            "button_label": "Shop Now",
+            "secondary_style": true
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

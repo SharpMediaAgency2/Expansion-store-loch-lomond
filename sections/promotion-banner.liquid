@@ -1,0 +1,401 @@
+{{ 'promotion-banner.css' | asset_url | stylesheet_tag }}
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+-%}
+{% style %}
+  #shopify-section-{{ section.id }} {
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+{% endstyle %}
+{% render 'divider',
+  show_divider: section.settings.show_section_divider,
+  divider_width: section.settings.divider_width
+%}
+<div
+  id="{{ section_id }}"
+  class="promotion-banner{{ custom_class }} f-section-padding"
+>
+  <div class="container">
+    <div class="promotion-banner__wrapper color-{{ section.settings.color_schema }}">
+      <div class="promotion-banner__content flex flex-col md:f-grid f-grid-{{ section.blocks.size }}-cols">
+        {%- for block in section.blocks -%}
+          {%- liquid
+            assign alignment = block.settings.align_text
+            case alignment
+              when 'left'
+                assign alignment = 'start'
+              when 'right'
+                assign alignment = 'end'
+            endcase
+
+            assign motion_delay = 0
+          -%}
+          <div
+            class="f-column flex items-center justify-{{ alignment }} relative{% unless forloop.last %} f-line-block{% endunless %}"
+            {{ block.shopify_attributes }}
+            style="--content-width: {{ block.settings.content_width }}px;"
+          >
+            <div class="f-text-blocks w-full f-blocks-padding f-align-content-container--{{ block.settings.align_content_container }} text-{{ block.settings.align_text }}">
+              {%- if block.settings.title != blank -%}
+                {%- liquid
+                  assign inline_css = ''
+
+                  if block.settings.heading_color != blank and block.settings.heading_color != 'rgba(0,0,0,0)'
+                    assign inline_css = inline_css | append: 'color:' | append: block.settings.heading_color | append: ';'
+                  endif
+                -%}
+                <{{ block.settings.heading_tag }}
+                  class="h5 text-current"
+                  {% if inline_css != blank %}
+                    style="{{ inline_css }}"
+                  {% endif %}
+                >
+                  <motion-element
+                    data-motion="{{ animation_effect }}"
+                    data-motion-delay="{{ motion_delay }}"
+                    class="block"
+                  >
+                    {%- render 'highlight-text',
+                      hl_text: block.settings.title,
+                      hl_style: block.settings.highlight_style,
+                      enable_hl_text_color: block.settings.enable_highlight_text_color
+                    -%}
+                  </motion-element>
+                </{{ block.settings.heading_tag }}>
+                {%- assign motion_delay = motion_delay | plus: 50 -%}
+              {%- endif -%}
+              {%- if block.settings.text != blank -%}
+                <motion-element
+                  data-motion="{{ animation_effect }}"
+                  data-motion-delay="{{ motion_delay }}"
+                  class="block mega-description rte"
+                >
+                  {{- block.settings.text -}}
+                </motion-element>
+                {%- assign motion_delay = motion_delay | plus: 50 -%}
+              {%- endif -%}
+              {%- if block.settings.button_label != blank -%}
+                <motion-element
+                  data-motion="{{ animation_effect }}"
+                  data-motion-delay="{{ motion_delay }}"
+                  class="f-text-blocks__btn"
+                >
+                  <a
+                    class="btn {{ block.settings.button_style }}"
+                    {% if block.settings.button_link != blank %}
+                      href="{{ block.settings.button_link }}"
+                    {% else %}
+                      role="link"
+                      aria-disabled="true"
+                    {% endif %}
+                  >
+                    {{- block.settings.button_label -}}
+                  </a>
+                </motion-element>
+                {%- assign motion_delay = motion_delay | plus: 50 -%}
+              {%- endif -%}
+            </div>
+          </div>
+        {%- endfor -%}
+      </div>
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "t:sections.promotion-banner.presets.name",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "text",
+      "name": "t:sections.custom-content.blocks.text.name",
+      "limit": 2,
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "title",
+          "info": "t:sections.common.highlight_text.paragraph.content",
+          "label": "t:sections.custom-content.blocks.text.settings.title.label",
+          "default": "<p>Talk about your brand</p>"
+        },
+        {
+          "type": "select",
+          "id": "highlight_style",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+          "options": [
+            {
+              "value": "none",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+            },
+            {
+              "value": "drawer_line",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+            },
+            {
+              "value": "underline",
+              "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+            }
+          ]
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_highlight_text_color",
+          "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "default": "h2",
+          "label": "t:sections.common.title_tag.heading.label",
+          "options": [
+            {
+              "value": "h1",
+              "label": "t:sections.common.title_tag.options__h1.label"
+            },
+            {
+              "value": "h2",
+              "label": "t:sections.common.title_tag.options__h2.label"
+            },
+            {
+              "value": "h3",
+              "label": "t:sections.common.title_tag.options__h3.label"
+            },
+            {
+              "value": "h4",
+              "label": "t:sections.common.title_tag.options__h4.label"
+            },
+            {
+              "value": "h5",
+              "label": "t:sections.common.title_tag.options__h5.label"
+            },
+            {
+              "value": "h6",
+              "label": "t:sections.common.title_tag.options__h6.label"
+            }
+          ]
+        },
+        {
+          "type": "color",
+          "id": "heading_color",
+          "label": "t:sections.common.heading_color.label",
+          "info": "t:sections.common.heading_color.info"
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.custom-content.blocks.text.settings.text.label",
+          "default": "<p>Use this text to share information about your brand with your customers. Describe a product, share announcements, or welcome customers to your store.</p>"
+        },
+        {
+          "type": "select",
+          "id": "align_text",
+          "label": "t:sections.common.text_align.label",
+          "default": "center",
+          "options": [
+            {
+              "value": "left",
+              "label": "t:sections.common.text_align.options__1.label"
+            },
+            {
+              "value": "center",
+              "label": "t:sections.common.text_align.options__2.label"
+            },
+            {
+              "value": "right",
+              "label": "t:sections.common.text_align.options__3.label"
+            }
+          ]
+        },
+        {
+          "type": "range",
+          "id": "content_width",
+          "label": "t:sections.common.content_width.label",
+          "min": 370,
+          "max": 870,
+          "step": 10,
+          "default": 500,
+          "unit": "px"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.common.button.header.content"
+        },
+        {
+          "type": "text",
+          "id": "button_label",
+          "label": "t:sections.common.button.button_label.label"
+        },
+        {
+          "type": "url",
+          "id": "button_link",
+          "label": "t:sections.common.button.button_url.label"
+        },
+        {
+          "type": "select",
+          "id": "button_style",
+          "label": "t:sections.common.button.button_style.label",
+          "options": [
+            {
+              "value": "btn--primary",
+              "label": "t:sections.common.button.button_style.options.option__1"
+            },
+            {
+              "value": "btn--secondary",
+              "label": "t:sections.common.button.button_style.options.option__2"
+            }
+          ],
+          "default": "btn--primary"
+        },
+        {
+          "type": "header",
+          "content": "t:sections.common.custom_attr.header"
+        },
+        {
+          "type": "text",
+          "id": "block_custom_class",
+          "label": "t:sections.common.custom_attr.custom_class"
+        },
+        {
+          "type": "header",
+          "content": "t:settings_schema.animations.header.content"
+        },
+        {
+          "type": "select",
+          "id": "animations",
+          "label": "t:settings_schema.animations.header__2.content",
+          "default": "inherit",
+          "options": [
+            {
+              "value": "inherit",
+              "label": "t:settings_schema.animations.settings.animation.options.option_6"
+            },
+            {
+              "value": "fade-in",
+              "label": "t:settings_schema.animations.settings.animation.options.option_2"
+            },
+            {
+              "value": "fade-in-up",
+              "label": "t:settings_schema.animations.settings.animation.options.option_3"
+            },
+            {
+              "value": "fade-in-left",
+              "label": "t:settings_schema.animations.settings.animation.options.option_4"
+            },
+            {
+              "value": "fade-in-right",
+              "label": "t:settings_schema.animations.settings.animation.options.option_5"
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.promotion-banner.presets.name",
+      "blocks": [
+        {
+          "type": "text"
+        },
+        {
+          "type": "text"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

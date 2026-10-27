@@ -1,0 +1,100 @@
+<link
+  rel="preload"
+  href="{{ 'localization-form.css' | asset_url }}"
+  as="style"
+  onload="this.onload=null;this.rel='stylesheet';"
+>
+<link rel="stylesheet" href="{{ 'component-country-flag.css' | asset_url }}" media="print" onload="this.media='all'">
+<script src="{{ 'localization-form.js' | asset_url }}" defer="defer"></script>
+{% if localization.available_countries.size > 1 %}
+  {% liquid
+    unless form_id
+      assign randomNumber = 'now' | date: '%N' | modulo: 10 | plus: 25
+      assign form_id = 'country-' | append: randomNumber
+      assign noscript_form_id = form_id | append: '_NoScript'
+    endunless
+  %}
+  <div class="country-switcher {{ class }}" style="--f-max-width: 220px">
+    <noscript>
+      {%- form 'localization', class: 'selectors-form', id: noscript_form_id -%}
+        <h2 class="visually-hidden" id="CountryLabelNoScript-{{ form_id }}">
+          {{- 'localization.country_label' | t -}}
+        </h2>
+        <div class="form-group">
+          <select
+            class="localization-selector form-control{% if plain == true %} form-control--plain{% endif %}"
+            name="country_code"
+            aria-labelledby="CountryLabelNoScript-{{ form_id }}"
+          >
+            {%- for country in localization.available_countries -%}
+              <option
+                value="{{ country.iso_code }}"
+                {%- if country.iso_code == localization.country.iso_code %}
+                  selected
+                {% endif %}
+              >
+                {{ country.name }} ({{ country.currency.iso_code }}
+                {{ country.currency.symbol }})
+              </option>
+            {%- endfor -%}
+          </select>
+          <button class="btn btn--with-icon btn--square" aria-label="{{ 'localization.update_country' | t }}">
+            {% comment %} theme-check-disable {% endcomment %}
+            {{ 'icon-arrow-right-large.svg' | inline_asset_content }}
+            {% comment %} theme-check-enable {% endcomment %}
+            <span class="visually-hidden">{{ 'localization.update_country' | t }}</span>
+          </button>
+        </div>
+      {%- endform -%}
+    </noscript>
+
+    <localization-form
+      class="f-disclosure no-js-hidden f-disclosure--{{ position | default: 'down' }}{% if plain == true %} f-disclosure--plain{% endif %}"
+      data-disclosure-country
+    >
+      {%- form 'localization', class: 'selectors-form', id: form_id, data-disclosure-form: '' -%}
+        <h2 class="visually-hidden" id="CountryLabel-{{ form_id }}">
+          {{- 'localization.country_label' | t -}}
+        </h2>
+        <button
+          type="button"
+          class="f-disclosure__toggle{% if plain == true %} btn--plain{% endif %} text-normal"
+          aria-expanded="false"
+          aria-controls="country-list"
+          aria-describedby="CountryLabel-{{ form_id }}"
+          data-disclosure-toggle
+        >
+          <span class="f-country-flags f-country-flags--{{ localization.country.iso_code }}"></span>
+          {% comment %} {{ localization.country.name }} ({{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }}) {% endcomment %}
+          {{ localization.country.currency.iso_code }} {{ localization.country.currency.symbol }}
+          {% comment %} theme-check-disable {% endcomment %}
+          {{ 'icon-arrow-down.svg' | inline_asset_content }}
+          {% comment %} theme-check-enable {% endcomment %}
+        </button>
+        <ul class="f-disclosure-list scroll-container text-left hidden">
+          {%- for country in localization.available_countries -%}
+            <li class="f-disclosure-list__item{% if country.iso_code == localization.country.iso_code %} f-disclosure-list__item--current{% endif %}">
+              <a
+                class="f-disclosure-list__option"
+                href="#"
+                {% if country.iso_code == localization.country.iso_code %}
+                  aria-current="true"
+                {% endif %}
+                data-value="{{ country.iso_code }}"
+                data-disclosure-option
+              >
+                <span class="f-country-flags f-country-flags--{{ country.iso_code }}"></span>
+                {{- country.name -}}
+                <span class="localization-form__currency"
+                  >({{ country.currency.iso_code }}
+                  {{ country.currency.symbol }})</span
+                >
+              </a>
+            </li>
+          {%- endfor -%}
+        </ul>
+        <input type="hidden" name="country_code" value="{{ localization.country.iso_code }}" data-disclosure-input>
+      {%- endform -%}
+    </localization-form>
+  </div>
+{% endif %}

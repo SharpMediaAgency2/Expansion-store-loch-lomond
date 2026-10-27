@@ -1,0 +1,48 @@
+.layered-images_row {
+  gap: 3.2rem 0;
+}
+
+@media (min-width: 768px) {
+  .layered-images__list {
+    --row-gap: 8rem;
+    padding-inline: 5rem;
+  }
+  .layered-images__image {
+    will-change: transform;
+    position: relative;
+    padding-inline-end: calc((var(--rows, 3) - 1) * 2rem + 5rem);
+  }
+  .layered-images__content {
+    width: var(--content-width, 75%);
+  }
+  .layered-images__nav {
+    position: absolute;
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    top: 0;
+    inset-inline-end: 4.4rem;
+    height: var(--img-height, 53rem);
+  }
+  .layered-images__nav span {
+    display: block;
+    position: relative;
+    width: 2rem;
+    height: 2rem;
+    cursor: pointer;
+  }
+  .layered-images__nav span:before {
+    content: "";
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 50%;
+    width: 0.8rem;
+    height: 0.8rem;
+    background: rgba(var(--color-foreground), 0.3);
+  }
+  .layered-images__nav span.is-active:before {
+    background: rgba(var(--color-foreground), 1);
+  }
+}

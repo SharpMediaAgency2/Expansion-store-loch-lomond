@@ -1,0 +1,182 @@
+{%- liquid
+  assign is_hover = false
+  if section.settings.dropdown_menu_trigger == 'hover'
+    assign is_hover = true
+  endif
+
+  assign src_menu = section.settings.clubs_categories_menu
+  assign groups = linklists[src_menu].links
+  assign scheme = section.settings.menu_dropdown_color_schema
+
+  assign grid_cols = 4
+  assign grid_rows = 8
+-%}
+
+<li class="f-site-nav__item f-site-nav__item--has-child f-site-nav__item--mega f-clubs-mega{% if link.active %} f-site-nav__item--current{% endif %}" data-clubs-mega>
+  {%- capture panel -%}
+    <div class="f-site-nav__dropdown f-site-nav__dropdown--level2 f-site-nav__dropdown--mega no-js-hidden color-{{ scheme }}" tabindex="-1">
+      <div class="container">
+        <div class="f-clubs-mega__wrap" data-clubs-root>
+
+          <div class="f-clubs-mega__rail" role="tablist">
+            <span class="f-mega-dropdown__heading">{{ link.title }}</span>
+
+            {%- assign tab_seen = 0 -%}
+            {%- for group in groups -%}
+              {%- if group.links.size > 0 -%}
+                <button type="button" class="f-clubs-mega__tab{% if tab_seen == 0 %} is-active{% endif %}" data-tab="grp-{{ forloop.index0 }}">{{ group.title }}</button>
+                {%- assign tab_seen = tab_seen | plus: 1 -%}
+              {%- else -%}
+                <a href="{{ group.url }}" class="f-clubs-mega__tab f-clubs-mega__tab--link">{{ group.title }}</a>
+              {%- endif -%}
+            {%- endfor -%}
+          </div>
+
+          <div class="f-clubs-mega__panels">
+            {%- assign panel_seen = 0 -%}
+            {%- for group in groups -%}
+              {%- if group.links.size == 0 -%}{%- continue -%}{%- endif -%}
+              {%- assign key = 'grp-' | append: forloop.index0 -%}
+
+              {%- assign has_grandchildren = false -%}
+              {%- for child in group.links -%}
+                {%- if child.links.size > 0 -%}
+                  {%- assign has_grandchildren = true -%}
+                  {%- break -%}
+                {%- endif -%}
+              {%- endfor -%}
+
+              <div class="f-clubs-mega__panel{% if has_grandchildren %} f-clubs-mega__panel--master{% else %} f-clubs-mega__panel--grid{% endif %}{% if panel_seen == 0 %} is-active{% endif %}" data-panel="{{ key }}">
+                {%- assign panel_seen = panel_seen | plus: 1 -%}
+
+                {%- if has_grandchildren -%}
+                  <div class="f-clubs-mega__master">
+                    <span class="f-mega-dropdown__heading">{{ group.title }}</span>
+                    <ul class="f-clubs-mega__master-list list-none">
+                      {%- assign m_seen = 0 -%}
+                      {%- for child in group.links -%}
+                        {%- capture m_cards -%}{%- render 'clubs-mega-cards', match: child.title, section: section -%}{%- endcapture -%}
+                        {%- assign m_has_detail = false -%}
+                        {%- if child.links.size > 0 or m_cards != blank -%}
+                          {%- assign m_has_detail = true -%}
+                        {%- endif -%}
+                        <li>
+                          {%- if child.links.size > 0 -%}
+                            <button type="button" class="f-clubs-mega__master-item{% if m_seen == 0 %} is-active{% endif %}" data-master="{{ key }}" data-index="{{ forloop.index0 }}">
+                              <span>{{ child.title }}</span>
+                              <span class="f-clubs-mega__chev">&rsaquo;</span>
+                            </button>
+                            {%- assign m_seen = m_seen | plus: 1 -%}
+                          {%- else -%}
+                            <a href="{{ child.url }}" class="f-clubs-mega__master-item f-clubs-mega__master-item--link{% if m_seen == 0 and m_has_detail %} is-active{% endif %}"
+                              {% if m_has_detail %}data-master="{{ key }}" data-index="{{ forloop.index0 }}" data-hover{% endif %}>
+                              <span>{{ child.title }}</span>
+                            </a>
+                            {%- if m_has_detail -%}{%- assign m_seen = m_seen | plus: 1 -%}{%- endif -%}
+                          {%- endif -%}
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                  <div class="f-clubs-mega__detail-wrap">
+                    {%- assign md_seen = 0 -%}
+                    {%- for child in group.links -%}
+                      {%- capture m_cards -%}{%- render 'clubs-mega-cards', match: child.title, section: section -%}{%- endcapture -%}
+                      {%- if child.links.size == 0 and m_cards == blank -%}{%- continue -%}{%- endif -%}
+                      {%- assign d_rows = child.links.size -%}
+                      {%- if d_rows > grid_rows -%}{%- assign d_rows = grid_rows -%}{%- endif -%}
+                      <div class="f-clubs-mega__detail{% if md_seen == 0 %} is-active{% endif %}" data-detail="{{ key }}" data-index="{{ forloop.index0 }}">
+                        {%- assign md_seen = md_seen | plus: 1 -%}
+                        {%- if child.links.size > 0 -%}
+                          <div class="f-clubs-mega__detail-main">
+                            <span class="f-mega-dropdown__heading">{{ child.title }}</span>
+                            <ul class="f-clubs-mega__detail-list list-none" style="--clubs-rows: {{ d_rows }};">
+                              {%- for club in child.links -%}
+                                <li><a href="{{ club.url }}" class="f-mega-dropdown__link">{{ club.title }}</a></li>
+                              {%- endfor -%}
+                            </ul>
+                          </div>
+                        {%- endif -%}
+                        {{ m_cards }}
+                      </div>
+                    {%- endfor -%}
+                  </div>
+                  {%- render 'clubs-mega-cards', match: group.title, section: section -%}
+
+                {%- else -%}
+                  {%- assign items = group.links -%}
+                  {%- assign total = items.size -%}
+                  {%- capture g_cards -%}{%- render 'clubs-mega-cards', match: group.title, section: section -%}{%- endcapture -%}
+                  {%- if g_cards == blank -%}
+                    {%- capture g_cards -%}
+                      {%- for child in items -%}
+                        {%- render 'clubs-mega-cards', match: child.title, section: section -%}
+                      {%- endfor -%}
+                    {%- endcapture -%}
+                  {%- endif -%}
+                  {%- assign grid_span = grid_cols -%}
+                  {%- if g_cards != blank -%}{%- assign grid_span = grid_cols | minus: 1 -%}{%- endif -%}
+                  {%- if grid_span < 1 -%}{%- assign grid_span = 1 -%}{%- endif -%}
+                  {%- assign full_rows = total | plus: grid_span | minus: 1 | divided_by: grid_span | at_least: grid_rows -%}
+                  {%- assign collapsed_rows = grid_rows -%}
+                  {%- assign collapsible = false -%}
+                  {%- if full_rows > collapsed_rows -%}{%- assign collapsible = true -%}{%- endif -%}
+
+                  <div class="f-clubs-mega__grid-row">
+                    <div class="f-clubs-mega__grid-main">
+                      <span class="f-mega-dropdown__heading">{{ group.title }}</span>
+
+                      <div class="f-clubs-mega__bands{% if collapsible %} is-collapsed{% endif %}" data-all-grid style="--clubs-collapsed-rows: {{ collapsed_rows }};">
+                        <ul class="f-clubs-mega__grid list-none" style="--clubs-rows: {{ full_rows }}; --clubs-cols: {{ grid_span }};">
+                          {%- for club in items -%}
+                            <li><a href="{{ club.url }}" class="f-mega-dropdown__link">{{ club.title }}</a></li>
+                          {%- endfor -%}
+                        </ul>
+                      </div>
+
+                      {%- if collapsible -%}
+                        <div class="f-clubs-mega__viewall-wrap">
+                          <button type="button" class="f-clubs-mega__viewall" data-view-toggle data-more="View All &rarr;" data-less="View Less &uarr;">View All </button>
+                        </div>
+                      {%- endif -%}
+                    </div>
+                    {%- if g_cards != blank -%}
+                      <div class="f-clubs-mega__grid-cards">{{ g_cards }}</div>
+                    {%- endif -%}
+                  </div>
+                {%- endif -%}
+              </div>
+            {%- endfor -%}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  {%- endcapture -%}
+
+  {%- if is_hover -%}
+    <span class="f-site-nav__link highlight focus-inset">
+      {{- link.title -}}
+      <span class="f-site-nav__arrow no-js-hidden">
+        {% comment %} theme-check-disable {% endcomment %}
+        {{ 'icon-arrow-down-small.svg' | inline_asset_content }}
+        {% comment %} theme-check-enable {% endcomment %}
+      </span>
+    </span>
+    {{ panel }}
+  {%- else -%}
+    <header-menu>
+      <details id="Details-menu-drawer-clubs">
+        <summary class="f-site-nav__link highlight focus-inset">
+          {{- link.title -}}
+          <span class="f-site-nav__arrow no-js-hidden">
+            {% comment %} theme-check-disable {% endcomment %}
+            {{ 'icon-arrow-down-small.svg' | inline_asset_content }}
+            {% comment %} theme-check-enable {% endcomment %}
+          </span>
+        </summary>
+        {{ panel }}
+      </details>
+    </header-menu>
+  {%- endif -%}
+</li>

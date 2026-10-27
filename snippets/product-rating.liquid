@@ -1,0 +1,44 @@
+{%- if product.metafields.reviews.rating.value != blank -%}
+  {%- liquid
+    assign rating_decimal = 0
+    assign decimal = product.metafields.reviews.rating.value.rating | modulo: 1
+    if decimal >= 0.3 and decimal <= 0.7
+      assign rating_decimal = 0.5
+    elsif decimal > 0.7
+      assign rating_decimal = 1
+    endif
+
+    assign star_size = block.settings.star_size | default: 10
+  -%}
+  <div
+    class="f-product-rating"
+    style="--star-size: {{ star_size | divided_by: 10 }}; --star-color: {{ block.settings.star_color | default: '#222222' }}"
+  >
+    <div
+      class="rating"
+      role="img"
+      aria-label="{{ 'accessibility.star_reviews_info' | t: rating_value: product.metafields.reviews.rating.value, rating_max: product.metafields.reviews.rating.value.scale_max }}"
+    >
+      <span
+        aria-hidden="true"
+        class="rating-star"
+        style="--rating: {{ product.metafields.reviews.rating.value.rating | floor }}; --rating-max: {{ product.metafields.reviews.rating.value.scale_max }}; --rating-decimal: {{ rating_decimal }};"
+      ></span>
+    </div>
+    <p class="rating-text text-subtext">
+      <span aria-hidden="true">
+        {{- product.metafields.reviews.rating.value }} /
+        {{ product.metafields.reviews.rating.value.scale_max -}}
+      </span>
+    </p>
+    <p class="rating-count text-subtext">
+      <span aria-hidden="true"
+        >({{ product.metafields.reviews.rating_count }})</span
+      >
+      <span class="visually-hidden">
+        {{- product.metafields.reviews.rating_count }}
+        {{ 'accessibility.total_reviews' | t -}}
+      </span>
+    </p>
+  </div>
+{%- endif -%}

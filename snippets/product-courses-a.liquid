@@ -1,0 +1,322 @@
+{%comment%}{% assign courses = product.metafields.custom.courses.value %}{% endcomment %}
+{% assign courses = shop.metaobjects.courses.values  %}
+
+{% if courses %}
+  <div class="variant-clubs version-a">
+    <select
+      id="course-select"
+      class="form-control"
+      name="properties[Club]"
+      {% if field_required %}
+        required
+      {% endif %}
+      form="{{ product_form_id }}"
+      aria-label="Select a club from the list"
+      style="display:none"
+    >
+      {% assign course_titles = courses | map: "title" | map: "value" | sort %}
+
+      {% for title in course_titles %}
+        {% assign label = title | strip %}
+        {% unless label == "Fescue & Dunes" %}
+          <option 
+            {% if label == current_variant.option1 
+              or label == current_variant.option2 
+              or label == current_variant.option3 %}selected{% endif %} 
+            value="{{ label }}"
+          >
+            {{ label }}
+          </option>
+        {% endunless %}
+      {% endfor %}
+
+      {%- comment -%} Always append "Fescue & Dunes" last {%- endcomment -%}
+      {% assign special_label = "Fescue & Dunes" %}
+      <option 
+        {% if special_label == current_variant.option1 
+          or special_label == current_variant.option2 
+          or special_label == current_variant.option3 %}selected{% endif %} 
+        value="{{ special_label }}"
+      >
+        {{ special_label }}
+      </option>
+    </select>
+
+    {% for course in courses %}
+      {% assign course_title = course.title.value | strip %}
+      {% assign course_handle = course_title | handle %}
+
+      {% if course.course_logos %}
+        <div
+          class="variant-picker__field course-logos"
+          style="display:none"
+          data-picker-field="radio"
+          data-option-name="Selected Logo"
+          data-course="{{ course_handle }}"
+          aria-hidden="true"
+        >
+          <div class="variant-picker__input variant-picker__color" style="margin-top: 1.5rem;">
+            <label class="form__label">
+              <span class="font-semibold">Logos:</span>
+              {% comment %} <span class="selected-value" id="selected-value-{{ course_handle }}"></span> {% endcomment %}
+            </label>
+
+            <div class="variant-picker__option-values">
+              {% for logo in course.course_logos.value %}
+                {% assign logo_url = logo | image_url: width: 100 %}
+                {% assign file_name = logo_url | split: '/' | last | split: '?' | first %}
+                {% assign alt_text = file_name | split: '.' | first | replace: '-', ' ' | replace: '_', ' ' %}
+                {% assign input_id = 'logo-' | append: forloop.index | append: '-' | append: course_handle %}
+
+                <div class="variant-picker__option" data-tippy-theme="color-light" data-tippy-content="{{ alt_text }}">
+                  <input
+                    type="radio"
+                    id="{{ input_id }}"
+                    name="properties[Logo]"
+                    value="{{ alt_text | escape }}"
+                    form="{{ product_form_id }}"
+                    autocomplete="off" 
+                    data-course-logo="{{ logo_url }}"
+                  >
+                  <label
+                    class="variant-picker__option-button variant-picker__option-button--color variant-picker__option-button--course"
+                    for="{{ input_id }}"
+                    style="--swatch-background: url({{ logo_url }}); background-color: #D8D8D8; border: 6px solid #D8D8D8;"
+                  >
+                    {{ alt_text }}
+                  </label>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      {% endif %}
+    {% endfor %}
+  </div>
+
+  {% render 'product-select-embroider' %}
+{% endif %}
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const courseSelect = document.getElementById('course-select');
+    const courseInput = document.getElementById('selected-course-input');
+    const logoInput = document.getElementById('selected-logo-input');
+    const logoUrlInput = document.getElementById('logo-url-input');
+    const productForm = document.querySelector('form[action^="/cart"]');
+    const logoContainers = document.querySelectorAll('.course-logos');
+
+    // ✅ Fixed: now matches Shopify's Liquid "handle" filter
+    function toHandle(str) {
+      return (str ?? '')
+        .toString()
+        .normalize('NFKD')              // normalize unicode (e.g., ’ → ')
+        .replace(/\u00A0/g, ' ')        // NBSP → space
+        .toLowerCase()
+        .replace(/['’]s\b/gi, 's')      // George’s / George's → georges
+        .replace(/['’"“”‘´`]/g, '')     // remove remaining quotes/apostrophes
+        .replace(/[^a-z0-9]+/g, '-')    // non-alphanumerics → dash
+        .replace(/^-+|-+$/g, '');       // trim leading/trailing dashes
+    }
+
+    function updateSelectedValue(container) {
+      const radios = container.querySelectorAll('input[type="radio"]');
+      const labelSpan = container.querySelector('.selected-value');
+      let selectedInput = container.querySelector('input[type="radio"]:checked');
+
+      // If none are selected, select the first one
+      if (!selectedInput && radios.length > 0) {
+        radios[0].checked = true;
+        selectedInput = radios[0];
+      }
+
+      // Update selected value label
+      if (labelSpan && selectedInput) {
+        labelSpan.textContent = selectedInput.value;
+      }
+
+      // Update hidden logo inputs
+      if (selectedInput && logoInput && logoUrlInput) {
+        logoInput.value = selectedInput.value;
+
+        const label = selectedInput.closest('.variant-picker__option')?.querySelector('label');
+        const bgStyle = label?.style?.getPropertyValue('--swatch-background');
+        const match = bgStyle?.match(/url\(["']?(.*?)["']?\)/);
+
+        if (match && match[1]) {
+          logoUrlInput.value = match[1];
+        }
+      }
+    }
+
+    function updateLogos() {
+      const selectedCourse = courseSelect?.value || '';
+      const selectedHandle = toHandle(selectedCourse);
+
+      if (courseInput) {
+        courseInput.value = selectedCourse;
+      }
+
+      logoContainers.forEach(container => {
+        const isMatch = container.dataset.course === selectedHandle;
+        container.style.display = isMatch ? 'block' : 'none';
+        container.setAttribute('aria-hidden', isMatch ? 'false' : 'true');
+
+        if (isMatch) {
+          // Select first logo if none is selected
+          const radios = container.querySelectorAll('input[type="radio"]');
+          if (radios.length > 0 && !container.querySelector('input[type="radio"]:checked')) {
+            radios[0].checked = true;
+            handleLogoChange({ target: radios[0] }); // trigger SVG update
+          }
+
+          // Update hidden inputs + label
+          updateSelectedValue(container);
+        }
+      });
+    }
+
+    // Enhanced initial setup function
+    function initializeFirstRadioSelection() {
+      // Find all variant-picker__option-values containers
+      const variantContainers = document.querySelectorAll('.variant-picker__option-values');
+      
+      variantContainers.forEach(container => {
+        const radios = container.querySelectorAll('input[type="radio"][name="properties[Logo]"]');
+        
+        if (radios.length > 0) {
+          // Check if any radio is already selected
+          const selectedRadio = container.querySelector('input[type="radio"]:checked');
+          
+          if (!selectedRadio) {
+            // Select the first radio button
+            radios[0].checked = true;
+            
+            // Trigger the logo change event
+            handleLogoChange({ target: radios[0] });
+            
+            // Update any related UI elements
+            const logoContainer = radios[0].closest('.course-logos');
+            if (logoContainer) {
+              updateSelectedValue(logoContainer);
+            }
+            
+            console.log('Auto-selected first logo option:', radios[0].value);
+          } else {
+            // If one is already selected, make sure the logo is updated
+            handleLogoChange({ target: selectedRadio });
+            console.log('Logo already selected:', selectedRadio.value);
+          }
+        }
+      });
+    }
+
+    // Initial logo state
+    updateLogos();
+    
+    // Ensure first radio is selected and logo is updated
+    // Use a small delay to ensure DOM is fully ready
+    setTimeout(() => {
+      initializeFirstRadioSelection();
+    }, 100);
+
+    // Update logos on course change
+    courseSelect?.addEventListener('change', () => {
+      updateLogos();
+      // After course change, initialize radio selection for the new course
+      setTimeout(initializeFirstRadioSelection, 50);
+    });
+
+    // Update selected logo when radio changes
+    document.querySelectorAll('input[name="properties[Logo]"]').forEach(radio => {
+      radio.addEventListener('change', () => {
+        const container = radio.closest('.course-logos');
+        updateSelectedValue(container);
+      });
+    });
+
+    // Final safety update on form submit
+    productForm?.addEventListener('submit', () => {
+      updateLogos();
+    });
+  });
+
+  // Define the function to be triggered on radio button change or click
+  function handleLogoChange(event) {
+    const selectedValue = event.target.value;
+    // Get the value of the 'data-course-logo' attribute from the radio button
+    const courseLogoData = event.target.dataset.courseLogo;
+
+    // Get all SVG <image> elements with the ID 'course-logo'.
+    // NOTE: While IDs should be unique in valid HTML/SVG, this code will attempt
+    // to apply the change to all elements found with this ID if duplicates exist.
+    // For multiple elements, consider using a class instead of an ID (e.g., '.course-logo-image').
+    const svgImageElements = document.querySelectorAll('image[id="course-logo"]');
+
+    if (svgImageElements.length > 0) {
+      svgImageElements.forEach(svgImageElement => {
+        try {
+          // For modern SVG (SVG2), set the href attribute directly.
+          // For backward compatibility (older SVG versions/browsers), also set xlink:href using setAttributeNS.
+          svgImageElement.setAttribute('href', courseLogoData);
+          svgImageElement.setAttributeNS('http://www.w3.org/1999/xlink', 'xlink:href', courseLogoData);
+
+          console.log('Updated href of SVG <image> (ID: course-logo) to:', courseLogoData);
+          // You might want to update the display of the image or parent SVG here
+          // e.g., if you had a placeholder and now want to make it visible.
+        } catch (error) {
+          console.error("Error updating SVG <image> href for one element:", error);
+        }
+      });
+    } else {
+      console.warn("No SVG <image> elements with id='course-logo' found in the DOM.");
+    }
+  }
+
+  // Get all radio buttons with the specific name
+  const logoRadioButtons = document.querySelectorAll('input[name="properties[Logo]"]');
+
+  // Loop through each radio button and attach both 'change' and 'click' event listeners
+  logoRadioButtons.forEach(radio => {
+    radio.addEventListener('change', handleLogoChange);
+    radio.addEventListener('click', handleLogoChange);
+  });
+</script>
+
+<script>
+  document.addEventListener("DOMContentLoaded", function () {
+    const referrer = document.referrer;
+    const select = document.getElementById("course-select");
+
+    if (!referrer || !select) return;
+
+    console.log("Referrer:", referrer);
+
+    const match = referrer.match(/\/pages\/clubs\/([^\/?#]+)/i);
+    if (!match || !match[1]) return;
+
+    const slug = match[1];
+
+    const normalize = str =>
+      str.trim().toLowerCase().replace(/-/g, ' ').replace(/[^a-z0-9 ]/gi, '').replace(/\s+/g, ' ');
+
+    const target = normalize(decodeURIComponent(slug));
+    console.log("Target from slug:", target);
+
+    for (let option of select.options) {
+      const valueNormalized = normalize(option.value);
+      const textNormalized = normalize(option.textContent || '');
+
+      console.log("Comparing:", target, "with", valueNormalized, "and", textNormalized);
+
+      if (
+        valueNormalized.includes(target) ||
+        textNormalized.includes(target)
+      ) {
+        option.selected = true;
+        select.dispatchEvent(new Event('change'));
+        console.log("Auto-selected:", option.value);
+        break;
+      }
+    }
+  });
+</script>

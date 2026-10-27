@@ -1,0 +1,11 @@
+<ul class="widget-menu list-none{% if inline %} flex{% endif %}">
+    {%- for link in linklists[menu].links -%}
+        <li class="widget-menu__item">
+            <a href="{{ link.url }}" class="link-underline"
+                {% if link.current %} aria-current="page"{% endif %}
+            >
+                {{ link.title | escape }}
+            </a>
+        </li>
+    {%- endfor -%}
+</ul>

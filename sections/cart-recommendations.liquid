@@ -1,0 +1,28 @@
+<div class="f-cart-recommendations__wrapper">
+  <h3 class="f-cart-recommendations__title font-body-bolder h6">
+    {{ 'general.cart.cart_recommendations' | t }}
+  </h3>
+  <div class="f-cart-recommendations__items {% if recommendations.products.size == 1 %} f-cart-recommendations__items-only-product{% endif %}">
+    <flickity-component
+      data-slider-options='{"pageDots": true, "wrapAround": true, "cellSelector": ".f-cart-recommendations__item" }'
+      data-slider-columns="1"
+      data-enable-slider="true"
+      data-is-paginate-counter="true"
+      data-products-container
+    >
+      {%- for recommendation in recommendations.products -%}
+        {% render 'product-card',
+          product: recommendation,
+          custom_class: 'f-cart-recommendations__item bg-secondary',
+          is_complementary: true,
+          list_layout: true,
+          index: forloop.index,
+          image_ratio: recommendation.featured_media.aspect_ratio,
+          enable_quick_add: true,
+          enable_quick_view: false,
+          color_schema: 'background-1'
+        %}
+      {%- endfor -%}
+    </flickity-component>
+  </div>
+</div>

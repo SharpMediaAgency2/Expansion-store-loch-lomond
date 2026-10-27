@@ -1,0 +1,531 @@
+{{ 'image-comparison-slider.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign container = section.settings.container
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+  assign layout = section.settings.layout
+  assign image_height = section.settings.image_height
+
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  if image_height == 'adapt'
+    assign first_block = section.blocks.first
+    assign aspect_ratio = first_block.settings.image.aspect_ratio | default: 2.333
+    assign aspect_ratio_mobile = first_block.settings.image_mobile.aspect_ratio | default: 1.778
+  endif
+  assign animation_effect = settings.animations
+  assign animated = false
+  if animation_effect != 'none'
+    assign animated = true
+  endif
+-%}
+{% render 'divider',
+  show_divider: section.settings.show_section_divider,
+  divider_width: section.settings.divider_width
+%}
+<section
+  id="{{ section_id }}"
+  data-section-type="image-comparison-slider"
+  data-section-id="{{ section.id }}"
+  class="{{ custom_class }} f-section-padding color-{{ section.settings.color_schema }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="{{ container }}">
+    {% render 'index-section-header', section_settings: section.settings %}
+    <f-image-comparison-slider
+      class="f-image-comparison-slider block relative overflow-hidden"
+      data-layout="{{ layout }}"
+      {% if animated %}
+        data-animation
+      {% endif %}
+    >
+      {%- if animated -%}
+        <span
+          class="f-image-comparison-slider__animation block absolute bottom-0 left-0 right-0 pointer-events-none"
+        ></span>
+      {%- endif -%}
+      {% for block in section.blocks %}
+        {% liquid
+          assign image = block.settings.image
+          assign image_mobile = block.settings.image_mobile
+          assign heading = block.settings.heading
+          assign heading_class = 'f-image-comparison-slider__heading absolute z-1 m-0 flex items-center justify-center text-center color-' | append: block.settings.color_scheme
+          assign heading_plain_text = block.settings.heading_plain_text
+          if heading_plain_text
+            assign heading_class = heading_class | append: ' f-image-comparison-slider__heading--plain'
+          endif
+          assign image_class = ''
+          if image_mobile != blank
+            assign image_class = image_class | append: ' has-mobile-image'
+          endif
+        %}
+        {% if forloop.index == 1 %}
+          <div class="f-image-comparison-slider__before f-image-comparison-slider--media overflow-hidden relative">
+            {% if heading != blank -%}
+              <p class="{{ heading_class }}">{{ heading }}</p>
+            {%- endif %}
+            <div
+              class="f-image-comparison-slider__wrapper f-image-comparison-slider--{{ image_height }}{{ image_class }}"
+              {% if image_height == 'adapt' %}
+                style="--aspect-ratio: {{ aspect_ratio }}; --aspect-ratio-mobile: {{ aspect_ratio_mobile }}"
+              {% endif %}
+            >
+              {% if image != blank %}
+                <img
+                  srcset="
+                    {%- if image.width >= 375 -%}{{ image | image_url: width: 375 }} 375w,{%- endif -%}
+                    {%- if image.width >= 550 -%}{{ image | image_url: width: 550 }} 550w,{%- endif -%}
+                    {%- if image.width >= 750 -%}{{ image | image_url: width: 750 }} 750w,{%- endif -%}
+                    {%- if image.width >= 1100 -%}{{ image | image_url: width: 1100 }} 1100w,{%- endif -%}
+                    {%- if image.width >= 1500 -%}{{ image | image_url: width: 1500 }} 1500w,{%- endif -%}
+                    {%- if image.width >= 1780 -%}{{ image | image_url: width: 1780 }} 1780w,{%- endif -%}
+                    {%- if image.width >= 2000 -%}{{ image | image_url: width: 2000 }} 2000w,{%- endif -%}
+                    {%- if image.width >= 3000 -%}{{ image | image_url: width: 3000 }} 3000w,{%- endif -%}
+                    {%- if image.width >= 3840 -%}{{ image | image_url: width: 3840 }} 3840w,{%- endif -%}
+                    {{ image | image_url }} {{ image.width }}w
+                  "
+                  sizes="100vw"
+                  src="{{ image | image_url: width: 1500 }}"
+                  loading="lazy"
+                  alt="{{ image.alt | escape }}"
+                  width="{{ image.width }}"
+                  height="{{ image.width | divided_by: image.aspect_ratio | round }}"
+                  class="f-image-comparison-slider--image-desktop"
+                >
+              {% else %}
+                {{
+                  'lifestyle-1'
+                  | placeholder_svg_tag: 'placeholder-svg f-image-comparison-slider--image-desktop'
+                }}
+              {% endif %}
+              {% if image_mobile != blank %}
+                <img
+                  srcset="
+                    {%- if image_mobile.width >= 375 -%}{{ image_mobile | image_url: width: 375 }} 375w,{%- endif -%}
+                    {%- if image_mobile.width >= 550 -%}{{ image_mobile | image_url: width: 550 }} 550w,{%- endif -%}
+                    {%- if image_mobile.width >= 750 -%}{{ image_mobile | image_url: width: 750 }} 750w,{%- endif -%}
+                    {{ image_mobile | image_url }} {{ image_mobile.width }}w
+                  "
+                  sizes="100vw"
+                  src="{{ image_mobile | image_url: width: 750 }}"
+                  loading="lazy"
+                  alt="{{ image_mobile.alt | escape }}"
+                  width="{{ image_mobile.width }}"
+                  height="{{ image_mobile.width | divided_by: image_mobile.aspect_ratio | round }}"
+                  class="f-image-comparison-slider--image-mobile"
+                >
+              {% endif %}
+            </div>
+          </div>
+        {% else %}
+          <div class="f-image-comparison-slider__after f-image-comparison-slider--media overflow-hidden absolute top-0 left-0 w-full h-full z-1">
+            {% if heading != blank -%}
+              <p class="{{ heading_class }}">{{ heading }}</p>
+            {%- endif %}
+            <div
+              class="f-image-comparison-slider__wrapper f-image-comparison-slider--{{ image_height }}{{ image_class }}"
+              {% if image_height == 'adapt' %}
+                style="--aspect-ratio: {{ aspect_ratio }}; --aspect-ratio-mobile: {{ aspect_ratio_mobile }}"
+              {% endif %}
+            >
+              {% if image != blank %}
+                <img
+                  srcset="
+                    {%- if image.width >= 375 -%}{{ image | image_url: width: 375 }} 375w,{%- endif -%}
+                    {%- if image.width >= 550 -%}{{ image | image_url: width: 550 }} 550w,{%- endif -%}
+                    {%- if image.width >= 750 -%}{{ image | image_url: width: 750 }} 750w,{%- endif -%}
+                    {%- if image.width >= 1100 -%}{{ image | image_url: width: 1100 }} 1100w,{%- endif -%}
+                    {%- if image.width >= 1500 -%}{{ image | image_url: width: 1500 }} 1500w,{%- endif -%}
+                    {%- if image.width >= 1780 -%}{{ image | image_url: width: 1780 }} 1780w,{%- endif -%}
+                    {%- if image.width >= 2000 -%}{{ image | image_url: width: 2000 }} 2000w,{%- endif -%}
+                    {%- if image.width >= 3000 -%}{{ image | image_url: width: 3000 }} 3000w,{%- endif -%}
+                    {%- if image.width >= 3840 -%}{{ image | image_url: width: 3840 }} 3840w,{%- endif -%}
+                    {{ image | image_url }} {{ image.width }}w
+                  "
+                  sizes="100vw"
+                  src="{{ image | image_url: width: 1500 }}"
+                  loading="lazy"
+                  alt="{{ image.alt | escape }}"
+                  width="{{ image.width }}"
+                  height="{{ image.width | divided_by: image.aspect_ratio | round }}"
+                  class="f-image-comparison-slider--image-desktop"
+                >
+              {% else %}
+                {{
+                  'lifestyle-2'
+                  | placeholder_svg_tag: 'placeholder-svg f-image-comparison-slider--image-desktop'
+                }}
+              {% endif %}
+              {% if image_mobile != blank %}
+                <img
+                  srcset="
+                    {%- if image_mobile.width >= 375 -%}{{ image_mobile | image_url: width: 375 }} 375w,{%- endif -%}
+                    {%- if image_mobile.width >= 550 -%}{{ image_mobile | image_url: width: 550 }} 550w,{%- endif -%}
+                    {%- if image_mobile.width >= 750 -%}{{ image_mobile | image_url: width: 750 }} 750w,{%- endif -%}
+                    {{ image_mobile | image_url }} {{ image_mobile.width }}w
+                  "
+                  sizes="100vw"
+                  src="{{ image_mobile | image_url: width: 750 }}"
+                  loading="lazy"
+                  alt="{{ image_mobile.alt | escape }}"
+                  width="{{ image_mobile.width }}"
+                  height="{{ image_mobile.width | divided_by: image_mobile.aspect_ratio | round }}"
+                  class="f-image-comparison-slider--image-mobile"
+                >
+              {% endif %}
+            </div>
+          </div>
+        {% endif %}
+      {% endfor %}
+      <button
+        class="f-image-comparison-slider__button absolute"
+        aria-label="image-comparison"
+      >
+        <span>
+          <svg
+            aria-hidden="true"
+            focusable="false"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            viewBox="0 0 24 24"
+            fill="none"
+            xmlns="http://www.w3.org/2000/svg"
+          >
+            <path d="M11.9668 18.8193V5.11517"/><path d="M6.98438 18.8193L6.98438 5.11517"/><path d="M16.9492 18.8193V5.11517"/>
+          </svg>
+        </span>
+      </button>
+    </f-image-comparison-slider>
+  </div>
+</section>
+{% schema %}
+{
+  "name": "t:sections.image-comparison.name",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/ik5TjDM)"
+    },
+    {
+      "type": "select",
+      "id": "container",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.container.label"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.header.name"
+    },
+    {
+      "type": "select",
+      "id": "section_header_padding_bottom",
+      "label": "t:sections.common.spacing.section_header_padding_bottom.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__1.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__2.label"
+        },
+        {
+          "value": "large",
+          "label": "t:sections.common.spacing.section_header_padding_bottom.option__3.label"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "select",
+      "id": "section_header_content_spacing",
+      "label": "t:sections.common.content_spacing.label",
+      "options": [
+        {
+          "value": "small",
+          "label": "t:sections.common.content_spacing.options__sm.label"
+        },
+        {
+          "value": "medium",
+          "label": "t:sections.common.content_spacing.options__md.label"
+        }
+      ],
+      "default": "medium"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "info": "t:sections.common.highlight_text.paragraph.content",
+      "label": "t:sections.common.header.heading",
+      "default": "Before/after image slider"
+    },
+    {
+      "type": "select",
+      "id": "highlight_style",
+      "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+        },
+        {
+          "value": "drawer_line",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+        },
+        {
+          "value": "underline",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight_text_color",
+      "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "default": "h2",
+      "label": "t:sections.common.text_size.heading.label",
+      "options": [
+        {
+          "value": "h3",
+          "label": "t:sections.common.text_size.options__h3.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.text_size.options__h2.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.common.text_size.options__h1.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.common.text_size.options__h0.label"
+        },
+        {
+          "value": "h-xl",
+          "label": "t:sections.common.text_size.options__hd1.label"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "t:sections.common.heading_color.label",
+      "info": "t:sections.common.heading_color.info"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:sections.common.header.subheading"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.common.header.description"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.image-comparison.header.settings"
+    },
+    {
+      "type": "select",
+      "id": "layout",
+      "label": "t:sections.image-comparison.settings.layout.label",
+      "default": "horizontal",
+      "options": [
+        {
+          "value": "horizontal",
+          "label": "t:sections.image-comparison.settings.layout.option_1"
+        },
+        {
+          "value": "vertical",
+          "label": "t:sections.image-comparison.settings.layout.option_2"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "image_height",
+      "label": "t:sections.image-comparison.settings.image_height",
+      "default": "adapt",
+      "options": [
+        {
+          "label": "t:sections.hero.settings.hero_height.options.adapt",
+          "value": "adapt"
+        },
+        {
+          "label": "t:sections.hero.settings.hero_height.options.small",
+          "value": "small"
+        },
+        {
+          "label": "t:sections.hero.settings.hero_height.options.medium",
+          "value": "medium"
+        },
+        {
+          "label": "t:sections.hero.settings.hero_height.options.large",
+          "value": "large"
+        }
+      ]
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.divider.section_heading.content"
+    },
+    {
+      "type": "checkbox",
+      "id": "show_section_divider",
+      "default": false,
+      "label": "t:sections.common.divider.show_divider.label"
+    },
+    {
+      "type": "select",
+      "id": "divider_width",
+      "options": [
+        {
+          "value": "container",
+          "label": "t:sections.common.container.fixed"
+        },
+        {
+          "value": "container-fluid",
+          "label": "t:sections.common.container.stretched"
+        },
+        {
+          "value": "container-full",
+          "label": "t:sections.common.container.fullwidth"
+        }
+      ],
+      "default": "container",
+      "label": "t:sections.common.divider.width.label"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    }
+  ],
+  "max_blocks": 2,
+  "blocks": [
+    {
+      "type": "image",
+      "name": "t:sections.image-comparison.blocks.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "label": "t:sections.image-comparison.blocks.image",
+          "id": "image"
+        },
+        {
+          "type": "image_picker",
+          "label": "t:sections.image-comparison.blocks.image_mobile",
+          "id": "image_mobile"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.image-comparison.blocks.heading"
+        },
+        {
+          "type": "color_scheme",
+          "id": "color_scheme",
+          "label": "t:sections.common.color_schema.label"
+        },
+        {
+          "type": "checkbox",
+          "id": "heading_plain_text",
+          "label": "t:sections.image-comparison.blocks.heading_plain_text",
+          "default": false
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.image-comparison.presets.name",
+      "blocks": [
+        {
+          "type": "image",
+          "settings": {
+            "heading": "Before"
+          }
+        },
+        {
+          "type": "image",
+          "settings": {
+            "heading": "After"
+          }
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

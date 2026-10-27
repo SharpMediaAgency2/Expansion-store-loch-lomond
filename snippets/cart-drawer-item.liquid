@@ -1,0 +1,199 @@
+<div
+  id="CartDrawer-Item-{{ item.index | plus: 1 }}"
+  class="f-cart-drawer__item f-cart-item"
+  data-cart-item-product-id="{{ item.product.id }}"
+  data-cart-item-product-title="{{ item.product.title }}"
+  data-cart-item="{{ item.key }}"
+>
+  <div class="f-cart-drawer__product">
+    {% if item.image %}
+      <div class="f-cart-drawer__product-image relative f-image-hover-effect__{{settings.image_hover_effect}}">
+        <a class="full-width-link" aria-hidden="true" href="{{ item.url }}?variant={{ item.variant_id }}"></a>
+        <responsive-image class="f-image" style="--aspect-ratio: {{ item.image.aspect_ratio | default: '1' }}">
+          <img
+            srcset="
+              {% if item.image.width >= 110 %}{{ item.image | image_url: width: 110 }} 1x,{% endif %}
+              {% if item.image.width >= 220 %}{{ item.image | image_url: width: 220 }} 2x{% endif %}
+            "
+            width="{{ item.image.width }}"
+            height="{{ item.image.height }}"
+            src="{{ item | image_url: width: 220 }}"
+            alt="{{ item.image.alt | escape }}"
+            loading="lazy"
+          >
+        </responsive-image>
+      </div>
+    {% else %}
+      <div class="f-cart-drawer__product-image">
+        {{ 'product-1' | placeholder_svg_tag: 'placeholder-svg' }}
+      </div>
+    {% endif %}
+    <div class="f-cart-drawer__product-info">
+      <div class="f-cart-drawer__product-header flex justify-between">
+        <a
+          class="f-cart-drawer__product-name f-cart-item__name text-product-title"
+          href="{{ item.url }}?variant={{ item.variant_id }}"
+        >
+          {{- item.product.title -}}
+        </a>
+        <div class="f-cart-drawer__product-prices">
+          {%- if item.original_line_price != item.final_line_price -%}
+            <div class="f-cart-drawer__discounted-prices text-sm">
+              <span class="visually-hidden">{{ 'products.product.price.regular_price' | t }}</span>
+              <s class="f-cart-drawer__product-price">
+                {{ item.original_line_price | money }}
+              </s>
+              <span class="visually-hidden">{{ 'products.product.price.sale_price' | t }}</span>
+              <span class="f-cart-drawer__product-price f-cart-drawer__product-price--discount">
+                {{- item.final_line_price | money -}}
+              </span>
+            </div>
+          {%- else -%}
+            <span class="f-cart-drawer__product-price">{{ item.original_line_price | money }}</span>
+          {%- endif -%}
+        </div>
+      </div>
+      {%- unless item.product.has_only_default_variant -%}
+        <div class="f-cart-drawer__product-options text-sm">
+          
+          {%- for option in item.options_with_values -%}
+            {% if option.name == 'Club' %}
+              
+            {% if item.product.template_suffix contains 'catalog-b-2' %}
+
+            {% else %}
+            <div class="f-cart-drawer__option">
+              <span>{{ option.name }}: </span> <span>{{ option.value }}</span>
+            </div>
+          {% endif %}
+          {% else %}
+          <div class="f-cart-drawer__option">
+              <span>{{ option.name }}: </span> <span>{{ option.value }}</span>
+            </div>
+        {% endif %}
+          {%- endfor -%}
+        </div>
+      {%- endunless -%}
+
+      {%- unless item.selling_plan_allocation == null -%}
+        <p class="f-cart-drawer__product-options text-sm">
+          <span class="f-cart-drawer__option">{{ item.selling_plan_allocation.selling_plan.name }}</span>
+        </p>
+      {%- endunless -%}
+
+      {%- assign property_size = item.properties | size -%}
+      {%- unless property_size == 0 -%}
+        <div class="f-cart-drawer__product-options text-sm">
+          {% for property in item.properties %}
+            {% assign prop_key = property.first | downcase %}
+            
+            {% if prop_key == '_logo-url' %}
+              {% if property.last contains '/cdn/' or property.last contains 'http' %}
+                <div class="f-cart-drawer__option">
+                  <span>Logo Image:</span>
+                  <span>
+                    <img src="{{ property.last }}" alt="Selected Logo" style="max-height: 32px;" />
+                  </span>
+                </div>
+              {% endif %}
+
+
+            {% elsif prop_key != '_logo-url' and property.last contains '/cdn/' %}
+              {%- comment -%} Skip image URL in other properties {%- endcomment -%}
+            {% elsif property.last != blank and prop_key != '_' %}
+              <div class="f-cart-drawer__option">
+                {% if property.first == 'Logo' %}
+                {% else %}
+                <span>{{ property.first }}:</span>
+                <span>
+                  {% if property.last contains '/uploads/' %}
+                    <a href="{{ property.last }}" target="_blank">{{ property.last | split: '/' | last }}</a>
+                  {% else %}
+                    {{ property.last }}
+                  {% endif %}
+                </span>
+                {% endif %}
+              </div>
+            {% endif %}
+          {% endfor %}
+        </div>
+      {%- endunless -%}
+      {%- if item.discounts.size > 0 -%}
+        <ul
+          class="cart-discounts text-sm text-red list-none"
+          role="list"
+          aria-label="{{ 'customer.order.discount' | t }}"
+        >
+          {%- for discount in item.discounts -%}
+            <li>
+              {% comment %} theme-check-disable {% endcomment %}
+              {{ 'icon-discount.svg' | inline_asset_content }}
+              {% comment %} theme-check-enable {% endcomment %}
+              {{ discount.title }}
+            </li>
+          {%- endfor -%}
+        </ul>
+      {%- endif -%}
+      <div class="f-cart-drawer__product-tuning">
+        <div class="f-cart-drawer__qty">
+          {%- if gift_wrap_id == null or item.id != gift_wrap_id -%}
+            {% render 'quantity-input',
+              section_id: section.id,
+              product_title: item.title,
+              index: item.index,
+              value: item.quantity,
+              item: item,
+              input_label: item.product.title,
+              name: 'updates[]'
+            %}
+          {%- endif -%}
+        </div>
+        <cart-remove-button
+          id="Remove-{{ item.index | plus: 1 }}"
+          data-index="{{ item.index | plus: 1 }}"
+          {% unless gift_wrap_id == null or item.id != gift_wrap_id %}
+            class="hidden"
+          {% endunless %}
+        >
+          <button
+            aria-label="{{ 'sections.cart.remove_title' | t: title: item.title }}"
+            class="f-cart-drawer__remove btn btn--underline"
+            type="button"
+          >
+            <span>{{ 'sections.cart.remove' | t }}</span>
+          </button>
+        </cart-remove-button>
+      </div>
+    </div>
+  </div>
+
+  {%- if item.variant.available and item.unit_price_measurement -%}
+    <div class="f-cart-drawer__unit-price"></div>
+  {%- endif -%}
+
+  <div class="f-cart-drawer__error" aria-live="polite" data-cart-item-error></div>
+  {% liquid
+    assign should_show_recommend = false
+    if settings.cart_recommendations_enable and item.id != gift_wrap_id
+      assign should_show_recommend = true
+    endif
+  %}
+  {%- if should_show_recommend -%}
+    <cart-recommendations-component
+      class="f-cart-recommendations"
+      data-url="{{ routes.product_recommendations_url }}?section_id=cart-recommendations&product_id={{ item.product.id }}&limit=3"
+    >
+    </cart-recommendations-component>
+  {%- endif -%}
+  {% liquid
+    assign collections = ''
+    for collection in item.product.collections
+      assign collections = collections | append: collection.id | append: ','
+    endfor
+  %}
+  <foxkit-incart-upsell
+    data-collections="{{ collections | remove_last: ',' }}"
+    data-product-title="{{ item.product.title }}"
+    data-product-id="{{ item.product_id }}"
+  ></foxkit-incart-upsell>
+</div>

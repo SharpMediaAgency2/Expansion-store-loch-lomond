@@ -1,0 +1,87 @@
+{% liquid
+  assign form_id = section.id | append: '_'
+  assign show_cart = section.settings.show_cart
+  assign show_account = section.settings.show_account
+  assign show_language_selector = section.settings.show_language_selector
+  assign show_country_selector = section.settings.show_country_selector
+  assign mobile_show_search = section.settings.mobile_show_search
+  assign mobile_show_cart = section.settings.mobile_show_cart
+  comment
+    assign mobile_show_account = section.settings.mobile_show_account
+  endcomment
+
+  assign cart_class = 'hidden'
+  if show_cart
+    assign cart_class = cart_class | append: ' lg:inline-flex'
+  endif
+  if show_cart and mobile_show_cart
+    assign cart_class = ''
+  endif
+  if show_cart == false and mobile_show_cart
+    assign cart_class = 'lg:hidden'
+  endif
+%}
+
+<div class="site-header__addons flex items-center {{ custom_class }}">
+  {% if show_country_selector %}
+    <div class="site-header__element f-tablet-hidden">
+      {% render 'country-selector', plain: true, class: 'site-header__link', form_id: form_id %}
+    </div>
+  {% endif %}
+  {% if show_language_selector %}
+    <div class="site-header__element f-tablet-hidden">
+      {% render 'language-selector', plain: true, class: 'site-header__link', form_id: form_id %}
+    </div>
+  {% endif %}
+  {% if mobile_show_search %}
+    <drawer-opener
+      class="site-header__element site-header__open-search no-js-hidden"
+      data-drawer="#Drawer-Search"
+    >
+      <button
+        class="btn btn--plain btn--icon site-header__search-toggle site-header__link site-header__search-toggle-mobile"
+        data-tippy-theme="color-{{ color_schema }}"
+        data-tippy-content="{{ 'general.search.search' | t }}"
+        data-tippy-placement="bottom"
+        aria-label="{{ 'general.search.search' | t }}"
+        aria-haspopup="dialog"
+      >
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          aria-hidden="true"
+          focusable="false"
+          role="presentation"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          class="f-icon-svg f-icon-svg--medium f-icon-search"
+        >
+          <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </button>
+    </drawer-opener>
+  {% endif %}
+  {% liquid
+    comment
+    endcomment
+    assign search_form_class = ''
+    if section.settings.layout == 'design-3'
+      assign search_form_class = 'xl:hidden'
+    endif
+  %}
+  {% render 'header__search', section: section, search_form_class: search_form_class, color_schema: color_schema %}
+  <div class="site-header__element {{ cart_class }}">
+    {% render 'wishlist-link', block: block, link_class: 'site-header__link', color_schema: color_schema %}
+  </div>
+  {% if shop.customer_accounts_enabled and show_account %}
+    <div class="site-header__element ">
+      {% render 'user-links', block: block, link_class: 'site-header__link', color_schema: color_schema %}
+    </div>
+  {% endif %}
+  <div class="site-header__element {{ cart_class }}">
+    {% render 'cart-link', block: block, link_class: 'site-header__link', color_schema: color_schema %}
+  </div>
+</div>

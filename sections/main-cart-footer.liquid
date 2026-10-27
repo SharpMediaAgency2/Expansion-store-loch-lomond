@@ -1,0 +1,290 @@
+{%- liquid
+  assign shipping_rates_block = section.blocks | where: 'type', 'shipping' | first
+
+  if linklists['gift-wrapping'].links != blank and linklists['gift-wrapping'].links.first.type == 'product_link'
+    assign gift_wrapping = linklists['gift-wrapping'].links.first
+
+    assign gift_wrap_id = gift_wrapping.object.variants.first.id
+    assign gift_wraps_in_cart = 0
+    for item in cart.items
+      if item.id == gift_wrap_id
+        assign gift_wraps_in_cart = item.quantity
+        break
+      endif
+    endfor
+    assign items_in_cart = cart.item_count | minus: gift_wraps_in_cart
+  endif
+-%}
+
+{% if shipping_rates_block %}
+  <script src="{{ 'footer-calc-shipping-rates.js' | asset_url }}" defer="defer"></script>
+{% endif %}
+
+<div data-section-id="{{ section.id }}" data-section-type="main-cart-footer">
+  <div class="container">
+    <div
+      id="main-cart-footer"
+      class="{% if cart == empty %}is-empty{% endif %}"
+      data-cart-footer
+      data-id="{{ section.id }}"
+    >
+      <div class="f-cart__footer">
+        <div class="f-cart__addons">
+          {%- if gift_wrapping != null and gift_wrapping.object.available -%}
+            <div>
+              <gift-wrapping-component
+                class="f-gift-wrapping"
+                data-gift-wrap-id="{{ gift_wrap_id }}"
+                data-gift-wrapping="{{ cart.attributes.gift-wrapping | escape }}"
+                cart-items-size="{{ cart.items.size }}"
+                gift-wraps-in-cart="{{ gift_wraps_in_cart }}"
+                items-in-cart="{{ items_in_cart }}"
+              >
+                <input
+                  id="f-gift-wrapping"
+                  type="checkbox"
+                  name="attributes[gift-wrapping]"
+                  value="yes"
+                  {% if cart.attributes['gift-wrapping'] and gift_wraps_in_cart > 0 %}
+                    checked="checked"
+                  {% endif %}
+                  class="visually-hidden"
+                >
+                <label for="f-gift-wrapping" class="f-gift-wrapping--label">
+                  {%- capture gift_price -%}<strong class="f-gift-wrapping--price">{{ gift_wrapping.object.price | money }}</strong>{%- endcapture -%}
+                  <span class="f-gift-wrapping--text">
+                    {{- 'general.cart.gift_wrapping_html' | t: price: gift_price -}}
+                  </span>
+                  <div class="f-gift-wrapping--loading">
+                    {% comment %} theme-check-disable {% endcomment %}
+                    {{ 'icon-spinner.svg' | inline_asset_content }}
+                    {% comment %} theme-check-enable {% endcomment %}
+                  </div>
+                  <svg
+                    width="18"
+                    height="18"
+                    xmlns="http://www.w3.org/2000/svg"
+                    aria-hidden="true"
+                    focusable="false"
+                    class="f-icon f-icon-checkmark f-gift-wrapping--icon"
+                    fill="none"
+                    viewBox="0 0 20 20"
+                  >
+                    <path d="M18.5 1.5H1.5L1.5 18.5H18.5V1.5ZM1.5 0.5C0.947715 0.5 0.5 0.947715 0.5 1.5V18.5C0.5 19.0523 0.947715 19.5 1.5 19.5H18.5C19.0523 19.5 19.5 19.0523 19.5 18.5V1.5C19.5 0.947715 19.0523 0.5 18.5 0.5H1.5Z" fill-rule="evenodd" fill="currentColor"/>
+                    <path d="M14.9975 6.09084C15.201 6.27746 15.2147 6.59375 15.0281 6.79728L8.91631 13.4627C8.82231 13.5652 8.68987 13.6239 8.55079 13.6247C8.41172 13.6256 8.27857 13.5684 8.18335 13.4671L4.99513 10.0731C4.80606 9.87179 4.81596 9.55536 5.01723 9.3663C5.21849 9.17723 5.53492 9.18713 5.72399 9.3884L8.54335 12.3897L14.291 6.12145C14.4776 5.91791 14.7939 5.90421 14.9975 6.09084Z" fill="currentColor"/>
+                  </svg>
+                </label>
+                {%- if cart.attributes['gift-wrapping'] and gift_wraps_in_cart > 0 -%}
+                  <gift-note-component class="f-gift-wrapping--note">
+                    <textarea
+                      class="form-control form-control--textarea w-full"
+                      name="attributes[gift-note]"
+                      id="f-gift-note"
+                      placeholder="{{ 'general.cart.gift_note_placeholder' | t }}"
+                    >{{ cart.attributes.gift-note }}</textarea>
+                  </gift-note-component>
+                {%- endif -%}
+              </gift-wrapping-component>
+            </div>
+          {%- endif -%}
+          {% for block in section.blocks %}
+            {% if block.type == 'buttons'
+              or block.type == 'image'
+              or block.type == 'text'
+              or block.type == 'subtotal'
+            %}
+              {% continue %}
+            {% endif %}
+            {%- case block.type -%}
+              {% when 'note' %}
+                <div class="f-cart__block f-cart__block--{{ block.type }}" {{ block.shopify_attributes }}>
+                  {% render 'cart-block-note', block: block, id: 'f-cart__note', class: 'f-cart__note-wrapper' %}
+                </div>
+              {% when 'shipping' %}
+                <div class="f-cart__block f-cart__block--{{ block.type }} no-js-hidden" {{ block.shopify_attributes }}>
+                  {% render 'cart-block-shipping',
+                    block: block,
+                    id: 'f-cart__shipping-rates',
+                    class: 'f-cart__shipping-wrapper'
+                  %}
+                </div>
+              {%- else -%}
+            {%- endcase -%}
+          {% endfor %}
+        </div>
+        <div class="f-cart__subtotal">
+          {% for block in section.blocks %}
+            {% if block.type == 'shipping' or block.type == 'note' %}
+              {% continue %}
+            {% endif %}
+            <div
+              class="f-cart__block f-cart__block--{{ block.type }}"
+              data-block-{{ block.type }}
+              {{ block.shopify_attributes }}
+            >
+              {%- case block.type -%}
+                {%- when '@app' -%}
+                  {% render block %}
+                {%- when 'subtotal' -%}
+                  {% liquid
+                    assign total_price = cart.total_price | money
+                    if settings.currency_code_enabled
+                      assign total_price = cart.total_price | money_with_currency
+                    endif
+                  %}
+                  <div class="js-contents">
+                    <div data-foxkit-cart-summary></div>
+                    {%- if cart.cart_level_discount_applications.size > 0 -%}
+                      <div class="cart-discounts text-sm text-right text-red">
+                        <ul class="f-discounts list-none" role="list" aria-label="{{ 'customer.order.discount' | t }}">
+                          {%- for discount in cart.cart_level_discount_applications -%}
+                            <li class="f-discounts__discount f-discounts__discount--end">
+                              {% comment %} theme-check-disable {% endcomment %}
+                              {{ 'icon-discount.svg' | inline_asset_content }}
+                              {% comment %} theme-check-enable {% endcomment %}
+                              {{ discount.title }}
+                              (-{{ discount.total_allocated_amount | money }})
+                            </li>
+                          {%- endfor -%}
+                        </ul>
+                      </div>
+                    {%- endif -%}
+                    <div class="totals">
+                      <h3 class="totals__subtotal">{{ 'sections.cart.subtotal' | t }}:</h3>
+                      <p class="totals__subtotal-value text-right" data-cart-price>{{ total_price }}</p>
+                    </div>
+
+                    <p class="tax-note text-sm text-subtext">
+                      {%- if cart.taxes_included and shop.shipping_policy.body != blank -%}
+                        {{
+                          'sections.cart.taxes_included_and_shipping_policy_html'
+                          | t: link: shop.shipping_policy.url
+                        }}
+                      {%- elsif cart.taxes_included -%}
+                        {{ 'sections.cart.taxes_included_but_shipping_at_checkout' | t }}
+                      {%- elsif shop.shipping_policy.body != blank -%}
+                        {{
+                          'sections.cart.taxes_and_shipping_policy_at_checkout_html'
+                          | t: link: shop.shipping_policy.url
+                        }}
+                      {%- else -%}
+                        {{ 'sections.cart.taxes_and_shipping_at_checkout' | t }}
+                      {%- endif -%}
+                    </p>
+                  </div>
+                {% when 'text' %}
+                  {% assign text = block.settings.text %}
+                  {% if text != blank %}
+                    <div class="rte">
+                      {{ text }}
+                    </div>
+                  {% endif %}
+                {% when 'image' %}
+                  {% assign image = block.settings.image %}
+                  {% if image != blank %}
+                    {% render 'responsive-image', image: image %}
+                  {% endif %}
+                {% when 'buttons' %}
+                  <div class="cart__ctas">
+                    <noscript>
+                      <button type="submit" class="cart__update-button btn btn--secondary" form="cart">
+                        {{ 'sections.cart.update' | t }}
+                      </button>
+                    </noscript>
+
+                    <button
+                      type="submit"
+                      id="checkout"
+                      class="cart__checkout-button btn btn--primary text-upper"
+                      name="checkout"
+                      {% if cart == empty %}
+                        disabled
+                      {% endif %}
+                      form="cart"
+                    >
+                      {{ 'sections.cart.checkout' | t }}
+                    </button>
+                  </div>
+
+                  {%- if additional_checkout_buttons and block.settings.show_additional_checkout_buttons -%}
+                    <div class="cart__dynamic-checkout-buttons additional-checkout-buttons">
+                      {{ content_for_additional_checkout_buttons }}
+                    </div>
+                  {%- endif -%}
+                {%- else -%}
+              {%- endcase -%}
+            </div>
+          {% endfor %}
+          <div id="cart-errors"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "t:sections.main-cart-footer.name",
+  "class": "cart__footer-wrapper f-section",
+  "blocks": [
+    {
+      "type": "@app"
+    },
+    {
+      "type": "note",
+      "name": "t:sections.main-cart-footer.blocks.note.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "paragraph",
+          "content": "t:sections.main-cart-footer.blocks.note.paragraph"
+        }
+      ]
+    },
+    {
+      "type": "shipping",
+      "name": "t:sections.main-cart-footer.blocks.shipping.name",
+      "limit": 1
+    },
+    {
+      "type": "subtotal",
+      "name": "t:sections.main-cart-footer.blocks.subtotal.name",
+      "limit": 1
+    },
+    {
+      "type": "buttons",
+      "name": "t:sections.main-cart-footer.blocks.buttons.name",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "checkbox",
+          "id": "show_additional_checkout_buttons",
+          "label": "t:sections.main-cart-footer.blocks.buttons.show_additional_checkout_buttons",
+          "default": true
+        }
+      ]
+    },
+    {
+      "type": "image",
+      "name": "t:sections.main-cart-footer.blocks.image.name",
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.main-cart-footer.blocks.image.name"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "t:sections.main-cart-footer.blocks.text.name",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.main-cart-footer.blocks.text.name"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

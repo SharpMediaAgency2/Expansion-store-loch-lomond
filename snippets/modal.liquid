@@ -1,0 +1,23 @@
+<modal-dialog
+  id="PopupModal-{{ id }}"
+  class="f-modal hidden {{ class }}"
+  style="--modal-width: {{ width | default: '600px' }}"
+>
+  <div class="f-modal__content" role="dialog" aria-label="{{ label }}" aria-modal="true" tabindex="-1">
+    <div class="scroll-container">
+      <button
+        id="ModalClose-{{ id }}"
+        type="button"
+        class="f-modal__close"
+        aria-label="{{ 'accessibility.close' | t }}"
+      >
+        {% comment %} theme-check-disable {% endcomment %}
+        {{ 'icon-close.svg' | inline_asset_content }}
+        {% comment %} theme-check-enable {% endcomment %}
+      </button>
+      <div class="f-modal__inner">
+        {{ content }}
+      </div>
+    </div>
+  </div>
+</modal-dialog>

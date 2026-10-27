@@ -1,0 +1,35 @@
+{% form 'contact', id: 'ask-question-form' %}
+    <input type="hidden" name="contact[from form]" value="{{ 'products.product.question_form.form_title' | t }}" />
+    <input type="hidden" name="contact[product]" value="{{ product.title }}" />
+    <input type="hidden" name="contact[product url]" value="{{ shop.url }}{{ product.url }}" />
+    <div class="f-question-form">
+        <div class="text-center">
+            <h3 class="h4 font-bold">{{ 'products.product.question_form.form_title' | t }}</h3>
+        </div>
+        <div class="form-field">
+            <label for="ask-question-form-name" class="visually-hidden">{{ 'products.product.question_form.field_name' | t }}</label>
+            <input id="ask-question-form-name" type="text" class="form-control" name="contact[name]" required placeholder="{{ 'products.product.question_form.field_name' | t }}*">
+        </div>
+        <div class="form-field">
+            <label for="ask-question-form-email" class="visually-hidden">{{ 'products.product.question_form.field_email' | t }}</label>
+            <input id="ask-question-form-email" type="email" class="form-control" name="contact[email]" required placeholder="{{ 'products.product.question_form.field_email' | t }}*">
+        </div>
+        <div class="form-field">
+            <label for="ask-question-form-phone" class="visually-hidden">{{ 'products.product.question_form.field_phone' | t }}</label>
+            <input id="ask-question-form-phone" type="tel" class="form-control" name="contact[phone]" placeholder="{{ 'products.product.question_form.field_phone' | t }}">
+        </div>
+        <div class="form-field">
+            <label for="ask-question-form-message" class="visually-hidden">{{ 'products.product.question_form.field_message' | t }}</label>
+            <textarea id="ask-question-form-message" class="form-control form-control--textarea" name="contact[body]" rows="4"  required placeholder="{{ 'products.product.question_form.field_message' | t }}*"></textarea>
+        </div>
+        <p class="text-subtext"><em>{{ 'products.product.question_form.note' | t }}</em></p>
+        <div class="text-center">
+            <button class="btn btn--primary btn-submit">{{ 'products.product.question_form.submit_button' | t }}</button>
+        </div>
+    </div>
+    {% if form.posted_successfully? %}
+        <p>{{ 'products.product.question_form.success_message' | t }}</p>
+    {% else %}
+        {{ form.errors | default_errors }}
+    {% endif %}
+{% endform %}

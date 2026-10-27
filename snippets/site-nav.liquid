@@ -1,0 +1,332 @@
+{%- liquid
+  assign menu_id = section.settings.main_menu | default: 'main-menu'
+  assign dropdown_container = section.settings.container | default: 'container'
+  assign enable_mega_menu = section.settings.enable_mega_menu
+
+  assign menu_links = linklists[menu_id].links
+  assign menu_length = menu_links.size
+  if menu_part != blank
+    assign menu_length_modulo = menu_length | modulo: 2
+    assign split_index = menu_length | divided_by: 2
+    unless menu_length_modulo == 0
+      assign split_index = split_index | plus: 1
+    endunless
+  endif
+
+  assign space_class = ''
+  if menu_length >= 5
+    assign space_class = ' f-site-nav--space-md'
+  endif
+  if menu_length >= 8
+    assign space_class = ' f-site-nav--space-sm'
+  endif
+  if menu_length > 10
+    assign space_class = ' f-site-nav--space-xs'
+  endif
+
+  assign is_hover = false
+  if section.settings.dropdown_menu_trigger == 'hover'
+    assign is_hover = true
+  endif
+
+  assign clubs_identifier = section.settings.clubs_identifier | default: 'Clubs' | downcase | strip
+  assign clubs_source = section.settings.clubs_categories_menu
+-%}
+{%- unless menu_id and menu_links.size == 0 -%}
+  <site-nav class="f-site-nav xl-down:hidden{{ space_class }} flex items-center">
+    <ul class="f-site-nav__list flex flex-wrap items-center list-none" role="list">
+      {%- for link in menu_links -%}
+        {%- liquid
+          if menu_part == 'last' and forloop.index <= split_index
+            continue
+          endif
+
+          assign li_class = 'f-site-nav__item'
+          assign is_mega_item = true
+          assign three_level = false
+          assign has_mega_item = false
+          assign block_type = ''
+
+          if link.links != blank
+            if link.levels == 2
+              assign three_level = true
+              assign is_mega_item = enable_mega_menu
+            endif
+          endif
+
+          assign title_lower = link.title | downcase
+          assign trigger_title = link.title | downcase | strip
+          assign column = 6
+        -%}
+        {%- if trigger_title == clubs_identifier and clubs_source != blank -%}
+          {%- if menu_part == 'first' and forloop.index > split_index -%}{%- break -%}{%- endif -%}
+          {%- render 'clubs-mega-menu', link: link, section: section -%}
+          {%- continue -%}
+        {%- endif -%}
+
+        {%- comment -%} Count matching image blocks and build their HTML {%- endcomment -%}
+        {%- assign image_card_count = 0 -%}
+        {%- capture image_cards_html -%}
+          {%- for block in section.blocks -%}
+            {%- if block.type == 'mega_image' and enable_mega_menu -%}
+              {%- assign block_id_lower = block.settings.identifier | downcase -%}
+              {%- if block_id_lower == title_lower -%}
+                {%- assign image_card_count = image_card_count | plus: 1 -%}
+                <div class="f-mega-dropdown__col f-mega-dropdown__col--image" {{ block.shopify_attributes }}>
+                  <a
+                    href="{{ block.settings.link }}"
+                    class="f-mega-card"
+                    aria-label="{{ block.settings.heading }}"
+                  >
+                    {%- if block.settings.image != blank -%}
+                      {{
+                        block.settings.image
+                        | image_url: width: 600
+                        | image_tag:
+                          class: 'f-mega-card__img',
+                          loading: 'lazy',
+                          widths: '300, 400, 600',
+                          alt: block.settings.heading
+                      }}
+                    {%- else -%}
+                      {{ 'image' | placeholder_svg_tag: 'f-mega-card__img placeholder' }}
+                    {%- endif -%}
+                    <div class="f-mega-card__overlay">
+                      {%- if block.settings.subheading != blank -%}
+                        <span class="f-mega-card__subheading">{{ block.settings.subheading }}</span>
+                      {%- endif -%}
+                      {%- if block.settings.heading != blank -%}
+                        <p class="f-mega-card__heading">{{ block.settings.heading }}</p>
+                      {%- endif -%}
+                      {%- if block.settings.link_label != blank -%}
+                        <span class="f-mega-card__cta">{{ block.settings.link_label }} →</span>
+                      {%- endif -%}
+                    </div>
+                  </a>
+                </div>
+              {%- endif -%}
+            {%- endif -%}
+          {%- endfor -%}
+        {%- endcapture -%}
+
+        {%- if image_card_count > 0 -%}
+          {%- assign has_mega_item = true -%}
+          {%- assign block_type = image_cards_html -%}
+        {%- endif -%}
+
+        {%- liquid
+          if three_level != true and has_mega_item == false
+            assign is_mega_item = false
+          endif
+
+          if link.active
+            assign li_class = li_class | append: ' f-site-nav__item--current'
+          endif
+
+          if link.links != blank
+            assign li_class = li_class | append: ' f-site-nav__item--has-child'
+          endif
+
+          if is_mega_item and has_mega_item
+            assign li_class = li_class | append: ' f-site-nav__item--mega'
+          endif
+
+          assign has_dropdown = false
+          if link.links != blank
+            assign has_dropdown = true
+          elsif has_mega_item and block_type != blank
+            assign has_dropdown = true
+          endif
+
+          assign dropdown_html = ''
+        -%}
+
+        {%- if link.links != blank -%}
+          {%- liquid
+            unless is_mega_item and has_mega_item
+              assign dropdown_container = 'w-full'
+            endunless
+          -%}
+          {%- capture dropdown_html -%}
+            <div
+              class="f-site-nav__dropdown f-site-nav__dropdown--level2 color-{{ section.settings.menu_dropdown_color_schema }}{% if is_mega_item and has_mega_item %} no-js-hidden f-site-nav__dropdown--mega{% endif %}"
+              tabindex="-1"
+            >
+              <div class="{{ dropdown_container }}">
+                {%- if is_mega_item and has_mega_item -%}
+                  {%- comment -%}
+                    Mega layout — each nav group and each image card is
+                    a sibling f-mega-dropdown__col inside one flex row.
+                  {%- endcomment -%}
+                  <div class="f-mega-dropdown">
+                    {%- comment -%} Nav columns — one col per child that has grandchildren,
+                                    or one col total if all children are flat {%- endcomment -%}
+                    {%- assign has_grandchildren = false -%}
+                    {%- for childlink in link.links -%}
+                      {%- if childlink.links.size > 0 -%}
+                        {%- assign has_grandchildren = true -%}
+                        {%- break -%}
+                      {%- endif -%}
+                    {%- endfor -%}
+
+                    {%- if has_grandchildren -%}
+                      {%- comment -%} One column per child-with-grandchildren,
+                                      flat orphans grouped into first column {%- endcomment -%}
+                      {%- assign has_flat_orphans = false -%}
+                      {%- for childlink in link.links -%}
+                        {%- if childlink.links.size == 0 -%}
+                          {%- assign has_flat_orphans = true -%}
+                          {%- break -%}
+                        {%- endif -%}
+                      {%- endfor -%}
+
+                      {%- if has_flat_orphans -%}
+                        <div class="f-mega-dropdown__col f-mega-dropdown__col--nav">
+                          <ul class="f-mega-dropdown__links list-none">
+                            {%- for childlink in link.links -%}
+                              {%- if childlink.links.size == 0 -%}
+                                <li>
+                                  <a href="{{ childlink.url }}" class="f-mega-dropdown__link{% if childlink.active %} is-active{% endif %}">
+                                    {{ childlink.title }}
+                                  </a>
+                                </li>
+                              {%- endif -%}
+                            {%- endfor -%}
+                          </ul>
+                        </div>
+                      {%- endif -%}
+
+                      {%- for childlink in link.links -%}
+                        {%- if childlink.links.size > 0 -%}
+                          <div class="f-mega-dropdown__col f-mega-dropdown__col--nav">
+                            <span class="f-mega-dropdown__heading">{{ childlink.title }}</span>
+                            <ul class="f-mega-dropdown__links list-none">
+                              {%- for grandlink in childlink.links -%}
+                                <li>
+                                  <a href="{{ grandlink.url }}" class="f-mega-dropdown__link{% if grandlink.active %} is-active{% endif %}">
+                                    {{ grandlink.title }}
+                                  </a>
+                                </li>
+                              {%- endfor -%}
+                            </ul>
+                            {%- if childlink.url != '#' and childlink.url != '' -%}
+                              <a href="{{ childlink.url }}" class="f-mega-dropdown__viewall">View all →</a>
+                            {%- endif -%}
+                          </div>
+                        {%- endif -%}
+                      {%- endfor -%}
+
+                    {%- else -%}
+                      {%- comment -%} All flat children — single nav column {%- endcomment -%}
+                      <div class="f-mega-dropdown__col f-mega-dropdown__col--nav">
+                        <ul class="f-mega-dropdown__links list-none">
+                          {%- for childlink in link.links -%}
+                            <li>
+                              <a href="{{ childlink.url }}" class="f-mega-dropdown__link{% if childlink.active %} is-active{% endif %}">
+                                {{ childlink.title }}
+                              </a>
+                            </li>
+                          {%- endfor -%}
+                        </ul>
+                      </div>
+                    {%- endif -%}
+
+                    {%- comment -%} Image card columns — appended after nav cols {%- endcomment -%}
+                    {{- block_type -}}
+
+                  </div>{%- comment -%} /.f-mega-dropdown {%- endcomment -%}
+
+                {%- else -%}
+                  {%- comment -%} Standard non-mega dropdown {%- endcomment -%}
+                  <div class="f-site-nav__dropdown-inner flex flex-wrap justify-center">
+                    <ul class="list-none w-full" role="list" tabindex="-1">
+                      {%- for childlink in link.links -%}
+                        <li class="f-site-nav__sub-item{% if childlink.links != blank %} f-site-nav__sub-item--has-child{% endif %}">
+                          <a href="{{ childlink.url }}" class="f-site-nav__sub-link focus-inset no-js-hidden">
+                            <span>{{ childlink.title }}</span>
+                            {%- if childlink.links != blank -%}
+                              <span class="f-site-nav__arrow">
+                                {% comment %} theme-check-disable {% endcomment %}
+                                {{ 'icon-arrow-down-small.svg' | inline_asset_content }}
+                                {% comment %} theme-check-enable {% endcomment %}
+                              </span>
+                            {%- endif -%}
+                          </a>
+                          {%- if childlink.links != blank -%}
+                            <div
+                              id="HeaderMenu-SubMenuList-{{ forloop.index }}"
+                              class="f-site-nav__dropdown f-site-nav__dropdown--level3 f-site-nav__dropdown--normal color-{{ section.settings.menu_dropdown_color_schema }}"
+                              tabindex="-1"
+                            >
+                              <ul class="list-none" role="list" tabindex="-1">
+                                {%- for grandlink in childlink.links -%}
+                                  <li class="f-site-nav__sub-item f-site-nav__sub-item--level3">
+                                    <a href="{{ grandlink.url }}" class="f-site-nav__sub-link focus-inset">
+                                      <span>{{ grandlink.title }}</span>
+                                    </a>
+                                  </li>
+                                {%- endfor -%}
+                              </ul>
+                            </div>
+                          {%- endif -%}
+                        </li>
+                      {%- endfor -%}
+                    </ul>
+                  </div>
+                {%- endif -%}
+              </div>
+            </div>
+          {%- endcapture -%}
+
+        {%- elsif has_mega_item and block_type != blank -%}
+          {%- capture dropdown_html -%}
+            <div
+              class="f-site-nav__dropdown f-site-nav__dropdown--level2 color-{{ section.settings.menu_dropdown_color_schema }} no-js-hidden f-site-nav__dropdown--mega"
+              tabindex="-1"
+            >
+              <div class="{{ dropdown_container }}">
+                <div class="f-mega-dropdown">
+                  {{- block_type -}}
+                </div>
+              </div>
+            </div>
+          {%- endcapture -%}
+        {%- endif -%}
+
+        <li class="{{ li_class }}" data-index="{{ forloop.index0 }}">
+          {%- if is_hover or has_dropdown == false -%}
+            <a href="{{ link.url }}" class="f-site-nav__link focus-inset">
+              {{- link.title -}}
+              {%- if has_dropdown -%}
+                <span class="f-site-nav__arrow{% if is_mega_item and has_mega_item %} no-js-hidden{% endif %}">
+                  {% comment %} theme-check-disable {% endcomment %}
+                  {{ 'icon-arrow-down-small.svg' | inline_asset_content }}
+                  {% comment %} theme-check-enable {% endcomment %}
+                </span>
+              {%- endif -%}
+            </a>
+            {{ dropdown_html }}
+          {%- else -%}
+            <header-menu>
+              <details id="Details-menu-drawer-menu-item-{{ forloop.index0 }}">
+                <summary class="f-site-nav__link focus-inset">
+                  {{- link.title -}}
+                  <span class="f-site-nav__arrow{% if is_mega_item and has_mega_item %} no-js-hidden{% endif %}">
+                    {% comment %} theme-check-disable {% endcomment %}
+                    {{ 'icon-arrow-down-small.svg' | inline_asset_content }}
+                    {% comment %} theme-check-enable {% endcomment %}
+                  </span>
+                </summary>
+                {{ dropdown_html }}
+              </details>
+            </header-menu>
+          {%- endif -%}
+        </li>
+
+        {%- if menu_part == 'first' and forloop.index >= split_index -%}
+          {%- break -%}
+        {%- endif -%}
+      {%- endfor -%}
+    </ul>
+  </site-nav>
+{%- endunless -%}

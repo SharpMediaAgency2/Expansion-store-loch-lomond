@@ -1,0 +1,784 @@
+<link
+  id="ModalComponent"
+  rel="stylesheet"
+  href="{{ 'modal-component.css' | asset_url }}"
+  media="print"
+  onload="this.media='all'"
+>
+
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign collection = collections[section.settings.collection]
+  assign product_to_show = section.settings.limit | default: 6
+
+  assign image_ratio = section.settings.pcard_image_ratio
+  assign show_vendor = section.settings.show_vendor
+  assign columns = section.settings.columns
+
+  assign button_label = section.settings.button_label
+  assign button_link = section.settings.button_link | default: collection.url
+
+  assign hero_block = nil
+  for block in section.blocks
+    if block.type == 'hero_image'
+      assign hero_block = block
+      break
+    endif
+  endfor
+
+  assign has_hero = false
+  if hero_block != nil and hero_block.settings.image != blank
+    assign has_hero = true
+  endif
+
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+
+  assign course_handle = metaobject.title | handle
+  if course_handle.size < 2
+    assign course_handle = page.metafields.custom.selected_course.value.title | handle
+  endif
+
+  assign enable_swipe_mobile = section.settings.enable_swipe_mobile
+  assign column_mobile = section.settings.column_mobile
+
+  assign columns_tablet = columns
+  if columns > 3
+    assign columns_tablet = columns | divided_by: 2.0 | ceil | at_least: 3
+  endif
+
+  assign hero_row_products = 2
+  if columns <= 2
+    assign hero_row_products = 0
+  elsif columns == 3
+    assign hero_row_products = 1
+  endif
+
+  assign skip_count = hero_row_products
+  if has_hero == false
+    assign skip_count = 0
+  endif
+-%}
+
+{% if section.settings.disable_logo_overlay == true %}
+  <style type="text/css">
+    #{{ section_id }} .logo-overlay { display: none !important; }
+  </style>
+{% endif %}
+
+<style>
+  #{{ section_id }} {
+    --section-padding-top: {{ section.settings.padding_top }}px;
+    --section-padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #{{ section_id }} .cf-inner {
+    {% if section.settings.enable_background %}
+      background-color: {{ section.settings.background_color }};
+      border-radius: 12px;
+      padding: {{ section.settings.bg_padding }}px;
+    {% endif %}
+  }
+
+  #{{ section_id }} .cf-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: 16px;
+    margin-bottom: 24px;
+  }
+
+  #{{ section_id }} .cf-header__left {}
+
+  #{{ section_id }} .cf-heading {
+    margin: 0 0 4px;
+  }
+
+  #{{ section_id }} .cf-heading.h2 {
+    font-size: 30px !important;
+  }
+
+  #{{ section_id }} .cf-subheading {
+    margin: 0;
+    color: #6B7280;
+    font-size: 14px;
+    line-height: 1.5;
+  }
+
+  #{{ section_id }} .cf-header__divider {
+    width: 40px;
+    height: 2px;
+    background: currentColor;
+    opacity: 0.3;
+    margin-top: 10px;
+  }
+
+  #{{ section_id }} .cf-view-all {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    white-space: nowrap;
+    text-decoration: none;
+    color: inherit;
+    flex-shrink: 0;
+  }
+
+  #{{ section_id }} .cf-view-all:hover {
+    opacity: 0.7;
+  }
+
+  /* ── Desktop: hero row — image spans 2fr, cards fill the rest ── */
+  #{{ section_id }} .cf-hero-row {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr;
+    gap: {{ section.settings.gap }}px;
+    margin-bottom: {{ section.settings.gap }}px;
+    grid-template-rows: auto;
+  }
+
+  #{{ section_id }} .cf-hero-cell {
+    overflow: hidden;
+    border-radius: 8px;
+  }
+
+  #{{ section_id }} .cf-hero-cell a,
+  #{{ section_id }} .cf-hero-cell > div {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #{{ section_id }} .cf-hero-cell picture {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+
+  #{{ section_id }} .cf-hero-cell img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* ── Mobile hero — sits above the carousel, natural image ratio ── */
+  #{{ section_id }} .cf-mobile-hero {
+    display: none;
+    margin-bottom: {{ section.settings.gap_mobile }}px;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  #{{ section_id }} .cf-mobile-hero a,
+  #{{ section_id }} .cf-mobile-hero > div {
+    display: block;
+    width: 100%;
+  }
+
+  #{{ section_id }} .cf-mobile-hero picture {
+    display: block;
+    width: 100%;
+  }
+
+  #{{ section_id }} .cf-mobile-hero img {
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+
+  @media (max-width: 767px) {
+    /* Hide the desktop hero row entirely on mobile */
+    #{{ section_id }} .cf-hero-row {
+      display: none;
+    }
+
+    /* Show the mobile hero above the carousel */
+    #{{ section_id }} .cf-mobile-hero {
+      display: block;
+    }
+
+    #{{ section_id }} .cf-inner {
+      {% if section.settings.enable_background %}
+        padding: {{ section.settings.bg_padding | divided_by: 2 }}px;
+      {% endif %}
+    }
+  }
+</style>
+
+<section
+  id="{{ section_id }}"
+  data-section-type="club-favorites"
+  data-section-id="{{ section.id }}"
+  class="club-favorites{{ custom_class }} f-section-padding color-{{ section.settings.color_schema }}{% if has_hero %} has-hero{% endif %}"
+>
+  <div class="container">
+    <div class="cf-inner">
+
+      {%- comment -%} Header {%- endcomment -%}
+      <div class="cf-header">
+        <div class="cf-header__left">
+          {%- if section.settings.heading != blank -%}
+            <motion-element data-motion="{{ animation_effect }}" data-motion-delay="0" class="block">
+              <{{ section.settings.heading_tag }} class="cf-heading {{ section.settings.heading_size }}">
+                {%- render 'highlight-text',
+                  hl_text: section.settings.heading,
+                  hl_style: section.settings.highlight_style,
+                  enable_hl_text_color: section.settings.enable_highlight_text_color
+                -%}
+              </{{ section.settings.heading_tag }}>
+            </motion-element>
+          {%- endif -%}
+          {%- if section.settings.subheading != blank -%}
+            <motion-element data-motion="{{ animation_effect }}" data-motion-delay="50" class="block">
+              <p class="cf-subheading">{{ section.settings.subheading | escape }}</p>
+            </motion-element>
+          {%- endif -%}
+          <div class="cf-header__divider"></div>
+        </div>
+
+        {%- if button_label != blank -%}
+          <motion-element data-motion="{{ animation_effect }}" data-motion-delay="100" class="block">
+            <a class="cf-view-all" href="{{ button_link }}">
+              {{ button_label | escape }} &rarr;
+            </a>
+          </motion-element>
+        {%- endif -%}
+      </div>
+
+      {%- comment -%} DESKTOP ONLY: hero row with image + cards beside it {%- endcomment -%}
+      {%- if has_hero -%}
+        <div class="cf-hero-row">
+          <div class="cf-hero-cell" {{ hero_block.shopify_attributes }}>
+            {%- if hero_block.settings.link != blank -%}
+              <a href="{{ hero_block.settings.link }}">
+            {%- else -%}
+              <div style="height:100%;">
+            {%- endif -%}
+              <picture>
+                {%- if hero_block.settings.image_mobile != blank -%}
+                  <source
+                    media="(max-width: 767px)"
+                    srcset="{{ hero_block.settings.image_mobile | image_url: width: 800 }}"
+                    width="{{ hero_block.settings.image_mobile.width }}"
+                    height="{{ hero_block.settings.image_mobile.height }}"
+                  >
+                {%- endif -%}
+                {{
+                  hero_block.settings.image
+                  | image_url: width: 1400
+                  | image_tag:
+                    loading: 'lazy',
+                    widths: '400, 700, 900, 1200, 1400',
+                    sizes: '(max-width: 767px) 100vw, 50vw',
+                    width: hero_block.settings.image.width,
+                    height: hero_block.settings.image.height,
+                    alt: hero_block.settings.image.alt
+                }}
+              </picture>
+            {%- if hero_block.settings.link != blank -%}
+              </a>
+            {%- else -%}
+              </div>
+            {%- endif -%}
+          </div>
+
+          {% if collection != blank %}
+            {% for product in collection.products limit: hero_row_products %}
+              <div class="cf-product-cell">
+                {% render 'product-card',
+                  color_schema: section.settings.color_schema,
+                  product: product,
+                  course_handle: course_handle,
+                  image_ratio: image_ratio,
+                  show_vendor: show_vendor,
+                  section_index: section.index,
+                  enable_swatches: section.settings.enable_swatch_colors,
+                  index: forloop.index
+                %}
+              </div>
+            {% endfor %}
+          {% else %}
+            {% for i in (1..hero_row_products) %}
+              <div class="cf-product-cell">
+                {% render 'product-card-placeholder', index: forloop.index %}
+              </div>
+            {% endfor %}
+          {% endif %}
+        </div>
+
+        {%- comment -%} MOBILE ONLY: hero image stacked above the carousel {%- endcomment -%}
+        <div class="cf-mobile-hero" {{ hero_block.shopify_attributes }}>
+          {%- if hero_block.settings.link != blank -%}
+            <a href="{{ hero_block.settings.link }}">
+          {%- else -%}
+            <div>
+          {%- endif -%}
+            <picture>
+              {%- if hero_block.settings.image_mobile != blank -%}
+                <source
+                  media="(max-width: 767px)"
+                  srcset="{{ hero_block.settings.image_mobile | image_url: width: 800 }}"
+                  width="{{ hero_block.settings.image_mobile.width }}"
+                  height="{{ hero_block.settings.image_mobile.height }}"
+                >
+              {%- endif -%}
+              {{
+                hero_block.settings.image
+                | image_url: width: 800
+                | image_tag:
+                  loading: 'lazy',
+                  widths: '400, 600, 800',
+                  sizes: '100vw',
+                  width: hero_block.settings.image.width,
+                  height: hero_block.settings.image.height,
+                  alt: hero_block.settings.image.alt
+              }}
+            </picture>
+          {%- if hero_block.settings.link != blank -%}
+            </a>
+          {%- else -%}
+            </div>
+          {%- endif -%}
+        </div>
+      {%- endif -%}
+
+      {%- comment -%}
+        CAROUSEL / GRID
+        Desktop: skips first skip_count products (already shown in hero row).
+        Mobile: shows ALL products from index 0.
+      {%- endcomment -%}
+      <grid-list data-motion="{{ animation_effect }}" class="block w-full">
+        <flickity-component
+          class="f-grid f-grid-{{ column_mobile }}-cols md:f-grid-{{ columns_tablet }}-cols lg:f-grid-{{ columns }}-cols f-grid--gap-medium f-grid--row-gap-medium flickity-disable{% if enable_swipe_mobile %} f-swiper f-swiper--no-scrollbar f-swiper--{{ column_mobile }}-cols{% endif %}"
+          data-slider-options='{"pageDots": false, "prevNextButtons": false, "groupCells": true, "watchCSS": true, "cellSelector": ".f-column", "wrapAround": true, "percentPosition": false, "freeScroll": false}'
+          data-slider-columns="{{ columns }}"
+          data-slider-columns-tablet="{{ columns_tablet }}"
+          data-enable-slider="false"
+          data-products-container
+        >
+          {% if collection != blank %}
+            {% assign product_index = 0 %}
+            {% for product in collection.products limit: product_to_show %}
+              {% if product_index < skip_count %}
+                {%- comment -%}
+                  These products are shown in the desktop hero row.
+                  On desktop: hidden (cf-desktop-skip).
+                  On mobile: visible in the carousel.
+                {%- endcomment -%}
+                <div class="f-column cf-desktop-skip">
+                  {% render 'product-card',
+                    color_schema: section.settings.color_schema,
+                    product: product,
+                    course_handle: course_handle,
+                    image_ratio: image_ratio,
+                    show_vendor: show_vendor,
+                    section_index: section.index,
+                    enable_swatches: section.settings.enable_swatch_colors,
+                    index: forloop.index
+                  %}
+                </div>
+              {% else %}
+                <div class="f-column">
+                  {% render 'product-card',
+                    color_schema: section.settings.color_schema,
+                    product: product,
+                    course_handle: course_handle,
+                    image_ratio: image_ratio,
+                    show_vendor: show_vendor,
+                    section_index: section.index,
+                    enable_swatches: section.settings.enable_swatch_colors,
+                    index: forloop.index
+                  %}
+                </div>
+              {% endif %}
+              {% assign product_index = product_index | plus: 1 %}
+            {% endfor %}
+          {% else %}
+            {% for i in (1..product_to_show) %}
+              <div class="f-column">
+                {% render 'product-card-placeholder', index: forloop.index %}
+              </div>
+            {% endfor %}
+          {% endif %}
+        </flickity-component>
+      </grid-list>
+
+    </div>
+  </div>
+</section>
+
+<style>
+  @media (min-width: 768px) {
+    #{{ section_id }} .cf-desktop-skip {
+      display: none;
+    }
+  }
+</style>
+
+<script>
+(function() {
+  function syncHeroHeight() {
+    var section = document.getElementById('{{ section_id }}');
+    if (!section) return;
+    if (window.innerWidth <= 767) return;
+
+    var heroCell = section.querySelector('.cf-hero-cell');
+    if (!heroCell) return;
+
+    var card = section.querySelector('.cf-product-cell .product-card');
+    if (!card) return;
+
+    heroCell.style.height = '';
+    heroCell.style.height = card.offsetHeight + 'px';
+  }
+
+  function init() {
+    syncHeroHeight();
+    window.addEventListener('resize', syncHeroHeight);
+
+    var section = document.getElementById('{{ section_id }}');
+    if (!section) return;
+    section.querySelectorAll('.cf-product-cell img').forEach(function(img) {
+      if (!img.complete) img.addEventListener('load', syncHeroHeight);
+    });
+  }
+
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+  } else {
+    init();
+  }
+})();
+</script>
+
+{% schema %}
+{
+  "name": "Club Favorites",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "General"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "Heading"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Club Favorites"
+    },
+    {
+      "type": "select",
+      "id": "highlight_style",
+      "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+      "options": [
+        { "value": "none", "label": "t:sections.common.highlight_text.settings.highlight_style.option__1" },
+        { "value": "drawer_line", "label": "t:sections.common.highlight_text.settings.highlight_style.option__2" },
+        { "value": "underline", "label": "t:sections.common.highlight_text.settings.highlight_style.option__3" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight_text_color",
+      "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.common.title_tag.heading.label",
+      "default": "h2",
+      "options": [
+        { "value": "h1", "label": "t:sections.common.title_tag.options__h1.label" },
+        { "value": "h2", "label": "t:sections.common.title_tag.options__h2.label" },
+        { "value": "h3", "label": "t:sections.common.title_tag.options__h3.label" },
+        { "value": "h4", "label": "t:sections.common.title_tag.options__h4.label" },
+        { "value": "h5", "label": "t:sections.common.title_tag.options__h5.label" },
+        { "value": "h6", "label": "t:sections.common.title_tag.options__h6.label" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "t:sections.common.text_size.heading.label",
+      "default": "h2",
+      "options": [
+        { "value": "h3", "label": "t:sections.common.text_size.options__h3.label" },
+        { "value": "h2", "label": "t:sections.common.text_size.options__h2.label" },
+        { "value": "h1", "label": "t:sections.common.text_size.options__h1.label" },
+        { "value": "h0", "label": "t:sections.common.text_size.options__h0.label" },
+        { "value": "h-xl", "label": "t:sections.common.text_size.options__hd1.label" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "Subheading",
+      "default": "Best-selling items loved by members and visitors"
+    },
+    {
+      "type": "header",
+      "content": "View All Button"
+    },
+    {
+      "type": "text",
+      "id": "button_label",
+      "label": "Button Label",
+      "default": "View All"
+    },
+    {
+      "type": "url",
+      "id": "button_link",
+      "label": "Button Link",
+      "info": "Defaults to the selected collection URL if left blank."
+    },
+    {
+      "type": "header",
+      "content": "Collection"
+    },
+    {
+      "id": "collection",
+      "type": "collection",
+      "label": "t:sections.featured-collection.settings.collection.label"
+    },
+    {
+      "type": "range",
+      "id": "limit",
+      "label": "Number of Products",
+      "min": 2,
+      "max": 12,
+      "step": 1,
+      "default": 6,
+      "info": "When a hero image is used, the first row shows (columns - 1) products beside it. Recommended: 6 for a 4-column layout with hero."
+    },
+    {
+      "type": "header",
+      "content": "Grid"
+    },
+    {
+      "type": "range",
+      "id": "columns",
+      "label": "Columns (Desktop)",
+      "min": 2,
+      "max": 6,
+      "step": 1,
+      "default": 4
+    },
+    {
+      "type": "range",
+      "id": "gap",
+      "label": "Gap (Desktop)",
+      "min": 4,
+      "max": 40,
+      "step": 2,
+      "unit": "px",
+      "default": 16
+    },
+    {
+      "type": "range",
+      "id": "gap_mobile",
+      "label": "Gap (Mobile)",
+      "min": 4,
+      "max": 24,
+      "step": 2,
+      "unit": "px",
+      "default": 12
+    },
+    {
+      "type": "header",
+      "content": "Mobile Carousel"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_swipe_mobile",
+      "label": "Enable swipe carousel on mobile",
+      "default": false,
+      "info": "When enabled, products display as a horizontally swipeable carousel on mobile."
+    },
+    {
+      "type": "select",
+      "id": "column_mobile",
+      "label": "Columns (Mobile)",
+      "options": [
+        { "value": "1", "label": "1" },
+        { "value": "2", "label": "2" }
+      ],
+      "default": "1"
+    },
+    {
+      "type": "header",
+      "content": "Product Card"
+    },
+    {
+      "type": "select",
+      "id": "pcard_image_ratio",
+      "label": "t:settings_schema.global.settings.image_aspect_ratio_options.label",
+      "default": "",
+      "options": [
+        { "value": "", "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__7.label" },
+        { "value": "adapt", "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__1.label" },
+        { "value": "1/1", "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__2.label" },
+        { "value": "3/4", "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__3.label" },
+        { "value": "4/3", "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__5.label" }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "show_vendor",
+      "label": "t:sections.featured-collection.settings.show_vendor.label",
+      "default": false
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_swatch_colors",
+      "label": "Enable Swatch Colors",
+      "default": true
+    },
+    {
+      "type": "checkbox",
+      "id": "disable_logo_overlay",
+      "label": "Disable Logo Overlay",
+      "default": false
+    },
+    {
+      "type": "header",
+      "content": "Background"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_background",
+      "label": "Enable Container Background",
+      "default": false
+    },
+    {
+      "type": "color",
+      "id": "background_color",
+      "label": "Background Color",
+      "default": "#F9FAFB"
+    },
+    {
+      "type": "range",
+      "id": "bg_padding",
+      "label": "Background Padding",
+      "min": 8,
+      "max": 60,
+      "step": 4,
+      "unit": "px",
+      "default": 24
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        { "value": "inherit", "label": "t:settings_schema.animations.settings.animation.options.option_6" },
+        { "value": "fade-in", "label": "t:settings_schema.animations.settings.animation.options.option_2" },
+        { "value": "fade-in-up", "label": "t:settings_schema.animations.settings.animation.options.option_3" },
+        { "value": "fade-in-left", "label": "t:settings_schema.animations.settings.animation.options.option_4" },
+        { "value": "fade-in-right", "label": "t:settings_schema.animations.settings.animation.options.option_5" }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "hero_image",
+      "name": "Hero Image",
+      "limit": 1,
+      "settings": [
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "Hero Image (Desktop)"
+        },
+        {
+          "type": "image_picker",
+          "id": "image_mobile",
+          "label": "Hero Image (Mobile)",
+          "info": "Optional. Displayed on screens 767px and below."
+        },
+        {
+          "type": "url",
+          "id": "link",
+          "label": "Image Link",
+          "info": "Optional. Makes the hero image clickable."
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Club Favorites",
+      "blocks": [
+        {
+          "type": "hero_image"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

@@ -1,0 +1,30 @@
+{%- comment -%}
+  Renders mega_image blocks whose identifier matches `match` (case-insensitive).
+  Use identifier = country/category title (e.g. "Ireland", "Top 100").
+  Requires: match, section
+{%- endcomment -%}
+{%- assign target = match | downcase | strip -%}
+{%- capture cards -%}
+  {%- for block in section.blocks -%}
+    {%- if block.type == 'mega_image' -%}
+      {%- assign bid = block.settings.identifier | downcase | strip -%}
+      {%- if bid == target -%}
+        <a href="{{ block.settings.link }}" class="f-mega-card" aria-label="{{ block.settings.heading }}" {{ block.shopify_attributes }}>
+          {%- if block.settings.image != blank -%}
+            {{ block.settings.image | image_url: width: 600 | image_tag: class: 'f-mega-card__img', loading: 'lazy', widths: '300, 400, 600', alt: block.settings.heading }}
+          {%- else -%}
+            {{ 'image' | placeholder_svg_tag: 'f-mega-card__img placeholder' }}
+          {%- endif -%}
+          <div class="f-mega-card__overlay">
+            {%- if block.settings.subheading != blank -%}<span class="f-mega-card__subheading">{{ block.settings.subheading }}</span>{%- endif -%}
+            {%- if block.settings.heading != blank -%}<p class="f-mega-card__heading">{{ block.settings.heading }}</p>{%- endif -%}
+            {%- if block.settings.link_label != blank -%}<span class="f-mega-card__cta">{{ block.settings.link_label }} &rarr;</span>{%- endif -%}
+          </div>
+        </a>
+      {%- endif -%}
+    {%- endif -%}
+  {%- endfor -%}
+{%- endcapture -%}
+{%- if cards != blank -%}
+  <div class="f-clubs-mega__cards">{{ cards }}</div>
+{%- endif -%}

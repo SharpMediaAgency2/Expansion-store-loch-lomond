@@ -1,0 +1,534 @@
+{{ 'collection-tabs.css' | asset_url | stylesheet_tag }}
+<script src="{{ 'collapsible-tab.js' | asset_url }}" defer="defer"></script>
+{% comment %}Make sure collapsible tab load before collection tabs{% endcomment %}
+<script src="{{ 'collection-tabs.js' | asset_url }}" defer="defer"></script>
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign image_width = 'w-full md:w-1/2 lg:w-1/2'
+
+  assign image_aspect_ratio = section.settings.image_ratio
+  if section.settings.image_ratio == 'adapt'
+    assign first_block = section.blocks | first
+    assign first_image = blank
+
+    if first_block.settings.image != blank
+      assign first_image = first_block.settings.image
+    else
+      assign first_collection = collections[first_block.settings.collection]
+      if first_collection.image != blank
+        assign first_image = first_collection.image
+      elsif first_collection.products.first and first_collection.products.first.images != empty
+        assign first_image = first_collection.products.first.featured_image
+      endif
+    endif
+
+    if first_image != blank
+      assign image_aspect_ratio = first_image.aspect_ratio
+    else
+      assign image_aspect_ratio = '1/1'
+    endif
+  endif
+
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+  if section.settings.heading != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+  if section.settings.subheading != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+  if section.settings.description != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+-%}
+<div
+  id="{{ section_id }}"
+  class="f-collection-tabs f-collection-tabs--image-{{ section.settings.image_position }} f-section-padding color-{{ section.settings.color_schema }}{{ custom_class }}"
+  data-section-id="{{ section.id }}"
+  style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+>
+  <div class="container">
+    {% render 'index-section-header',
+      animation_effect: animation_effect,
+      section_settings: section.settings,
+      header_alignment: 'left',
+      header_alignment_mobile: 'left',
+      custom_css_class: 'md:hidden'
+    %}
+    <collection-tabs
+      class="flex items-center flex-wrap m-0{% if section.settings.image_position == 'right' %} flex-row-reverse{% endif %}"
+      data-autoplay="{{ section.settings.autoplay }}"
+      data-autoplay-duration="{{ section.settings.autoplay_duration | default: 5 }}"
+      data-trigger-behavior="{{ section.settings.trigger_behavior | default: 'hover' }}"
+    >
+      <motion-element
+        data-motion="{{ animation_effect }}"
+        class="block f-collection-tab__images {{ image_width }}"
+        style="--aspect-ratio: {{ image_aspect_ratio }}"
+      >
+        {%- for block in section.blocks %}
+          {%- liquid
+            assign collection = collections[block.settings.collection]
+
+            assign tab_image = blank
+            if block.settings.image != blank
+              assign tab_image = block.settings.image
+            elsif collection.image != blank
+              assign tab_image = collection.image
+            elsif collection.products.first and collection.products.first.images != empty
+              assign tab_image = collection.products.first.featured_image
+            endif
+          -%}
+          <div
+            class="f-collection-tab__image f-card block{% if forloop.first %} is-active{% endif %}"
+            data-block-id="{{ block.id }}"
+          >
+            {%- if tab_image != blank -%}
+              {% render 'responsive-image',
+                image: tab_image,
+                aspect_ratio: image_aspect_ratio,
+                section_index: section.index,
+                index: forloop.index
+              %}
+            {%- else -%}
+              <div
+                class="f-image"
+                style="--aspect-ratio: {{ image_aspect_ratio }}"
+              >
+                {% capture current %}{% cycle 1, 2, 3 %}{% endcapture %}
+                {{
+                  'collection-'
+                  | append: current
+                  | placeholder_svg_tag: 'placeholder-svg'
+                }}
+              </div>
+            {%- endif -%}
+          </div>
+        {%- endfor -%}
+      </motion-element>
+      <div class="f-collection-tab__content flex-1">
+        {% render 'index-section-header',
+          animation_effect: animation_effect,
+          section_settings: section.settings,
+          header_alignment: 'left',
+          header_alignment_mobile: 'left',
+          custom_css_class: 'md-down:hidden'
+        %}
+        <div class="f-collection-tab__content-wrap" data-collapsible-parent>
+          {%- for block in section.blocks -%}
+            {% render 'collection-tab',
+              block_settings: block.settings,
+              icon: block.settings.icon,
+              open: forloop.first,
+              id: block.id,
+              attrs: block.shopify_attributes,
+              index: forloop.index,
+              motion_delay: motion_delay,
+              animation_effect: animation_effect
+            %}
+            {%- assign motion_delay = motion_delay | plus: 50 -%}
+          {%- endfor -%}
+        </div>
+      </div>
+    </collection-tabs>
+  </div>
+</div>
+{% schema %}
+{
+  "name": "t:sections.collection-tabs.name",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "paragraph",
+      "content": "[Read How-to](https://foxecom.link/gY6BbCh)"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-1"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.header.name"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "info": "t:sections.common.highlight_text.paragraph.content",
+      "label": "t:sections.common.header.heading",
+      "default": "Collection tabs"
+    },
+    {
+      "type": "select",
+      "id": "highlight_style",
+      "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+      "options": [
+        {
+          "value": "none",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__1"
+        },
+        {
+          "value": "drawer_line",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__2"
+        },
+        {
+          "value": "underline",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.option__3"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight_text_color",
+      "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "default": "h2",
+      "label": "t:sections.common.title_tag.heading.label",
+      "options": [
+        {
+          "value": "h1",
+          "label": "t:sections.common.title_tag.options__h1.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.title_tag.options__h2.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.common.title_tag.options__h3.label"
+        },
+        {
+          "value": "h4",
+          "label": "t:sections.common.title_tag.options__h4.label"
+        },
+        {
+          "value": "h5",
+          "label": "t:sections.common.title_tag.options__h5.label"
+        },
+        {
+          "value": "h6",
+          "label": "t:sections.common.title_tag.options__h6.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "default": "h2",
+      "label": "t:sections.common.text_size.heading.label",
+      "options": [
+        {
+          "value": "h3",
+          "label": "t:sections.common.text_size.options__h3.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.text_size.options__h2.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.common.text_size.options__h1.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.common.text_size.options__h0.label"
+        },
+        {
+          "value": "h-xl",
+          "label": "t:sections.common.text_size.options__hd1.label"
+        }
+      ]
+    },
+    {
+      "type": "color",
+      "id": "heading_color",
+      "label": "t:sections.common.heading_color.label",
+      "info": "t:sections.common.heading_color.info"
+    },
+    {
+      "type": "text",
+      "id": "subheading",
+      "label": "t:sections.common.header.subheading"
+    },
+    {
+      "type": "richtext",
+      "id": "description",
+      "label": "t:sections.common.header.description"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.collection-tabs.settings.tab-settings.header"
+    },
+    {
+      "type": "select",
+      "id": "image_position",
+      "info": "t:sections.collection-tabs.settings.image_position.info",
+      "label": "t:sections.collection-tabs.settings.image_position.label",
+      "default": "left",
+      "options": [
+        {
+          "value": "left",
+          "label": "t:sections.collection-tabs.settings.image_position.options.option__1"
+        },
+        {
+          "value": "right",
+          "label": "t:sections.collection-tabs.settings.image_position.options.option__2"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "image_ratio",
+      "label": "t:settings_schema.global.settings.image_aspect_ratio_options.label",
+      "default": "1/1",
+      "options": [
+        {
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__8.label",
+          "value": "adapt"
+        },
+        {
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__2.label",
+          "value": "1/1"
+        },
+        {
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__3.label",
+          "value": "3/4"
+        },
+        {
+          "label": "t:settings_schema.global.settings.image_aspect_ratio_options.option__5.label",
+          "value": "4/3"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "prefix_header",
+      "label": "t:sections.collection-tabs.settings.prefix_header.label",
+      "default": "ordinal_number",
+      "options": [
+        {
+          "value": "ordinal_number",
+          "label": "t:sections.collection-tabs.settings.prefix_header.options.option__1"
+        },
+        {
+          "value": "icon",
+          "label": "t:sections.collection-tabs.settings.prefix_header.options.option__2"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "trigger_behavior",
+      "label": "t:sections.collection-tabs.settings.trigger_behavior.label",
+      "default": "hover",
+      "options": [
+        {
+          "value": "click",
+          "label": "t:sections.collection-tabs.settings.trigger_behavior.options.option__2"
+        },
+        {
+          "value": "hover",
+          "label": "t:sections.collection-tabs.settings.trigger_behavior.options.option__1"
+        }
+      ]
+    },
+    {
+      "type": "checkbox",
+      "id": "autoplay",
+      "default": false,
+      "label": "t:sections.collection-tabs.settings.autoplay.label"
+    },
+    {
+      "type": "range",
+      "id": "autoplay_duration",
+      "label": "t:sections.collection-tabs.settings.autoplay_duration.label",
+      "max": 10,
+      "min": 2,
+      "step": 1,
+      "unit": "s",
+      "default": 5
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "collection",
+      "name": "t:sections.collection-tabs.blocks.collection.name",
+      "settings": [
+        {
+          "id": "collection",
+          "type": "collection",
+          "label": "t:sections.common.collection.label"
+        },
+        {
+          "type": "image_picker",
+          "id": "image",
+          "label": "t:sections.common.collection.image.label",
+          "info": "t:sections.common.collection.image.info"
+        },
+        {
+          "type": "text",
+          "id": "heading",
+          "label": "t:sections.common.collection.heading.label",
+          "info": "t:sections.common.collection.heading.info"
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "default": "h4",
+          "label": "t:sections.common.text_size.heading.label",
+          "options": [
+            {
+              "value": "h6",
+              "label": "t:sections.common.text_size.options__h6.label"
+            },
+            {
+              "value": "h5",
+              "label": "t:sections.common.text_size.options__h5.label"
+            },
+            {
+              "value": "h4",
+              "label": "t:sections.common.text_size.options__h4.label"
+            },
+            {
+              "value": "h3",
+              "label": "t:sections.common.text_size.options__h3.label"
+            },
+            {
+              "value": "h2",
+              "label": "t:sections.common.text_size.options__h2.label"
+            },
+            {
+              "value": "h1",
+              "label": "t:sections.common.text_size.options__h1.label"
+            },
+            {
+              "value": "h0",
+              "label": "t:sections.common.text_size.options__h0.label"
+            },
+            {
+              "value": "h-xl",
+              "label": "t:sections.common.text_size.options__hd1.label"
+            }
+          ]
+        },
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "t:sections.common.collection.text.label",
+          "info": "t:sections.common.collection.text.info"
+        },
+        {
+          "type": "image_picker",
+          "id": "icon",
+          "label": "t:sections.collection-tabs.blocks.collection.settings.icon.label"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "t:sections.collection-tabs.presets.name",
+      "blocks": [
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        },
+        {
+          "type": "collection"
+        }
+      ]
+    }
+  ]
+}
+{% endschema %}

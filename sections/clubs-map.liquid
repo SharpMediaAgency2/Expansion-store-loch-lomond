@@ -1,0 +1,217 @@
+{{ 'clubs-map.css' | asset_url | stylesheet_tag }}
+
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+
+  assign motion_delay = 0
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+  if section.settings.heading != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+  if section.settings.secondary_subheading != blank
+    assign motion_delay = motion_delay | plus: 50
+  endif
+-%}
+<div
+  id="{{ section_id }}"
+  class="color-{{ section.settings.color_schema }}"
+  data-section-id="{{ section.id }}"
+>
+  <div class="container-narrow">
+    <div 
+      class="f-section-padding"
+      style="--section-padding-top: {{ section.settings.padding_top }}px; --section-padding-bottom: {{ section.settings.padding_bottom }}px;"
+    >
+      {% render 'index-section-header',
+        animation_effect: animation_effect,
+        section_settings: section.settings,
+        header_alignment: 'center',
+        header_alignment_mobile: 'center',
+      %}
+    </div>
+  </div>
+
+  <div class="map-container">
+    <img style="margin-top: -20px;" class="world-map" src="https://cdn.shopify.com/s/files/1/0927/3632/3908/files/England_Ireland_Scotland_Wales.png?v=1754953372"/>
+
+    <div class="tooltip-marker"></div>
+
+    <div class="location-modal map-modal hidden">
+      <div class="map-modal-content">
+        <span class="close">
+          <svg viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M1 1.27295L13.7729 14.0459L1 1.27295Z" fill="#262626"/>
+            <path d="M1 1.27295L13.7729 14.0459" stroke="#262626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+            <path fill-rule="evenodd" clip-rule="evenodd" d="M13.7729 1.27295L1 14.0459L13.7729 1.27295Z" fill="#262626"/>
+            <path d="M13.7729 1.27295L1 14.0459" stroke="#262626" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </span>
+        <div class="modal-body"></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="{{ 'clubs-map.js' | asset_url }}" defer="defer"></script>
+
+{% schema %}
+{
+  "name": "t:sections.clubs-map.name",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "t:sections.common.general.name"
+    },
+    {
+      "type": "color_scheme",
+      "id": "color_schema",
+      "label": "t:sections.common.color_schema.label",
+      "default": "background-2"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.header.name"
+    },
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "info": "t:sections.common.highlight_text.paragraph.content",
+      "label": "t:sections.common.header.heading",
+      "default": "Find our partner clubs"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "default": "h2",
+      "label": "t:sections.common.title_tag.heading.label",
+      "options": [
+        {
+          "value": "h1",
+          "label": "t:sections.common.title_tag.options__h1.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.title_tag.options__h2.label"
+        },
+        {
+          "value": "h3",
+          "label": "t:sections.common.title_tag.options__h3.label"
+        },
+        {
+          "value": "h4",
+          "label": "t:sections.common.title_tag.options__h4.label"
+        },
+        {
+          "value": "h5",
+          "label": "t:sections.common.title_tag.options__h5.label"
+        },
+        {
+          "value": "h6",
+          "label": "t:sections.common.title_tag.options__h6.label"
+        }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "default": "h2",
+      "label": "t:sections.common.text_size.heading.label",
+      "options": [
+        {
+          "value": "h3",
+          "label": "t:sections.common.text_size.options__h3.label"
+        },
+        {
+          "value": "h2",
+          "label": "t:sections.common.text_size.options__h2.label"
+        },
+        {
+          "value": "h1",
+          "label": "t:sections.common.text_size.options__h1.label"
+        },
+        {
+          "value": "h0",
+          "label": "t:sections.common.text_size.options__h0.label"
+        },
+        {
+          "value": "h-xl",
+          "label": "t:sections.common.text_size.options__hd1.label"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "secondary_subheading",
+      "label": "t:sections.common.header.subheading",
+      "default": "Click on a country pin to view affiliated clubs in that region. Use the list on the right to explore individual club collections"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 0,
+      "min": 0,
+      "max": 100,
+      "step": 2,
+      "unit": "px"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        {
+          "value": "inherit",
+          "label": "t:settings_schema.animations.settings.animation.options.option_6"
+        },
+        {
+          "value": "fade-in",
+          "label": "t:settings_schema.animations.settings.animation.options.option_2"
+        },
+        {
+          "value": "fade-in-up",
+          "label": "t:settings_schema.animations.settings.animation.options.option_3"
+        },
+        {
+          "value": "fade-in-left",
+          "label": "t:settings_schema.animations.settings.animation.options.option_4"
+        },
+        {
+          "value": "fade-in-right",
+          "label": "t:settings_schema.animations.settings.animation.options.option_5"
+        }
+      ]
+    }
+  ],
+}
+{% endschema %}

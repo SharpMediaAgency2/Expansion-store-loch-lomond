@@ -1,0 +1,2267 @@
+{%- liquid
+  assign current_variant = product.selected_or_first_available_variant
+-%}
+<div
+  id="ProductInfo-{{ section.id }}"
+  class="f-product-single__blocks{% if enable_sticky_info %} sticky-element{% endif %}"
+>
+  {%- assign product_form_id = 'product-form-' | append: section.id -%}
+
+  {%- for block in section.blocks -%}
+    <div
+      class="f-product-single__block f-product-single__block--{{ block.type }} {{block.type}}"
+      {{ block.shopify_attributes }}
+    >
+      {%- case block.type -%}
+        {%- when '@app' -%}
+          <div class="f-product__app-block">
+            {% render block %}
+          </div>
+        {%- when 'rating' -%}
+          {%- render 'product-rating', product: product, block: block -%}
+        {%- when 'text' -%}
+          <p
+            class="f-product__text flex items-center{% if block.settings.text_style == 'uppercase' %} text-upper{% elsif block.settings.text_style == 'subtitle' %} text-upper text-subtext{% endif %}"
+            {{ block.shopify_attributes }}
+          >
+            {% unless block.settings.icon == blank %}
+              {% render 'icon', name: block.settings.icon %}
+            {% endunless %}
+            <span>{{- block.settings.text -}}</span>
+          </p>
+        {%- when 'richtext' -%}
+          {% if block.settings.text != blank %}
+            <div class="rte">
+              {{ block.settings.text }}
+            </div>
+          {% endif %}
+        {%- when 'image' -%}
+          {% if block.settings.image != blank %}
+            {% liquid
+              assign image_link = block.settings.image_link
+              assign image = block.settings.image
+            %}
+            <div class="flex justify-{{ block.settings.image_alignment }}">
+              <div class="bottom-block__image" style="width: {{ block.settings.image_width }}%">
+                {% if image_link != blank %}<a href="{{ image_link }}" class="block">{% endif %}
+                <responsive-image
+                  class="f-image {{ wrapper_class }}"
+                  data-image-loading
+                  style="--aspect-ratio: {{ block.settings.image.aspect_ratio }}"
+                >
+                  <img
+                    srcset="
+                      {%- if image.width >= 165 -%}{{ image | image_url: width: 165 }} 165w,{%- endif -%}
+                      {%- if image.width >= 360 -%}{{ image | image_url: width: 360 }} 360w,{%- endif -%}
+                      {%- if image.width >= 533 -%}{{ image | image_url: width: 533 }} 533w,{%- endif -%}
+                      {%- if image.width >= 720 -%}{{ image | image_url: width: 720 }} 720w,{%- endif -%}
+                      {{ image | image_url }} {{ image.width }}w
+                    "
+                    src="{{ image | image_url: width: 360 }}"
+                    sizes="50vw"
+                    alt="{{ block.settings.image.alt | escape }}"
+                    loading="lazy"
+                    width="{{ image.width }}"
+                    height="{{ image.height }}"
+                  >
+                </responsive-image>
+                {% if image_link != blank %}</a>{% endif %}
+              </div>
+            </div>
+          {% endif %}
+        {%- when 'trust_badge' -%}
+          {% if block.settings.trust_badges_image != blank %}
+            {% assign trust_badges_image = block.settings.trust_badges_image %}
+            {% assign position = block.settings.position %}
+            <div class="f-product-single__trust-badges text-center flex flex-col {{ position | default: 'below' }}">
+              <div style="width: {{ block.settings.trust_badges_image_width }};">
+                <responsive-image
+                  class="f-image {{ wrapper_class }}"
+                  data-image-loading
+                  style="--aspect-ratio: {{ block.settings.trust_badges_image.aspect_ratio }}"
+                >
+                  <img
+                    srcset="
+                      {%- if trust_badges_image.width >= 165 -%}{{ trust_badges_image | image_url: width: 165 }} 165w,{%- endif -%}
+                      {%- if trust_badges_image.width >= 360 -%}{{ trust_badges_image | image_url: width: 360 }} 360w,{%- endif -%}
+                      {%- if trust_badges_image.width >= 533 -%}{{ trust_badges_image | image_url: width: 533 }} 533w,{%- endif -%}
+                      {%- if trust_badges_image.width >= 720 -%}{{ trust_badges_image | image_url: width: 720 }} 720w,{%- endif -%}
+                      {{ trust_badges_image | image_url }} {{ trust_badges_image.width }}w
+                    "
+                    src="{{ trust_badges_image | image_url: width: 360 }}"
+                    sizes="50vw"
+                    alt="{{ trust_badges_image.alt | escape }}"
+                    loading="lazy"
+                    width="{{ trust_badges_image.width }}"
+                    height="{{ trust_badges_image.height }}"
+                  >
+                </responsive-image>
+              </div>
+              {% if block.settings.trust_badges_text != blank %}
+                <div class="h4">{{ block.settings.trust_badges_text }}</div>
+              {% endif %}
+            </div>
+          {% endif %}
+        {%- when 'title' -%}
+          {%- liquid
+            assign tag = 'h1'
+            if is_featured_product
+              assign tag = 'h2'
+            endif
+          -%}
+          <{{ tag }} class="f-product-single__title m-0 {{ block.settings.heading_size }}">
+            {{ product.title | escape }}
+          </{{ tag }}>
+        {%- when 'price' -%}
+          <div id="Price-{{ section.id }}" role="status">
+            {%- render 'price',
+              product: product,
+              use_variant: true,
+              show_sale_badge: block.settings.show_sale_badge,
+              sale_badge_type: block.settings.sale_badge_type,
+              show_soldout_badge: true,
+              price_class: 'f-price--large text-md'
+            -%}
+          </div>
+          {% comment %}
+            {%- if shop.taxes_included -%}
+              <div class="f-product-single__block-tax text-subtext" style="marin-bottom: 0.5rem;">
+                {{- 'products.product.include_taxes' | t -}}
+              </div>
+            {%- endif -%}
+          {% endcomment %}
+          {%- if product.quantity_price_breaks_configured? -%}
+            <div class="volume-pricing__note text-sm text-subtext" id="VolumeNote-{{ section.id }}">
+              {{- 'products.volume_pricing.note' | t -}}
+            </div>
+          {%- endif -%}
+          <div>
+            {%- assign product_form_installment_id = 'product-form-installment-' | append: section.id -%}
+            {%- form 'product', product, id: product_form_installment_id, class: 'installment' -%}
+              <input type="hidden" name="id" value="{{ product.selected_or_first_available_variant.id }}">
+              {{ product.template_suffix }}
+              {{ form | payment_terms }}
+            {%- endform -%}
+          </div>
+        {%- when 'description' -%}
+          {%- if product.description != blank -%}
+            <div class="f-product__description rte">
+              {{ product.description }}
+            </div>
+            {% if is_featured_product == true %}
+              <a href="{{ product.url }}" class="btn btn-view-details btn--underline btn--with-icon">
+                <span>{{- 'products.product.view_full_details' | t -}}</span>
+                <svg width="16" height="17" viewBox="0 0 16 17" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M2.5 8.50391H13.5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M9 4.00391L13.5 8.50391L9 13.0039" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            {% endif %}
+          {%- endif -%}
+        {%- when 'vendor' -%}
+          {%- if product.vendor != blank -%}
+            <div class="f-product__vendor">
+              {{ product.vendor | link_to_vendor }}
+            </div>
+          {%- endif -%}
+        {%- when 'type' -%}
+          {%- if product.type != blank -%}
+            <div class="f-product__type text-subheading">
+              {{ product.type | link_to_type }}
+            </div>
+          {%- endif -%}
+        {%- when 'meta' -%}
+          <ul class="f-product-meta list-none">
+            {% if block.settings.show_availability %}
+              <li id="Availability-{{ section.id }}">
+                <span class="f-product-meta__label">{{ 'products.product.meta.availability' | t }}:</span>
+                <div
+                  class="f-product-meta__value f-product-meta__availability{% unless current_variant.available %} out-of-stock{% endunless %}"
+                  data-product-availability
+                >
+                  {%- if current_variant.available -%}
+                    {{- 'products.product.meta.instock' | t -}}
+                  {%- else -%}
+                    {{- 'products.product.meta.out_of_stock' | t -}}
+                  {%- endif -%}
+                </div>
+              </li>
+            {% endif %}
+            {% if block.settings.show_sku %}
+              {% assign default_sku = 'products.product.meta.no_sku' | t %}
+              <li id="Sku-{{ section.id }}">
+                <span class="f-product-meta__label">{{ 'products.product.meta.sku' | t }}:</span>
+                <div class="f-product-meta__value" data-product-sku>
+                  {{ current_variant.sku | default: default_sku }}
+                </div>
+              </li>
+            {% endif %}
+            {% if block.settings.show_vendor and product.vendor != blank %}
+              <li>
+                <span class="f-product-meta__label">{{ 'products.product.vendor' | t }}:</span>
+                <div class="f-product-meta__value">{{ product.vendor | link_to_vendor }}</div>
+              </li>
+            {% endif %}
+            {% if block.settings.show_type and product.type != blank %}
+              <li>
+                <span class="f-product-meta__label">{{ 'products.product.meta.type' | t }}:</span>
+                <div class="f-product-meta__value">{{ product.type | link_to_type }}</div>
+              </li>
+            {% endif %}
+            {% if block.settings.show_collections and product.collections.size > 0 %}
+              <li>
+                <span class="f-product-meta__label">{{ 'products.product.meta.collections' | t }}:</span>
+                <div class="f-product-meta__value">
+                  {% for collection in product.collections %}
+                    <a href="{{ collection.url }}" class="hover:text-black">
+                      {{ collection.title }}
+                      {%- if forloop.last != true -%},{%- endif -%}
+                    </a>
+                  {% endfor %}
+                </div>
+              </li>
+            {% endif %}
+            {% if block.settings.show_tags and product.tags.size > 0 %}
+              <li>
+                <span class="f-product-meta__label">{{ 'products.product.meta.tags' | t }}:</span>
+                <div class="f-product-meta__value">
+                  {% for tag in product.tags %}
+                    {% assign tag_handle = tag | handleize %}
+                    <a href="{{ routes.all_products_collection_url | append: '/' | append: tag_handle }}">
+                      {{- tag -}}
+                    </a>
+                    {%- if forloop.last != true -%},{%- endif -%}
+                  {% endfor %}
+                </div>
+              </li>
+            {% endif %}
+          </ul>
+        {%- when 'custom_liquid' -%}
+          {{ block.settings.custom_liquid }}
+        {%- when 'divider' -%}
+          <hr />
+        {%- when 'custom_field' -%}
+          {% liquid
+            assign label_hidden = false
+            assign field_type = block.settings.field_type
+            assign field_options = block.settings.field_options
+            assign field_name = block.settings.title
+            assign field_placeholder = block.settings.field_placeholder
+            assign field_required = block.settings.field_required
+            assign show_at_checkout = block.settings.show_at_checkout
+            if field_name == blank
+              assign label_hidden = true
+              assign field_name = 'Custom field ' | append: forloop.index
+            endif
+          %}
+
+          <div class="form-field" data-product-custom-field="{{ field_type }}">
+            <label class="form-label font-medium{% if label_hidden %} hidden{% endif %}" for="{{ block.id }}">
+              {{ field_name -}}
+              {%- if field_required -%}
+                <sup>*</sup>
+              {%- endif %}
+            </label>
+            {% unless show_at_checkout %}
+              {% assign field_name = field_name | prepend: '_' %}
+            {% endunless %}
+            {% case field_type %}
+              {% when 'text' %}
+                <input
+                  type="text"
+                  id="{{ block.id }}"
+                  class="form-control"
+                  placeholder="{{ field_placeholder }}"
+                  name="properties[{{- field_name -}}]"
+                  {% if field_required %}
+                    required
+                  {% endif %}
+                  form="{{ product_form_id }}"
+                >
+              {% when 'textarea' %}
+                <textarea
+                  id="{{ block.id }}"
+                  class="form-control form-control--textarea"
+                  placeholder="{{ field_placeholder }}"
+                  name="properties[{{- field_name -}}]"
+                  {% if field_required %}
+                    required
+                  {% endif %}
+                  form="{{ product_form_id }}"
+                ></textarea>
+              {% when 'select' %}
+                {% assign options = field_options | newline_to_br | split: '<br />' %}
+                <select
+                  id="{{ block.id }}"
+                  class="form-control"
+                  name="properties[{{- field_name -}}]"
+                  {% if field_required %}
+                    required
+                  {% endif %}
+                  form="{{ product_form_id }}"
+                >
+                  {% if field_placeholder != blank %}
+                    <option value="">{{ field_placeholder }}</option>
+                  {% endif %}
+                  {% for option in options %}
+                    {%- assign option = option | strip | strip_newlines -%}
+                    <option value="{{- option -}}" label="{{ option }}">{{ option }}</option>
+                  {% endfor %}
+                </select>
+            {% endcase %}
+          </div>
+        {%- when 'quantity_selector' -%}
+          <div class="f-product-single__info-quantity">
+            {%- assign cart_qty = cart | item_count_for_variant: product.selected_or_first_available_variant.id -%}
+            <div class="f-quantity__wrapper {{ class }}" id="QuantityForm-{{ section.id }}">
+              <label
+                class="form-label font-body-bolder quantity__label"
+                for="Quantity-{{ section.id }}-{{ product.id }}"
+              >
+                <span>{{- 'products.product.quantity.label' | t -}}</span>
+                <span
+                  id="QuantityRulesCart-{{ section.id }}"
+                  class="quantity__rules-cart{% if cart_qty == 0 %} hidden{% endif %} relative"
+                >
+                  <span class="quantity-cart font-medium"
+                    >({{ 'products.quantity.in_cart_html' | t: quantity: cart_qty }})</span
+                  >
+                </span>
+              </label>
+              <div class="flex">
+                <quantity-input
+                  class="f-quantity"
+                  data-product-id="{{ product.id }}"
+                  data-section-id="{{ section.id }}"
+                >
+                  <button class="f-quantity__button btn btn--plain no-js-hidden" name="minus" type="button">
+                    <span class="visually-hidden">
+                      {{- 'products.product.quantity.decrease' | t: product: product.title | escape -}}
+                    </span>
+                    <svg width="16" height="16" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2.6875 7H12.3125" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <input
+                    id="Quantity-{{ section.id }}-{{ product.id }}"
+                    class="f-quantity__input quantity__input form-control"
+                    type="number"
+                    name="quantity"
+                    inputmode="numeric"
+                    autocomplete="off"
+                    data-quantity-variant-id="{{ product.selected_or_first_available_variant.id }}"
+                    data-cart-quantity="{{ cart_qty }}"
+                    data-min="{{ product.selected_or_first_available_variant.quantity_rule.min }}"
+                    min="{{ product.selected_or_first_available_variant.quantity_rule.min }}"
+                    {% if product.selected_or_first_available_variant.quantity_rule.max != null %}
+                      data-max="{{ product.selected_or_first_available_variant.quantity_rule.max }}"
+                      max="{{ product.selected_or_first_available_variant.quantity_rule.max }}"
+                    {% endif %}
+                    step="{{ product.selected_or_first_available_variant.quantity_rule.increment }}"
+                    value="{{ product.selected_or_first_available_variant.quantity_rule.min }}"
+                    form="{{ product_form_id }}"
+                  >
+                  <button class="f-quantity__button btn btn--plain no-js-hidden" name="plus" type="button">
+                    <span class="visually-hidden">
+                      {{- 'products.product.quantity.increase' | t: product: product.title | escape -}}
+                    </span>
+                    <svg width="16" height="16" viewBox="0 0 15 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M2.6875 7H12.3125" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M7.5 2.1875V11.8125" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </quantity-input>
+
+                {%- if product.quantity_price_breaks_configured? -%}
+                  {%- liquid
+                    assign volume_pricing_array = product.selected_or_first_available_variant.quantity_price_breaks | sort: 'quantity' | reverse
+                    assign current_qty_for_volume_pricing = cart_qty | plus: product.selected_or_first_available_variant.quantity_rule.min
+                    if cart_qty > 0
+                      assign current_qty_for_volume_pricing = cart_qty | plus: product.selected_or_first_available_variant.quantity_rule.increment
+                    endif
+                    assign variant_price_compare = product.selected_or_first_available_variant.compare_at_price
+                  -%}
+                  <price-per-item
+                    id="PricePerItem-{{ section.id }}"
+                    class="price flex flex-wrap items-center"
+                    data-section-id="{{ section.id }}"
+                    data-product-id="{{ product.id }}"
+                    data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+                  >
+                    {%- if variant_price_compare -%}
+                      <span class="sr-only">{{ 'products.product.price.regular_price' | t }}</span>
+                      <span class="price__sale inline-flex items-center h-auto relative">
+                        {%- liquid
+                          if settings.currency_code_enabled
+                            echo variant_price_compare | money_with_currency
+                          else
+                            echo variant_price_compare | money
+                          endif
+                        -%}
+                      </span>
+                      <span class="sr-only">{{ 'products.product.price.sale_price' | t }}</span>
+                    {%- endif -%}
+
+                    {%- if product.selected_or_first_available_variant.quantity_price_breaks.size > 0 -%}
+                      {%- if current_qty_for_volume_pricing < volume_pricing_array.last.minimum_quantity -%}
+                        {%- liquid
+                          if settings.currency_code_enabled
+                            assign variant_price = product.selected_or_first_available_variant.price | money_with_currency
+                          else
+                            assign variant_price = product.selected_or_first_available_variant.price | money
+                          endif
+                        -%}
+                        <span class="price-per-item--current price__regular whitespace-nowrap">
+                          {{- 'products.volume_pricing.price_at_each' | t: price: variant_price -}}
+                        </span>
+                      {%- else -%}
+                        {%- for price_break in volume_pricing_array -%}
+                          {%- if current_qty_for_volume_pricing >= price_break.minimum_quantity -%}
+                            {%- liquid
+                              if settings.currency_code_enabled
+                                assign price_break_price = price_break.price | money_with_currency
+                              else
+                                assign price_break_price = price_break.price | money
+                              endif
+                            -%}
+                            <span class="price-per-item--current price__regular whitespace-nowrap">
+                              {{- 'products.volume_pricing.price_at_each' | t: price: price_break_price -}}
+                            </span>
+                            {%- break -%}
+                          {%- endif -%}
+                        {%- endfor -%}
+                      {%- endif -%}
+                    {%- else -%}
+                      <span class="price-per-item--current price__regular whitespace-nowrap">
+                        {%- liquid
+                          if settings.currency_code_enabled
+                            assign variant_price = product.selected_or_first_available_variant.price | money_with_currency
+                          else
+                            assign variant_price = product.selected_or_first_available_variant.price | money
+                          endif
+                        -%}
+                        {{- 'products.volume_pricing.price_at_each' | t: price: variant_price -}}
+                      </span>
+                    {%- endif -%}
+                  </price-per-item>
+                {%- endif -%}
+              </div>
+              <div class="quantity__rules" id="QuantityRules-{{ section.id }}">
+                {%- if product.selected_or_first_available_variant.quantity_rule.increment > 1 -%}
+                  <span class="divider">
+                    {{-
+                      'products.quantity.multiples_of'
+                      | t: quantity: product.selected_or_first_available_variant.quantity_rule.increment
+                    -}}
+                  </span>
+                {%- endif -%}
+                {%- if product.selected_or_first_available_variant.quantity_rule.min > 1 -%}
+                  <span class="divider">
+                    {{-
+                      'products.quantity.minimum_of'
+                      | t: quantity: product.selected_or_first_available_variant.quantity_rule.min
+                    -}}
+                  </span>
+                {%- endif -%}
+                {%- if product.selected_or_first_available_variant.quantity_rule.max != null -%}
+                  <span class="divider">
+                    {{-
+                      'products.quantity.maximum_of'
+                      | t: quantity: product.selected_or_first_available_variant.quantity_rule.max
+                    -}}
+                  </span>
+                {%- endif -%}
+              </div>
+            </div>
+
+            {%- if product.quantity_price_breaks_configured? -%}
+              <volume-pricing class="volume-pricing parent-display" id="Volume-{{ section.id }}">
+                {%- if product.selected_or_first_available_variant.quantity_price_breaks.size > 0 -%}
+                  <span class="volume-pricing__heading font-medium">{{ 'products.volume_pricing.title' | t }}</span>
+                  <ul class="list-unstyled">
+                    <li class="text-sm">
+                      <div class="flex justify-between">
+                        <span class="font-medium">
+                          {{- product.selected_or_first_available_variant.quantity_rule.min }}+</span
+                        >
+                        {%- liquid
+                          if settings.currency_code_enabled
+                            assign variant_price = product.selected_or_first_available_variant.price | money_with_currency
+                          else
+                            assign variant_price = product.selected_or_first_available_variant.price | money
+                          endif
+                        -%}
+                        <span data-text="{{ 'products.volume_pricing.price_at_each' | t: price: variant_price }}">
+                          {{- 'sections.quick_order_list.each' | t: money: variant_price -}}
+                        </span>
+                      </div>
+                    </li>
+                    {%- for price_break in product.selected_or_first_available_variant.quantity_price_breaks -%}
+                      {%- liquid
+                        if settings.currency_code_enabled
+                          assign price_break_price = price_break.price | money_with_currency
+                        else
+                          assign price_break_price = price_break.price | money
+                        endif
+                      -%}
+                      <li class="text-sm {% if forloop.index >= 3 %} show-more-item hidden{% endif %}">
+                        <div class="flex justify-between">
+                          <span class="font-medium">
+                            {{- price_break.minimum_quantity -}}
+                            <span aria-hidden="true">+</span>
+                          </span>
+                          <span data-text="{{ 'products.volume_pricing.price_at_each' | t: price: price_break_price }}">
+                            {{- 'sections.quick_order_list.each' | t: money: price_break_price -}}
+                          </span>
+                        </div>
+                      </li>
+                    {%- endfor -%}
+                  </ul>
+                  {%- if product.selected_or_first_available_variant.quantity_price_breaks.size >= 3 -%}
+                    <show-more-button>
+                      <button
+                        class="button-show-more link text-sm btn btn--underline no-js-hidden"
+                        id="Show-More-{{ section.id }}-{{ product.id }}"
+                        type="button"
+                      >
+                        <span class="label-show-more label-text">{{ 'products.facets.show_more' | t }}</span>
+                        <span class="label-show-less label-text hidden">{{ 'products.facets.show_less' | t }}</span>
+                      </button>
+                    </show-more-button>
+                  {%- endif -%}
+                {%- endif -%}
+              </volume-pricing>
+            {%- endif -%}
+          </div>
+        {%- when 'addons' -%}
+          {% liquid
+            assign show_share = block.settings.show_share
+            assign show_ask_question = block.settings.show_ask_question
+            assign share_url = product.selected_or_first_available_variant.url | default: product.url | prepend: request.origin
+          %}
+          {%- if show_share -%}
+            <script src="{{ 'share-button.js' | asset_url }}" defer></script>
+          {%- endif -%}
+          {% if show_share or show_ask_question %}
+            <div class="f-product-single__addon-buttons flex items-center">
+              {% if show_share %}
+                <modal-opener class="no-js-hidden" data-modal="#PopupModal-Sharing-{{ section.id }}">
+                  <button
+                    class="btn btn--with-icon btn--plain"
+                    aria-haspopup="dialog"
+                    aria-label="{{ 'products.product.share_label' | t }}"
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                      focusable="false"
+                      role="presentation"
+                    >
+                      <path d="M2.4168 15.525C3.70274 14.1555 7.07852 11.25 11.8754 11.25V15L18.1254 8.75L11.8754 2.5V6.25C7.7504 6.25 2.46212 10.1914 1.8754 15.2766C1.86728 15.3424 1.88032 15.4091 1.91265 15.4671C1.94498 15.525 1.99491 15.5712 2.05522 15.5988C2.11552 15.6265 2.18307 15.6343 2.24807 15.621C2.31308 15.6077 2.37218 15.5741 2.4168 15.525Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="font-body text-medium text-normal">{{ 'products.product.share_label' | t }}</span>
+                  </button>
+                </modal-opener>
+                {% assign modal_id = 'Sharing-' | append: section.id %}
+                <modal-dialog id="PopupModal-{{ modal_id }}" class="f-modal hidden" style="--modal-width: 600px">
+                  <div class="f-modal__content" role="dialog" aria-label="{{ label }}" aria-modal="true" tabindex="-1">
+                    <div class="scroll-container">
+                      <button
+                        id="ModalClose-{{ modal_id }}"
+                        type="button"
+                        class="f-modal__close"
+                        aria-label="{{ 'accessibility.close' | t }}"
+                      >
+                        {% comment %} theme-check-disable {% endcomment %}
+                        {{ 'icon-close.svg' | inline_asset_content }}
+                        {% comment %} theme-check-enable {% endcomment %}
+                      </button>
+                      <div class="f-modal__inner">
+                        <h3 class="h5">{{ 'products.product.share' | t }}</h3>
+                        <share-button class="f-sharing__copy-link">
+                          <input
+                            data-share-url
+                            type="text"
+                            class="form-control"
+                            value="{{ share_url }}"
+                          >
+                          <button class="btn btn-copy" data-copied-text="{{ 'general.share.copied' | t }}">
+                            {{ 'general.share.copy' | t }}
+                          </button>
+                        </share-button>
+                        {% render 'social-sharing',
+                          url: product.url,
+                          share_image: product.featured_media.preview_image
+                        %}
+                      </div>
+                    </div>
+                  </div>
+                </modal-dialog>
+              {% endif %}
+              {% if show_ask_question %}
+                <modal-opener class="no-js-hidden" data-modal="#PopupModal-AskQuestionForm-{{ section.id }}">
+                  <button
+                    class="btn btn--with-icon btn--plain"
+                    aria-label="{{ 'products.product.question_form.label' | t }}"
+                  >
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 20 20"
+                      fill="none"
+                      xmlns="http://www.w3.org/2000/svg"
+                      aria-hidden="true"
+                      focusable="false"
+                      role="presentation"
+                    >
+                      <path d="M10 15C10.5178 15 10.9375 14.5803 10.9375 14.0625C10.9375 13.5447 10.5178 13.125 10 13.125C9.48223 13.125 9.0625 13.5447 9.0625 14.0625C9.0625 14.5803 9.48223 15 10 15Z" fill="currentColor"/>
+                      <path d="M10 11.25V10.625C11.3805 10.625 12.5 9.64531 12.5 8.4375C12.5 7.22969 11.3805 6.25 10 6.25C8.61953 6.25 7.5 7.22969 7.5 8.4375V8.75" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M10 17.5C14.1421 17.5 17.5 14.1421 17.5 10C17.5 5.85786 14.1421 2.5 10 2.5C5.85786 2.5 2.5 5.85786 2.5 10C2.5 14.1421 5.85786 17.5 10 17.5Z" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <span class="font-body text-medium text-normal">
+                      {{- 'products.product.question_form.label' | t -}}
+                    </span>
+                  </button>
+                </modal-opener>
+                {% assign modal_id = 'AskQuestionForm-' | append: section.id %}
+                <modal-dialog id="PopupModal-{{ modal_id }}" class="f-modal hidden" style="--modal-width:600px">
+                  <div class="f-modal__content" role="dialog" aria-label="{{ label }}" aria-modal="true" tabindex="-1">
+                    <div class="scroll-container">
+                      <button
+                        id="ModalClose-{{ modal_id }}"
+                        type="button"
+                        class="f-modal__close"
+                        aria-label="{{ 'accessibility.close' | t }}"
+                      >
+                        {% comment %} theme-check-disable {% endcomment %}
+                        {{ 'icon-close.svg' | inline_asset_content }}
+                        {% comment %} theme-check-enable {% endcomment %}
+                      </button>
+                      <div class="f-modal__inner">
+                        {% render 'ask-question-form' %}
+                      </div>
+                    </div>
+                  </div>
+                </modal-dialog>
+              {% endif %}
+            </div>
+          {% endif %}
+
+        {%- when 'variant_picker11' -%}
+          {% liquid
+            assign size_title = block.settings.size_title
+            assign size_title = block.settings.size_title
+            assign size_chart = product.metafields.foxtheme.size_chart
+
+            if size_chart == blank and block.settings.size_chart_from_page != blank
+              assign size_chart = pages[block.settings.size_chart_from_page].content
+            endif
+
+            assign show_size_chart = false
+            if size_chart != blank
+              assign show_size_chart = true
+            endif
+          %}
+          {% render 'variant-picker',
+            product: product,
+            show_selected_value: block.settings.variant_picker_show_selected,
+            disable_default_variant: disable_default_variant,
+            size_title: size_title,
+            show_size_chart: show_size_chart,
+            update_browser_history: update_browser_history,
+            product_form_id: product_form_id,
+            color_schema: 'background-1',
+            block: block,
+            picker_type: block.settings.picker_type
+          %}
+          {% if size_chart != blank and show_size_chart %}
+            {% assign modal_id = 'SizeChart-' | append: section.id %}
+            <modal-dialog id="PopupModal-{{ modal_id }}" class="f-modal hidden" style="--modal-width:800px">
+              <div class="f-modal__content" role="dialog" aria-label="{{ label }}" aria-modal="true" tabindex="-1">
+                <div class="scroll-container">
+                  <button
+                    id="ModalClose-{{ modal_id }}"
+                    type="button"
+                    class="f-modal__close"
+                    aria-label="{{ 'accessibility.close' | t }}"
+                  >
+                    {% comment %} theme-check-disable {% endcomment %}
+                    {{ 'icon-close.svg' | inline_asset_content }}
+                    {% comment %} theme-check-enable {% endcomment %}
+                  </button>
+                  <div class="f-modal__inner">
+                    <div class="rte py-md px-sm">{{ size_chart }}</div>
+                  </div>
+                </div>
+              </div>
+            </modal-dialog>
+          {% endif %}
+        {%- when 'buy_buttons' -%}
+          <div {{ block.shopify_attributes }}>
+            {%- liquid
+              assign gift_card_recipient_feature_active = false
+              if block.settings.show_gift_card_recipient and product.gift_card?
+                assign gift_card_recipient_feature_active = true
+              endif
+
+              assign show_name_field = false
+              if block.settings.show_name_field
+                assign show_name_field = true
+              endif
+
+              assign show_dynamic_checkout = false
+              if block.settings.show_dynamic_checkout and gift_card_recipient_feature_active == false
+                assign show_dynamic_checkout = true
+              endif
+            -%}
+            {% if block.settings.show_atc_button or show_dynamic_checkout %}
+              <product-form class="f-product-form f-main-product-form">
+                {%- form 'product',
+                  product,
+                  id: product_form_id,
+                  class: 'main-product-form',
+                  novalidate: 'novalidate',
+                  data-type: 'add-to-cart-form'
+                -%}
+                  <!-- Required hidden input for variant ID -->
+                  <input
+                    type="hidden"
+                    name="id"
+                    value="{{ product.selected_or_first_available_variant.id }}"
+                  >
+                  <!-- Hidden inputs to be filled via JavaScript -->
+                  {% if product.template_suffix contains 'catalog-b-2' %}
+                    {% if product.selected_or_first_available_variant.option1 != '' -%}
+                      <input
+                        type="hidden"
+                        name="properties[Club]"
+                        value="{{ product.metafields.custom.courses.value  | first | map: 'title' }}"
+                      >
+                    {%- endif %}
+                    {% if product.metafields.custom.logo_pdp -%}
+                      <input
+                        type="hidden"
+                        name="properties[Logo]"
+                        value="{{product.metafields.custom.logo_pdp.value   | remove: 'files/' | split: '.' | first | replace: '-', ' ' | replace: '_', ' ' }}"
+                      >
+                    {%- endif %}
+                    {% if product.metafields.custom.logo_pdp -%}
+                      <input
+                        type="hidden"
+                        name="properties[_logo-url]"
+                        id="logo-url-input"
+                        value="{{product.metafields.custom.logo_pdp | image_url}}"
+                      >
+                    {%- endif %}
+                    <input
+                      type="hidden"
+                      name="properties[Logo Position]"
+                      id="select-embroidered-input"
+                      value="Left Chest"
+                    >
+                    <input
+                      type="hidden"
+                      name="properties[Decoration Type]"
+                      id="select-decoration-type-input"
+                      value="Embroidery"
+                    >
+                  {% else %}
+                    <input type="hidden" name="properties[Club]" id="selected-course-input">
+                    <input type="hidden" name="properties[Logo]" id="selected-logo-input">
+                    <input type="hidden" name="properties[_logo-url]" id="logo-url-input">
+                    <input type="hidden" name="properties[Logo Position]" id="select-embroidered-input">
+                    <input type="hidden" name="properties[Decoration Type]" id="select-decoration-type-input">
+                  {% endif %}
+                  {%- if gift_card_recipient_feature_active -%}
+                    {%- render 'gift-card-recipient-form', product: product, form: form, section: section -%}
+                  {%- endif -%}
+                  <div class="name-field">
+                    {% if show_name_field %}
+                      <div class="product-customization-wrapper">
+                        <div class="customization-dropdown">
+                          <label for="customization-type">Customization:</label>
+
+                          <!-- Original Select (Hidden) -->
+                          <select id="customization-type" name="customization-type" style="display:none">
+                            <option value="" selected disabled>Select</option>
+                            <option value="none">No Personalization</option>
+                            <option value="add-name">Complimentary Personalization</option>
+                          </select>
+
+                          <!-- Custom Select UI -->
+                          <div class="custom-select-customization" id="custom-customization-select">
+                            <div class="select-trigger">
+                              <span class="placeholder">Select</span>
+                              <span class="arrow">
+                                <svg viewBox="0 0 20 20" fill="currentColor">
+                                  <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd"></path>
+                                </svg>
+                              </span>
+                            </div>
+                            <div class="select-dropdown">
+                              <div class="select-option" data-value="none">
+                                <span class="option-text">No Personalization</span>
+                              </div>
+                              <div class="select-option" data-value="add-name">
+                                <span class="option-text">Complimentary Personalization</span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div class="product-custom-text" style="display: none;">
+                          <label for="custom-text">Add a name or message:</label>
+                          <input
+                            type="text"
+                            id="custom-text"
+                            name="properties[Custom Text]"
+                            maxlength="50"
+                            placeholder="Enter text here (max 50 characters)"
+                            disabled
+                          >
+                          <span class="character-count">0/50</span>
+                        </div>
+                      </div>
+
+                      <script>
+                        (function () {
+                          'use strict';
+
+                          class CustomSelectCustomization {
+                            constructor(element, originalSelect) {
+                              this.element = element;
+                              this.originalSelect = originalSelect;
+                              this.options = [];
+                              this.selectedValue = null;
+                              this.isOpen = false;
+
+                              this.trigger = element.querySelector('.select-trigger');
+                              this.dropdown = element.querySelector('.select-dropdown');
+
+                              this.init();
+                            }
+
+                            init() {
+                              this.loadOptionsFromSelect();
+                              this.setInitialValue();
+                              this.bindEvents();
+                            }
+
+                            loadOptionsFromSelect() {
+                              const selectOptions = this.originalSelect.querySelectorAll('option');
+                              selectOptions.forEach((option) => {
+                                // Skip the disabled placeholder option
+                                if (option.value && !option.disabled) {
+                                  this.options.push({
+                                    value: option.value,
+                                    label: option.textContent.trim(),
+                                    selected: option.selected && !option.disabled,
+                                  });
+                                }
+                              });
+                            }
+
+                            setInitialValue() {
+                              // Don't auto-select anything, leave as placeholder
+                              const triggerText = this.trigger.querySelector('span:first-child');
+                              triggerText.textContent = 'Select';
+                              triggerText.classList.add('placeholder');
+                              this.renderOptions();
+                            }
+
+                            selectOptionInternal(value) {
+                              this.options.forEach((opt) => (opt.selected = false));
+
+                              const originalOptions = this.originalSelect.querySelectorAll('option');
+                              originalOptions.forEach((opt) => opt.removeAttribute('selected'));
+
+                              const option = this.options.find((opt) => opt.value === value);
+
+                              if (option) {
+                                option.selected = true;
+                                this.selectedValue = value;
+                                this.originalSelect.value = value;
+
+                                const originalOption = Array.from(originalOptions).find((opt) => opt.value === value);
+                                if (originalOption) {
+                                  originalOption.setAttribute('selected', 'selected');
+                                }
+
+                                const triggerText = this.trigger.querySelector('span:first-child');
+                                triggerText.textContent = option.label;
+                                triggerText.classList.remove('placeholder');
+
+                                setTimeout(() => {
+                                  const changeEvent = new Event('change', { bubbles: true });
+                                  this.originalSelect.dispatchEvent(changeEvent);
+                                }, 0);
+                              }
+
+                              this.renderOptions();
+                            }
+
+                            renderOptions() {
+                              let html = '';
+
+                              this.options.forEach((option) => {
+                                html += this.createOptionHTML(option);
+                              });
+
+                              this.dropdown.innerHTML = html;
+                            }
+
+                            createOptionHTML(option) {
+                              const isSelected = this.selectedValue === option.value ? 'selected' : '';
+                              return `
+                              <div class="select-option ${isSelected}" data-value="${this.escapeHtml(option.value)}">
+                                <span class="option-text">${this.escapeHtml(option.label)}</span>
+                              </div>
+                            `;
+                            }
+
+                            escapeHtml(text) {
+                              const map = {
+                                '&': '&amp;',
+                                '<': '&lt;',
+                                '>': '&gt;',
+                                '"': '&quot;',
+                                "'": '&#039;',
+                              };
+                              return text.replace(/[&<>"']/g, (m) => map[m]);
+                            }
+
+                            bindEvents() {
+                              this.trigger.addEventListener('click', (e) => {
+                                e.stopPropagation();
+                                this.toggleDropdown();
+                              });
+
+                              this.dropdown.addEventListener('click', (e) => {
+                                const option = e.target.closest('.select-option');
+                                if (option) {
+                                  this.selectOption(option.dataset.value);
+                                }
+                              });
+
+                              document.addEventListener('click', (e) => {
+                                if (!this.element.contains(e.target)) {
+                                  this.closeDropdown();
+                                }
+                              });
+
+                              this.element.addEventListener('keydown', (e) => {
+                                if (e.key === 'Escape' && this.isOpen) {
+                                  this.closeDropdown();
+                                }
+                              });
+                            }
+
+                            toggleDropdown() {
+                              this.isOpen ? this.closeDropdown() : this.openDropdown();
+                            }
+
+                            openDropdown() {
+                              this.isOpen = true;
+                              this.trigger.classList.add('open');
+                              this.dropdown.classList.add('open');
+                            }
+
+                            closeDropdown() {
+                              this.isOpen = false;
+                              this.trigger.classList.remove('open');
+                              this.dropdown.classList.remove('open');
+                            }
+
+                            selectOption(value) {
+                              this.selectOptionInternal(value);
+                              this.closeDropdown();
+                            }
+                          }
+
+                          function initCustomSelectCustomization() {
+                            const originalSelect = document.getElementById('customization-type');
+                            const customSelect = document.getElementById('custom-customization-select');
+
+                            if (originalSelect && customSelect) {
+                              setTimeout(() => {
+                                new CustomSelectCustomization(customSelect, originalSelect);
+                              }, 10);
+                            }
+                          }
+
+                          if (document.readyState === 'loading') {
+                            document.addEventListener('DOMContentLoaded', initCustomSelectCustomization);
+                          } else {
+                            initCustomSelectCustomization();
+                          }
+
+                          // Original functionality for text field
+                          const dropdown = document.getElementById('customization-type');
+                          const textField = document.querySelector('.product-custom-text');
+                          const textInput = document.getElementById('custom-text');
+                          const charCount = document.querySelector('.character-count');
+
+                          dropdown.addEventListener('change', function () {
+                            if (this.value === 'add-name') {
+                              textField.style.display = 'block';
+                              textInput.disabled = false;
+                              textInput.setAttribute('name', 'properties[Custom Name]');
+                            } else {
+                              textField.style.display = 'none';
+                              textInput.disabled = true;
+                              textInput.value = '';
+                              textInput.removeAttribute('name');
+                              if (charCount) {
+                                charCount.textContent = '0/50';
+                              }
+                            }
+                          });
+
+                          // Character counter
+                          if (textInput && charCount) {
+                            textInput.addEventListener('input', function () {
+                              const length = this.value.length;
+                              charCount.textContent = `${length}/50`;
+                            });
+                          }
+                        })();
+                      </script>
+
+                      <style>
+                        .product-customization-wrapper {
+                          margin: 1rem 0;
+                        }
+
+                        .customization-dropdown {
+                          margin-bottom: 1rem;
+                        }
+
+                        .customization-dropdown label,
+                        .product-custom-text label {
+                          display: block;
+                          margin-bottom: 8px;
+                          font-weight: 600;
+                          font-size: 14px;
+                          color: #333;
+                        }
+
+                        .product-custom-text {
+                          margin-top: 1rem;
+                          position: relative;
+                        }
+
+                        .product-custom-text input {
+                          width: 100%;
+                          padding: 12px 16px;
+                          border: 1px solid #d1d5db;
+                          border-radius: 6px;
+                          font-size: 15px;
+                          color: #333;
+                          transition: all 0.2s ease;
+                        }
+
+                        .product-custom-text input:hover {
+                          border-color: #9ca3af;
+                        }
+
+                        .product-custom-text input:focus {
+                          outline: none;
+                          border-color: #5e5e5e;
+                          box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .product-custom-text input::placeholder {
+                          color: #6b7280;
+                        }
+
+                        .character-count {
+                          display: block;
+                          text-align: right;
+                          font-size: 12px;
+                          color: #6b7280;
+                          margin-top: 4px;
+                        }
+
+                        /* Custom Select Styles */
+                        .custom-select-customization {
+                          position: relative;
+                          width: 100%;
+                        }
+
+                        .custom-select-customization .select-trigger {
+                          width: 100%;
+                          padding: 12px 40px 12px 16px;
+                          border: 1px solid #d1d5db;
+                          border-radius: 6px;
+                          background-color: white;
+                          cursor: pointer;
+                          display: flex;
+                          align-items: center;
+                          justify-content: space-between;
+                          transition: all 0.2s ease;
+                          font-size: 15px;
+                          color: #333;
+                        }
+
+                        .custom-select-customization .select-trigger:hover {
+                          outline: 1px solid #5e5e5e;
+                          border-color: #5e5e5e;
+                        }
+
+                        .custom-select-customization .select-trigger.open {
+                          border-color: #5e5e5e;
+                          box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.1);
+                        }
+
+                        .custom-select-customization .select-trigger .placeholder {
+                          color: #6b7280;
+                        }
+
+                        .custom-select-customization .select-trigger .arrow {
+                          position: absolute;
+                          right: 16px;
+                          pointer-events: none;
+                          transition: transform 0.2s ease;
+                        }
+
+                        .custom-select-customization .select-trigger.open .arrow {
+                          transform: rotate(180deg);
+                        }
+
+                        .custom-select-customization .select-trigger .arrow svg {
+                          width: 16px;
+                          height: 16px;
+                          fill: #6b7280;
+                        }
+
+                        .custom-select-customization .select-dropdown {
+                          position: absolute;
+                          top: calc(100% + 4px);
+                          left: 0;
+                          right: 0;
+                          background: white;
+                          border: 1px solid #d1d5db;
+                          border-radius: 6px;
+                          box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+                          max-height: 300px;
+                          overflow-y: auto;
+                          z-index: 1000;
+                          opacity: 0;
+                          visibility: hidden;
+                          transform: translateY(-10px);
+                          transition: all 0.2s ease;
+                        }
+
+                        .custom-select-customization .select-dropdown.open {
+                          opacity: 1;
+                          visibility: visible;
+                          transform: translateY(0);
+                        }
+
+                        .custom-select-customization .select-option {
+                          padding: 12px 16px;
+                          cursor: pointer;
+                          display: flex;
+                          align-items: center;
+                          gap: 12px;
+                          transition: background-color 0.15s ease;
+                          font-size: 15px;
+                          color: #333;
+                        }
+
+                        .custom-select-customization .select-option:hover {
+                          background-color: #eff2ef !important;
+                        }
+
+                        .custom-select-customization .select-option:hover .option-text {
+                          transition: all 0.3s;
+                          font-weight: 500;
+                        }
+
+                        .custom-select-customization .select-option.selected {
+                          background-color: #eff2ef !important;
+                        }
+
+                        .custom-select-customization .select-option.selected .option-text {
+                          font-weight: 500;
+                        }
+
+                        .custom-select-customization .option-text {
+                          flex: 1;
+                        }
+
+                        /* Scrollbar styling */
+                        .custom-select-customization .select-dropdown::-webkit-scrollbar {
+                          width: 8px;
+                        }
+
+                        .custom-select-customization .select-dropdown::-webkit-scrollbar-track {
+                          background: #f1f1f1;
+                          border-radius: 0 6px 6px 0;
+                        }
+
+                        .custom-select-customization .select-dropdown::-webkit-scrollbar-thumb {
+                          background: #d1d5db;
+                          border-radius: 4px;
+                        }
+
+                        .custom-select-customization .select-dropdown::-webkit-scrollbar-thumb:hover {
+                          background: #9ca3af;
+                        }
+                      </style>
+                    {% endif %}
+                  </div>
+                  <div class="f-product-form__buttons{% if show_dynamic_checkout and product.selling_plan_groups == empty %} f-product-form__buttons--show-buynow{% endif %} pdp-atc-row">
+                    {% if block.settings.show_atc_button %}
+                      {%- liquid
+                        assign check_against_inventory = true
+                        if product.selected_or_first_available_variant.inventory_management != 'shopify' or product.selected_or_first_available_variant.inventory_policy == 'continue'
+                          assign check_against_inventory = false
+                        endif
+                        if product.selected_or_first_available_variant.quantity_rule.min > product.selected_or_first_available_variant.inventory_quantity and check_against_inventory
+                          assign quantity_rule_soldout = true
+                        endif
+                      -%}
+
+                      <button
+                        id="ProductSubmitButton-{{ section.id }}"
+                        type="submit"
+                        name="add"
+                        class="f-product-form__submit btn {% if show_dynamic_checkout and product.selling_plan_groups == empty %}btn--secondary{% else %}btn--primary{% endif %} btn-add-to-cart"
+                        {% if product.selected_or_first_available_variant.available == false
+                          or quantity_rule_soldout
+                          or product.selected_or_first_available_variant == null
+                        %}
+                          disabled
+                        {% endif %}
+                        {%- if product.selected_or_first_available_variant.available -%}
+                        {%- else -%}
+                          disabled
+                        {%- endif -%}
+                      >
+                        <span class="atc-text-svg">
+                          {%- if product.selected_or_first_available_variant.available -%}
+                            <svg
+                              width="17"
+                              height="20"
+                              viewBox="0 0 17 20"
+                              fill="none"
+                              xmlns="http://www.w3.org/2000/svg"
+                            >
+                              <path d="M2.82721 2.75L2.30701 3.29027C2.44676 3.42483 2.63321 3.5 2.82721 3.5V2.75ZM16.2501 2.75L16.9777 2.9319C17.0337 2.70785 16.9833 2.47048 16.8412 2.28844C16.6991 2.1064 16.481 2 16.2501 2V2.75ZM14.2501 10.75V11.5C14.5942 11.5 14.8942 11.2658 14.9777 10.9319L14.2501 10.75ZM11.1348 10.75V10C10.8289 10 10.5536 10.1858 10.4392 10.4695C10.3248 10.7533 10.3942 11.078 10.6146 11.2902L11.1348 10.75ZM14.2501 13.75V14.5C14.556 14.5 14.8312 14.3142 14.9456 14.0305C15.06 13.7467 14.9907 13.422 14.7703 13.2098L14.2501 13.75ZM3.25006 10.75V11.5C3.48101 11.5 3.69908 11.3936 3.84122 11.2116C3.98335 11.0295 4.03368 10.7922 3.97767 10.5681L3.25006 10.75ZM0.750061 0.75L1.27026 0.209732C1.02932 -0.0222642 0.663871 -0.0666687 0.37438 0.100875C0.0848876 0.268419 -0.058669 0.607409 0.0224541 0.931902L0.750061 0.75ZM3.25006 16.75V17.5C3.38813 17.5 3.50006 17.6119 3.50006 17.75H4.25006H5.00006C5.00006 16.7835 4.21656 16 3.25006 16V16.75ZM4.25006 17.75H3.50006C3.50006 17.8881 3.38813 18 3.25006 18V18.75V19.5C4.21656 19.5 5.00006 18.7165 5.00006 17.75H4.25006ZM3.25006 18.75V18C3.11199 18 3.00006 17.8881 3.00006 17.75H2.25006H1.50006C1.50006 18.7165 2.28356 19.5 3.25006 19.5V18.75ZM2.25006 17.75H3.00006C3.00006 17.6119 3.11199 17.5 3.25006 17.5V16.75V16C2.28356 16 1.50006 16.7835 1.50006 17.75H2.25006ZM13.2501 16.75V17.5C13.3881 17.5 13.5001 17.6119 13.5001 17.75H14.2501H15.0001C15.0001 16.7835 14.2166 16 13.2501 16V16.75ZM14.2501 17.75H13.5001C13.5001 17.8881 13.3881 18 13.2501 18V18.75V19.5C14.2166 19.5 15.0001 18.7165 15.0001 17.75H14.2501ZM13.2501 18.75V18C13.112 18 13.0001 17.8881 13.0001 17.75H12.2501H11.5001C11.5001 18.7165 12.2836 19.5 13.2501 19.5V18.75ZM12.2501 17.75H13.0001C13.0001 17.6119 13.112 17.5 13.2501 17.5V16.75V16C12.2836 16 11.5001 16.7835 11.5001 17.75H12.2501ZM2.82721 2.75V3.5H16.2501V2.75V2H2.82721V2.75ZM16.2501 2.75L15.5225 2.5681L13.5225 10.5681L14.2501 10.75L14.9777 10.9319L16.9777 2.9319L16.2501 2.75ZM14.2501 10.75V10H11.1348V10.75V11.5H14.2501V10.75ZM11.1348 10.75L10.6146 11.2902L13.7298 14.2902L14.2501 13.75L14.7703 13.2098L11.6551 10.2098L11.1348 10.75ZM14.2501 13.75V13H2.75006V13.75V14.5H14.2501V13.75ZM2.75006 13.75V13C2.33585 13 2.00006 12.6642 2.00006 12.25H1.25006H0.500061C0.500061 13.4926 1.50742 14.5 2.75006 14.5V13.75ZM1.25006 12.25H2.00006C2.00006 11.8358 2.33585 11.5 2.75006 11.5V10.75V10C1.50742 10 0.500061 11.0074 0.500061 12.25H1.25006ZM2.75006 10.75V11.5H3.25006V10.75V10H2.75006V10.75ZM3.25006 10.75L3.97767 10.5681L1.47767 0.568098L0.750061 0.75L0.0224541 0.931902L2.52245 10.9319L3.25006 10.75ZM0.750061 0.75L0.229859 1.29027L2.30701 3.29027L2.82721 2.75L3.34741 2.20973L1.27026 0.209732L0.750061 0.75Z" fill="white"/>
+                            </svg>
+                            {{ 'products.product.add_to_cart' | t }}
+                          {%- else -%}
+                            <span class="disabled-sold-out">
+                              {{ 'products.product.sold_out' | t }}
+                            </span>
+                          {%- endif -%}
+                        </span>
+                        {{ 'icon-spinner.svg' | inline_asset_content }}
+                      </button>
+                    {% endif %}
+
+                    {%- if show_dynamic_checkout -%}
+                      <div class="f-product-form__button-dynamic">
+                        {{ form | payment_button }}
+                      </div>
+                    {%- endif %}
+
+                    <div class="f-product-form__error-message-wrapper" role="alert"></div>
+
+                    <button
+                      class="pdp-wishlist-btn btn btn--plain pdp-wishlist-btn--atc"
+                      id="pdp-wishlist-{{ product.id }}"
+                      data-product-id="{{ product.handle }}"
+                      aria-label="Add to wishlist"
+                    ></button>
+                    <script>
+                      (function () {
+                        var btn = document.getElementById('pdp-wishlist-{{ product.id }}');
+                        if (!btn) return;
+                        var handle = btn.getAttribute('data-product-id');
+
+                        var svgDefault =
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M19 14C20.49 12.54 22 10.79 22 8.5C22 7.04131 21.4205 5.64236 20.3891 4.61091C19.3576 3.57946 17.9587 3 16.5 3C14.74 3 13.5 3.5 12 5C10.5 3.5 9.26 3 7.5 3C6.04131 3 4.64236 3.57946 3.61091 4.61091C2.57946 5.64236 2 7.04131 2 8.5C2 10.8 3.5 12.55 5 14L12 21L19 14Z" stroke="#364153" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+                        var svgActive =
+                          '<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M19 14C20.49 12.54 22 10.79 22 8.5C22 7.04131 21.4205 5.64236 20.3891 4.61091C19.3576 3.57946 17.9587 3 16.5 3C14.74 3 13.5 3.5 12 5C10.5 3.5 9.26 3 7.5 3C6.04131 3 4.64236 3.57946 3.61091 4.61091C2.57946 5.64236 2 7.04131 2 8.5C2 10.8 3.5 12.55 5 14L12 21L19 14Z" stroke="#c58a30" fill="#f1e2cb" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>';
+
+                        function getWishlist() {
+                          return JSON.parse(localStorage.getItem('wishlist')) || [];
+                        }
+                        function saveWishlist(list) {
+                          localStorage.setItem('wishlist', JSON.stringify(list));
+                        }
+
+                        function updateBtn() {
+                          var inList = getWishlist().includes(handle);
+                          btn.classList.toggle('active', inList);
+                          btn.setAttribute('aria-label', inList ? 'Remove from wishlist' : 'Add to wishlist');
+                          while (btn.firstChild) btn.removeChild(btn.firstChild);
+                          btn.insertAdjacentHTML('afterbegin', inList ? svgActive : svgDefault);
+                        }
+
+                        btn.addEventListener('click', function (e) {
+                          e.preventDefault();
+                          var list = getWishlist();
+                          if (list.includes(handle)) {
+                            saveWishlist(
+                              list.filter(function (h) {
+                                return h !== handle;
+                              })
+                            );
+                          } else {
+                            list.push(handle);
+                            saveWishlist(list);
+                          }
+                          updateBtn();
+                          document.querySelectorAll('.wishlist-counter').forEach(function (el) {
+                            el.textContent = getWishlist().length;
+                          });
+                        });
+
+                        updateBtn();
+                      })();
+                    </script>
+                    <style type="text/css">
+                      .pdp-wishlist-btn {
+                        height: 58px;
+                        border: 1px solid #D1D5DC !important;
+                      }
+                    </style>
+                  </div>
+                {%- endform -%}
+              </product-form>
+            {% endif %}
+            <link
+              rel="stylesheet"
+              href="{{ 'pickup-availability.css' | asset_url }}"
+              media="print"
+              onload="this.media='all';"
+            >
+            <noscript>
+              {{ 'pickup-availability.css' | asset_url | stylesheet_tag }}
+            </noscript>
+            {%- assign pick_up_availabilities = product.selected_or_first_available_variant.store_availabilities
+              | where: 'pick_up_enabled', true
+            -%}
+
+            <pickup-availability
+              class="product__pickup-availabilities no-js-hidden"
+              {% if product.selected_or_first_available_variant.available and pick_up_availabilities.size > 0 %}
+                available
+              {% endif %}
+              data-base-url="{{ shop.url }}{{ routes.root_url }}"
+              data-variant-id="{{ product.selected_or_first_available_variant.id }}"
+              data-has-only-default-variant="{{ product.has_only_default_variant }}"
+            >
+              <template>
+                <pickup-availability-preview class="pickup-availability-preview">
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    aria-hidden="true"
+                    class="icon-setting icon-unavailable"
+                    viewBox="0 0 20 20"
+                  >
+                    <path fill="#DE3618" stroke="#fff" d="M13.94 3.94 10 7.878l-3.94-3.94A1.499 1.499 0 1 0 3.94 6.06L7.88 10l-3.94 3.94a1.499 1.499 0 1 0 2.12 2.12L10 12.12l3.94 3.94a1.497 1.497 0 0 0 2.12 0 1.499 1.499 0 0 0 0-2.12L12.122 10l3.94-3.94a1.499 1.499 0 1 0-2.121-2.12z"/>
+                  </svg>
+                  <div class="pickup-availability-info">
+                    <p class="caption-large">{{ 'products.product.pickup_availability.unavailable' | t }}</p>
+                    <button class="pickup-availability-button btn btn--underline">
+                      {{ 'products.product.pickup_availability.refresh' | t }}
+                    </button>
+                  </div>
+                </pickup-availability-preview>
+              </template>
+            </pickup-availability>
+          </div>
+
+          <script src="{{ 'pickup-availability.js' | asset_url }}" defer="defer"></script>
+        {% when 'countdown_timer' %}
+          {% liquid
+            assign timer = block.settings.end_time
+            assign heading = block.settings.heading
+            assign style = block.settings.style
+            assign custom_time = product.metafields.foxtheme.countdown
+            if custom_time != blank
+              assign timer = custom_time
+            endif
+          %}
+          <div
+            class="f-product-single__block-countdown f-product-single__block-countdown--{{ style }}"
+            data-countdown-wrapper
+            hidden
+          >
+            {%- if heading != blank -%}
+              <h4 class="h5">{{- heading -}}</h4>
+            {% endif %}
+            {%- if block.settings.type == 'evergreen' or timer != blank -%}
+              {% render 'countdown-timer',
+                time: timer,
+                id: block.id,
+                style: style,
+                number_size: block.settings.number_size
+              %}
+            {%- endif -%}
+          </div>
+
+        {%- when 'variant-picker-color' -%}
+          <variant-picker
+            class="no-js-hidden variant-picker--standalone"
+            id="variant-picker-color-{{ section.id }}-{{ block.id }}"
+            data-update-url="false"
+            {{ block.shopify_attributes }}
+          >
+            {%- render 'variant-picker-color',
+              product: product,
+              block: block,
+              section: section,
+              product_form_id: product_form_id
+            -%}
+            <script type="application/json" data-selected-variant>
+              {{ product.selected_or_first_available_variant | json }}
+            </script>
+          </variant-picker>
+
+        {%- when 'variant-picker-size' -%}
+          <variant-picker
+            class="no-js-hidden variant-picker--standalone"
+            id="variant-picker-size-{{ section.id }}-{{ block.id }}"
+            data-update-url="false"
+            {{ block.shopify_attributes }}
+          >
+            {%- render 'variant-picker-size',
+              product: product,
+              block: block,
+              section: section,
+              product_form_id: product_form_id
+            -%}
+            <script type="application/json" data-selected-variant>
+              {{ product.selected_or_first_available_variant | json }}
+            </script>
+          </variant-picker>
+
+        {%- when 'shipping' -%}
+          <ul class="list-none">
+            {% if block.settings.deliver_days != blank %}
+              <li class="flex items-center">
+                <svg
+                  class="icon-setting"
+                  fill="currentColor"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 256 256"
+                >
+                  <path d="M245.57,117.78l-14-35a13.93,13.93,0,0,0-13-8.8H182V64a6,6,0,0,0-6-6H24A14,14,0,0,0,10,72V184a14,14,0,0,0,14,14H42.6a30,30,0,0,0,58.8,0h53.2a30,30,0,0,0,58.8,0H232a14,14,0,0,0,14-14V120A6,6,0,0,0,245.57,117.78ZM182,86h36.58a2,2,0,0,1,1.86,1.26L231.14,114H182ZM22,72a2,2,0,0,1,2-2H170v68H22ZM72,210a18,18,0,1,1,18-18A18,18,0,0,1,72,210Zm82.6-24H101.4a30,30,0,0,0-58.8,0H24a2,2,0,0,1-2-2V150H170v15.48A30.1,30.1,0,0,0,154.6,186ZM184,210a18,18,0,1,1,18-18A18,18,0,0,1,184,210Zm50-26a2,2,0,0,1-2,2H213.4A30.05,30.05,0,0,0,184,162c-.67,0-1.34,0-2,.07V126h52Z"></path>
+                </svg>
+                {% liquid
+                  assign date_format = block.settings.date_format | default: '%b %d'
+                  assign range = 2 | times: 24 | times: 60 | times: 60
+                  assign deliver_in = block.settings.deliver_days | times: 24 | times: 60 | times: 60
+                  assign now = 'now' | date: '%s'
+                  assign from = now | plus: deliver_in | minus: range | date: date_format
+                  assign to = now | plus: deliver_in | plus: range | date: date_format
+                %}
+                <span>
+                  {{- block.settings.deliver_text | strip_html }}
+                  <span>{{ from }} - {{ to }}</span></span
+                >
+              </li>
+            {% endif %}
+            {% if block.settings.shipping_text != blank %}
+              <li class="flex items-center">
+                <svg
+                  class="icon-setting"
+                  fill="currentColor"
+                  aria-hidden="true"
+                  xmlns="http://www.w3.org/2000/svg"
+                  width="24"
+                  height="24"
+                  viewBox="0 0 256 256"
+                >
+                  <path d="M222.72,67.91l-88-48.18a13.9,13.9,0,0,0-13.44,0l-88,48.18A14,14,0,0,0,26,80.18v95.64a14,14,0,0,0,7.28,12.27l88,48.18a13.92,13.92,0,0,0,13.44,0l88-48.18A14,14,0,0,0,230,175.82V80.18A14,14,0,0,0,222.72,67.91ZM127,30.25a2,2,0,0,1,1.92,0L212.51,76,178.57,94.57,94.05,48.31ZM122,223,39,177.57a2,2,0,0,1-1-1.75V86.66l84,46ZM43.49,76,81.56,55.15l84.51,46.26L128,122.24ZM218,175.82a2,2,0,0,1-1,1.75h0L134,223V132.64l36-19.71V152a6,6,0,0,0,12,0V106.37l36-19.71Z"></path>
+                </svg>
+                <span>{{ block.settings.shipping_text }}</span>
+              </li>
+            {% endif %}
+          </ul>
+        {%- when 'collapsible_tab' -%}
+          {% if block.settings.heading != blank %}
+            <collapsible-tab
+              class="collapsible__item no-js-hidden"
+              data-block-id="collapsible-tab-{{ block.id }}"
+              open="{{ block.settings.default_open | default: 'false' }}"
+            >
+              <button class="collapsible__button" data-trigger>
+                {% if block.settings.icon != blank and block.settings.icon != 'none' %}
+                  {% render 'icon', name: block.settings.icon %}
+                {% endif %}
+                <span>{{ block.settings.heading }}</span>
+                <span data-collapsible-icon>
+                  <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+              <div class="collapsible__content" data-content hidden>
+                <div class="collapsible__content-inner rte">
+                  {{ block.settings.content }}
+                  {{ block.settings.liquid }}
+                  {{ block.settings.page.content }}
+                </div>
+              </div>
+            </collapsible-tab>
+            <noscript>
+              <details
+                class="collapsible__item"
+                {% if block.settings.default_open %}
+                  open
+                {% endif %}
+              >
+                <summary class="collapsible__button">
+                  {% if block.settings.icon != blank and block.settings.icon != 'none' %}
+                    {% render 'icon', name: block.settings.icon %}
+                  {% endif %}
+                  <span>{{ block.settings.heading }}</span>
+                  <span class="" data-collapsible-icon>
+                    <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </summary>
+                <div class="collapsible__content" data-content hidden>
+                  <div class="collapsible__content-inner rte">
+                    {{ block.settings.content }}
+                    {{ block.settings.liquid }}
+                    {{ block.settings.page.content }}
+                  </div>
+                </div>
+              </details>
+            </noscript>
+          {% endif %}
+
+          {% comment %} CUSTOM TABS {% endcomment %}
+          {% if product.metafields.custom.features_and_benefits != blank
+            or product.metafields.custom.features_and_benefits_icons_list
+          %}
+            <collapsible-tab
+              class="collapsible__item no-js-hidden"
+              data-block-id="collapsible-tab-{{ block.id }}"
+              open="false"
+            >
+              <button class="collapsible__button" data-trigger>
+                <span>Features and benefits</span>
+                <span data-collapsible-icon>
+                  <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+              <div class="collapsible__content" data-content hidden>
+                <div class="collapsible__content-inner rte">
+                  {{ product.metafields.custom.features_and_benefits | metafield_tag }}
+
+                  {% assign icons = product.metafields.custom.features_and_benefits_icons_list.value %}
+                  {% assign descriptions = product.metafields.custom.features_and_benefits_icons_description_list.value %}
+
+                  {% if icons and descriptions %}
+                    <div class="product-icons">
+                      {% for icon in icons %}
+                        {% assign index = forloop.index0 %}
+                        <div class="product-icons-item">
+                          <div
+                            class="icon-image"
+                            style="background: url({{ icon | image_url }});"
+                            aria-label="{{ descriptions[index] | default: icon.filename }}"
+                            role="img"
+                            tabindex="0"
+                          ></div>
+                          {% if descriptions[index] != blank %}
+                            <p class="icon-description">{{ descriptions[index] }}</p>
+                          {% endif %}
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </collapsible-tab>
+            <noscript>
+              <details
+                class="collapsible__item"
+                {% if block.settings.default_open %}
+                  open
+                {% endif %}
+              >
+                <summary class="collapsible__button">
+                  <span>Features and benefits</span>
+                  <span class="" data-collapsible-icon>
+                    <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </summary>
+                <div class="collapsible__content" data-content hidden>
+                  <div class="collapsible__content-inner rte">
+                    {{ product.metafields.custom.features_and_benefits | metafield_tag }}
+
+                    {% assign icons = product.metafields.custom.features_and_benefits_icons_list.value %}
+                    {% assign descriptions = product.metafields.custom.features_and_benefits_icons_description_list.value %}
+
+                    {% if icons and descriptions %}
+                      <div class="product-icons">
+                        {% for icon in icons %}
+                          {% assign index = forloop.index0 %}
+                          <div class="product-icons-item">
+                            <div
+                              class="icon-image"
+                              style="background: url({{ icon | image_url }});"
+                              aria-label="{{ descriptions[index] | default: icon.filename }}"
+                              role="img"
+                              tabindex="0"
+                            ></div>
+                            {% if descriptions[index] != blank %}
+                              <p class="icon-description">{{ descriptions[index] }}</p>
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </details>
+            </noscript>
+          {% endif %}
+
+          {% if product.metafields.custom.fabric_and_care != blank
+            or product.metafields.custom.fabric_and_care_icons_list
+          %}
+            <collapsible-tab
+              class="collapsible__item no-js-hidden"
+              data-block-id="collapsible-tab-{{ block.id }}"
+              open="false"
+            >
+              <button class="collapsible__button" data-trigger>
+                <span>Fabric and Care</span>
+                <span data-collapsible-icon>
+                  <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+              <div class="collapsible__content" data-content hidden>
+                <div class="collapsible__content-inner rte">
+                  {{ product.metafields.custom.fabric_and_care | metafield_tag }}
+
+                  {% assign icons = product.metafields.custom.fabric_and_care_icons_list.value %}
+                  {% assign descriptions = product.metafields.custom.fabric_and_care_icons_description_list.value %}
+
+                  {% if icons and descriptions %}
+                    <div class="product-icons">
+                      {% for icon in icons %}
+                        {% assign index = forloop.index0 %}
+                        <div class="product-icons-item">
+                          <div
+                            class="icon-image"
+                            style="background: url({{ icon | image_url }});"
+                            aria-label="{{ descriptions[index] | default: icon.filename }}"
+                            role="img"
+                            tabindex="0"
+                          ></div>
+                          {% if descriptions[index] != blank %}
+                            <p class="icon-description">{{ descriptions[index] }}</p>
+                          {% endif %}
+                        </div>
+                      {% endfor %}
+                    </div>
+                  {% endif %}
+                </div>
+              </div>
+            </collapsible-tab>
+            <noscript>
+              <details
+                class="collapsible__item"
+                {% if block.settings.default_open %}
+                  open
+                {% endif %}
+              >
+                <summary class="collapsible__button">
+                  <span>Fabric and Care</span>
+                  <span class="" data-collapsible-icon>
+                    <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </summary>
+                <div class="collapsible__content" data-content hidden>
+                  <div class="collapsible__content-inner rte">
+                    {{ product.metafields.custom.fabric_and_care | metafield_tag }}
+
+                    {% assign icons = product.metafields.custom.fabric_and_care_icons_list.value %}
+                    {% assign descriptions = product.metafields.custom.fabric_and_care_icons_description_list.value %}
+
+                    {% if icons and descriptions %}
+                      <div class="product-icons">
+                        {% for icon in icons %}
+                          {% assign index = forloop.index0 %}
+                          <div class="product-icons-item">
+                            <div
+                              class="icon-image"
+                              style="background: url({{ icon | image_url }});"
+                              aria-label="{{ descriptions[index] | default: icon.filename }}"
+                              role="img"
+                              tabindex="0"
+                            ></div>
+                            {% if descriptions[index] != blank %}
+                              <p class="icon-description">{{ descriptions[index] }}</p>
+                            {% endif %}
+                          </div>
+                        {% endfor %}
+                      </div>
+                    {% endif %}
+                  </div>
+                </div>
+              </details>
+            </noscript>
+          {% endif %}
+
+          {% if product.metafields.custom.sizing %}
+            <collapsible-tab
+              class="collapsible__item no-js-hidden"
+              data-block-id="collapsible-tab-{{ block.id }}"
+              open="false"
+            >
+              <button class="collapsible__button" data-trigger>
+                <span>Sizing</span>
+                <span data-collapsible-icon>
+                  <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </span>
+              </button>
+              <div class="collapsible__content" data-content hidden>
+                <div class="collapsible__content-inner rte">
+                  {{ product.metafields.custom.sizing | metafield_tag }}
+                </div>
+              </div>
+            </collapsible-tab>
+            <noscript>
+              <details
+                class="collapsible__item"
+                {% if block.settings.default_open %}
+                  open
+                {% endif %}
+              >
+                <summary class="collapsible__button">
+                  <span>Sizing</span>
+                  <span class="" data-collapsible-icon>
+                    <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <svg width="2" height="24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M1 1.333v21.334" stroke="#C58A30" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </span>
+                </summary>
+                <div class="collapsible__content" data-content hidden>
+                  <div class="collapsible__content-inner rte">
+                    {{ product.metafields.custom.sizing | metafield_tag }}
+                  </div>
+                </div>
+              </details>
+            </noscript>
+          {% endif %}
+        {%- when 'complementary' -%}
+          <product-recommendations
+            class="f-complementary-products block{% if block.settings.make_collapsible_row %} is-accordion{% else %} relative{% endif %}"
+            data-url="{{ routes.product_recommendations_url }}?section_id={{ section.id }}&product_id={{ product.id }}&limit={{ block.settings.product_list_limit }}&intent=complementary"
+          >
+            {%- if recommendations.performed and recommendations.products_count > 0 -%}
+              {%- liquid
+                assign number_of_slides = recommendations.products_count | plus: 0.0 | divided_by: block.settings.products_per_page | ceil
+                assign enable_slider = false
+                if number_of_slides > 1 and block.settings.enable_slider
+                  assign enable_slider = true
+                endif
+              -%}
+              {% capture block_content %}
+                <flickity-component
+                    class="f-grid f-grid-1-cols{% if enable_slider %} flickity-enable{% endif %} {{ slide_class }}"
+                    data-slider-options='{"pageDots": true, "prevNextButtons": false, "groupCells": 1, "cellSelector": ".f-complementary-products__slide", "wrapAround": true, "adaptiveHeight": true}'
+                    data-slider-columns="1"
+                    data-enable-slider="{{ enable_slider }}"
+                    style="--pagination-width: 2.5rem;--button-size: 3.6rem;--button-size-mobile: 3.6rem;"
+                >
+                    {%- for i in (1..number_of_slides) -%}
+                        <div class="f-complementary-products__slide w-full">
+                            {%- for product in recommendations.products limit: block.settings.products_per_page offset: continue -%}
+                                <div class="f-column">
+                                    {% render 'product-card', 
+                                        product: product, 
+                                        custom_class: 'bg-secondary', 
+                                        is_complementary: true, 
+                                        list_layout: true,
+                                        index: forloop.index,
+                                        section_index: section.index,
+                                        image_ratio: block.settings.image_ratio, 
+                                        enable_quick_add: block.settings.enable_quick_add, 
+                                        enable_quick_view: block.settings.enable_quick_view,
+                                        color_schema: 'background-1',
+                                        show_product_option: block.settings.pcard_show_color_swatch
+                                    %}
+                                </div>
+                            {%- endfor -%}
+                        </div>
+                    {%- endfor -%}
+                </flickity-component>
+              {% endcapture %}
+              {% if block.settings.make_collapsible_row %}
+                <collapsible-tab
+                  class="collapsible__item no-js-hidden"
+                  data-block-id="collapsible-tab-{{ block.id }}"
+                  open="true"
+                >
+                  <button class="collapsible__button" data-trigger>
+                    {% if block.settings.icon != blank and block.settings.icon != 'none' %}
+                      {% render 'icon', name: block.settings.icon %}
+                    {% endif %}
+                    <span>{{ block.settings.block_heading }}</span>
+                    <span data-collapsible-icon>
+                      <svg width="2" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <svg width="2" height="12" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 1.333v9.334" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </span>
+                  </button>
+                  <div class="collapsible__content" data-content hidden>
+                    <div class="collapsible__content-inner">
+                      {{ block_content }}
+                    </div>
+                  </div>
+                </collapsible-tab>
+              {% else %}
+                {% unless block.settings.block_heading == blank %}
+                  <h3 class="f-complementary-products__block-heading font-body-bolder h6">
+                    {{ block.settings.block_heading }}
+                  </h3>
+                {% endunless %}
+                {{ block_content }}
+              {% endif %}
+            {% endif %}
+          </product-recommendations>
+          {% if settings.pcard_show_quickview_button == false and block.settings.enable_quick_view %}
+            <script src="{{ 'quick-view.js' | asset_url }}" defer="defer"></script>
+          {% endif %}
+        {%- when 'inventory_status' -%}
+          {%- render 'product-inventory',
+            product: product,
+            current_variant: current_variant,
+            block: block,
+            disable_default_variant: disable_default_variant
+          -%}
+        {%- when 'badge' -%}
+          {%- liquid
+            assign has_tags = false
+            for tag in product.tags
+              if tag contains 'tag__'
+                assign has_tags = true
+              endif
+            endfor
+          -%}
+          {%- if has_tags -%}
+            <div class="f-product__tags">
+              {% for tag in product.tags %}
+                {% if tag contains 'tag__' %}
+                  {%- liquid
+                    assign tag_content = tag | split: '__' | last
+                    assign type = tag_content | split: '_' | first
+                    assign tag_name = tag_content | split: '_' | last
+                  -%}
+                  <span class="f-badge f-badge--{{ type }}">
+                    {{ tag_name }}
+                  </span>
+                {% endif %}
+              {% endfor %}
+            </div>
+          {%- endif -%}
+
+        {%- when 'price_title' -%}
+          {%- liquid
+            assign pt_rating = product.metafields['app--2519111--reviews'].review_average_rating.value
+            assign pt_count = product.metafields['app--2519111--reviews'].review_count.value
+          -%}
+          <div
+            class="f-product-single__block f-product-single__block--price-title pt-block"
+            {{ block.shopify_attributes }}
+          >
+            <div class="pt-block__left">
+              <h1 class="pt-block__title {{ block.settings.heading_size }}">{{ product.title }}</h1>
+              {%- if block.settings.show_vendor and product.vendor != blank -%}
+                <p class="pt-block__vendor">{{ product.vendor | link_to_vendor }}</p>
+              {%- endif -%}
+            </div>
+            <div class="pt-block__right">
+              <p class="pt-block__price">{{ product.selected_or_first_available_variant.price | money }}</p>
+              {%- if block.settings.show_reviews and pt_rating != blank -%}
+                <a href="#yotpo-headline-reviews">
+                  <div class="pt-block__stars">
+                    <span class="pt-block__star-icon">
+                      <svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M8.5 11.2842V3.45263L9.9535 6.84632L13.6765 7.15789L10.8545 9.59158L11.696 13.1958L8.5 11.2842ZM17 6.09684L10.8885 5.58316L8.5 0L6.1115 5.58316L0 6.09684L4.6325 10.08L3.247 16L8.5 12.8589L13.753 16L12.359 10.08L17 6.09684Z" fill="#FCD34D"/>
+                      </svg>
+                    </span>
+                    <span class="pt-block__rating-value">{{ pt_rating | round: 1 }}</span>
+                    {%- if pt_count != blank -%}
+                      <span class="pt-block__rating-count">({{ pt_count }})</span>
+                    {%- endif -%}
+                  </div>
+                </a>
+              {%- endif -%}
+            </div>
+          </div>
+          
+        {%- when 'variant_picker' -%}
+          {%- liquid
+            assign mvp_option_name = block.settings.option_name | strip | downcase
+            assign mvp_style = block.settings.picker_style
+            assign mvp_show_val = block.settings.show_selected_value
+            assign size_chart = product.metafields.foxtheme.size_chart
+            if size_chart == blank and block.settings.size_chart_from_page != blank
+              assign size_chart = pages[block.settings.size_chart_from_page].content
+            endif
+            assign show_size_chart = false
+            if size_chart != blank
+              assign show_size_chart = true
+            endif
+            assign size_title = block.settings.size_title
+          -%}
+
+            {%- capture size_chart_button -%}
+              <modal-opener class="open-size-chart no-js-hidden" data-modal="#PopupModal-SizeChart-{{ section.id }}">
+                <button class="btn--link text-sm" aria-label="{{ 'products.product.open_size_chart' | t }}">
+                  <span>
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <g clip-path="url(#clip0_293_933)">
+                        <path d="M14.2 10.2C14.3492 10.3486 14.4675 10.5253 14.5483 10.7197C14.629 10.9142 14.6706 11.1227 14.6706 11.3333C14.6706 11.5439 14.629 11.7524 14.5483 11.9469C14.4675 12.1414 14.3492 12.318 14.2 12.4667L12.4667 14.2C12.318 14.3492 12.1414 14.4675 11.9469 14.5483C11.7524 14.629 11.5439 14.6706 11.3333 14.6706C11.1227 14.6706 10.9142 14.629 10.7197 14.5483C10.5253 14.4675 10.3486 14.3492 10.2 14.2L1.79999 5.79999C1.50036 5.49891 1.33215 5.09142 1.33215 4.66666C1.33215 4.24189 1.50036 3.83441 1.79999 3.53332L3.53332 1.79999C3.83441 1.50036 4.24189 1.33215 4.66666 1.33215C5.09142 1.33215 5.49891 1.50036 5.79999 1.79999L14.2 10.2Z" stroke="#4A5565" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M9.66669 8.33333L11 7" stroke="#4A5565" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M7.66669 6.33333L9.00002 5" stroke="#4A5565" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M5.66669 4.33333L7.00002 3" stroke="#4A5565" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M11.6667 10.3333L13 9" stroke="#4A5565" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                      </g>
+                      <defs>
+                        <clipPath id="clip0_293_933">
+                          <rect width="16" height="16" fill="white"/>
+                        </clipPath>
+                      </defs>
+                    </svg>
+                    Size Guide
+                  </span>
+                </button>
+              </modal-opener>
+            {%- endcapture -%}
+
+          <div
+            class="variant-picker"
+            data-variant-picker
+            data-product-id="{{ product.id }}"
+            data-section="{{ section.id }}"
+            data-product-handle="{{ product.handle }}"
+            data-product-url="{{ product.url }}"
+            data-max-options="{{ product.options_with_values.size }}"
+          >
+            {%- unless product.has_only_default_variant -%}
+              <variant-picker
+                class="no-js-hidden"
+                id="variant-picker-{{ section.id }}"
+                data-update-url="{{ update_browser_history }}"
+              >
+                {%- for option in product.options_with_values -%}
+                  {%- liquid
+                    assign option_name_downcase = option.name | downcase
+                    assign option_label = option.name
+
+                    assign skip_option = false
+                    if mvp_option_name != blank and option_name_downcase != mvp_option_name
+                      assign skip_option = true
+                    endif
+
+                    assign size_title_downcase = size_title | downcase
+                    assign is_size = false
+                    if size_title_downcase contains option_name_downcase
+                      assign is_size = true
+                    endif
+
+                    assign swatch_count = option.values | map: 'swatch' | compact | size
+                    assign type_picker = mvp_style
+                    if type_picker == blank
+                      assign type_picker = block.settings.default_picker_type
+                    endif
+
+                    assign is_club_option = false
+                    if option_name_downcase contains 'club'
+                      assign is_club_option = true
+                      assign type_picker = 'dropdown'
+                    endif
+
+                    if settings.color_swatches_enable and is_club_option == false and is_size == false
+                      if settings.color_swatches_trigger != blank and type_picker == 'button'
+                        assign color_swatches_trigger = settings.color_swatches_trigger | downcase | split: ','
+                        assign has_color = color_swatches_trigger | where: option_name_downcase | first
+                        if has_color != blank
+                          assign type_picker = 'color'
+                        else
+                          assign type_picker = 'button'
+                        endif
+                      endif
+                      if swatch_count > 0
+                        if mvp_style == 'dropdown'
+                          assign type_picker = 'swatch_dropdown'
+                        elsif settings.vp_swatch_type == 'shopify'
+                          assign type_picker = 'swatch'
+                        elsif settings.vp_swatch_type == 'variant_image' or settings.vp_swatch_type == 'custom'
+                          assign type_picker = 'color'
+                        endif
+                      endif
+                    endif
+                  -%}
+
+                  {%- unless skip_option -%}
+                    {%- comment -%}
+                      ====================================================
+                      SNIPPET INJECTION POINT — BEFORE OPTION
+                      To inject content before a specific option, use:
+                        {%- if option_name_downcase == 'color' -%}
+                          {% render 'your-snippet' %}
+                        {%- endif -%}
+                      ====================================================
+                    {%- endcomment -%}
+
+                    {%- if option_name_downcase == 'size' -%}
+                      <div id="contain-club-data"></div>
+                    {%- endif -%}
+                    <div class="variant-picker__field-wrapper variant-picker__field-wrapper--{{ option.name | handleize }}">
+                      {%- case type_picker -%}
+                        {%- when 'dropdown', 'swatch_dropdown' -%}
+                          <div
+                            class="variant-picker__field"
+                            data-picker-field="select"
+                            data-option-name="{{ option.name }}"
+                          >
+                            <div class="variant-picker__input variant-picker__input--dropdown">
+                              <label class="form-label" for="Option-{{ section.id }}-{{ forloop.index0 }}">
+                                <span class="font-semibold">{{ option_label }}:</span>
+                                {%- if mvp_show_val -%}
+                                  <span class="selected-value">{{ option.selected_value }}</span>
+                                {%- endif -%}
+                              </label>
+                              <select
+                                class="form-control variant-select-original"
+                                id="Option-{{ section.id }}-{{ forloop.index0 }}"
+                                name="options[{{ option.name | escape }}]"
+                                form="{{ product_form_id }}"
+                                data-option-name="{{ option.name }}"
+                                data-option-index="{{ forloop.index0 }}"
+                              >
+                                {%- render 'product-variant-options',
+                                  product: product,
+                                  option: option,
+                                  block: block,
+                                  picker_type: type_picker
+                                -%}
+                              </select>
+                            </div>
+                          </div>
+
+                        {%- when 'color', 'swatch' -%}
+                          <div
+                            class="variant-picker__field"
+                            data-picker-field="radio"
+                            data-option-name="{{ option.name }}"
+                          >
+                            <div class="js variant-picker__input variant-picker__color">
+                              <label class="form__label">
+                                <span class="font-semibold">{{ option_label }}:</span>
+                                {%- if mvp_show_val -%}
+                                  <span class="selected-value">{{ option.selected_value }}</span>
+                                {%- endif -%}
+                              </label>
+                              <div class="variant-picker__option-values">
+                                {%- render 'product-variant-options',
+                                  product: product,
+                                  option: option,
+                                  block: block,
+                                  picker_type: type_picker,
+                                  color_schema: color_schema
+                                -%}
+                              </div>
+                            </div>
+                          </div>
+
+                        {%- else -%}
+                          <div
+                            class="variant-picker__field"
+                            data-picker-field="radio"
+                            data-option-name="{{ option.name }}"
+                          >
+                            <div class="js variant-picker__input variant-picker__button">
+                              <label class="form__label">
+                                <span class="font-semibold">{{ option_label }}:</span>
+                                {%- if mvp_show_val -%}
+                                  <span class="selected-value">{{ option.selected_value }}</span>
+                                {%- endif -%}
+                              </label>
+                              <div class="variant-picker__option-values">
+                                {%- render 'product-variant-options',
+                                  product: product,
+                                  option: option,
+                                  block: block,
+                                  picker_type: type_picker
+                                -%}
+                              </div>
+                            </div>
+                          </div>
+                      {%- endcase -%}
+
+                      {%- if is_size and show_size_chart -%}
+                        {{- size_chart_button -}}
+                      {%- endif -%}
+                      {%- if is_size -%}
+                        <button
+                          class="open-size-chart open-foxkit-sizechart btn btn--with-icon btn--plain foxkit-hidden"
+                          aria-label="{{ 'products.product.open_size_chart' | t }}"
+                        >
+                          <span
+                            ><u>{{ 'products.product.open_size_chart' | t }}</u></span
+                          >
+                        </button>
+                      {%- endif -%}
+                    </div>
+
+                    {%- comment -%}
+                      ====================================================
+                      SNIPPET INJECTION POINT — AFTER OPTION
+                      To inject content after a specific option, use:
+                        {%- if option_name_downcase == 'size' -%}
+                          {% render 'your-snippet' %}
+                        {%- endif -%}
+                      ====================================================
+                    {%- endcomment -%}
+                  {%- endunless -%}
+                {%- endfor -%}
+
+                <script type="application/json" data-selected-variant>
+                  {{ product.selected_or_first_available_variant | json }}
+                </script>
+              </variant-picker>
+            {%- endunless -%}
+
+            <noscript class="variant-picker__noscript-wrapper-{{ section.id }}">
+              <div class="form-field variant-picker__input{% if product.has_only_default_variant %} hidden{% endif %}">
+                <label class="form-label" for="Variants-{{ section.id }}">
+                  {{- 'products.product.product_variants' | t -}}
+                </label>
+                <select name="id" id="Variants-{{ section.id }}" class="form-control" form="{{ product_form_id }}">
+                  {%- for variant in product.variants -%}
+                    <option
+                      {% if variant == product.selected_or_first_available_variant %}
+                        selected="selected"
+                      {% endif %}
+                      {% if variant.available == false %}
+                        disabled
+                      {% endif %}
+                      value="{{ variant.id }}"
+                    >
+                      {{ variant.title }}
+                      {%- if variant.available == false %} - {{ 'products.product.sold_out' | t }}{% endif %}
+                      - {{ variant.price | money | strip_html }}
+                    </option>
+                  {%- endfor -%}
+                </select>
+              </div>
+            </noscript>
+
+            {%- if show_size_chart -%}
+              {%- assign modal_id = 'SizeChart-' | append: section.id -%}
+              <modal-dialog id="PopupModal-{{ modal_id }}" class="f-modal hidden" style="--modal-width:800px">
+                <div class="f-modal__content" role="dialog" aria-modal="true" tabindex="-1">
+                  <div class="scroll-container">
+                    <button
+                      id="ModalClose-{{ modal_id }}"
+                      type="button"
+                      class="f-modal__close"
+                      aria-label="{{ 'accessibility.close' | t }}"
+                    >
+                      {{ 'icon-close.svg' | inline_asset_content }}
+                    </button>
+                    <div class="f-modal__inner">
+                      <div class="rte py-md px-sm">{{ size_chart }}</div>
+                    </div>
+                  </div>
+                </div>
+              </modal-dialog>
+            {%- endif -%}
+          </div>
+
+        {% else %}
+      {%- endcase -%}
+    </div>
+  {%- endfor -%}
+</div>
+
+<script type="text/javascript">
+  function mvpHandleChange(el, optionIndex, val) {
+    val = val || el.value;
+    // Update active state
+    const block = el.closest('.mvp-block');
+    block.querySelectorAll('.mvp-btn, .variant-picker__option-item').forEach((b) => b.classList.remove('is-active'));
+    el.closest('.mvp-btn, .variant-picker__option-item')?.classList.add('is-active');
+    // Update label value
+    const valEl = block.querySelector('[data-mvp-val]');
+    if (valEl) valEl.textContent = ': ' + val;
+    // Sync with the hidden variant picker select (Dawn/Foxecom pattern)
+    const picker = document.querySelector('variant-picker');
+    if (picker) {
+      const selects = picker.querySelectorAll('select, input[type="radio"]');
+      selects.forEach((input) => {
+        const name = input.name || '';
+        if (name.includes('option' + (optionIndex + 1)) || input.dataset.optionIndex == optionIndex) {
+          input.value = val;
+          input.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+      });
+    }
+  }
+  function mvpHandleDropdown(select, optionIndex) {
+    mvpHandleChange(select, optionIndex, select.value);
+  }
+</script>

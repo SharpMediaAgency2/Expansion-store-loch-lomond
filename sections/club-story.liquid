@@ -1,0 +1,426 @@
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign image = section.settings.image
+  assign image_mobile = section.settings.image_mobile
+  assign image_width = section.settings.image_width
+  assign text_width = 100 | minus: image_width
+
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+-%}
+
+<style>
+  #{{ section_id }} {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+  }
+
+  #{{ section_id }} .cs-container {
+    background-color: {{ section.settings.container_bg }};
+    border-radius: 12px;
+    overflow: hidden;
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* ── Text side ── */
+  #{{ section_id }} .cs-content {
+    width: {{ text_width }}%;
+    padding: 48px 44px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    gap: 20px;
+    flex-shrink: 0;
+  }
+
+  #{{ section_id }} .cs-heading {
+    margin: 0;
+    font-size:30px;
+  }
+
+  /* ── Image side ── */
+  #{{ section_id }} .cs-image-wrap {
+    width: {{ image_width }}%;
+    flex-shrink: 0;
+    position: relative;
+    overflow: hidden;
+    /* No extra radius needed — container handles it via overflow:hidden */
+  }
+
+  #{{ section_id }} .cs-image-wrap picture,
+  #{{ section_id }} .cs-image-wrap img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+  }
+
+  /* ── Text blocks ── */
+  #{{ section_id }} .cs-text {
+    margin: 0;
+    font-size: 15px;
+    line-height: 1.7;
+    color: #374151;
+  }
+
+  /* ── Callout block ── */
+  #{{ section_id }} .cs-callout {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    border: 1px solid #E5E7EB;
+    border-radius: 10px;
+    padding: 16px 20px;
+    background: #fff;
+  }
+
+  #{{ section_id }} .cs-callout__header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  #{{ section_id }} .cs-callout__icon {
+    flex-shrink: 0;
+    width: 20px;
+    height: 20px;
+  }
+
+  #{{ section_id }} .cs-callout__label {
+    font-size: 15px;
+    font-weight: 700;
+    color: #111827;
+    margin: 0;
+  }
+
+  #{{ section_id }} .cs-callout__desc {
+    font-size: 14px;
+    line-height: 1.6;
+    color: #6B7280;
+    margin: 0;
+  }
+
+  /* ── Mobile ── */
+  @media (max-width: 767px) {
+    #{{ section_id }} .cs-container {
+      flex-direction: column;
+    }
+
+    #{{ section_id }} .cs-content {
+      width: 100%;
+      padding: 32px 24px;
+      order: 1;
+    }
+
+    #{{ section_id }} .cs-image-wrap {
+      width: 100%;
+      order: 2;
+      min-height: 260px;
+    }
+  }
+</style>
+
+<section
+  id="{{ section_id }}"
+  class="club-story{{ custom_class }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="club-story"
+>
+  <div class="container">
+    <div class="cs-container">
+
+      {%- comment -%} Left: text blocks {%- endcomment -%}
+      <div class="cs-content">
+        {%- for block in section.blocks -%}
+          {%- case block.type -%}
+
+            {%- when 'heading' -%}
+              {%- if block.settings.heading != blank -%}
+                <motion-element
+                  data-motion="{{ animation_effect }}"
+                  data-motion-delay="{{ forloop.index | times: 50 }}"
+                  class="block"
+                  {{ block.shopify_attributes }}
+                >
+                  <{{ block.settings.heading_tag }} class="cs-heading {{ block.settings.heading_size }}">
+                    {%- render 'highlight-text',
+                      hl_text: block.settings.heading,
+                      hl_style: block.settings.highlight_style,
+                      enable_hl_text_color: block.settings.enable_highlight_text_color
+                    -%}
+                  </{{ block.settings.heading_tag }}>
+                </motion-element>
+              {%- endif -%}
+
+            {%- when 'text' -%}
+              {%- if block.settings.text != blank -%}
+                <motion-element
+                  data-motion="{{ animation_effect }}"
+                  data-motion-delay="{{ forloop.index | times: 50 }}"
+                  class="block"
+                  {{ block.shopify_attributes }}
+                >
+                  <div class="cs-text rte">{{ block.settings.text }}</div>
+                </motion-element>
+              {%- endif -%}
+
+            {%- when 'callout' -%}
+              {%- if block.settings.label != blank -%}
+                <motion-element
+                  data-motion="{{ animation_effect }}"
+                  data-motion-delay="{{ forloop.index | times: 50 }}"
+                  class="block"
+                  {{ block.shopify_attributes }}
+                >
+                  <div class="cs-callout">
+                    <div class="cs-callout__header">
+                      <svg class="cs-callout__icon" width="20" height="20" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M7.0177 0.863252C7.04692 0.804226 7.09205 0.754541 7.14801 0.719802C7.20396 0.685064 7.26851 0.666656 7.33437 0.666656C7.40023 0.666656 7.46478 0.685064 7.52074 0.719802C7.57669 0.754541 7.62182 0.804226 7.65104 0.863252L9.19104 3.98259C9.29249 4.1879 9.44225 4.36552 9.62745 4.50022C9.81266 4.63492 10.0278 4.72266 10.2544 4.75592L13.6984 5.25992C13.7636 5.26937 13.8249 5.2969 13.8754 5.33939C13.9258 5.38187 13.9633 5.43762 13.9837 5.50032C14.0041 5.56303 14.0066 5.63019 13.9908 5.69421C13.975 5.75823 13.9416 5.81655 13.8944 5.86259L11.4037 8.28792C11.2394 8.44799 11.1166 8.64557 11.0456 8.86367C10.9746 9.08177 10.9577 9.31385 10.9964 9.53992L11.5844 12.9666C11.5959 13.0318 11.5888 13.099 11.564 13.1604C11.5392 13.2218 11.4977 13.275 11.4441 13.3139C11.3905 13.3528 11.327 13.3759 11.2609 13.3805C11.1949 13.3851 11.1288 13.371 11.0704 13.3399L7.9917 11.7213C7.78885 11.6147 7.56316 11.5591 7.33404 11.5591C7.10492 11.5591 6.87923 11.6147 6.67637 11.7213L3.59837 13.3399C3.53992 13.3709 3.47397 13.3848 3.408 13.3801C3.34204 13.3754 3.27872 13.3523 3.22523 13.3134C3.17175 13.2745 3.13026 13.2214 3.10547 13.1601C3.08069 13.0988 3.07361 13.0317 3.08504 12.9666L3.67237 9.54059C3.71117 9.31441 3.69436 9.08218 3.6234 8.86395C3.55243 8.64572 3.42944 8.44802 3.26504 8.28792L0.77437 5.86325C0.726766 5.81727 0.693033 5.75885 0.677012 5.69464C0.660991 5.63042 0.663328 5.563 0.683756 5.50005C0.704184 5.4371 0.741882 5.38115 0.792555 5.33857C0.843228 5.296 0.904839 5.26852 0.97037 5.25925L4.4137 4.75592C4.64054 4.72292 4.85596 4.63529 5.04143 4.50058C5.22689 4.36586 5.37684 4.1881 5.47837 3.98259L7.0177 0.863252Z" fill="#FDC700" stroke="#FDC700" stroke-width="1.33333" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <p class="cs-callout__label">{{ block.settings.label | escape }}</p>
+                    </div>
+                    {%- if block.settings.description != blank -%}
+                      <p class="cs-callout__desc">{{ block.settings.description | escape }}</p>
+                    {%- endif -%}
+                  </div>
+                </motion-element>
+              {%- endif -%}
+
+          {%- endcase -%}
+        {%- endfor -%}
+      </div>
+
+      {%- comment -%} Right: image {%- endcomment -%}
+      <div class="cs-image-wrap">
+        {%- if image != blank -%}
+          <picture>
+            {%- if image_mobile != blank -%}
+              <source media="(max-width: 767px)" srcset="{{ image_mobile | image_url: width: 800 }}">
+            {%- endif -%}
+            {%- assign img_sizes = '(max-width: 767px) 100vw, ' | append: image_width | append: 'vw' -%}
+            {{
+              image
+              | image_url: width: 1400
+              | image_tag:
+                loading: 'lazy',
+                widths: '400, 600, 800, 1000, 1200, 1400',
+                sizes: img_sizes,
+                alt: image.alt
+            }}
+          </picture>
+        {%- else -%}
+          {{ 'image' | placeholder_svg_tag: 'placeholder-svg' }}
+        {%- endif -%}
+      </div>
+
+    </div>
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Club Story",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "header",
+      "content": "Container"
+    },
+    {
+      "type": "color",
+      "id": "container_bg",
+      "label": "Container Background Color",
+      "default": "#F9FAFB"
+    },
+    {
+      "type": "header",
+      "content": "Image"
+    },
+    {
+      "type": "image_picker",
+      "id": "image",
+      "label": "Image (Desktop)"
+    },
+    {
+      "type": "image_picker",
+      "id": "image_mobile",
+      "label": "Image (Mobile)",
+      "info": "Optional. Shown on screens 767px and below."
+    },
+    {
+      "type": "range",
+      "id": "image_width",
+      "label": "Image Width (Desktop)",
+      "min": 20,
+      "max": 80,
+      "step": 5,
+      "unit": "%",
+      "default": 50,
+      "info": "Percentage of the container width the image takes up. Text fills the rest."
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 40,
+      "min": 0,
+      "max": 120,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        { "value": "inherit", "label": "t:settings_schema.animations.settings.animation.options.option_6" },
+        { "value": "fade-in", "label": "t:settings_schema.animations.settings.animation.options.option_2" },
+        { "value": "fade-in-up", "label": "t:settings_schema.animations.settings.animation.options.option_3" },
+        { "value": "fade-in-left", "label": "t:settings_schema.animations.settings.animation.options.option_4" },
+        { "value": "fade-in-right", "label": "t:settings_schema.animations.settings.animation.options.option_5" }
+      ]
+    }
+  ],
+  "blocks": [
+    {
+      "type": "heading",
+      "name": "Heading",
+      "settings": [
+        {
+          "type": "inline_richtext",
+          "id": "heading",
+          "label": "Heading",
+          "default": "The Story of Royal St George's Golf Club"
+        },
+        {
+          "type": "select",
+          "id": "highlight_style",
+          "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+          "options": [
+            { "value": "none", "label": "t:sections.common.highlight_text.settings.highlight_style.option__1" },
+            { "value": "drawer_line", "label": "t:sections.common.highlight_text.settings.highlight_style.option__2" },
+            { "value": "underline", "label": "t:sections.common.highlight_text.settings.highlight_style.option__3" }
+          ],
+          "default": "none"
+        },
+        {
+          "type": "checkbox",
+          "id": "enable_highlight_text_color",
+          "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+        },
+        {
+          "type": "select",
+          "id": "heading_tag",
+          "label": "t:sections.common.title_tag.heading.label",
+          "default": "h2",
+          "options": [
+            { "value": "h1", "label": "H1" },
+            { "value": "h2", "label": "H2" },
+            { "value": "h3", "label": "H3" },
+            { "value": "h4", "label": "H4" },
+            { "value": "h5", "label": "H5" },
+            { "value": "h6", "label": "H6" }
+          ]
+        },
+        {
+          "type": "select",
+          "id": "heading_size",
+          "label": "t:sections.common.text_size.heading.label",
+          "default": "h2",
+          "options": [
+            { "value": "h3", "label": "t:sections.common.text_size.options__h3.label" },
+            { "value": "h2", "label": "t:sections.common.text_size.options__h2.label" },
+            { "value": "h1", "label": "t:sections.common.text_size.options__h1.label" },
+            { "value": "h0", "label": "t:sections.common.text_size.options__h0.label" },
+            { "value": "h-xl", "label": "t:sections.common.text_size.options__hd1.label" }
+          ]
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "name": "Text",
+      "settings": [
+        {
+          "type": "richtext",
+          "id": "text",
+          "label": "Text",
+          "default": "<p>Royal St George's was the first English course to host the Open Championship and is the fourth most used Open venue after St Andrews, Prestwick and Muirfield.</p>"
+        }
+      ]
+    },
+    {
+      "type": "callout",
+      "name": "Callout",
+      "settings": [
+        {
+          "type": "text",
+          "id": "label",
+          "label": "Label",
+          "default": "World Ranking"
+        },
+        {
+          "type": "text",
+          "id": "description",
+          "label": "Description",
+          "default": "Consistently ranked among the top golf courses globally by Top100Courses.com"
+        }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Club Story",
+      "blocks": [
+        { "type": "heading" },
+        { "type": "text" },
+        { "type": "callout" }
+      ]
+    }
+  ]
+}
+{% endschema %}

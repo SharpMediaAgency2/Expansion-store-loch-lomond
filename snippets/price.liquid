@@ -1,0 +1,120 @@
+{% comment %}
+    Renders a list of product's price (regular, sale)
+
+    Accepts:
+    - product: {Object} Product Liquid object (optional)
+    - use_variant: {Boolean} Renders selected or first variant price instead of overall product pricing (optional)
+    - show_badges: {Boolean} Renders 'Sale' and 'Sold Out' tags if the product matches the condition (optional)
+    - price_class: {String} Adds a price class to the price element (optional)
+
+    Usage:
+    {% render 'price', product: product %}
+{% endcomment %}
+{%- liquid
+  assign selected_variant = product.selected_or_first_available_variant
+  if use_variant
+    assign target = selected_variant
+  else
+    assign target = product
+  endif
+
+  assign compare_at_price = target.compare_at_price
+  assign price = target.price | default: 1999
+  assign available = target.available | default: false
+  assign money_price = price | money
+  if settings.currency_code_enabled
+    assign money_price = price | money_with_currency
+  endif
+  if target == product and product.price_varies
+    assign money_price = 'products.product.price.from_price_html' | t: price: money_price
+  endif
+-%}
+
+<div class="f-price
+  {%- if alignment %} f-price--{{ alignment }}{% endif -%}
+  {%- if price_class %} {{ price_class }}{% endif -%}
+  {%- if available == false %} f-price--sold-out {% endif -%}
+  {%- if compare_at_price > price %} f-price--on-sale {% endif -%}
+  {%- if target.price_varies == false and target.compare_at_price_varies %} f-price--no-compare{% endif -%}">
+  {%- comment -%}
+      Explanation of description list:
+        - div.price__regular: Displayed when there are no variants on sale
+        - div.price__sale: Displayed when a variant is a sale
+    {%- endcomment -%}
+  <div class="f-price__regular">
+    <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.regular_price' | t }}</span>
+    <span class="f-price-item f-price-item--regular">
+        {{ money_price }}
+      </span>
+  </div>
+  <div class="f-price__sale">
+    <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.sale_price' | t }}</span>
+    <span class="f-price-item f-price-item--sale">
+        {{ money_price }}
+      </span>
+    {%- unless target.price_varies == false and target.compare_at_price_varies %}
+      <span class="visually-hidden visually-hidden--inline">{{ 'products.product.price.regular_price' | t }}</span>
+      <span>
+          <s class="f-price-item f-price-item--regular">
+            {% if settings.currency_code_enabled %}
+              {{ compare_at_price | money_with_currency }}
+            {% else %}
+              {{ compare_at_price | money }}
+            {% endif %}
+          </s>
+        </span>
+    {%- endunless -%}
+  </div>
+  <div class="f-price__unit-wrapper{% if selected_variant.unit_price_measurement == nil %} hidden{% endif %}">
+    <span class="visually-hidden">{{ 'products.product.price.unit_price' | t }}</span>
+    <div class="f-price__unit">
+      {%- capture unit_price_separator -%}
+        <span aria-hidden="true">/</span><span class="visually-hidden">{{ 'accessibility.unit_price_separator' | t }}&nbsp;</span>
+      {%- endcapture -%}
+      {%- capture unit_price_base_unit -%}
+        <span data-unit-price-base-unit>
+            {%- if selected_variant.unit_price_measurement -%}
+              {%- if selected_variant.unit_price_measurement.reference_value != 1 -%}
+                {{- selected_variant.unit_price_measurement.reference_value -}}
+              {%- endif -%}
+              {{ selected_variant.unit_price_measurement.reference_unit }}
+            {%- endif -%}
+          </span>
+      {%- endcapture -%}
+      <span data-unit-price>{{ selected_variant.unit_price | money }}</span>{{- unit_price_separator -}}{{- unit_price_base_unit -}}
+    </div>
+  </div>
+
+  {% if show_sale_badge or show_soldout_badge %}
+    <div class="f-price__badges">
+      {% if show_sale_badge %}
+        {% liquid
+          assign sale_badge = ''
+          assign amount = 0
+          case sale_badge_type
+            when 'percentage'
+              if compare_at_price > price
+                assign amount = compare_at_price | minus: price | times: 100 | divided_by: compare_at_price | append: '%'
+              endif
+              assign sale_badge = 'products.product.price.save_price_html' | t: amount: amount
+            when 'fixed_amount'
+              if compare_at_price > price
+                assign amount = compare_at_price | minus: price | money
+              endif
+              assign sale_badge = 'products.product.price.save_price_html' | t: amount: amount
+            else
+              assign sale_badge = 'products.product.on_sale' | t
+          endcase
+        %}
+        <div class="f-price__badge-sale" data-type="{{ sale_badge_type }}">
+          <span class="f-badge f-badge--sale">{{ sale_badge }}</span>
+        </div>
+      {% endif %}
+      {% if show_soldout_badge %}
+        <div class="f-price__badge-sold-out">
+          <span class="f-badge f-badge--soldout">{{ 'products.product.sold_out' | t }}</span>
+        </div>
+      {% endif %}
+    </div>
+  {% endif %}
+</div>

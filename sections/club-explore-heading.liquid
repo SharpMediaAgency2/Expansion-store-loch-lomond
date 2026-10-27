@@ -1,0 +1,182 @@
+{%- liquid
+  assign section_id = section.settings.custom_id | default: section.id
+  assign custom_class = section.settings.custom_class
+  unless custom_class == blank
+    assign custom_class = custom_class | prepend: ' '
+  endunless
+
+  assign animation_effect = settings.animations
+  if animation_effect != 'none' and section.settings.animations != 'inherit'
+    assign animation_effect = section.settings.animations
+  endif
+-%}
+
+<style>
+  #{{ section_id }} {
+    padding-top: {{ section.settings.padding_top }}px;
+    padding-bottom: {{ section.settings.padding_bottom }}px;
+    border-bottom: 1px solid #E5E7EB;
+  }
+
+  #{{ section_id }} .ph-heading {
+    margin: 0 0 8px;
+    font-size:clamp(24px, 3.5vw, 36px);
+  }
+
+  #{{ section_id }} .ph-subtext {
+    margin: 0;
+    font-size: 14px;
+    line-height: 1.6;
+    color: #6B7280;
+  }
+</style>
+
+<section
+  id="{{ section_id }}"
+  class="page-header{{ custom_class }}"
+  data-section-id="{{ section.id }}"
+  data-section-type="page-header"
+>
+  <div class="container">
+    {%- if section.settings.heading != blank -%}
+      <motion-element data-motion="{{ animation_effect }}" data-motion-delay="0" class="block">
+        <{{ section.settings.heading_tag }} class="ph-heading {{ section.settings.heading_size }}">
+          {%- render 'highlight-text',
+            hl_text: section.settings.heading,
+            hl_style: section.settings.highlight_style,
+            enable_hl_text_color: section.settings.enable_highlight_text_color
+          -%}
+        </{{ section.settings.heading_tag }}>
+      </motion-element>
+    {%- endif -%}
+    {%- if section.settings.subtext != blank -%}
+      <motion-element data-motion="{{ animation_effect }}" data-motion-delay="50" class="block">
+        <p class="ph-subtext">{{ section.settings.subtext | escape }}</p>
+      </motion-element>
+    {%- endif -%}
+  </div>
+</section>
+
+{% schema %}
+{
+  "name": "Page Header",
+  "disabled_on": {
+    "groups": ["header", "footer"]
+  },
+  "settings": [
+    {
+      "type": "inline_richtext",
+      "id": "heading",
+      "label": "Heading",
+      "default": "Explore Partner Clubs"
+    },
+    {
+      "type": "select",
+      "id": "highlight_style",
+      "label": "t:sections.common.highlight_text.settings.highlight_style.label",
+      "options": [
+        { "value": "none", "label": "t:sections.common.highlight_text.settings.highlight_style.option__1" },
+        { "value": "drawer_line", "label": "t:sections.common.highlight_text.settings.highlight_style.option__2" },
+        { "value": "underline", "label": "t:sections.common.highlight_text.settings.highlight_style.option__3" }
+      ],
+      "default": "none"
+    },
+    {
+      "type": "checkbox",
+      "id": "enable_highlight_text_color",
+      "label": "t:sections.common.highlight_text.settings.enable_highlight_text_color.label"
+    },
+    {
+      "type": "select",
+      "id": "heading_tag",
+      "label": "t:sections.common.title_tag.heading.label",
+      "default": "h1",
+      "options": [
+        { "value": "h1", "label": "H1" },
+        { "value": "h2", "label": "H2" },
+        { "value": "h3", "label": "H3" },
+        { "value": "h4", "label": "H4" }
+      ]
+    },
+    {
+      "type": "select",
+      "id": "heading_size",
+      "label": "t:sections.common.text_size.heading.label",
+      "default": "h1",
+      "options": [
+        { "value": "h3", "label": "t:sections.common.text_size.options__h3.label" },
+        { "value": "h2", "label": "t:sections.common.text_size.options__h2.label" },
+        { "value": "h1", "label": "t:sections.common.text_size.options__h1.label" },
+        { "value": "h0", "label": "t:sections.common.text_size.options__h0.label" },
+        { "value": "h-xl", "label": "t:sections.common.text_size.options__hd1.label" }
+      ]
+    },
+    {
+      "type": "text",
+      "id": "subtext",
+      "label": "Subtext",
+      "default": "Discover exclusive collections from the world's most prestigious golf courses"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.section_padding.content"
+    },
+    {
+      "type": "range",
+      "id": "padding_top",
+      "label": "t:sections.common.section_padding.top_padding.label",
+      "default": 28,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "range",
+      "id": "padding_bottom",
+      "label": "t:sections.common.section_padding.bottom_padding.label",
+      "default": 28,
+      "min": 0,
+      "max": 100,
+      "step": 4,
+      "unit": "px"
+    },
+    {
+      "type": "header",
+      "content": "t:sections.common.custom_attr.header"
+    },
+    {
+      "type": "text",
+      "id": "custom_id",
+      "label": "t:sections.common.custom_attr.custom_id"
+    },
+    {
+      "type": "text",
+      "id": "custom_class",
+      "label": "t:sections.common.custom_attr.custom_class"
+    },
+    {
+      "type": "header",
+      "content": "t:settings_schema.animations.header.content"
+    },
+    {
+      "type": "select",
+      "id": "animations",
+      "label": "t:settings_schema.animations.header__2.content",
+      "default": "inherit",
+      "options": [
+        { "value": "inherit", "label": "t:settings_schema.animations.settings.animation.options.option_6" },
+        { "value": "fade-in", "label": "t:settings_schema.animations.settings.animation.options.option_2" },
+        { "value": "fade-in-up", "label": "t:settings_schema.animations.settings.animation.options.option_3" },
+        { "value": "fade-in-left", "label": "t:settings_schema.animations.settings.animation.options.option_4" },
+        { "value": "fade-in-right", "label": "t:settings_schema.animations.settings.animation.options.option_5" }
+      ]
+    }
+  ],
+  "presets": [
+    {
+      "name": "Page Header"
+    }
+  ]
+}
+{% endschema %}

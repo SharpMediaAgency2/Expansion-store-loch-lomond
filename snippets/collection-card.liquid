@@ -1,0 +1,159 @@
+{%- liquid
+  assign collection_image = blank
+  if image != blank
+    assign collection_image = image
+  else
+    if collection.image
+      assign collection_image = collection.image
+    elsif collection.products.first and collection.products.first.images != empty
+      assign collection_image = collection.products.first.featured_image
+    else
+      assign collection_image = blank
+    endif
+  endif
+
+  assign inline_count_text = ''
+
+  if inline_count
+    assign inline_count_text = 'inline-count'
+  endif
+
+  assign aspect_ratio = image_ratio | default: '1/1'
+  assign collection_title = title | default: collection.title
+
+  assign loading = 'lazy'
+  assign fetchpriority = 'low'
+  if section.index < 2 and index == 1
+    assign loading = 'eager'
+    assign fetchpriority = 'high'
+  endif
+
+  assign is_content_inside = false
+  if card_style == '2' or card_style == '3' or card_style == '4'
+    assign is_content_inside = true
+  endif
+-%}
+<div class="f-column">
+  <div class="block grid-list__column">
+    <div
+      class="collection-card collection-card--style-{{ card_style }} text-{{ text_alignment | default: 'center' }} f-image-hover-effect__{{ settings.image_hover_effect }}"
+      style="--text-color: {{ text_color }};"
+    >
+      <div class="collection-card__image-wrapper f-card overflow-hidden">
+        <a
+          title="{{ collection.title }}"
+          href="{{ collection.url | default: "#" }}"
+          class="collection-card__wrapper"
+        >
+          {% unless collection_image == blank %}
+            {%- liquid
+              assign image_height = collection_image.width | divided_by: collection_image.aspect_ratio
+              if aspect_ratio == 'adapt'
+                assign aspect_ratio = collection_image.aspect_ratio
+              endif
+            -%}
+            <div
+              class="f-image collection-card__image"
+              style="--aspect-ratio: {{ aspect_ratio }};"
+            >
+              {{
+                collection_image
+                | image_url: width: 1500
+                | image_tag:
+                  loading: loading,
+                  fetchpriority: fetchpriority,
+                  width: collection_image.width,
+                  height: image_height,
+                  sizes: '50vw',
+                  widths: '375, 550, 750, 1100, 1500, 1780, 2000, 3000, 3840',
+                  alt: collection_title
+              }}
+            </div>
+          {% else %}
+            {% liquid
+              if aspect_ratio == 'adapt'
+                assign aspect_ratio = '1/1'
+              endif
+            %}
+            <div
+              class="collection-card__image"
+              style="--aspect-ratio: {{ aspect_ratio }}"
+            >
+              {% capture current %}{% cycle 1, 2, 3 %}{% endcapture %}
+              {{
+                'collection-'
+                | append: current
+                | placeholder_svg_tag: 'placeholder-svg f-image'
+              }}
+            </div>
+          {% endunless %}
+        </a>
+      </div>
+      {%- assign default_label = 'onboarding.collection_title' | t -%}
+      <div class="collection-card__info{% if is_content_inside %} pointer-events-none{% endif %}">
+        <div class="collection-card__info--group {{ inline_count_text }}">
+          {%- unless is_content_inside -%}
+            <a href="{{ collection.url }}">
+          {%- endunless -%}
+          <h3 class="collection-card__title text-current {{ title_font }} {{ title_size | default: 'h6' }}{% if card_style == '6' %} justify-{{ text_alignment | replace: 'left', 'start' | replace: 'right', 'end' }}{% endif %}">
+            {{ collection_title | default: default_label }}
+            {% if card_style == '6' %}
+              <svg
+                width="14"
+                height="15"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+              >
+                <path fill="none" d="M0 .75h14v14H0z"/>
+                <path d="M2.188 7.75h9.624M7.875 3.813l3.938 3.937-3.938 3.938" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                <path fill="none" transform="translate(0 .75)" d="M0 0h14v14H0z"/>
+              </svg>
+            {% endif %}
+          </h3>
+          {%- unless is_content_inside -%}
+            </a>
+          {%- endunless -%}
+          {% if show_count %}
+            {% assign product_count = collection.all_products_count
+              | default: 2
+            %}
+            <div class="collection-card__number-count text-subtext">
+              {{
+                'sections.collection_list.product_count'
+                | t: count: product_count
+              }}
+            </div>
+          {% endif %}
+        </div>
+        {% if card_style == '4' %}
+          <button
+            class="btn btn--white btn--icon justify-center items-center"
+            aria-label="{{ title | default: collection.title }}"
+          >
+            <svg
+              class="f-icon-svg f-icon-svg--small"
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 16 16"
+              fill="none"
+            >
+              <path
+                d="M2.5 8H13.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+              <path
+                d="M9 3.5L13.5 8L9 12.5"
+                stroke="currentColor"
+                stroke-width="1.5"
+                stroke-linecap="round"
+                stroke-linejoin="round" />
+            </svg>
+          </button>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
