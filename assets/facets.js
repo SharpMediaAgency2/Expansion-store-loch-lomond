@@ -194,11 +194,24 @@ class FacetFiltersForm extends HTMLElement {
       );
       this.onSubmitForm(searchParams, event);
     } else {
-      const forms = [];
+      const params = new URLSearchParams();
+      let sortBy =
+        event.target && event.target.name === "sort_by"
+          ? event.target.value
+          : null;
       sortFilterForms.forEach((form) => {
-        forms.push(this.createSearchParams(form));
+        new URLSearchParams(this.createSearchParams(form)).forEach(
+          (value, key) => {
+            if (key === "sort_by") {
+              if (sortBy === null) sortBy = value;
+              return;
+            }
+            params.append(key, value);
+          }
+        );
       });
-      this.onSubmitForm(forms.join("&"), event);
+      if (sortBy !== null) params.append("sort_by", sortBy);
+      this.onSubmitForm(params.toString(), event);
     }
   }
 
