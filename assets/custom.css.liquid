@@ -416,3 +416,12 @@ collection-tabs .collapsible__button-text.h4 {
   order: 10;
   margin: 0;
 }
+
+/* SM: mobile filter height fix */
+/* panel height follows its content (no forced full-screen height) */
+@media (max-width: 1024px) {
+  #ProductGridContainer[data-sidebar-position="top"] .f-drawer-facets,
+  #ProductGridContainer[data-sidebar-position="top"] .f-drawer-facets .f-drawer__content {
+    min-height: 0 !important;
+  }
+}
