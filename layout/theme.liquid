@@ -774,9 +774,7 @@ function addToWishlistByHandle(button) {
   }
 
   window.addEventListener('pageshow', reset);
-  ['collection:rerendered', 'search:rerendered', 'shopify:section:load'].forEach(function (evt) {
-    document.addEventListener(evt, function () { setTimeout(reset, 50); });
-  });
+  document.addEventListener('shopify:section:load', function () { setTimeout(reset, 50); });
 
   document.addEventListener('click', function (e) {
     if (window.innerWidth > MOBILE) return;
