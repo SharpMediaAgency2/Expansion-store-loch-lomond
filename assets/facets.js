@@ -38,11 +38,19 @@ class FacetFiltersForm extends HTMLElement {
         : FacetFiltersForm.renderSectionFromFetch(url, event);
     });
 
-    window.scroll({
-      top: FacetFiltersForm.section.offsetTop - 100,
-      left: 0,
-      behavior: "smooth",
-    });
+    const filtersPanelOpen =
+      FacetFiltersForm.section &&
+      FacetFiltersForm.section.getAttribute("data-filters-open") === "true";
+    const sectionTopOffScreen =
+      FacetFiltersForm.section &&
+      FacetFiltersForm.section.getBoundingClientRect().top < 0;
+    if (!filtersPanelOpen && sectionTopOffScreen) {
+      window.scroll({
+        top: FacetFiltersForm.section.offsetTop - 100,
+        left: 0,
+        behavior: "smooth",
+      });
+    }
     FacetFiltersForm.loading.finish();
 
     if (updateURLHash) FacetFiltersForm.updateURLHash(searchParams);
