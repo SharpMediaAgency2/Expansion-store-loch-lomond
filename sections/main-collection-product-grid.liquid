@@ -53,6 +53,7 @@
       width: 100% !important;
       max-width: none !important;
       height: auto !important;
+      min-height: 0 !important;
       z-index: auto !important;
     }
     [data-sidebar-position="top"] .f-drawer-facets[hidden] {
@@ -68,6 +69,7 @@
     [data-sidebar-position="top"] .f-drawer-facets .f-drawer__content {
       width: 100% !important;
       height: auto !important;
+      min-height: 0 !important;
       max-height: none !important;
       transform: none !important;
       background: transparent !important;
@@ -144,6 +146,9 @@
     }
     .f-checkbox .checkmark {
       margin-right: 0px !important;
+    }
+    #ProductGridContainer {
+      overflow-anchor: none;
     }
     .f-drawer-facets .scroll-container { border-top: unset !important; }
 
@@ -1015,12 +1020,10 @@
         }
 
         document.addEventListener('collection:rerendered', function () {
-          setTimeout(function () {
-            injectViewAllButtons();
-            if (window.innerWidth <= 1024 || container.getAttribute('data-view-all') === 'true') {
-              syncActiveFacetsClone();
-            }
-          }, 50);
+          injectViewAllButtons();
+          if (window.innerWidth <= 1024 || container.getAttribute('data-view-all') === 'true') {
+            syncActiveFacetsClone();
+          }
         });
 
         document.addEventListener('search:rerendered', function () {
@@ -1104,7 +1107,8 @@
                First visible filter block starts expanded. */
             if (!block.__fcMobileInit) {
               block.__fcMobileInit = true;
-              var startOpen = (block === firstFilterBlock);
+              var savedOpen = container.__fcOpenGroups && container.__fcOpenGroups[block.dataset.index];
+              var startOpen = (savedOpen !== undefined) ? savedOpen : (block === firstFilterBlock);
               content.setAttribute('aria-hidden', startOpen ? 'false' : 'true');
               header.setAttribute('aria-expanded', startOpen ? 'true' : 'false');
               if (startOpen) block.classList.add('is-open');
@@ -1147,6 +1151,8 @@
                 content.setAttribute('aria-hidden', isOpen ? 'true' : 'false');
                 header.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
                 block.classList.toggle('is-open', !isOpen);
+                container.__fcOpenGroups = container.__fcOpenGroups || {};
+                container.__fcOpenGroups[block.dataset.index] = !isOpen;
               });
             }
           });
@@ -1196,19 +1202,14 @@
           setTimeout(ensureFirstBlockOpen, delay);
         });
         document.addEventListener('collection:rerendered', function () {
-          setTimeout(function () {
-            initMobileAccordion();
-            renameShowMoreButtons();
-            /* Fresh facets DOM after a rerender — restore the default. */
-            container.__fcUserToggled = false;
-            ensureFirstBlockOpen();
-          }, 50);
+          initMobileAccordion();
+          renameShowMoreButtons();
+          ensureFirstBlockOpen();
         });
         document.addEventListener('search:rerendered', function () {
           setTimeout(function () {
             initMobileAccordion();
             renameShowMoreButtons();
-            container.__fcUserToggled = false;
             ensureFirstBlockOpen();
           }, 50);
         });
@@ -1269,9 +1270,7 @@
   }
 
   setTimeout(stackGenderAvail, 200);
-  document.addEventListener('collection:rerendered', function() {
-    setTimeout(stackGenderAvail, 50);
-  });
+  document.addEventListener('collection:rerendered', stackGenderAvail);
 })();
 </script>
 {% endif %}
