@@ -64,6 +64,13 @@
     gap: 16px;
     width: 100%;
   }
+
+  @media screen and (max-width: 768px) {
+    .pt-block {
+    gap: 12px;
+  }
+}
+
   .pt-block__left {
     display: flex;
     flex-direction: column;
@@ -119,6 +126,38 @@
     line-height: 1.1;
     color: var(--color-foreground);
     margin: 0;
+  }
+  .pt-block__price-wrap {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: baseline;
+    justify-content: flex-end;
+    gap: 0 8px;
+  }
+  .pt-block__price.pt-block__compare-price {
+    color: #787878 !important;
+    text-decoration: line-through;
+    font-size: 24px !important;
+  }
+  .pt-block__price.pt-block__compare-price[hidden] {
+    display: none;
+  }
+  @media screen and (max-width: 768px) {
+    .pt-block__price-wrap {
+      flex-direction: column-reverse;
+      align-items: flex-end;
+      gap: 0;
+      padding-top: 0.45rem;     
+    }
+    .pt-block__price.pt-block__compare-price {
+      font-size: 1.2rem !important;
+    }
+    .pt-block.mobile_only {
+      align-items: flex-start;
+    }
+    .pt-block__price-wrap:has(.pt-block__compare-price[hidden]) {
+      padding-top: 0.5rem;
+    }
   }
   .pt-block__stars {
     display: flex;
@@ -240,9 +279,9 @@
       style="--column-gap: 4rem;--row-gap-mobile: 2.4rem;"
     >
       {% if section.settings.move_title_price_mobile %}
-        {%- liquid
-          assign pt_rating = product.metafields.app--2519111--reviews.review_average_rating.value
-          assign pt_count  = product.metafields.app--2519111--reviews.review_count.value
+        {%- liquid 
+          assign pt_rating = product.metafields.reviews.rating.value
+          assign pt_count  = product.metafields.reviews.rating_count
         -%}
           <div class="f-product-single__block f-product-single__block--price-title pt-block mobile_only" {{ block.shopify_attributes }}>
             <div class="pt-block__left">
@@ -252,20 +291,17 @@
               
             </div>
             <div class="pt-block__right">
-              <p class="pt-block__price">{{ product.selected_or_first_available_variant.price | money }}</p>
-              {%- if pt_rating != blank -%}
-                 <a href="#yotpo-headline-reviews">
-                <div class="pt-block__stars">
-                  <span class="pt-block__star-icon"><svg width="17" height="16" viewBox="0 0 17 16" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M8.5 11.2842V3.45263L9.9535 6.84632L13.6765 7.15789L10.8545 9.59158L11.696 13.1958L8.5 11.2842ZM17 6.09684L10.8885 5.58316L8.5 0L6.1115 5.58316L0 6.09684L4.6325 10.08L3.247 16L8.5 12.8589L13.753 16L12.359 10.08L17 6.09684Z" fill="#FCD34D"/>
-                  </svg></span>
-                  <span class="pt-block__rating-value">{{ pt_rating | round: 1 }}</span>
-                  {%- if pt_count != blank -%}
-                    <span class="pt-block__rating-count">({{ pt_count }})</span>
-                  {%- endif -%}
-                </div>
-              </a>
-              {%- endif -%}
+              {%- liquid
+                assign pt_variant = product.selected_or_first_available_variant
+                assign pt_on_sale = false
+                if pt_variant.compare_at_price > pt_variant.price
+                  assign pt_on_sale = true
+                endif
+              -%}
+              <div class="pt-block__price-wrap">
+                <p class="pt-block__price pt-block__compare-price"{% unless pt_on_sale %} hidden{% endunless %}>{% if pt_on_sale %}{{ pt_variant.compare_at_price | money }}{% endif %}</p>
+                <p class="pt-block__price">{{ pt_variant.price | money }}</p>
+              </div>
             </div>
           </div>
         {% comment %} Removing Title & Price from Below{% endcomment %}
@@ -631,9 +667,26 @@ document.addEventListener('variant:changed', function(evt) {
   const priceElement = document.querySelector('.product-header.mobile_only .right-side');
   if (priceElement) priceElement.textContent = formattedPrice;
 
-  // Update price+title block price
-  const ptPrice = document.querySelector('.pt-block__price');
-  if (ptPrice) ptPrice.textContent = formattedPrice;
+  // Update price+title block price (desktop + mobile copies)
+  document.querySelectorAll('.pt-block__price:not(.pt-block__compare-price)').forEach(function (el) {
+    el.textContent = formattedPrice;
+  });
+
+  // Update compare-at price
+  const comparePrice = variant.compare_at_price;
+  const onSale = comparePrice && comparePrice > priceInCents;
+  let formattedCompare = '';
+  if (onSale) {
+    if (typeof Shopify !== 'undefined' && Shopify.formatMoney) {
+      formattedCompare = Shopify.formatMoney(comparePrice, theme.moneyFormat);
+    } else {
+      formattedCompare = '$' + (comparePrice / 100).toFixed(2);
+    }
+  }
+  document.querySelectorAll('.pt-block__compare-price').forEach(function (el) {
+    el.textContent = formattedCompare;
+    el.hidden = !onSale;
+  });
 });
 </script>
 <style type="text/css">
@@ -1253,6 +1306,7 @@ document.addEventListener('variant:changed', function(evt) {
         { "type": "paragraph", "content": "Example: tag__hot_-50% OFF, tag__new_NEW ARRIVAL" }
       ]
     }
+
   ],
   "settings": [
     { "type": "paragraph", "content": "t:sections.main-product.settings.tutorial.content" },
